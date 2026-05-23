@@ -44,7 +44,7 @@ Fidlot и Hissar используют **одинаковый шаблон кон
 | `investment_amount` | Balance (NEAR) | сумма в NEAR | сумма в NEAR |
 | `farmer_split_pct` | u8 | 60 | 60 |
 | `investor_split_pct` | u8 | 40 | 40 |
-| `escrow_pct` | u8 | 44 | **0 (эскроу не предусмотрен)** |
+| `escrow_pct` | u8 | 44 | **44** |
 | `performance_fee_pct` | u8 | 20 | 20 |
 | `cycle_duration_days` | u32 | 150 (5 мес) | **180 (6 мес)** |
 | `total_cycles` | u8 | 7 | **6** |
@@ -215,13 +215,13 @@ deal_type = "hissar"
 investment_amount = 50000 NEAR
 farmer_split_pct = 60
 investor_split_pct = 40
-escrow_pct = 0             (эскроу не предусмотрен для Hissar)
+escrow_pct = 44
 performance_fee_pct = 20
 cycle_duration_days = 180  (6 месяцев)
 total_cycles = 6
 capital_return_near = 20600 NEAR  (от продажи маточного стада после цикла 6)
 ```
 
-**Примечание Hissar:** С цикла 3 "плата за стадо" $2,500/цикл выплачивается инвестору
-ДО раздела прибыли 60/40. Admin учитывает это при отчёте — указывает чистую прибыль
-уже после вычета платы за стадо. Контракту дополнительная логика не нужна.
+**Примечание Hissar:** Эскроу 44% применяется так же как в Fidlot.
+С цикла 3 "плата за стадо" $2,500/цикл выплачивается инвестору ДО раздела прибыли 60/40.
+Admin учитывает это при отчёте — указывает чистую прибыль уже после вычета платы за стадо.
