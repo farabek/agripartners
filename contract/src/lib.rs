@@ -52,6 +52,33 @@ pub struct AgriPartnersContract {
     pub escrow_pool: u128,
 }
 
+impl Default for AgriPartnersContract {
+    fn default() -> Self {
+        let placeholder = "a".parse::<AccountId>().unwrap();
+        Self {
+            farmer: placeholder.clone(),
+            investor: placeholder.clone(),
+            admin: placeholder.clone(),
+            platform: placeholder,
+            deal_type: String::new(),
+            investment_amount: 0,
+            farmer_split_pct: 0,
+            investor_split_pct: 0,
+            escrow_pct: 0,
+            performance_fee_pct: 0,
+            cycle_duration_days: 0,
+            total_cycles: 0,
+            capital_return_near: 0,
+            status: ContractStatus::Initialized,
+            current_cycle: 0,
+            farmer_available: 0,
+            investor_available: 0,
+            platform_available: 0,
+            escrow_pool: 0,
+        }
+    }
+}
+
 #[near]
 impl AgriPartnersContract {
     #[init]

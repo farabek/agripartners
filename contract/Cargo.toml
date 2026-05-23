@@ -7,16 +7,12 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-near-sdk = "5.5.0"
+near-sdk = { version = "5.5.0", features = ["unit-testing"] }
 
 [dev-dependencies]
-near-workspaces = { version = "0.14" }
-tokio = { version = "1", features = ["full"] }
 serde_json = "1"
-
-[[test]]
-name = "integration"
-path = "tests/integration.rs"
+near-workspaces = { version = "0.22", default-features = false, features = ["interop_sdk"] }
+tokio = { version = "1", features = ["full"] }
 
 [profile.release]
 codegen-units = 1
