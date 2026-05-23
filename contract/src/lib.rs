@@ -188,6 +188,29 @@ impl AgriPartnersContract {
             self.status = ContractStatus::Completed;
         }
     }
+
+    pub fn withdraw(&mut self) -> Promise {
+        let caller = env::predecessor_account_id();
+        let amount = if caller == self.farmer {
+            let amt = self.farmer_available;
+            require!(amt > 0, "No balance to withdraw");
+            self.farmer_available = 0;
+            amt
+        } else if caller == self.investor {
+            let amt = self.investor_available;
+            require!(amt > 0, "No balance to withdraw");
+            self.investor_available = 0;
+            amt
+        } else if caller == self.platform {
+            let amt = self.platform_available;
+            require!(amt > 0, "No balance to withdraw");
+            self.platform_available = 0;
+            amt
+        } else {
+            env::panic_str("Unauthorized: only farmer, investor, or platform can withdraw");
+        };
+        Promise::new(caller).transfer(NearToken::from_yoctonear(amount))
+    }
 }
 
 #[cfg(test)]
@@ -202,7 +225,8 @@ mod tests {
 
     fn setup_context(predecessor: AccountId) {
         let mut ctx = VMContextBuilder::new();
-        ctx.predecessor_account_id(predecessor);
+        ctx.predecessor_account_id(predecessor)
+           .account_balance(NearToken::from_near(10_000));
         testing_env!(ctx.build());
     }
 
@@ -465,5 +489,63 @@ mod tests {
         // investor: 7x net profit + capital return
         assert_eq!(c.investor_available, investor_net_per_cycle * 7 + CAPITAL_RETURN);
         assert_eq!(c.platform_available, platform_fee * 7);
+    }
+
+    #[test]
+    fn test_withdraw_farmer_zeroes_balance() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        fund_contract(&mut c);
+        start_cycle(&mut c);
+        report_cycle(&mut c, PROFIT, 0);
+
+        let farmer_gross = PROFIT * 60 / 100;
+        let escrow = farmer_gross * 44 / 100;
+        let expected = farmer_gross - escrow;
+        assert_eq!(c.farmer_available, expected);
+
+        setup_context(accounts(0)); // farmer withdraws
+        c.withdraw();
+        assert_eq!(c.farmer_available, 0);
+    }
+
+    #[test]
+    fn test_withdraw_investor_zeroes_balance() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        fund_contract(&mut c);
+        start_cycle(&mut c);
+        report_cycle(&mut c, PROFIT, 0);
+
+        let investor_gross = PROFIT * 40 / 100;
+        let platform_fee = investor_gross * 20 / 100;
+        let expected = investor_gross - platform_fee;
+        assert_eq!(c.investor_available, expected);
+
+        setup_context(accounts(1)); // investor withdraws
+        c.withdraw();
+        assert_eq!(c.investor_available, 0);
+    }
+
+    #[test]
+    #[should_panic(expected = "No balance to withdraw")]
+    fn test_withdraw_zero_balance_panics() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        fund_contract(&mut c);
+        // No cycles run — farmer has zero balance
+        setup_context(accounts(0));
+        c.withdraw();
+    }
+
+    #[test]
+    #[should_panic(expected = "Unauthorized")]
+    fn test_withdraw_wrong_caller_panics() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        let mut ctx = VMContextBuilder::new();
+        ctx.predecessor_account_id("random.near".parse().unwrap());
+        testing_env!(ctx.build());
+        c.withdraw();
     }
 }
