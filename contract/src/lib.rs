@@ -211,6 +211,37 @@ impl AgriPartnersContract {
         };
         Promise::new(caller).transfer(NearToken::from_yoctonear(amount))
     }
+
+    pub fn get_status(&self) -> (ContractStatus, u8) {
+        (self.status.clone(), self.current_cycle)
+    }
+
+    pub fn get_balances(&self) -> (U128, U128, U128, U128) {
+        (
+            U128(self.farmer_available),
+            U128(self.investor_available),
+            U128(self.platform_available),
+            U128(self.escrow_pool),
+        )
+    }
+
+    pub fn get_params(&self) -> ContractParams {
+        ContractParams {
+            farmer: self.farmer.clone(),
+            investor: self.investor.clone(),
+            admin: self.admin.clone(),
+            platform: self.platform.clone(),
+            deal_type: self.deal_type.clone(),
+            investment_amount: U128(self.investment_amount),
+            farmer_split_pct: self.farmer_split_pct,
+            investor_split_pct: self.investor_split_pct,
+            escrow_pct: self.escrow_pct,
+            performance_fee_pct: self.performance_fee_pct,
+            cycle_duration_days: self.cycle_duration_days,
+            total_cycles: self.total_cycles,
+            capital_return_near: U128(self.capital_return_near),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -547,5 +578,41 @@ mod tests {
         ctx.predecessor_account_id("random.near".parse().unwrap());
         testing_env!(ctx.build());
         c.withdraw();
+    }
+
+    #[test]
+    fn test_get_status_initial() {
+        setup_context(accounts(0));
+        let c = new_contract();
+        let (status, cycle) = c.get_status();
+        assert_eq!(status, ContractStatus::Initialized);
+        assert_eq!(cycle, 0);
+    }
+
+    #[test]
+    fn test_get_balances_initial() {
+        setup_context(accounts(0));
+        let c = new_contract();
+        let (farmer, investor, platform, escrow) = c.get_balances();
+        assert_eq!(farmer.0, 0);
+        assert_eq!(investor.0, 0);
+        assert_eq!(platform.0, 0);
+        assert_eq!(escrow.0, 0);
+    }
+
+    #[test]
+    fn test_get_params_returns_config() {
+        setup_context(accounts(0));
+        let c = new_contract();
+        let p = c.get_params();
+        assert_eq!(p.deal_type, "fidlot");
+        assert_eq!(p.farmer_split_pct, 60);
+        assert_eq!(p.investor_split_pct, 40);
+        assert_eq!(p.escrow_pct, 44);
+        assert_eq!(p.performance_fee_pct, 20);
+        assert_eq!(p.cycle_duration_days, 150);
+        assert_eq!(p.total_cycles, 7);
+        assert_eq!(p.investment_amount.0, INVESTMENT);
+        assert_eq!(p.capital_return_near.0, CAPITAL_RETURN);
     }
 }
