@@ -44,11 +44,11 @@ Fidlot и Hissar используют **одинаковый шаблон кон
 | `investment_amount` | Balance (NEAR) | сумма в NEAR | сумма в NEAR |
 | `farmer_split_pct` | u8 | 60 | 60 |
 | `investor_split_pct` | u8 | 40 | 40 |
-| `escrow_pct` | u8 | 44 | настраивается |
+| `escrow_pct` | u8 | 44 | **0 (эскроу не предусмотрен)** |
 | `performance_fee_pct` | u8 | 20 | 20 |
-| `cycle_duration_days` | u32 | 150 (5 мес) | настраивается |
-| `total_cycles` | u8 | 7 | настраивается |
-| `capital_return_near` | Balance | ~$20,400 в NEAR | настраивается |
+| `cycle_duration_days` | u32 | 150 (5 мес) | **180 (6 мес)** |
+| `total_cycles` | u8 | 7 | **6** |
+| `capital_return_near` | Balance | ~$20,400 в NEAR | **~$20,600** (от продажи стада) |
 
 ---
 
@@ -212,11 +212,16 @@ investor = "investor2.testnet"
 admin = "agripartners.testnet"
 platform = "agripartners.testnet"
 deal_type = "hissar"
-investment_amount = [сумма]
+investment_amount = 50000 NEAR
 farmer_split_pct = 60
 investor_split_pct = 40
-escrow_pct = [настраивается]
+escrow_pct = 0             (эскроу не предусмотрен для Hissar)
 performance_fee_pct = 20
-cycle_duration_days = [настраивается]
-total_cycles = [настраивается]
+cycle_duration_days = 180  (6 месяцев)
+total_cycles = 6
+capital_return_near = 20600 NEAR  (от продажи маточного стада после цикла 6)
 ```
+
+**Примечание Hissar:** С цикла 3 "плата за стадо" $2,500/цикл выплачивается инвестору
+ДО раздела прибыли 60/40. Admin учитывает это при отчёте — указывает чистую прибыль
+уже после вычета платы за стадо. Контракту дополнительная логика не нужна.
