@@ -48,6 +48,7 @@ Fidlot и Hissar используют **одинаковый шаблон кон
 | `performance_fee_pct` | u8 | 20 | 20 |
 | `cycle_duration_days` | u32 | 150 (5 мес) | настраивается |
 | `total_cycles` | u8 | 7 | настраивается |
+| `capital_return_near` | Balance | ~$20,400 в NEAR | настраивается |
 
 ---
 
@@ -135,8 +136,14 @@ Performance fee  = доля инвестора × performance_fee_pct / 100  →
 
 **При Completed (все циклы успешны):**
 ```
-escrow_pool → farmer_available  (весь эскроу возвращается фермеру)
+escrow_pool → farmer_available          (весь эскроу возвращается фермеру)
+capital_return_near → investor_available (рабочий капитал возвращается инвестору)
 ```
+
+**Примечание по операционным расходам фермера:**
+Зарплата ($1,750/цикл) и транспорт ($1,000/цикл) — оффчейн расходы фермера.
+Контракт их не отслеживает. Admin сообщает чистую прибыль (profit_near) уже с
+учётом того, что эти расходы фермер покрывает самостоятельно.
 
 ---
 
@@ -195,6 +202,7 @@ escrow_pct = 44
 performance_fee_pct = 20
 cycle_duration_days = 150
 total_cycles = 7
+capital_return_near = 20400 NEAR  (рабочий капитал, возвращается инвестору при Completed)
 ```
 
 **Hissar контракт (другой инвестор):**
