@@ -135,6 +135,59 @@ impl AgriPartnersContract {
         self.current_cycle += 1;
         self.status = ContractStatus::CycleActive;
     }
+
+    #[payable]
+    pub fn report_cycle(&mut self, losses_near: U128) {
+        require!(
+            env::predecessor_account_id() == self.admin,
+            "Only admin can report cycle"
+        );
+        require!(
+            self.status == ContractStatus::CycleActive,
+            "Contract must be in CycleActive status"
+        );
+
+        let profit = env::attached_deposit().as_yoctonear();
+        let losses = losses_near.0;
+
+        // Distribute profit
+        if profit > 0 {
+            let farmer_gross = profit * self.farmer_split_pct as u128 / 100;
+            let investor_gross = profit * self.investor_split_pct as u128 / 100;
+
+            let platform_fee = investor_gross * self.performance_fee_pct as u128 / 100;
+            let investor_net = investor_gross - platform_fee;
+
+            let escrow_contribution = farmer_gross * self.escrow_pct as u128 / 100;
+            let farmer_net = farmer_gross - escrow_contribution;
+
+            self.farmer_available += farmer_net;
+            self.investor_available += investor_net;
+            self.platform_available += platform_fee;
+            self.escrow_pool += escrow_contribution;
+        }
+
+        // Handle losses
+        if losses > 0 {
+            if losses <= self.escrow_pool {
+                self.escrow_pool -= losses;
+                self.investor_available += losses;
+            } else {
+                self.investor_available += self.escrow_pool;
+                self.escrow_pool = 0;
+                self.status = ContractStatus::Terminated;
+                return;
+            }
+        }
+
+        self.status = ContractStatus::CycleSettlement;
+        if self.current_cycle >= self.total_cycles {
+            self.farmer_available += self.escrow_pool;
+            self.escrow_pool = 0;
+            self.investor_available += self.capital_return_near;
+            self.status = ContractStatus::Completed;
+        }
+    }
 }
 
 #[cfg(test)]
@@ -278,5 +331,72 @@ mod tests {
         setup_context(accounts(2));
         let mut c = new_contract(); // Initialized, not Funded
         c.start_cycle();
+    }
+
+    const PROFIT: u128 = 300 * ONE_NEAR;
+
+    fn report_cycle(c: &mut AgriPartnersContract, profit: u128, losses: u128) {
+        let mut ctx = VMContextBuilder::new();
+        ctx.predecessor_account_id(accounts(2)) // admin
+           .attached_deposit(NearToken::from_yoctonear(profit));
+        testing_env!(ctx.build());
+        c.report_cycle(U128(losses));
+    }
+
+    fn start_cycle(c: &mut AgriPartnersContract) {
+        setup_context(accounts(2));
+        c.start_cycle();
+    }
+
+    #[test]
+    fn test_report_cycle_distribution() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        fund_contract(&mut c);
+        start_cycle(&mut c);
+        report_cycle(&mut c, PROFIT, 0);
+
+        // farmer_gross = 300 * 60% = 180 NEAR
+        let farmer_gross = PROFIT * 60 / 100;
+        // escrow = 180 * 44% = 79 NEAR (integer div truncation: 180*44=7920, /100=79)
+        let escrow = farmer_gross * 44 / 100;
+        // farmer_net = 180 - 79 = 101 NEAR
+        let farmer_net = farmer_gross - escrow;
+
+        // investor_gross = 300 * 40% = 120 NEAR
+        let investor_gross = PROFIT * 40 / 100;
+        // platform_fee = 120 * 20% = 24 NEAR
+        let platform_fee = investor_gross * 20 / 100;
+        // investor_net = 120 - 24 = 96 NEAR
+        let investor_net = investor_gross - platform_fee;
+
+        assert_eq!(c.farmer_available, farmer_net);
+        assert_eq!(c.investor_available, investor_net);
+        assert_eq!(c.platform_available, platform_fee);
+        assert_eq!(c.escrow_pool, escrow);
+        assert_eq!(c.status, ContractStatus::CycleSettlement);
+    }
+
+    #[test]
+    #[should_panic(expected = "Only admin")]
+    fn test_report_cycle_wrong_caller() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        fund_contract(&mut c);
+        start_cycle(&mut c);
+
+        setup_context(accounts(1)); // investor, not admin
+        c.report_cycle(U128(0));
+    }
+
+    #[test]
+    #[should_panic(expected = "CycleActive")]
+    fn test_report_cycle_wrong_status() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        fund_contract(&mut c);
+        // status = Funded, not CycleActive
+        setup_context(accounts(2));
+        c.report_cycle(U128(0));
     }
 }
