@@ -399,4 +399,71 @@ mod tests {
         setup_context(accounts(2));
         c.report_cycle(U128(0));
     }
+
+    #[test]
+    fn test_partial_losses_from_escrow() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        fund_contract(&mut c);
+        start_cycle(&mut c);
+        report_cycle(&mut c, PROFIT, 0);
+
+        let escrow_after_c1 = c.escrow_pool;
+        let investor_after_c1 = c.investor_available;
+
+        start_cycle(&mut c);
+        let loss = 10 * ONE_NEAR;
+        report_cycle(&mut c, PROFIT, loss);
+
+        let farmer_gross = PROFIT * 60 / 100;
+        let escrow_added = farmer_gross * 44 / 100;
+        let investor_gross = PROFIT * 40 / 100;
+        let platform_fee = investor_gross * 20 / 100;
+        let investor_net = investor_gross - platform_fee;
+
+        assert_eq!(c.escrow_pool, escrow_after_c1 + escrow_added - loss);
+        assert_eq!(c.investor_available, investor_after_c1 + investor_net + loss);
+        assert_eq!(c.status, ContractStatus::CycleSettlement);
+    }
+
+    #[test]
+    fn test_critical_losses_terminates() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        fund_contract(&mut c);
+        start_cycle(&mut c);
+
+        let huge_loss = 500 * ONE_NEAR;
+        report_cycle(&mut c, 0, huge_loss); // no profit, big loss
+
+        assert_eq!(c.escrow_pool, 0);
+        assert_eq!(c.status, ContractStatus::Terminated);
+    }
+
+    #[test]
+    fn test_completed_after_all_cycles() {
+        setup_context(accounts(0));
+        let mut c = new_contract(); // total_cycles = 7
+        fund_contract(&mut c);
+
+        let farmer_gross = PROFIT * 60 / 100;
+        let escrow_per_cycle = farmer_gross * 44 / 100;
+        let farmer_net_per_cycle = farmer_gross - escrow_per_cycle;
+        let investor_gross = PROFIT * 40 / 100;
+        let platform_fee = investor_gross * 20 / 100;
+        let investor_net_per_cycle = investor_gross - platform_fee;
+
+        for _ in 0..7 {
+            start_cycle(&mut c);
+            report_cycle(&mut c, PROFIT, 0);
+        }
+
+        assert_eq!(c.status, ContractStatus::Completed);
+        assert_eq!(c.escrow_pool, 0); // returned to farmer
+        // farmer: 7x net profit + 7x escrow returned
+        assert_eq!(c.farmer_available, farmer_net_per_cycle * 7 + escrow_per_cycle * 7);
+        // investor: 7x net profit + capital return
+        assert_eq!(c.investor_available, investor_net_per_cycle * 7 + CAPITAL_RETURN);
+        assert_eq!(c.platform_available, platform_fee * 7);
+    }
 }
