@@ -103,6 +103,24 @@ impl AgriPartnersContract {
             escrow_pool: 0,
         }
     }
+
+    #[payable]
+    pub fn fund(&mut self) {
+        require!(
+            env::predecessor_account_id() == self.investor,
+            "Only investor can fund"
+        );
+        require!(
+            self.status == ContractStatus::Initialized,
+            "Contract must be in Initialized status"
+        );
+        let deposit = env::attached_deposit().as_yoctonear();
+        require!(
+            deposit == self.investment_amount,
+            format!("Must deposit exactly {} yoctoNEAR", self.investment_amount)
+        );
+        self.status = ContractStatus::Funded;
+    }
 }
 
 #[cfg(test)]
@@ -164,5 +182,47 @@ mod tests {
         assert_eq!(c.investor_available, 0);
         assert_eq!(c.platform_available, 0);
         assert_eq!(c.escrow_pool, 0);
+    }
+
+    #[test]
+    fn test_fund_success() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+
+        let mut ctx = VMContextBuilder::new();
+        ctx.predecessor_account_id(accounts(1))
+           .attached_deposit(NearToken::from_yoctonear(INVESTMENT));
+        testing_env!(ctx.build());
+
+        c.fund();
+        assert_eq!(c.status, ContractStatus::Funded);
+    }
+
+    #[test]
+    #[should_panic(expected = "Must deposit exactly")]
+    fn test_fund_wrong_amount() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+
+        let mut ctx = VMContextBuilder::new();
+        ctx.predecessor_account_id(accounts(1))
+           .attached_deposit(NearToken::from_yoctonear(INVESTMENT - 1));
+        testing_env!(ctx.build());
+
+        c.fund();
+    }
+
+    #[test]
+    #[should_panic(expected = "Only investor")]
+    fn test_fund_wrong_caller() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+
+        let mut ctx = VMContextBuilder::new();
+        ctx.predecessor_account_id(accounts(0)) // farmer, not investor
+           .attached_deposit(NearToken::from_yoctonear(INVESTMENT));
+        testing_env!(ctx.build());
+
+        c.fund();
     }
 }
