@@ -121,6 +121,20 @@ impl AgriPartnersContract {
         );
         self.status = ContractStatus::Funded;
     }
+
+    pub fn start_cycle(&mut self) {
+        require!(
+            env::predecessor_account_id() == self.admin,
+            "Only admin can start cycle"
+        );
+        require!(
+            self.status == ContractStatus::Funded
+                || self.status == ContractStatus::CycleSettlement,
+            "Contract must be in Funded or CycleSettlement status"
+        );
+        self.current_cycle += 1;
+        self.status = ContractStatus::CycleActive;
+    }
 }
 
 #[cfg(test)]
@@ -224,5 +238,45 @@ mod tests {
         testing_env!(ctx.build());
 
         c.fund();
+    }
+
+    fn fund_contract(c: &mut AgriPartnersContract) {
+        let mut ctx = VMContextBuilder::new();
+        ctx.predecessor_account_id(accounts(1))
+           .attached_deposit(NearToken::from_yoctonear(INVESTMENT));
+        testing_env!(ctx.build());
+        c.fund();
+    }
+
+    #[test]
+    fn test_start_cycle_increments() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        fund_contract(&mut c);
+
+        setup_context(accounts(2)); // admin
+        c.start_cycle();
+
+        assert_eq!(c.status, ContractStatus::CycleActive);
+        assert_eq!(c.current_cycle, 1);
+    }
+
+    #[test]
+    #[should_panic(expected = "Only admin")]
+    fn test_start_cycle_wrong_caller() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        fund_contract(&mut c);
+
+        setup_context(accounts(1)); // investor, not admin
+        c.start_cycle();
+    }
+
+    #[test]
+    #[should_panic(expected = "Funded or CycleSettlement")]
+    fn test_start_cycle_wrong_status() {
+        setup_context(accounts(2));
+        let mut c = new_contract(); // Initialized, not Funded
+        c.start_cycle();
     }
 }
