@@ -1,3 +1,7 @@
+const fs = require('fs');
+const path = require('path');
+const nearApi = require('near-api-js');
+const BN = require('bn.js');
 const { getAdminAccount } = require('../near/client');
 
 async function getContractStatus(contractAddress) {
@@ -12,4 +16,70 @@ async function getContractBalances(contractAddress) {
   return { farmer: result[0], investor: result[1], platform: result[2], escrow: result[3] };
 }
 
-module.exports = { getContractStatus, getContractBalances };
+async function deployContract(params) {
+  const account = await getAdminAccount();
+  const adminAccount = process.env.NEAR_ADMIN_ACCOUNT;
+  const contractId = `ap${Date.now()}.${adminAccount}`;
+
+  const wasmPath = process.env.WASM_PATH
+    || path.resolve(__dirname, '../../../contract/target/wasm32-unknown-unknown/release/agripartners.wasm');
+  const wasm = fs.readFileSync(wasmPath);
+
+  const newKeyPair = nearApi.KeyPair.fromRandom('ed25519');
+  const publicKey = nearApi.utils.PublicKey.fromString(newKeyPair.getPublicKey().toString());
+
+  const initArgs = Buffer.from(JSON.stringify({
+    farmer: params.farmer,
+    investor: params.investor,
+    admin: adminAccount,
+    platform: adminAccount,
+    deal_type: params.deal_type,
+    investment_amount: params.investment_amount,
+    farmer_split_pct: params.farmer_split_pct,
+    investor_split_pct: params.investor_split_pct,
+    escrow_pct: params.escrow_pct,
+    performance_fee_pct: params.performance_fee_pct,
+    cycle_duration_days: params.cycle_duration_days,
+    total_cycles: params.total_cycles,
+    capital_return_near: params.capital_return_near
+  }));
+
+  const { transactions } = nearApi;
+  const result = await account.signAndSendTransaction({
+    receiverId: contractId,
+    actions: [
+      transactions.createAccount(),
+      transactions.transfer(new BN(nearApi.utils.format.parseNearAmount('10'))),
+      transactions.addKey(publicKey, transactions.fullAccessKey()),
+      transactions.deployContract(wasm),
+      transactions.functionCall('new', initArgs, new BN('100000000000000'), new BN('0'))
+    ]
+  });
+
+  return { contractId, txHash: result.transaction.hash };
+}
+
+async function startCycle(contractAddress) {
+  const account = await getAdminAccount();
+  const result = await account.functionCall({
+    contractId: contractAddress,
+    methodName: 'start_cycle',
+    args: {},
+    gas: '100000000000000'
+  });
+  return { txHash: result.transaction.hash };
+}
+
+async function reportCycle(contractAddress, profitNear, lossesNear) {
+  const account = await getAdminAccount();
+  const result = await account.functionCall({
+    contractId: contractAddress,
+    methodName: 'report_cycle',
+    args: { losses_near: lossesNear },
+    gas: '100000000000000',
+    attachedDeposit: profitNear
+  });
+  return { txHash: result.transaction.hash };
+}
+
+module.exports = { getContractStatus, getContractBalances, deployContract, startCycle, reportCycle };
