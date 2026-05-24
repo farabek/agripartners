@@ -60,7 +60,7 @@ router.post('/deals/:id/report-cycle', async (req, res) => {
   if (!deal) return res.status(404).json({ error: 'Deal not found' });
 
   const { profit_near, losses_near } = req.body;
-  if (!profit_near) return res.status(400).json({ error: 'profit_near is required' });
+  if (profit_near == null) return res.status(400).json({ error: 'profit_near is required' });
 
   try {
     const { txHash } = await nearService.reportCycle(deal.contract_address, profit_near, losses_near || '0');
