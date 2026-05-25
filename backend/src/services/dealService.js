@@ -1,43 +1,57 @@
-const { getDb } = require('../db/index');
+const pool = require('../db/index');
 
-function getAllDeals() {
-  return getDb().prepare('SELECT * FROM deals ORDER BY created_at DESC').all();
+async function getAllDeals() {
+  const { rows } = await pool.query(
+    'SELECT * FROM deals ORDER BY created_at DESC'
+  );
+  return rows;
 }
 
-function getDealById(id) {
-  return getDb().prepare('SELECT * FROM deals WHERE id = ?').get(id) || null;
+async function getDealById(id) {
+  const { rows } = await pool.query(
+    'SELECT * FROM deals WHERE id = $1',
+    [id]
+  );
+  return rows[0] || null;
 }
 
-function createDeal(deal) {
-  const result = getDb().prepare(`
-    INSERT INTO deals (
+async function createDeal(deal) {
+  const { rows } = await pool.query(
+    `INSERT INTO deals (
       contract_address, deal_type, farmer, investor, admin, platform,
       investment_amount, farmer_split_pct, investor_split_pct, escrow_pct,
-      performance_fee_pct, cycle_duration_days, total_cycles, capital_return_near, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    deal.contract_address, deal.deal_type, deal.farmer, deal.investor,
-    deal.admin, deal.platform, deal.investment_amount,
-    deal.farmer_split_pct, deal.investor_split_pct, deal.escrow_pct,
-    deal.performance_fee_pct, deal.cycle_duration_days, deal.total_cycles,
-    deal.capital_return_near, new Date().toISOString()
+      performance_fee_pct, cycle_duration_days, total_cycles, capital_return_near
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+    RETURNING *`,
+    [
+      deal.contract_address, deal.deal_type, deal.farmer, deal.investor,
+      deal.admin, deal.platform, deal.investment_amount,
+      deal.farmer_split_pct, deal.investor_split_pct, deal.escrow_pct,
+      deal.performance_fee_pct, deal.cycle_duration_days, deal.total_cycles,
+      deal.capital_return_near
+    ]
   );
-  return getDealById(result.lastInsertRowid);
+  return rows[0];
 }
 
-function addEvent(event) {
-  getDb().prepare(`
-    INSERT INTO events (deal_id, event_type, cycle_num, profit_near, losses_near, tx_hash, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    event.deal_id, event.event_type, event.cycle_num ?? null,
-    event.profit_near ?? null, event.losses_near ?? null,
-    event.tx_hash ?? null, new Date().toISOString()
+async function addEvent(event) {
+  await pool.query(
+    `INSERT INTO events (deal_id, event_type, cycle_num, profit_near, losses_near, tx_hash)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [
+      event.deal_id, event.event_type, event.cycle_num ?? null,
+      event.profit_near ?? null, event.losses_near ?? null,
+      event.tx_hash ?? null
+    ]
   );
 }
 
-function getDealEvents(dealId) {
-  return getDb().prepare('SELECT * FROM events WHERE deal_id = ? ORDER BY created_at ASC').all(dealId);
+async function getDealEvents(dealId) {
+  const { rows } = await pool.query(
+    'SELECT * FROM events WHERE deal_id = $1 ORDER BY created_at ASC',
+    [dealId]
+  );
+  return rows;
 }
 
 module.exports = { getAllDeals, getDealById, createDeal, addEvent, getDealEvents };

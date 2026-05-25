@@ -1,5 +1,8 @@
-process.env.DB_PATH = ':memory:';
-const { getAllDeals, getDealById, createDeal, addEvent, getDealEvents } = require('../src/services/dealService');
+const pool = require('../src/db/index');
+jest.mock('../src/db/index', () => ({ query: jest.fn() }));
+
+const { getAllDeals, getDealById, createDeal, addEvent, getDealEvents } =
+  require('../src/services/dealService');
 
 const sampleDeal = {
   contract_address: 'ap123.agripartners.testnet',
@@ -18,35 +21,62 @@ const sampleDeal = {
   capital_return_near: '20400000000000000000000000'
 };
 
-test('getAllDeals returns empty array initially', () => {
-  expect(getAllDeals()).toEqual([]);
+beforeEach(() => jest.clearAllMocks());
+
+test('getAllDeals calls pool.query and returns rows', async () => {
+  pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
+  const deals = await getAllDeals();
+  expect(pool.query).toHaveBeenCalledWith(
+    'SELECT * FROM deals ORDER BY created_at DESC'
+  );
+  expect(deals).toHaveLength(1);
+  expect(deals[0].id).toBe(1);
 });
 
-test('createDeal inserts and returns deal with id', () => {
-  const deal = createDeal(sampleDeal);
-  expect(deal).toHaveProperty('id');
-  expect(deal.contract_address).toBe('ap123.agripartners.testnet');
-  expect(deal.deal_type).toBe('fidlot');
+test('getDealById returns row when found', async () => {
+  pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
+  const deal = await getDealById(1);
+  expect(pool.query).toHaveBeenCalledWith(
+    'SELECT * FROM deals WHERE id = $1',
+    [1]
+  );
+  expect(deal.id).toBe(1);
 });
 
-test('getDealById returns correct deal', () => {
-  const deal = createDeal({ ...sampleDeal, contract_address: 'ap456.agripartners.testnet' });
-  expect(getDealById(deal.id)).toMatchObject({ id: deal.id });
+test('getDealById returns null when not found', async () => {
+  pool.query.mockResolvedValue({ rows: [] });
+  const deal = await getDealById(9999);
+  expect(deal).toBeNull();
 });
 
-test('getDealById returns null for missing id', () => {
-  expect(getDealById(9999)).toBeNull();
+test('createDeal inserts and returns created row', async () => {
+  const created = { id: 1, ...sampleDeal };
+  pool.query.mockResolvedValue({ rows: [created] });
+  const deal = await createDeal(sampleDeal);
+  const [sql] = pool.query.mock.calls[0];
+  expect(sql).toContain('INSERT INTO deals');
+  expect(sql).toContain('RETURNING *');
+  expect(deal.id).toBe(1);
+  expect(deal.contract_address).toBe(sampleDeal.contract_address);
 });
 
-test('getAllDeals returns inserted deals', () => {
-  expect(getAllDeals().length).toBeGreaterThan(0);
+test('addEvent inserts event row', async () => {
+  pool.query.mockResolvedValue({ rows: [] });
+  await addEvent({ deal_id: 1, event_type: 'deployed', tx_hash: 'abc123' });
+  const [sql, params] = pool.query.mock.calls[0];
+  expect(sql).toContain('INSERT INTO events');
+  expect(params).toContain(1);
+  expect(params).toContain('deployed');
+  expect(params).toContain('abc123');
 });
 
-test('addEvent and getDealEvents work correctly', () => {
-  const deal = createDeal({ ...sampleDeal, contract_address: 'ap789.agripartners.testnet' });
-  addEvent({ deal_id: deal.id, event_type: 'deployed', tx_hash: 'abc123' });
-  const events = getDealEvents(deal.id);
+test('getDealEvents returns events for deal', async () => {
+  const mockEvents = [{ id: 1, deal_id: 1, event_type: 'deployed', tx_hash: 'abc' }];
+  pool.query.mockResolvedValue({ rows: mockEvents });
+  const events = await getDealEvents(1);
+  expect(pool.query).toHaveBeenCalledWith(
+    'SELECT * FROM events WHERE deal_id = $1 ORDER BY created_at ASC',
+    [1]
+  );
   expect(events).toHaveLength(1);
-  expect(events[0].event_type).toBe('deployed');
-  expect(events[0].tx_hash).toBe('abc123');
 });
