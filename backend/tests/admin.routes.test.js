@@ -18,9 +18,9 @@ app.use('/api/admin', requireApiKey, adminRouter);
 const mockDeal = { id: 1, contract_address: 'ap1.agripartners.testnet', deal_type: 'fidlot', investment_amount: '10000000000000000000000000' };
 
 beforeEach(() => {
-  dealService.getDealById.mockReturnValue(mockDeal);
-  dealService.createDeal.mockReturnValue(mockDeal);
-  dealService.addEvent.mockReturnValue(undefined);
+  dealService.getDealById.mockResolvedValue(mockDeal);
+  dealService.createDeal.mockResolvedValue(mockDeal);
+  dealService.addEvent.mockResolvedValue(undefined);
   nearService.deployContract.mockResolvedValue({ contractId: 'ap1.agripartners.testnet', txHash: 'tx1' });
   nearService.startCycle.mockResolvedValue({ txHash: 'tx2' });
   nearService.reportCycle.mockResolvedValue({ txHash: 'tx3' });
@@ -112,7 +112,7 @@ test('POST /api/admin/deals/:id/fund calls fundContract and records event', asyn
 });
 
 test('POST /api/admin/deals/:id/fund returns 404 when deal not found', async () => {
-  dealService.getDealById.mockReturnValueOnce(null);
+  dealService.getDealById.mockResolvedValueOnce(null);
   const res = await request(app)
     .post('/api/admin/deals/999/fund')
     .set('X-API-Key', 'test-secret');
