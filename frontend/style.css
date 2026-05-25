@@ -1,0 +1,24 @@
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge-Initialized     { background-color: #374151; color: #9ca3af; }
+.badge-Funded          { background-color: #78350f; color: #fde68a; }
+.badge-CycleActive     { background-color: #1e3a5f; color: #93c5fd; }
+.badge-CycleSettlement { background-color: #7c2d12; color: #fdba74; }
+.badge-Completed       { background-color: #14532d; color: #86efac; }
+.badge-Terminated      { background-color: #7f1d1d; color: #fca5a5; }
+
+.spinner {
+  border: 3px solid #334155;
+  border-top-color: #22d3ee;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 0.8s linear infinite;
+  margin: 2rem auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
