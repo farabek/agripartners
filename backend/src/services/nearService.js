@@ -6,13 +6,13 @@ const { getAdminAccount } = require('../near/client');
 
 async function getContractStatus(contractAddress) {
   const account = await getAdminAccount();
-  const result = await account.viewFunction(contractAddress, 'get_status', {});
+  const result = await account.viewFunction({ contractId: contractAddress, methodName: 'get_status', args: {} });
   return { status: result[0], current_cycle: result[1] };
 }
 
 async function getContractBalances(contractAddress) {
   const account = await getAdminAccount();
-  const result = await account.viewFunction(contractAddress, 'get_balances', {});
+  const result = await account.viewFunction({ contractId: contractAddress, methodName: 'get_balances', args: {} });
   return { farmer: result[0], investor: result[1], platform: result[2], escrow: result[3] };
 }
 
@@ -49,7 +49,7 @@ async function deployContract(params) {
     receiverId: contractId,
     actions: [
       transactions.createAccount(),
-      transactions.transfer(new BN(nearApi.utils.format.parseNearAmount('10'))),
+      transactions.transfer(new BN(nearApi.utils.format.parseNearAmount('2'))),
       transactions.addKey(publicKey, transactions.fullAccessKey()),
       transactions.deployContract(wasm),
       transactions.functionCall('new', initArgs, new BN('100000000000000'), new BN('0'))
