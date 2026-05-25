@@ -15,7 +15,7 @@ const app = express();
 app.use(express.json());
 app.use('/api/admin', requireApiKey, adminRouter);
 
-const mockDeal = { id: 1, contract_address: 'ap1.agripartners.testnet', deal_type: 'fidlot' };
+const mockDeal = { id: 1, contract_address: 'ap1.agripartners.testnet', deal_type: 'fidlot', investment_amount: '10000000000000000000000000' };
 
 beforeEach(() => {
   dealService.getDealById.mockReturnValue(mockDeal);
@@ -92,4 +92,29 @@ test('POST /api/admin/deals/:id/report-cycle without profit_near returns 400', a
     .set('X-API-Key', 'test-secret')
     .send({});
   expect(res.status).toBe(400);
+});
+
+test('POST /api/admin/deals/:id/fund calls fundContract and records event', async () => {
+  nearService.fundContract = jest.fn().mockResolvedValue({ txHash: 'tx4' });
+  const res = await request(app)
+    .post('/api/admin/deals/1/fund')
+    .set('X-API-Key', 'test-secret');
+  expect(res.status).toBe(200);
+  expect(res.body.success).toBe(true);
+  expect(res.body.tx_hash).toBe('tx4');
+  expect(nearService.fundContract).toHaveBeenCalledWith(
+    'ap1.agripartners.testnet',
+    '10000000000000000000000000'
+  );
+  expect(dealService.addEvent).toHaveBeenCalledWith(
+    expect.objectContaining({ event_type: 'funded', tx_hash: 'tx4' })
+  );
+});
+
+test('POST /api/admin/deals/:id/fund returns 404 when deal not found', async () => {
+  dealService.getDealById.mockReturnValueOnce(null);
+  const res = await request(app)
+    .post('/api/admin/deals/999/fund')
+    .set('X-API-Key', 'test-secret');
+  expect(res.status).toBe(404);
 });
