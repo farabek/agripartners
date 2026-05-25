@@ -14,9 +14,9 @@ app.use('/api/deals', dealsRouter);
 const mockDeal = { id: 1, contract_address: 'ap1.agripartners.testnet', deal_type: 'fidlot' };
 
 beforeEach(() => {
-  dealService.getAllDeals.mockReturnValue([mockDeal]);
-  dealService.getDealById.mockReturnValue(mockDeal);
-  dealService.getDealEvents.mockReturnValue([]);
+  dealService.getAllDeals.mockResolvedValue([mockDeal]);
+  dealService.getDealById.mockResolvedValue(mockDeal);
+  dealService.getDealEvents.mockResolvedValue([]);
   nearService.getContractStatus.mockResolvedValue({ status: 'Funded', current_cycle: 0 });
   nearService.getContractBalances.mockResolvedValue({ farmer: '0', investor: '0', platform: '0', escrow: '0' });
 });
@@ -34,7 +34,7 @@ test('GET /api/deals/:id returns deal', async () => {
 });
 
 test('GET /api/deals/:id returns 404 for missing deal', async () => {
-  dealService.getDealById.mockReturnValue(null);
+  dealService.getDealById.mockResolvedValue(null);
   const res = await request(app).get('/api/deals/999');
   expect(res.status).toBe(404);
 });
