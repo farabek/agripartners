@@ -1,16 +1,25 @@
-const Database = require('better-sqlite3');
-const path = require('path');
-const fs = require('fs');
+const { createClient } = require("@libsql/client");
+const fs = require("fs");
+const path = require("path");
 
-let db;
+let client = null;
 
-function getDb() {
-  if (db) return db;
-  const dbPath = process.env.DB_PATH || path.join(__dirname, '../../agripartners.db');
-  db = new Database(dbPath);
-  const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-  db.exec(schema);
-  return db;
+async function getDb() {
+  if (client) return client;
+  client = createClient({
+    url: process.env.TURSO_DATABASE_URL || ":memory:",
+    authToken: process.env.TURSO_AUTH_TOKEN
+  });
+  const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
+  const stmts = schema.split(";").map(s => s.trim()).filter(s => s.length > 0);
+  for (const stmt of stmts) {
+    await client.execute(stmt);
+  }
+  return client;
 }
 
-module.exports = { getDb };
+function resetDb() {
+  client = null;
+}
+
+module.exports = { getDb, resetDb };
