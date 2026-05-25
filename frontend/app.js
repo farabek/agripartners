@@ -100,8 +100,99 @@ function renderDealCard(d) {
   `;
 }
 
-// --- Детали сделки (placeholder — заменяется в Task 5) ---
-function showDeal(id) {
+// --- Детали сделки ---
+
+async function showDeal(id) {
   showView('view-detail');
-  document.getElementById('view-detail').innerHTML = `<p class="text-slate-400">Deal ${id}</p>`;
+  const el = document.getElementById('view-detail');
+  el.innerHTML = `
+    <a href="#deals" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">← Назад</a>
+    <div class="spinner"></div>
+  `;
+
+  const [dealRes, statusRes, balancesRes, eventsRes] = await Promise.allSettled([
+    fetch(`${API_BASE}/api/deals/${id}`),
+    fetch(`${API_BASE}/api/deals/${id}/status`),
+    fetch(`${API_BASE}/api/deals/${id}/balances`),
+    fetch(`${API_BASE}/api/deals/${id}/events`)
+  ]);
+
+  el.querySelector('.spinner')?.remove();
+
+  if (dealRes.status === 'rejected' || !dealRes.value.ok) {
+    const code = dealRes.value?.status;
+    el.innerHTML += code === 404
+      ? '<p class="text-slate-400 mt-8 text-center">Сделка не найдена</p>'
+      : '<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend недоступен</div>';
+    return;
+  }
+
+  const deal = await dealRes.value.json();
+  const status = statusRes.status === 'fulfilled' && statusRes.value.ok
+    ? await statusRes.value.json() : null;
+  const balances = balancesRes.status === 'fulfilled' && balancesRes.value.ok
+    ? await balancesRes.value.json() : null;
+  const events = eventsRes.status === 'fulfilled' && eventsRes.value.ok
+    ? await eventsRes.value.json() : [];
+
+  renderDealDetail(el, deal, status, balances, events);
 }
+
+function renderDealDetail(el, deal, status, balances, events) {
+  const cycleText = status ? `· Цикл ${status.current_cycle}` : '';
+  el.innerHTML = `
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <a href="#deals" class="text-slate-400 hover:text-white text-sm">← Назад</a>
+      <span class="text-slate-600">|</span>
+      <span class="font-semibold">${deal.deal_type}</span>
+      <span id="status-badge">${statusBadge(status?.status)}</span>
+      <span id="cycle-text" class="text-slate-400 text-sm">${cycleText}</span>
+      <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Обновить</button>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6 mb-6">
+      <div class="bg-slate-800 rounded-xl p-5 space-y-2">
+        ${renderParams(deal)}
+      </div>
+      <div class="bg-slate-800 rounded-xl p-5 flex flex-col items-center justify-center" id="chart-col">
+        ${balances
+          ? '<canvas id="balances-chart" width="240" height="240"></canvas>'
+          : '<p class="text-slate-500 text-sm">Балансы недоступны</p>'}
+      </div>
+    </div>
+    <div class="bg-slate-800 rounded-xl p-5">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">История событий</h3>
+      ${renderEvents(events)}
+    </div>
+  `;
+
+  if (balances) renderBalancesChart(balances);
+
+  document.getElementById('btn-refresh').addEventListener('click', () => refreshDeal(deal.id));
+}
+
+function renderParams(deal) {
+  const rows = [
+    ['Фермер',             formatAddress(deal.farmer)],
+    ['Инвестор',           formatAddress(deal.investor)],
+    ['Администратор',      formatAddress(deal.admin)],
+    ['Платформа',          formatAddress(deal.platform)],
+    ['Сплит',              `${deal.farmer_split_pct}% / ${deal.investor_split_pct}%`],
+    ['Эскроу',             `${deal.escrow_pct}%`],
+    ['Performance Fee',    `${deal.performance_fee_pct}%`],
+    ['Длительность цикла', `${deal.cycle_duration_days} дн`],
+    ['Всего циклов',       deal.total_cycles],
+    ['Инвестиция',         yoctoToNear(deal.investment_amount)],
+    ['Возврат капитала',   yoctoToNear(deal.capital_return_near)],
+  ];
+  return rows.map(([k, v]) => `
+    <div class="flex justify-between text-sm gap-2">
+      <span class="text-slate-400 shrink-0">${k}</span>
+      <span class="text-slate-100 font-mono text-right">${v}</span>
+    </div>
+  `).join('');
+}
+
+// Placeholders для Task 6
+function renderBalancesChart(balances) {}
+function renderEvents(events) { return '<p class="text-slate-500 text-sm">Событий нет</p>'; }
+async function refreshDeal(id) {}
