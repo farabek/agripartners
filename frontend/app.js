@@ -192,7 +192,93 @@ function renderParams(deal) {
   `).join('');
 }
 
-// Placeholders для Task 6
-function renderBalancesChart(balances) {}
-function renderEvents(events) { return '<p class="text-slate-500 text-sm">Событий нет</p>'; }
-async function refreshDeal(id) {}
+// --- Chart, события, refresh ---
+
+let balancesChartInstance = null;
+
+function renderBalancesChart(balances) {
+  if (balancesChartInstance) {
+    balancesChartInstance.destroy();
+    balancesChartInstance = null;
+  }
+  const ctx = document.getElementById('balances-chart');
+  if (!ctx) return;
+  const data = [
+    yoctoToNearFloat(balances.farmer),
+    yoctoToNearFloat(balances.investor),
+    yoctoToNearFloat(balances.platform),
+    yoctoToNearFloat(balances.escrow),
+  ];
+  balancesChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Фермер', 'Инвестор', 'Платформа', 'Эскроу'],
+      datasets: [{
+        data,
+        backgroundColor: ['#2563eb', '#16a34a', '#ca8a04', '#dc2626'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#94a3b8', font: { size: 12 }, padding: 12 }
+        }
+      },
+      cutout: '65%'
+    }
+  });
+}
+
+function renderEvents(events) {
+  if (!events.length) return '<p class="text-slate-500 text-sm">Событий нет</p>';
+  return events.map(e => {
+    const profitHtml = e.profit_near
+      ? `<span class="text-green-400 ml-2">+${yoctoToNear(e.profit_near)}</span>` : '';
+    const lossHtml = e.losses_near && e.losses_near !== '0'
+      ? `<span class="text-red-400 ml-2">−${yoctoToNear(e.losses_near)}</span>` : '';
+    const txHtml = e.tx_hash
+      ? `<a href="https://testnet.nearblocks.io/txns/${e.tx_hash}" target="_blank" class="text-blue-400 hover:underline font-mono">${formatAddress(e.tx_hash)}</a>`
+      : '';
+    const date = new Date(e.created_at).toLocaleDateString('ru-RU');
+    return `
+      <div class="flex justify-between items-start text-sm py-2.5 border-b border-slate-700 last:border-0 gap-2">
+        <div>
+          <span class="text-slate-200 font-medium">${e.event_type}</span>
+          ${e.cycle_num != null ? `<span class="text-slate-400 ml-2">цикл ${e.cycle_num}</span>` : ''}
+          ${profitHtml}${lossHtml}
+        </div>
+        <div class="text-right text-slate-500 shrink-0">
+          ${txHtml}
+          <div class="text-xs mt-0.5">${date}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function refreshDeal(id) {
+  const btn = document.getElementById('btn-refresh');
+  if (btn) { btn.disabled = true; btn.textContent = 'Обновление...'; }
+
+  const [statusRes, balancesRes] = await Promise.allSettled([
+    fetch(`${API_BASE}/api/deals/${id}/status`),
+    fetch(`${API_BASE}/api/deals/${id}/balances`)
+  ]);
+
+  const status = statusRes.status === 'fulfilled' && statusRes.value.ok
+    ? await statusRes.value.json() : null;
+  const balances = balancesRes.status === 'fulfilled' && balancesRes.value.ok
+    ? await balancesRes.value.json() : null;
+
+  if (status) {
+    const badgeEl = document.getElementById('status-badge');
+    const cycleEl = document.getElementById('cycle-text');
+    if (badgeEl) badgeEl.innerHTML = statusBadge(status.status);
+    if (cycleEl) cycleEl.textContent = `· Цикл ${status.current_cycle}`;
+  }
+  if (balances) renderBalancesChart(balances);
+
+  if (btn) { btn.disabled = false; btn.textContent = 'Обновить'; }
+}
