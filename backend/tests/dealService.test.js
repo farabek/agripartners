@@ -1,7 +1,7 @@
 const pool = require('../src/db/index');
 jest.mock('../src/db/index', () => ({ query: jest.fn() }));
 
-const { getAllDeals, getDealById, createDeal, addEvent, getDealEvents } =
+const { getAllDeals, getDealById, createDeal, addEvent, getDealEvents, getDealsByUser } =
   require('../src/services/dealService');
 
 const sampleDeal = {
@@ -79,4 +79,35 @@ test('getDealEvents returns events for deal', async () => {
     [1]
   );
   expect(events).toHaveLength(1);
+});
+
+test('getDealsByUser возвращает сделки фермера по near_account', async () => {
+  pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
+  const deals = await getDealsByUser('farmer.testnet', 'farmer');
+  const [sql, params] = pool.query.mock.calls[0];
+  expect(sql).toContain('WHERE farmer = $1');
+  expect(params).toEqual(['farmer.testnet']);
+  expect(deals).toHaveLength(1);
+});
+
+test('getDealsByUser возвращает сделки инвестора по near_account', async () => {
+  pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
+  const deals = await getDealsByUser('investor.testnet', 'investor');
+  const [sql, params] = pool.query.mock.calls[0];
+  expect(sql).toContain('WHERE investor = $1');
+  expect(params).toEqual(['investor.testnet']);
+  expect(deals).toHaveLength(1);
+});
+
+test('getDealsByUser возвращает все сделки для роли admin', async () => {
+  pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
+  const deals = await getDealsByUser(null, 'admin');
+  expect(pool.query).toHaveBeenCalledWith('SELECT * FROM deals ORDER BY created_at DESC');
+  expect(deals).toHaveLength(1);
+});
+
+test('getDealsByUser возвращает все сделки когда near_account не задан', async () => {
+  pool.query.mockResolvedValue({ rows: [] });
+  await getDealsByUser(null, 'farmer');
+  expect(pool.query).toHaveBeenCalledWith('SELECT * FROM deals ORDER BY created_at DESC');
 });

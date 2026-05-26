@@ -54,4 +54,23 @@ async function getDealEvents(dealId) {
   return rows;
 }
 
-module.exports = { getAllDeals, getDealById, createDeal, addEvent, getDealEvents };
+async function getDealsByUser(near_account, role) {
+  if (near_account && role === 'farmer') {
+    const { rows } = await pool.query(
+      'SELECT * FROM deals WHERE farmer = $1 ORDER BY created_at DESC',
+      [near_account]
+    );
+    return rows;
+  }
+  if (near_account && role === 'investor') {
+    const { rows } = await pool.query(
+      'SELECT * FROM deals WHERE investor = $1 ORDER BY created_at DESC',
+      [near_account]
+    );
+    return rows;
+  }
+  const { rows } = await pool.query('SELECT * FROM deals ORDER BY created_at DESC');
+  return rows;
+}
+
+module.exports = { getAllDeals, getDealById, createDeal, addEvent, getDealEvents, getDealsByUser };
