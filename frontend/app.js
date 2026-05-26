@@ -390,9 +390,10 @@ async function refreshDeal(id) {
   const btn = document.getElementById('btn-refresh');
   if (btn) { btn.disabled = true; btn.textContent = 'Обновление...'; }
 
+  const headers = authHeaders();
   const [statusRes, balancesRes] = await Promise.allSettled([
-    fetch(`${API_BASE}/api/deals/${id}/status`),
-    fetch(`${API_BASE}/api/deals/${id}/balances`)
+    fetch(`${API_BASE}/api/deals/${id}/status`, { headers }),
+    fetch(`${API_BASE}/api/deals/${id}/balances`, { headers })
   ]);
 
   const status = statusRes.status === 'fulfilled' && statusRes.value.ok
