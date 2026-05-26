@@ -20,6 +20,12 @@ services:
         value: farab.testnet
       - key: NEAR_ADMIN_PRIVATE_KEY
         sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_EMAIL
+        value: admin@agripartners.local
+      - key: ADMIN_PASSWORD
+        sync: false
       - key: WASM_PATH
         value: ./contract/agripartners.wasm
       - key: DATABASE_URL

@@ -2,11 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const pool = require('./db/index');
-const { requireApiKey } = require('./middleware/auth');
+const { requireJWT, requireRole } = require('./middleware/jwtAuth');
+const authRouter = require('./routes/auth');
 const dealsRouter = require('./routes/deals');
 const adminRouter = require('./routes/admin');
 
-['API_KEY', 'NEAR_ADMIN_ACCOUNT', 'NEAR_ADMIN_PRIVATE_KEY'].forEach(k => {
+['API_KEY', 'NEAR_ADMIN_ACCOUNT', 'NEAR_ADMIN_PRIVATE_KEY', 'JWT_SECRET'].forEach(k => {
   if (!process.env[k]) throw new Error(`Missing required env var: ${k}`);
 });
 
@@ -22,7 +23,9 @@ app.get('/health', async (req, res) => {
     res.status(503).json({ status: 'error', message: err.message });
   }
 });
+
+app.use('/api/auth', authRouter);
 app.use('/api/deals', dealsRouter);
-app.use('/api/admin', requireApiKey, adminRouter);
+app.use('/api/admin', requireJWT, requireRole('admin'), adminRouter);
 
 module.exports = app;

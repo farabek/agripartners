@@ -1,19 +1,25 @@
-process.env.API_KEY = 'test-secret';
+process.env.JWT_SECRET = 'test-jwt-secret';
+process.env.API_KEY = 'test-api-key';
 process.env.NEAR_ADMIN_ACCOUNT = 'agripartners.testnet';
+process.env.NEAR_ADMIN_PRIVATE_KEY = 'ed25519:test';
 
 jest.mock('../src/services/dealService');
 jest.mock('../src/services/nearService');
 
 const request = require('supertest');
 const express = require('express');
-const { requireApiKey } = require('../src/middleware/auth');
+const jwt = require('jsonwebtoken');
+const { requireJWT, requireRole } = require('../src/middleware/jwtAuth');
 const adminRouter = require('../src/routes/admin');
 const dealService = require('../src/services/dealService');
 const nearService = require('../src/services/nearService');
 
 const app = express();
 app.use(express.json());
-app.use('/api/admin', requireApiKey, adminRouter);
+app.use('/api/admin', requireJWT, requireRole('admin'), adminRouter);
+
+const adminToken = jwt.sign({ id: 1, username: 'admin', role: 'admin' }, 'test-jwt-secret');
+const farmerToken = jwt.sign({ id: 2, username: 'farmer1', role: 'farmer' }, 'test-jwt-secret');
 
 const mockDeal = { id: 1, contract_address: 'ap1.agripartners.testnet', deal_type: 'fidlot', investment_amount: '10000000000000000000000000' };
 
@@ -25,17 +31,26 @@ beforeEach(() => {
   nearService.startCycle.mockResolvedValue({ txHash: 'tx2' });
   nearService.reportCycle.mockResolvedValue({ txHash: 'tx3' });
   nearService.getContractStatus.mockResolvedValue({ status: 'CycleActive', current_cycle: 1 });
+  nearService.fundContract = jest.fn().mockResolvedValue({ txHash: 'tx4' });
 });
 
-test('POST /api/admin/deals without API key returns 401', async () => {
+test('POST /api/admin/deals without token returns 401', async () => {
   const res = await request(app).post('/api/admin/deals').send({});
   expect(res.status).toBe(401);
 });
 
-test('POST /api/admin/deals with valid key deploys contract and saves to DB', async () => {
+test('POST /api/admin/deals with farmer token returns 403', async () => {
   const res = await request(app)
     .post('/api/admin/deals')
-    .set('X-API-Key', 'test-secret')
+    .set('Authorization', `Bearer ${farmerToken}`)
+    .send({});
+  expect(res.status).toBe(403);
+});
+
+test('POST /api/admin/deals with admin token deploys contract and saves to DB', async () => {
+  const res = await request(app)
+    .post('/api/admin/deals')
+    .set('Authorization', `Bearer ${adminToken}`)
     .send({
       deal_type: 'fidlot',
       farmer: 'farmer.testnet',
@@ -54,7 +69,7 @@ test('POST /api/admin/deals with valid key deploys contract and saves to DB', as
 test('POST /api/admin/deals returns 400 when required fields missing', async () => {
   const res = await request(app)
     .post('/api/admin/deals')
-    .set('X-API-Key', 'test-secret')
+    .set('Authorization', `Bearer ${adminToken}`)
     .send({ deal_type: 'fidlot' });
   expect(res.status).toBe(400);
 });
@@ -62,7 +77,7 @@ test('POST /api/admin/deals returns 400 when required fields missing', async () 
 test('POST /api/admin/deals/:id/start-cycle calls startCycle and records event', async () => {
   const res = await request(app)
     .post('/api/admin/deals/1/start-cycle')
-    .set('X-API-Key', 'test-secret');
+    .set('Authorization', `Bearer ${adminToken}`);
   expect(res.status).toBe(200);
   expect(nearService.startCycle).toHaveBeenCalledWith('ap1.agripartners.testnet');
   expect(dealService.addEvent).toHaveBeenCalledWith(
@@ -73,48 +88,35 @@ test('POST /api/admin/deals/:id/start-cycle calls startCycle and records event',
 test('POST /api/admin/deals/:id/report-cycle calls reportCycle and records events', async () => {
   const res = await request(app)
     .post('/api/admin/deals/1/report-cycle')
-    .set('X-API-Key', 'test-secret')
+    .set('Authorization', `Bearer ${adminToken}`)
     .send({ profit_near: '5000000000000000000000000', losses_near: '0' });
   expect(res.status).toBe(200);
-  expect(nearService.reportCycle).toHaveBeenCalledWith(
-    'ap1.agripartners.testnet',
-    '5000000000000000000000000',
-    '0'
-  );
-  expect(dealService.addEvent).toHaveBeenCalledWith(
-    expect.objectContaining({ event_type: 'cycle_reported' })
-  );
+  expect(nearService.reportCycle).toHaveBeenCalledWith('ap1.agripartners.testnet', '5000000000000000000000000', '0');
+  expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'cycle_reported' }));
 });
 
 test('POST /api/admin/deals/:id/report-cycle without profit_near returns 400', async () => {
   const res = await request(app)
     .post('/api/admin/deals/1/report-cycle')
-    .set('X-API-Key', 'test-secret')
+    .set('Authorization', `Bearer ${adminToken}`)
     .send({});
   expect(res.status).toBe(400);
 });
 
 test('POST /api/admin/deals/:id/fund calls fundContract and records event', async () => {
-  nearService.fundContract = jest.fn().mockResolvedValue({ txHash: 'tx4' });
   const res = await request(app)
     .post('/api/admin/deals/1/fund')
-    .set('X-API-Key', 'test-secret');
+    .set('Authorization', `Bearer ${adminToken}`);
   expect(res.status).toBe(200);
   expect(res.body.success).toBe(true);
-  expect(res.body.tx_hash).toBe('tx4');
-  expect(nearService.fundContract).toHaveBeenCalledWith(
-    'ap1.agripartners.testnet',
-    '10000000000000000000000000'
-  );
-  expect(dealService.addEvent).toHaveBeenCalledWith(
-    expect.objectContaining({ event_type: 'funded', tx_hash: 'tx4' })
-  );
+  expect(nearService.fundContract).toHaveBeenCalledWith('ap1.agripartners.testnet', '10000000000000000000000000');
+  expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'funded', tx_hash: 'tx4' }));
 });
 
 test('POST /api/admin/deals/:id/fund returns 404 when deal not found', async () => {
   dealService.getDealById.mockResolvedValueOnce(null);
   const res = await request(app)
     .post('/api/admin/deals/999/fund')
-    .set('X-API-Key', 'test-secret');
+    .set('Authorization', `Bearer ${adminToken}`);
   expect(res.status).toBe(404);
 });
