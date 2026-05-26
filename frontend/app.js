@@ -1,5 +1,24 @@
 const API_BASE = 'https://agripartners.onrender.com';
 
+// --- Auth state ---
+
+function getAuth() {
+  try { return JSON.parse(localStorage.getItem('ap_auth') || 'null'); } catch { return null; }
+}
+
+function setAuth(token, user) {
+  localStorage.setItem('ap_auth', JSON.stringify({ token, user }));
+}
+
+function clearAuth() {
+  localStorage.removeItem('ap_auth');
+}
+
+function authHeaders() {
+  const auth = getAuth();
+  return auth ? { Authorization: `Bearer ${auth.token}` } : {};
+}
+
 // --- Утилиты ---
 
 function yoctoToNear(yocto) {
@@ -34,13 +53,27 @@ function statusBadge(status) {
 // --- Роутер ---
 
 function showView(viewId) {
-  document.getElementById('view-list').classList.add('hidden');
-  document.getElementById('view-detail').classList.add('hidden');
+  ['view-login', 'view-list', 'view-detail'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
   document.getElementById(viewId).classList.remove('hidden');
 }
 
 function route() {
+  const auth = getAuth();
   const hash = location.hash;
+
+  if (hash === '#login') {
+    if (auth) { location.hash = '#deals'; return; }
+    showLogin();
+    return;
+  }
+
+  if (!auth) {
+    location.hash = '#login';
+    return;
+  }
+
   const m = hash.match(/^#deals\/(\d+)$/);
   if (m) {
     showDeal(m[1]);
@@ -51,9 +84,99 @@ function route() {
 
 window.addEventListener('hashchange', route);
 window.addEventListener('load', () => {
-  if (!location.hash || location.hash === '#') location.hash = '#deals';
-  else route();
+  if (!location.hash || location.hash === '#') {
+    location.hash = getAuth() ? '#deals' : '#login';
+  } else {
+    route();
+  }
 });
+
+// --- Логин ---
+
+function showLogin() {
+  showView('view-login');
+  const el = document.getElementById('view-login');
+  el.innerHTML = `
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-green-400">AgriPartners</h1>
+      <p class="text-slate-400 mt-1">Войдите в личный кабинет</p>
+    </div>
+    <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Логин</label>
+        <input id="login-username" type="text" autocomplete="username"
+          class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+      </div>
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Пароль</label>
+        <input id="login-password" type="password" autocomplete="current-password"
+          class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+      </div>
+      <div id="login-error" class="hidden bg-red-900 text-red-200 px-3 py-2 rounded text-sm"></div>
+      <button type="submit"
+        class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-medium transition">
+        Войти
+      </button>
+    </form>
+  `;
+  document.getElementById('login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    await handleLogin(
+      document.getElementById('login-username').value.trim(),
+      document.getElementById('login-password').value
+    );
+  });
+}
+
+async function handleLogin(username, password) {
+  const errEl = document.getElementById('login-error');
+  const btn = document.querySelector('#login-form button[type="submit"]');
+  errEl.classList.add('hidden');
+  btn.disabled = true;
+  btn.textContent = 'Вход...';
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.textContent = data.error || 'Ошибка входа';
+      errEl.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Войти';
+      return;
+    }
+    setAuth(data.token, data.user);
+    location.hash = '#deals';
+  } catch {
+    errEl.textContent = 'Сервер недоступен';
+    errEl.classList.remove('hidden');
+    btn.disabled = false;
+    btn.textContent = 'Войти';
+  }
+}
+
+function logout() {
+  clearAuth();
+  location.hash = '#login';
+}
+
+// --- Nav bar ---
+
+function renderNav() {
+  const auth = getAuth();
+  if (!auth) return '';
+  const labels = { farmer: 'Фермер', investor: 'Инвестор', admin: 'Администратор' };
+  const roleLabel = labels[auth.user.role] || auth.user.role;
+  return `
+    <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
+      <span class="text-sm text-slate-400">${roleLabel}: <span class="text-slate-200 font-medium">${auth.user.username}</span></span>
+      <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Выйти →</button>
+    </div>
+  `;
+}
 
 // --- Список сделок ---
 
