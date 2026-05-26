@@ -184,12 +184,14 @@ async function showDeals() {
   showView('view-list');
   const el = document.getElementById('view-list');
   el.innerHTML = `
+    ${renderNav()}
     <h1 class="text-3xl font-bold text-green-400 mb-1">AgriPartners</h1>
     <p class="text-slate-400 mb-6">Агро-инвестиции на NEAR Protocol</p>
     <div class="spinner"></div>
   `;
   try {
-    const res = await fetch(`${API_BASE}/api/deals`);
+    const res = await fetch(`${API_BASE}/api/me/deals`, { headers: authHeaders() });
+    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const deals = await res.json();
     el.querySelector('.spinner').remove();
