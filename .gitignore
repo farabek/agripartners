@@ -1,0 +1,11 @@
+# Node
+node_modules/
+backend/.env
+backend/.env.render
+
+# Rust build artifacts
+contract/target/
+
+# OS
+.DS_Store
+Thumbs.db
