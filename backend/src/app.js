@@ -14,6 +14,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/debug-key', (req, res) => {
+  const key = process.env.NEAR_ADMIN_PRIVATE_KEY || '';
+  res.json({
+    length: key.length,
+    starts_with_ed25519: key.startsWith('ed25519:'),
+    first_15_chars: key.substring(0, 15),
+  });
+});
+
 app.get('/health', async (req, res) => {
   try {
     await pool.query('SELECT 1');
