@@ -94,3 +94,25 @@ test('POST /api/auth/register returns 409 for duplicate username', async () => {
     .send({ username: 'admin', email: 'dup@test.com', password: 'p', role: 'farmer' });
   expect(res.status).toBe(409);
 });
+
+test('POST /api/auth/login токен содержит near_account', async () => {
+  userService.findByUsername.mockResolvedValue({ ...mockUser, near_account: 'farmer.testnet' });
+  userService.verifyPassword.mockResolvedValue(true);
+
+  const res = await request(app).post('/api/auth/login').send({ username: 'farmer1', password: 'pass' });
+  expect(res.status).toBe(200);
+  const decoded = jwt.verify(res.body.token, 'test-jwt-secret');
+  expect(decoded.near_account).toBe('farmer.testnet');
+  expect(res.body.user.near_account).toBe('farmer.testnet');
+});
+
+test('POST /api/auth/login near_account равен null когда не задан', async () => {
+  userService.findByUsername.mockResolvedValue(mockUser);
+  userService.verifyPassword.mockResolvedValue(true);
+
+  const res = await request(app).post('/api/auth/login').send({ username: 'admin', password: 'Admin123!' });
+  expect(res.status).toBe(200);
+  const decoded = jwt.verify(res.body.token, 'test-jwt-secret');
+  expect(decoded.near_account).toBeNull();
+  expect(res.body.user.near_account).toBeNull();
+});

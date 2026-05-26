@@ -5,7 +5,7 @@ const { requireJWT, requireRole } = require('../middleware/jwtAuth');
 
 function signToken(user) {
   return jwt.sign(
-    { id: user.id, username: user.username, role: user.role },
+    { id: user.id, username: user.username, role: user.role, near_account: user.near_account || null },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
@@ -23,7 +23,7 @@ router.post('/login', async (req, res) => {
     const ok = await userService.verifyPassword(password, user.password_hash);
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
 
-    res.json({ token: signToken(user), user: { id: user.id, username: user.username, role: user.role } });
+    res.json({ token: signToken(user), user: { id: user.id, username: user.username, role: user.role, near_account: user.near_account || null } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
