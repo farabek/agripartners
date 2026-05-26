@@ -231,15 +231,17 @@ async function showDeal(id) {
   showView('view-detail');
   const el = document.getElementById('view-detail');
   el.innerHTML = `
+    ${renderNav()}
     <a href="#deals" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">← Назад</a>
     <div class="spinner"></div>
   `;
 
+  const headers = authHeaders();
   const [dealRes, statusRes, balancesRes, eventsRes] = await Promise.allSettled([
-    fetch(`${API_BASE}/api/deals/${id}`),
-    fetch(`${API_BASE}/api/deals/${id}/status`),
-    fetch(`${API_BASE}/api/deals/${id}/balances`),
-    fetch(`${API_BASE}/api/deals/${id}/events`)
+    fetch(`${API_BASE}/api/deals/${id}`, { headers }),
+    fetch(`${API_BASE}/api/deals/${id}/status`, { headers }),
+    fetch(`${API_BASE}/api/deals/${id}/balances`, { headers }),
+    fetch(`${API_BASE}/api/deals/${id}/events`, { headers })
   ]);
 
   el.querySelector('.spinner')?.remove();
@@ -266,6 +268,7 @@ async function showDeal(id) {
 function renderDealDetail(el, deal, status, balances, events) {
   const cycleText = status ? `· Цикл ${status.current_cycle}` : '';
   el.innerHTML = `
+    ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <a href="#deals" class="text-slate-400 hover:text-white text-sm">← Назад</a>
       <span class="text-slate-600">|</span>
