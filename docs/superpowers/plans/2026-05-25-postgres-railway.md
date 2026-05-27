@@ -13,7 +13,7 @@
 ## Files map
 
 | File | Action |
-|---|---|
+| --- | --- |
 | `backend/package.json` | Remove `@libsql/client`, add `pg` |
 | `backend/src/db/index.js` | Replace with `pg.Pool` singleton |
 | `backend/src/db/migrate.js` | **New** — runs SQL migrations on startup |
@@ -901,7 +901,7 @@ Railway will auto-set `DATABASE_URL` in the project environment.
 In Railway Dashboard → your service → **Variables**, add:
 
 | Key | Value |
-|---|---|
+| --- | --- |
 | `NODE_ENV` | `production` |
 | `API_KEY` | your secret key |
 | `NEAR_NETWORK` | `testnet` |

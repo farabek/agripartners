@@ -1392,7 +1392,7 @@ The platform charges 20% performance fee from the investor's share only — paya
 ## Budget Breakdown
 
 | Category | M1 | M2 | M3 | Total |
-|----------|-----|-----|-----|-------|
+| --- | --- | --- | --- | --- |
 | Development (contract audit, features) | $6,000 | $6,000 | $4,000 | $16,000 |
 | Infrastructure (servers, DB, services) | $1,000 | $1,000 | $1,000 | $3,000 |
 | First deal facilitation (legal, onboarding) | $2,000 | $1,000 | $3,000 | $6,000 |
@@ -1404,7 +1404,7 @@ The platform charges 20% performance fee from the investor's share only — paya
 ## Risks & Mitigation
 
 | Risk | Likelihood | Mitigation |
-|------|-----------|------------|
+| --- | --- | --- |
 | Mainnet contract vulnerability | Medium | Professional audit before M1 deploy |
 | Farmer deal falls through | Low | Second farmer already in conversation |
 | Regulatory issues (UZ) | Low | Operating as a platform, not a financial institution |

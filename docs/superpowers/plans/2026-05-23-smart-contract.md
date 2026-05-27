@@ -1353,7 +1353,7 @@ git -C E:/agripartners commit -m "feat: add testnet demo script"
 **Spec coverage check:**
 
 | Spec requirement | Task |
-|---|---|
+| --- | --- |
 | ContractStatus (6 states) | Task 2 |
 | All 13 init params | Task 3 |
 | fund() — investor only, exact amount | Task 4 |

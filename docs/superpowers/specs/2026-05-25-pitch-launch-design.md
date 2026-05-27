@@ -15,7 +15,7 @@ AgriPartners — RWA платформа агро-инвестиций на NEAR 
 ### Договоры (docs/60-40/)
 
 | Файл | Для кого | Модель |
-|------|----------|--------|
+| --- | --- | --- |
 | `Agri-Investor-Fidlot-v5.9-6040.pdf` | Инвестор | Fidlot v5.9 |
 | `Agri-Farmer-Fidlot-v5.9-6040.pdf` | Фермер | Fidlot v5.9 |
 | `Agri-Investor-VariantB-v2.1-6040.pdf` | Инвестор | Variant B |
@@ -152,7 +152,7 @@ WASM файл (~127 KB) коммитится в репозиторий (доба
 ### Структура скрипта (одинакова для всех языков)
 
 | Шаг demo | Что говорить | Длительность |
-|----------|-------------|--------------|
+| --- | --- | --- |
 | Вступление | Проблема: фермер в Узбекистане, банк отказал | 60 сек |
 | Deploy | "Создаём смарт-контракт — условия записаны навсегда" | 60 сек |
 | Fund | "Инвестор вносит $50k — деньги заблокированы в эскроу" | 60 сек |
@@ -171,12 +171,12 @@ WASM файл (~127 KB) коммитится в репозиторий (доба
 
 ### 4A — Grant Proposal (NEAR DevHub)
 
-**Платформа:** https://devhub.near.org (публичный форум, Markdown)  
+**Платформа:** [devhub.near.org](https://devhub.near.org) (публичный форум, Markdown)  
 **Сумма:** $30,000 USDC  
 **Структура milestones:**
 
 | Milestone | Сумма | Deliverable | Срок |
-|-----------|-------|-------------|------|
+| --- | --- | --- | --- |
 | M1 | $10,000 | Mainnet деплой + auth (JWT, роли) | 4 недели |
 | M2 | $10,000 | Telegram уведомления + Railway/Vercel prod | 4 недели |
 | M3 | $10,000 | Первая реальная сделка на mainnet + отчёт | 4 недели |
@@ -196,7 +196,7 @@ WASM файл (~127 KB) коммитится в репозиторий (доба
 
 ### 4B — NEAR Horizon Profile
 
-**Платформа:** https://app.near.org/horizon  
+**Платформа:** [app.near.org/horizon](https://app.near.org/horizon)  
 **Тип:** Startup profile  
 **Разделы:**
 - Project name: AgriPartners
@@ -206,7 +206,7 @@ WASM файл (~127 KB) коммитится в репозиторий (доба
 - Stage: MVP
 - Website: Vercel URL
 - Demo: Railway URL
-- GitHub: https://github.com/farabek/agripartners
+- GitHub: [github.com/farabek/agripartners](https://github.com/farabek/agripartners)
 
 **Файл:** `docs/near-horizon-profile.md`
 

@@ -45,7 +45,7 @@ Changed to testnet URL when deployed.
 Hash-based SPA — works as a static file, no server needed.
 
 | Hash | View |
-|---|---|
+| --- | --- |
 | `#deals` | Deals list |
 | `#deals/:id` | Deal detail |
 | (default/empty) | Redirect to `#deals` |
@@ -86,7 +86,7 @@ Hash-based SPA — works as a static file, no server needed.
 ## Status Badge Colors
 
 | Status | Color |
-|---|---|
+| --- | --- |
 | Initialized | Gray |
 | Funded | Yellow |
 | CycleActive | Blue |
@@ -118,7 +118,7 @@ Hash-based SPA — works as a static file, no server needed.
 ## Error Handling
 
 | Scenario | UI behavior |
-|---|---|
+| --- | --- |
 | Backend unreachable | Red error banner: "Backend недоступен" |
 | Blockchain RPC fails | Status and balances show "—", DB data still visible |
 | Deal not found (404) | "Сделка не найдена" message |

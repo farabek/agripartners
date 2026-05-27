@@ -24,7 +24,7 @@ A NEAR smart contract replaces the paper agreement. Every deal term — profit s
 ## Investment Model — Fidlot v5.9
 
 | Parameter | Value |
-|---|---|
+| --- | --- |
 | Investment size | $50,000 per deal |
 | Split | 60% farmer / 40% investor |
 | Platform fee | 20% of investor share only |
@@ -63,7 +63,7 @@ agripartners/
 ## Tech Stack
 
 | Layer | Technology |
-|---|---|
+| --- | --- |
 | Smart Contract | Rust · near-sdk 5.7.0 · WASM |
 | Blockchain | NEAR Protocol (testnet / mainnet) |
 | Backend | Node.js · Express.js · PostgreSQL (Neon) |
@@ -111,7 +111,7 @@ wasm-opt -Oz --strip-debug --mvp-features \
 ### Public endpoints (no auth required)
 
 | Method | Endpoint | Description |
-|---|---|---|
+| --- | --- | --- |
 | GET | `/api/deals` | List all deals |
 | GET | `/api/deals/:id` | Deal parameters |
 | GET | `/api/deals/:id/status` | On-chain status + cycle |
@@ -121,7 +121,7 @@ wasm-opt -Oz --strip-debug --mvp-features \
 ### Protected endpoints (JWT required)
 
 | Method | Endpoint | Description |
-|---|---|---|
+| --- | --- | --- |
 | POST | `/api/auth/login` | Get JWT token |
 | GET | `/api/me/deals` | Deals for logged-in user |
 | POST | `/api/admin/deals` | Deploy new contract + create deal |
@@ -215,7 +215,7 @@ cd contract && cargo test --features integration
 ## Status
 
 | Component | Status |
-|---|---|
+| --- | --- |
 | Smart contract | ✅ Deployed on testnet |
 | Backend API | ✅ Live on Render |
 | Frontend dashboard | ✅ Live on Vercel |

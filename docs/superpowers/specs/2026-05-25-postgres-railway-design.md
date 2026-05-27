@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS events (
 All `dealService.js` functions become async. API stays identical for routes.
 
 | Old (broken) | New |
-|---|---|
+| --- | --- |
 | `getDb().prepare(sql).all()` | `const { rows } = await pool.query(sql); return rows;` |
 | `getDb().prepare(sql).get(id)` | `const { rows } = await pool.query(sql, [id]); return rows[0] \|\| null;` |
 | `getDb().prepare(sql).run(...args)` | `await pool.query(sql, [...args])` |
@@ -171,7 +171,7 @@ healthcheckTimeout = 30
 **Environment variables to set in Railway Dashboard:**
 
 | Variable | Value |
-|---|---|
+| --- | --- |
 | `DATABASE_URL` | Auto-provided by Railway Postgres plugin |
 | `NODE_ENV` | `production` |
 | `PORT` | Auto-provided by Railway |
@@ -194,7 +194,7 @@ healthcheckTimeout = 30
 ## Files Changed
 
 | File | Action |
-|---|---|
+| --- | --- |
 | `package.json` | Remove `@libsql/client`, add `pg` |
 | `src/db/index.js` | Replace with pg.Pool |
 | `src/db/migrate.js` | New — migration runner |

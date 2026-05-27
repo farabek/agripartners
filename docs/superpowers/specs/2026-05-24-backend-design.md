@@ -97,7 +97,7 @@ CREATE TABLE events (
 ### Публичные (без авторизации)
 
 | Метод | URL | Источник | Описание |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `GET` | `/api/deals` | БД | Список всех сделок |
 | `GET` | `/api/deals/:id` | БД | Параметры одной сделки |
 | `GET` | `/api/deals/:id/status` | Блокчейн | Статус + номер цикла |
@@ -107,7 +107,7 @@ CREATE TABLE events (
 ### Защищённые (требуют заголовок `X-API-Key`)
 
 | Метод | URL | Описание |
-|---|---|---|
+| --- | --- | --- |
 | `POST` | `/api/admin/deals` | Деплой нового контракта + запись в БД |
 | `POST` | `/api/admin/deals/:id/start-cycle` | Вызов `start_cycle()` на контракте |
 | `POST` | `/api/admin/deals/:id/report-cycle` | Вызов `report_cycle()` с profit NEAR |
