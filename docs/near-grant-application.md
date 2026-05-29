@@ -1,19 +1,23 @@
 # NEAR Foundation Grant Application
-# AgriPartners — готовые ответы для grants.near.org
+
+AgriPartners — готовые ответы для grants.near.org
 
 ---
 
 ## Project Name
+
 AgriPartners
 
 ---
 
 ## One-liner (Tweet-size description)
+
 Blockchain platform that tokenizes livestock investment deals on NEAR Protocol — giving emerging-market farmers access to capital and investors verified on-chain returns of +64% ROI.
 
 ---
 
 ## Project Website / Demo
+
 - Dashboard: [agripartners.vercel.app](https://agripartners.vercel.app)
 - API: [agripartners.onrender.com](https://agripartners.onrender.com)
 - GitHub: [github.com/farabek/agripartners](https://github.com/farabek/agripartners)
@@ -33,6 +37,7 @@ This locks 500M+ smallholder farmers out of growth, despite the global livestock
 AgriPartners replaces paper investment agreements with NEAR smart contracts. Every deal term — profit split, cycle schedule, payout amounts — is encoded on-chain. Payouts to investor and farmer execute automatically at the end of each cycle with no manual intervention.
 
 **How it works:**
+
 1. Platform deploys a NEAR smart contract with all deal parameters
 2. Investor sends funds — locked in contract until payout
 3. Farmer raises and sells livestock over 5-month cycles
@@ -40,6 +45,7 @@ AgriPartners replaces paper investment agreements with NEAR smart contracts. Eve
 5. After 7 cycles (35 months): capital returned, feedlot asset transferred to farmer
 
 **Investment model — Fidlot v5.9 (60/40 split):**
+
 - Investor: $50,000 → ~$82,000 (+64% ROI, 21.9% APR over 35 months)
 - Farmer: $0 upfront → $96,250 cash + $18,000 feedlot asset
 - Platform fee: 20% of investor share only — farmer pays nothing
@@ -76,6 +82,7 @@ A livestock farmer has signed a Letter of Intent for 2 deals at $50,000 each = *
 ## Team
 
 **Farhod Muhamadiev** — Founder & Full-Stack Developer
+
 - Built the entire platform solo: Rust smart contract, REST API, JWT auth, investor/farmer dashboard
 - Delivered working testnet demo in under 3 months
 - Direct relationships with livestock farmers in Central Asia
@@ -85,14 +92,15 @@ A livestock farmer has signed a Letter of Intent for 2 deals at $50,000 each = *
 
 ## Requested Amount
 
-**$40,000 USD**
+Requested amount: **$40,000 USD**
 
 | Budget Line | Amount | Details |
 | --- | --- | --- |
 | Smart contract security audit | $10,000 | Independent audit by NEAR-ecosystem firm (e.g. OtterSec) — required before mainnet |
 | Infrastructure (2 years) | $3,000 | Render hosting, PostgreSQL (Neon), domain, SSL, NEAR mainnet gas |
 | Legal & first deal | $5,000 | Legal review of smart contract terms, notarization of 2 farmer agreements |
-| Developer salary (6 months) | $18,000 | Founder at $3,000/month — mainnet deployment, NEAR Wallet integration, maintenance |
+| Developer salary (6 months) | $15,000 | Founder at $2,500/month — mainnet deployment, NEAR Wallet integration, maintenance |
+| Company incorporation (Estonia e-Residency) | $3,000 | Legal entity for platform operations — e-Residency + LLC registration (OÜ, Osaühing — Estonian equivalent of LLC) |
 | AI development tools (1 year) | $1,000 | Claude Pro, GitHub Copilot — used daily for development |
 | Operational reserve | $3,000 | Buffer for unexpected issues and investor/farmer meetings |
 | **TOTAL** | **$40,000** | |
@@ -102,18 +110,21 @@ A livestock farmer has signed a Letter of Intent for 2 deals at $50,000 each = *
 ## Milestones
 
 ### Milestone 1 — Security Audit (Month 1–2) · $10,000
+
 - [ ] Select and engage NEAR-ecosystem security firm
 - [ ] Complete full smart contract audit
 - [ ] Resolve all critical and high findings
 - [ ] Publish audit report publicly on GitHub
 
 ### Milestone 2 — Mainnet Launch (Month 2–3) · $8,000
+
 - [ ] Deploy audited contract to NEAR mainnet
 - [ ] Integrate NEAR Wallet Selector for investor self-custody
 - [ ] Launch first 2 live deals ($100,000 total)
 - [ ] Legal agreements signed and notarized
 
 ### Milestone 3 — Growth (Month 3–6) · $22,000
+
 - [ ] Reach 5 active deals on mainnet
 - [ ] Add Telegram notifications for cycle events
 - [ ] Add VariantB model (sheep breeding) support

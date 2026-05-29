@@ -18,7 +18,7 @@
 
 Hi NEAR community 👋
 
-I'm Farkhod, a developer from Central Asia. I built **AgriPartners** — a platform that tokenizes livestock investment deals as NEAR smart contracts.
+I'm Farhod, a developer from Central Asia. I built **AgriPartners** — a platform that tokenizes livestock investment deals as NEAR smart contracts.
 
 The short version: a real farmer is ready to sign contracts worth **$100,000** the moment we launch on mainnet. The only blocker is a security audit. We're applying for a **$40,000 grant** to cover the audit and a 6-month runway.
 
@@ -76,14 +76,14 @@ We evaluated several blockchains and chose NEAR for:
 
 Everything is live and working today:
 
-| Component | Status |
-| --- | --- |
-| Rust smart contract (near-sdk 5.7, ~127KB WASM) | ✅ Testnet |
-| State machine: Initialized → Funded → CycleActive → Completed | ✅ Tested |
-| Backend API (Node.js + PostgreSQL + JWT auth) | ✅ Live |
-| Farmer + investor dashboard with role-based access | ✅ Live |
-| Full lifecycle demo: fund → 7 cycles → automated payout | ✅ Completed |
-| 21 unit tests + 3 integration tests | ✅ Passing |
+| Component                                                     | Status       |
+| ------------------------------------------------------------- | ------------ |
+| Rust smart contract (near-sdk 5.7, ~127KB WASM)               | ✅ Testnet   |
+| State machine: Initialized → Funded → CycleActive → Completed | ✅ Tested    |
+| Backend API (Node.js + PostgreSQL + JWT auth)                 | ✅ Live      |
+| Farmer + investor dashboard with role-based access            | ✅ Live      |
+| Full lifecycle demo: fund → 7 cycles → automated payout       | ✅ Completed |
+| 21 unit tests + 3 integration tests                           | ✅ Passing   |
 
 You can see the platform live right now: **[agripartners.vercel.app](https://agripartners.vercel.app)**
 
@@ -121,15 +121,16 @@ I have direct relationships with farmers in the region and understand the agricu
 
 ### Funding Ask: $40,000
 
-| Line | Amount | Purpose |
-| --- | --- | --- |
-| Smart contract security audit | $10,000 | OtterSec or equivalent NEAR-ecosystem firm |
-| Infrastructure (2 years) | $3,000 | Render, Neon PostgreSQL, domain, NEAR gas |
-| Legal & first deal | $5,000 | Notarization, legal review of 2 agreements |
-| Developer salary (6 months) | $18,000 | $3,000/mo — mainnet deploy, wallet integration, support |
-| AI dev tools (1 year) | $1,000 | Claude Pro, GitHub Copilot |
-| Operational reserve | $3,000 | Buffer for unexpected needs |
-| **Total** | **$40,000** | |
+| Line                          | Amount      | Purpose                                                 |
+| ----------------------------- | ----------- | ------------------------------------------------------- |
+| Smart contract security audit | $10,000     | OtterSec or equivalent NEAR-ecosystem firm              |
+| Infrastructure (2 years)      | $3,000      | Render, Neon PostgreSQL, domain, NEAR gas               |
+| Legal & first deal            | $5,000      | Notarization, legal review of 2 agreements              |
+| Developer salary (6 months)   | $15,000     | $2,500/mo — mainnet deploy, wallet integration, support |
+| Company incorporation (Estonia) | $3,000    | e-Residency + LLC registration (OÜ, Osaühing — Estonian equivalent of LLC), legal entity for platform |
+| AI dev tools (1 year)         | $1,000      | Claude Pro, GitHub Copilot                              |
+| Operational reserve           | $3,000      | Buffer for unexpected needs                             |
+| **Total**                     | **$40,000** |                                                         |
 
 ---
 
@@ -137,7 +138,7 @@ I have direct relationships with farmers in the region and understand the agricu
 
 **Month 1–2:** Security audit → publish report
 **Month 2–3:** Mainnet deploy → NEAR Wallet integration → first 2 live deals ($100k)
-**Month 3–6:** 5 active deals → Telegram notifications → first platform revenue → case study
+**Month 3–6:** Running first 2 live deals → Telegram notifications → first platform revenue → case study
 
 ---
 
@@ -145,7 +146,7 @@ I have direct relationships with farmers in the region and understand the agricu
 
 - **Real RWA on NEAR** — not synthetic DeFi, actual livestock with actual revenue
 - **New users** — farmers and agro-investors who've never touched blockchain
-- **TVL** — $100k at launch, targeting $500k Year 1
+- **TVL** — $100k at launch, targeting $500k going forward
 - **Open source** — full codebase available for others to fork
 - **Case study** — proof that NEAR can power real financial infrastructure in emerging markets
 
@@ -163,5 +164,5 @@ Happy to share the contract code, run a live demo, or answer any questions below
 
 ---
 
-*AgriPartners · May 2026 · [farhodmuhamadiev4@gmail.com](mailto:farhodmuhamadiev4@gmail.com)*
-*Demo: agripartners.vercel.app · GitHub: github.com/farabek/agripartners*
+_AgriPartners · May 2026 · [farhodmuhamadiev4@gmail.com](mailto:farhodmuhamadiev4@gmail.com)_
+_Demo: agripartners.vercel.app · GitHub: github.com/farabek/agripartners_

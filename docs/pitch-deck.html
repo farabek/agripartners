@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgriPartners — Pitch Deck</title>
+  <style>
+    :root {
+      --green: #2d6a4f;
+      --green-dark: #1b4332;
+      --green-light: #f0f7f4;
+      --green-mid: #52b788;
+      --orange: #e07b39;
+      --text: #1a1a1a;
+      --muted: #555;
+      --border: #d8ecd4;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #1a1a1a;
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* SLIDE CONTAINER */
+    .deck { width: 100vw; height: 100vh; position: relative; }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      background: #fff;
+    }
+    .slide.active { display: flex; }
+
+    /* NAV */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: rgba(0,0,0,0.82);
+      color: #fff;
+      padding: 6px 18px;
+      z-index: 100;
+      font-size: 13px;
+    }
+    .nav button {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      padding: 4px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .nav button:hover { background: var(--green-mid); }
+    .nav button:disabled { background: #444; cursor: default; }
+    #slide-counter { min-width: 60px; text-align: center; }
+    .hint { display: none; }
+
+    /* сдвигаем слайды вниз чтобы nav не перекрывал slide-header */
+    .deck { width: 100vw; height: 100vh; position: relative; }
+    .slide {
+      top: 36px !important;
+    }
+
+    /* ───── SHARED SLIDE PARTS ───── */
+    .slide-header {
+      background: var(--green);
+      color: #fff;
+      padding: 10px 40px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .slide-header .logo { font-size: 14px; font-weight: 800; letter-spacing: -0.3px; }
+    .slide-body {
+      flex: 1;
+      padding: 32px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .slide-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--green-dark);
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+    .slide-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .slide-footer {
+      background: var(--green-light);
+      border-top: 2px solid var(--border);
+      padding: 8px 40px;
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ───── SLIDE 1: TITLE ───── */
+    .s1-body {
+      flex: 1;
+      background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 60%, var(--green-mid) 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-align: center;
+      padding: 48px;
+    }
+    .s1-logo { font-size: 56px; font-weight: 900; letter-spacing: -2px; margin-bottom: 10px; }
+    .s1-tagline { font-size: 18px; font-weight: 300; opacity: 0.9; margin-bottom: 6px; }
+    .s1-tags { display: flex; gap: 10px; margin: 18px 0; }
+    .s1-tag {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .s1-url { font-size: 13px; opacity: 0.7; margin-top: 24px; }
+    .s1-badge {
+      background: var(--orange);
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ───── THREE BOXES ───── */
+    .three-box { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 8px; }
+    .box {
+      background: var(--green-light);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .box-icon { font-size: 28px; margin-bottom: 8px; }
+    .box-title { font-size: 13px; font-weight: 700; color: var(--green-dark); margin-bottom: 6px; }
+    .box-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ───── TWO COLS ───── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    /* ───── METRIC CARDS ───── */
+    .metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 8px; }
+    .metric {
+      background: var(--green-light);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+    }
+    .metric-val { font-size: 32px; font-weight: 900; color: var(--green); }
+    .metric-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .metric-sub { font-size: 12px; font-weight: 700; color: var(--text); }
+
+    /* ───── FLOW STEPS ───── */
+    .flow { display: flex; align-items: flex-start; gap: 0; margin-top: 12px; }
+    .flow-step {
+      flex: 1;
+      text-align: center;
+      padding: 0 8px;
+      position: relative;
+    }
+    .flow-step:not(:last-child)::after {
+      content: '→';
+      position: absolute;
+      right: -10px;
+      top: 18px;
+      font-size: 20px;
+      color: var(--green-mid);
+      font-weight: 700;
+    }
+    .flow-num {
+      width: 40px; height: 40px;
+      background: var(--green);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+    }
+    .flow-title { font-size: 13px; font-weight: 700; color: var(--green-dark); margin-bottom: 4px; }
+    .flow-text { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+    /* ───── TABLE ───── */
+    .ptable { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+    .ptable th {
+      background: var(--green);
+      color: #fff;
+      padding: 6px 10px;
+      text-align: left;
+      font-size: 11px;
+    }
+    .ptable td { padding: 6px 10px; border-bottom: 1px solid #eee; }
+    .ptable tr:nth-child(even) td { background: var(--green-light); }
+    .ptable tr:last-child td { border-bottom: none; }
+    .ptable .hi { color: var(--green); font-weight: 700; }
+    .ptable .total td { background: var(--green-dark) !important; color: #fff !important; font-weight: 700; }
+
+    /* ───── STATUS LIST ───── */
+    .slist { list-style: none; }
+    .slist li { padding: 5px 0; font-size: 13px; display: flex; align-items: flex-start; gap: 8px; }
+    .slist li .icon { color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .slist li .icon.pend { color: var(--orange); }
+
+    /* ───── HIGHLIGHT BOX ───── */
+    .hbox {
+      background: var(--green);
+      color: #fff;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-top: 16px;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    /* ───── ROADMAP ───── */
+    .roadmap { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .rm-phase {
+      border-left: 3px solid var(--green);
+      padding: 10px 12px;
+      background: var(--green-light);
+      border-radius: 0 6px 6px 0;
+    }
+    .rm-phase.done { border-left-color: var(--green); }
+    .rm-phase.now { border-left-color: var(--orange); background: #fff5ee; }
+    .rm-date { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .rm-title { font-size: 13px; font-weight: 800; color: var(--green-dark); margin-bottom: 6px; }
+    .rm-items { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+    /* ───── TEAM ───── */
+    .team-card {
+      background: var(--green-light);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .team-avatar {
+      width: 56px; height: 56px;
+      background: var(--green);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 24px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .team-name { font-size: 16px; font-weight: 800; color: var(--green-dark); }
+    .team-role { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .team-skills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .skill-tag {
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      color: var(--green-dark);
+      font-weight: 600;
+    }
+
+    /* ───── ASK TABLE ───── */
+    .ask-total {
+      background: var(--green);
+      color: #fff;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 28px;
+      font-weight: 900;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ask-total .ask-sub { font-size: 13px; font-weight: 400; opacity: 0.85; }
+
+    @media print {
+      body { background: #fff; overflow: visible; height: auto; }
+      .deck { height: auto; }
+      .slide { position: relative; display: flex !important; page-break-after: always; height: 100vh; }
+      .nav, .hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="deck">
+
+  <!-- ═══ SLIDE 1: TITLE ═══ -->
+  <div class="slide active">
+    <div class="s1-body">
+      <div class="s1-logo">AgriPartners</div>
+      <div class="s1-tagline">Tokenizing Agricultural Investment on NEAR Protocol</div>
+      <div class="s1-tags">
+        <span class="s1-tag">RWA</span>
+        <span class="s1-tag">Livestock</span>
+        <span class="s1-tag">Emerging Markets</span>
+        <span class="s1-tag">NEAR Protocol</span>
+      </div>
+      <div class="s1-badge">LIVE ON TESTNET · agripartners.vercel.app</div>
+      <div class="s1-url" style="margin-top:32px;">Seed Grant / Investment · $40,000</div>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Confidential · May 2026</span>
+      <span>farhodmuhamadiev4@gmail.com</span>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 2: PROBLEM ═══ -->
+  <div class="slide">
+    <div class="slide-header">
+      <span class="logo">AgriPartners</span>
+      <span>The Problem</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-title">Small farmers have capital, land & skill —<br/>but no access to investment</div>
+      <div class="slide-sub">500M+ smallholder livestock farmers in emerging markets are locked out of growth</div>
+      <div class="three-box">
+        <div class="box">
+          <div class="box-icon">🏦</div>
+          <div class="box-title">Banks say no</div>
+          <div class="box-text">Traditional lenders demand collateral. Farmers have land and livestock — but no formal title. Zero access to working capital.</div>
+        </div>
+        <div class="box">
+          <div class="box-icon">📄</div>
+          <div class="box-title">Paper deals = fraud risk</div>
+          <div class="box-text">Investment agreements on paper are opaque, unenforceable, and open to manipulation. No transparency for either side.</div>
+        </div>
+        <div class="box">
+          <div class="box-icon">📉</div>
+          <div class="box-title">Investors walk away</div>
+          <div class="box-text">High-yield agro deals exist, but lack of trust and tracking tools means capital never reaches farms that need it most.</div>
+        </div>
+      </div>
+      <div class="hbox" style="margin-top:20px;">$500 billion livestock sector — yet 80% of producers have no access to institutional capital</div>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Pitch Deck · 2026</span><span>2 / 12</span>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 3: SOLUTION ═══ -->
+  <div class="slide">
+    <div class="slide-header">
+      <span class="logo">AgriPartners</span>
+      <span>Our Solution</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-title">A smart contract replaces the paper deal</div>
+      <div class="slide-sub">AgriPartners tokenizes livestock investment agreements on NEAR Protocol — transparent, auditable, automated</div>
+      <div class="three-box">
+        <div class="box">
+          <div class="box-icon">🔗</div>
+          <div class="box-title">On-chain agreements</div>
+          <div class="box-text">Every deal term — split, cycles, payout schedule — lives in a NEAR smart contract. Immutable and verifiable by anyone.</div>
+        </div>
+        <div class="box">
+          <div class="box-icon">🤖</div>
+          <div class="box-title">Automated payouts</div>
+          <div class="box-text">When a cycle completes, payouts to investor and farmer execute on-chain. No manual transfers, no disputes, no delays.</div>
+        </div>
+        <div class="box">
+          <div class="box-icon">📊</div>
+          <div class="box-title">Real-time dashboard</div>
+          <div class="box-text">Investor and farmer each see their live balances, cycle progress, and full transaction history in a web dashboard.</div>
+        </div>
+      </div>
+      <div class="hbox" style="margin-top:20px;">Farmer gets capital with $0 upfront · Investor gets verified, on-chain returns of +64% ROI</div>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Pitch Deck · 2026</span><span>3 / 12</span>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 4: HOW IT WORKS ═══ -->
+  <div class="slide">
+    <div class="slide-header">
+      <span class="logo">AgriPartners</span>
+      <span>How It Works</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-title">Three steps. Fully automated.</div>
+      <div class="slide-sub">From investment to payout — every step is on-chain and transparent</div>
+      <div class="flow" style="margin-top:28px;">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-title">Deal Created</div>
+          <div class="flow-text">Platform deploys a NEAR smart contract with all deal terms: split, cycles, investment amount, payout schedule</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-title">Investor Funds</div>
+          <div class="flow-text">Investor sends NEAR/USDC to the contract. Funds are locked until payout — no counterparty risk</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-title">Farmer Operates</div>
+          <div class="flow-text">Farmer buys, raises, and sells livestock. Each 5-month cycle is reported on-chain by the platform admin</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-title">Auto Payout</div>
+          <div class="flow-text">At cycle end: investor receives profit share, farmer receives their 60%, platform takes 20% fee from investor share only</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-title">7 Cycles Done</div>
+          <div class="flow-text">After 35 months: capital returned to investor, feedlot asset transferred to farmer. Contract marks Completed</div>
+        </div>
+      </div>
+      <div class="hbox" style="margin-top:24px;">Platform fee 20% — taken only from investor share · Farmer's 60% is protected</div>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Pitch Deck · 2026</span><span>4 / 12</span>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 5: BUSINESS MODEL ═══ -->
+  <div class="slide">
+    <div class="slide-header">
+      <span class="logo">AgriPartners</span>
+      <span>Business Model</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-title">Performance fee on investor returns</div>
+      <div class="slide-sub">Platform earns 20% of investor profit only — farmer pays nothing</div>
+      <div class="two-col" style="margin-top:8px; align-items:start;">
+        <div>
+          <table class="ptable">
+            <tr><th colspan="3">Fidlot v5.9 — Per Deal Revenue</th></tr>
+            <tr><td>Cycles 1–2</td><td class="hi">$2,400/cycle</td><td>20% × $12,000</td></tr>
+            <tr><td>Cycles 3–7</td><td class="hi">$2,120/cycle</td><td>20% × $10,600</td></tr>
+            <tr><td>Per deal (35 мес)</td><td class="hi">$15,400</td><td>Platform revenue</td></tr>
+            <tr class="total"><td>10 deals</td><td>$154,000</td><td>35 months</td></tr>
+          </table>
+          <div style="margin-top:12px; font-size:11px; color:var(--muted);">
+            * Revenue scales linearly with number of active deals
+          </div>
+        </div>
+        <div>
+          <div class="box" style="margin-bottom:10px;">
+            <div class="box-title">Revenue streams</div>
+            <div class="box-text" style="margin-top:6px; line-height:1.8;">
+              ✓ Performance fee per cycle (20%)<br/>
+              ✓ Deal origination (future: flat fee)<br/>
+              ✓ White-label platform (future)<br/>
+              ✓ Data & analytics (future)
+            </div>
+          </div>
+          <div class="box">
+            <div class="box-title">Unit economics</div>
+            <div class="box-text" style="margin-top:6px; line-height:1.8;">
+              Deal size: $50,000<br/>
+              Platform fee/deal: $15,400<br/>
+              Gross margin: ~90%<br/>
+              CAC: near zero (farmer referrals)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Pitch Deck · 2026</span><span>5 / 12</span>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 6: RETURNS ═══ -->
+  <div class="slide">
+    <div class="slide-header">
+      <span class="logo">AgriPartners</span>
+      <span>Investment Returns</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-title">Verified numbers from signed contracts</div>
+      <div class="slide-sub">Fidlot v5.9 · 50 heads · 7 cycles × 5 months = 35 months · Split 60/40</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-val">+64%</div>
+          <div class="metric-sub">Total ROI</div>
+          <div class="metric-label">$50,000 → $82,000<br/>for the investor</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">21.9%</div>
+          <div class="metric-sub">APR</div>
+          <div class="metric-label">$32,000 ÷ $50,000 ÷ 2.917 years<br/>annualised return</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">$114k</div>
+          <div class="metric-sub">Farmer total</div>
+          <div class="metric-label">$96,250 cash + $18,000 feedlot<br/>farmer invested $0</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;">
+        <table class="ptable">
+          <tr><th>Period</th><th>Investor payout</th><th>Cumulative</th><th>Farmer payout</th></tr>
+          <tr><td>Cycle 1 (0–5 мес)</td><td class="hi">$9,600</td><td>$9,600</td><td>$15,250</td></tr>
+          <tr><td>Cycle 2 (5–10 мес)</td><td class="hi">$9,600</td><td>$19,200</td><td>$15,250</td></tr>
+          <tr><td>Cycles 3–7 (× 5)</td><td class="hi">$8,480</td><td>$61,600</td><td>$13,150</td></tr>
+          <tr><td>Capital return</td><td class="hi">$20,400</td><td>$82,000</td><td>—</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Pitch Deck · 2026</span><span>6 / 12</span>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 7: TRACTION ═══ -->
+  <div class="slide">
+    <div class="slide-header">
+      <span class="logo">AgriPartners</span>
+      <span>Traction &amp; Status</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-title">Built, deployed, and deal-ready</div>
+      <div class="slide-sub">Full platform live on testnet · Real farmer ready to sign · $100k in deals waiting</div>
+      <div class="two-col" style="margin-top:8px; align-items:start;">
+        <ul class="slist">
+          <li><span class="icon">✓</span><span><strong>Smart contract</strong> — deployed on NEAR testnet, full state machine (Initialized → Funded → Cycles → Completed)</span></li>
+          <li><span class="icon">✓</span><span><strong>Full lifecycle demo</strong> — fund → 7 cycles → auto-payout, recorded on-chain</span></li>
+          <li><span class="icon">✓</span><span><strong>Backend API</strong> — live at agripartners.onrender.com (Node.js + PostgreSQL + JWT auth)</span></li>
+          <li><span class="icon">✓</span><span><strong>Public dashboard</strong> — agripartners.vercel.app (farmer + investor portals)</span></li>
+          <li><span class="icon">✓</span><span><strong>Role-based auth</strong> — farmer / investor / admin login with JWT</span></li>
+          <li><span class="icon pend">→</span><span><strong>Farmer LOI signed</strong> — 2 deals × $50,000 = <strong>$100,000 ready</strong> pending audit + mainnet</span></li>
+          <li><span class="icon pend">→</span><span><strong>Mainnet launch</strong> — blocked only by security audit funding</span></li>
+        </ul>
+        <div>
+          <div class="box" style="margin-bottom:12px;">
+            <div class="box-title">Live links</div>
+            <div class="box-text" style="line-height:2; margin-top:4px;">
+              🌐 agripartners.vercel.app<br/>
+              ⚙️ agripartners.onrender.com<br/>
+              💻 github.com/farabek/agripartners
+            </div>
+          </div>
+          <div class="hbox" style="margin-top:0; font-size:13px;">
+            $100,000 in signed deals<br/>unlocked immediately<br/>after mainnet launch
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Pitch Deck · 2026</span><span>7 / 12</span>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 8: MARKET ═══ -->
+  <div class="slide">
+    <div class="slide-header">
+      <span class="logo">AgriPartners</span>
+      <span>Market Opportunity</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-title">Three converging markets</div>
+      <div class="slide-sub">Real-World Assets + Agriculture + Emerging Markets = massive untapped opportunity</div>
+      <div class="three-box" style="margin-top:12px;">
+        <div class="box">
+          <div class="box-icon">🌍</div>
+          <div class="box-title">RWA Market</div>
+          <div class="box-text">
+            <strong style="font-size:20px; color:var(--green);">$16T</strong><br/>
+            Projected by 2030 (BCG). Tokenization of real-world assets is the fastest-growing segment in blockchain.
+          </div>
+        </div>
+        <div class="box">
+          <div class="box-icon">🐄</div>
+          <div class="box-title">Global Livestock</div>
+          <div class="box-text">
+            <strong style="font-size:20px; color:var(--green);">$1.5T</strong><br/>
+            Annual market. Central Asia alone has 80M+ livestock. Traditional finance serves less than 5% of smallholder farmers.
+          </div>
+        </div>
+        <div class="box">
+          <div class="box-icon">👨‍🌾</div>
+          <div class="box-title">Target Farmers</div>
+          <div class="box-text">
+            <strong style="font-size:20px; color:var(--green);">500M+</strong><br/>
+            Smallholder farmers globally. Each needs $20k–$100k to scale. None of them have access to structured investment.
+          </div>
+        </div>
+      </div>
+      <div class="hbox" style="margin-top:16px;">
+        Starting with Central Asia — then expanding to any emerging market with livestock farming
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Pitch Deck · 2026</span><span>8 / 12</span>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 9: TECHNOLOGY ═══ -->
+  <div class="slide">
+    <div class="slide-header">
+      <span class="logo">AgriPartners</span>
+      <span>Technology</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-title">Built on NEAR Protocol — fast, cheap, carbon-neutral</div>
+      <div class="slide-sub">Production-ready stack, all deployed and live</div>
+      <div class="two-col" style="margin-top:8px; align-items:start;">
+        <div>
+          <table class="ptable">
+            <tr><th>Layer</th><th>Technology</th><th>Status</th></tr>
+            <tr><td>Smart Contract</td><td>Rust · near-sdk 5.7 · WASM 127KB</td><td class="hi">✓ Live</td></tr>
+            <tr><td>Backend API</td><td>Node.js · Express · PostgreSQL</td><td class="hi">✓ Live</td></tr>
+            <tr><td>Auth</td><td>JWT · roles: farmer/investor/admin</td><td class="hi">✓ Live</td></tr>
+            <tr><td>Frontend</td><td>Vanilla JS · Tailwind CSS · Chart.js</td><td class="hi">✓ Live</td></tr>
+            <tr><td>Hosting</td><td>Render (API) · Vercel (UI) · Neon (DB)</td><td class="hi">✓ Live</td></tr>
+            <tr><td>NEAR Wallet</td><td>NEAR Wallet Selector integration</td><td style="color:var(--orange);">→ Mainnet</td></tr>
+          </table>
+        </div>
+        <div>
+          <div class="box" style="margin-bottom:10px;">
+            <div class="box-title">Why NEAR Protocol?</div>
+            <div class="box-text" style="line-height:1.9; margin-top:6px;">
+              ✓ Near-zero transaction fees (&lt;$0.001)<br/>
+              ✓ 1-second finality<br/>
+              ✓ Carbon-neutral blockchain<br/>
+              ✓ Human-readable account IDs<br/>
+              ✓ Active RWA ecosystem &amp; grants
+            </div>
+          </div>
+          <div class="box">
+            <div class="box-title">Security model</div>
+            <div class="box-text" style="line-height:1.9; margin-top:6px;">
+              ✓ Pull-payment pattern (no push)<br/>
+              ✓ Role-based access (admin/investor)<br/>
+              ✓ State machine — no invalid transitions<br/>
+              ✓ 21 unit tests · 3 integration tests
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Pitch Deck · 2026</span><span>9 / 12</span>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 10: TEAM ═══ -->
+  <div class="slide">
+    <div class="slide-header">
+      <span class="logo">AgriPartners</span>
+      <span>Team</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-title">Founder & Full-Stack Developer</div>
+      <div class="slide-sub">Solo builder — from idea to live testnet in under 3 months</div>
+      <div class="team-card" style="margin-top:20px;">
+        <div class="team-avatar">F</div>
+        <div>
+          <div class="team-name">Farhod Muhamadiev</div>
+          <div class="team-role">Founder · Full-Stack Developer · AgriPartners</div>
+          <div class="team-skills">
+            <span class="skill-tag">Node.js</span>
+            <span class="skill-tag">Rust / NEAR</span>
+            <span class="skill-tag">PostgreSQL</span>
+            <span class="skill-tag">Smart Contracts</span>
+            <span class="skill-tag">React / JS</span>
+            <span class="skill-tag">Agriculture domain</span>
+          </div>
+          <div style="margin-top:12px; font-size:12px; color:var(--muted); line-height:1.7;">
+            Built the entire platform solo: Rust smart contract, REST API, JWT authentication system,
+            investor/farmer dashboard, and testnet demo — in under 3 months.
+            Has direct relationships with livestock farmers ready to sign real deals.
+          </div>
+        </div>
+      </div>
+      <div class="three-box" style="margin-top:20px;">
+        <div class="box">
+          <div class="box-title">Looking for</div>
+          <div class="box-text" style="margin-top:4px;">Co-founder with finance / legal background to handle deal structuring and investor relations</div>
+        </div>
+        <div class="box">
+          <div class="box-title">Advisors needed</div>
+          <div class="box-text" style="margin-top:4px;">NEAR ecosystem advisor, agricultural finance specialist, local legal counsel</div>
+        </div>
+        <div class="box">
+          <div class="box-title">Contact</div>
+          <div class="box-text" style="margin-top:4px;">farhodmuhamadiev4@gmail.com<br/>github.com/farabek</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Pitch Deck · 2026</span><span>10 / 12</span>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 11: ROADMAP ═══ -->
+  <div class="slide">
+    <div class="slide-header">
+      <span class="logo">AgriPartners</span>
+      <span>Roadmap</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-title">Testnet → Mainnet → Scale</div>
+      <div class="slide-sub">Clear milestones with funding unlocking each stage</div>
+      <div class="roadmap" style="margin-top:16px;">
+        <div class="rm-phase done">
+          <div class="rm-date">✓ Completed · May 2026</div>
+          <div class="rm-title">Foundation</div>
+          <div class="rm-items">
+            Smart contract (Rust)<br/>
+            Backend API + JWT auth<br/>
+            Farmer + investor dashboard<br/>
+            Full testnet demo<br/>
+            Farmer LOI signed
+          </div>
+        </div>
+        <div class="rm-phase now">
+          <div class="rm-date">→ Now · Q3 2026</div>
+          <div class="rm-title">Mainnet Launch</div>
+          <div class="rm-items">
+            Security audit (OtterSec)<br/>
+            Deploy to NEAR mainnet<br/>
+            NEAR Wallet Selector<br/>
+            First 2 live deals ($100k)<br/>
+            Legal framework finalized
+          </div>
+        </div>
+        <div class="rm-phase">
+          <div class="rm-date">Q4 2026</div>
+          <div class="rm-title">Growth</div>
+          <div class="rm-items">
+            10 active deals<br/>
+            Telegram notifications<br/>
+            Multi-model support<br/>
+            Regional expansion<br/>
+            First platform revenue
+          </div>
+        </div>
+        <div class="rm-phase">
+          <div class="rm-date">2027</div>
+          <div class="rm-title">Scale</div>
+          <div class="rm-items">
+            Mobile app<br/>
+            USDC stablecoin support<br/>
+            50+ active deals<br/>
+            White-label for partners<br/>
+            Series A preparation
+          </div>
+        </div>
+      </div>
+      <div class="hbox" style="margin-top:20px;">
+        $40k seed → Q3 2026 mainnet → $100k first deals → $154k platform revenue (10 deals × 35 мес)
+      </div>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Pitch Deck · 2026</span><span>11 / 12</span>
+    </div>
+  </div>
+
+  <!-- ═══ SLIDE 12: THE ASK ═══ -->
+  <div class="slide">
+    <div class="slide-header">
+      <span class="logo">AgriPartners</span>
+      <span>The Ask</span>
+    </div>
+    <div class="slide-body">
+      <div class="slide-title">Seed Grant / Investment</div>
+      <div class="slide-sub">6-month runway to mainnet launch and first $100k in live deals</div>
+      <div class="ask-total">
+        <span>$40,000</span>
+        <span class="ask-sub">Unlocks $100,000 in signed deals · 6-month runway · Mainnet launch</span>
+      </div>
+      <table class="ptable">
+        <tr><th>Budget Line</th><th>Amount</th><th>What it covers</th></tr>
+        <tr>
+          <td>Smart Contract Audit</td>
+          <td class="hi">$10,000</td>
+          <td>Independent security review by NEAR-ecosystem firm (OtterSec). Required before mainnet with real funds.</td>
+        </tr>
+        <tr>
+          <td>Infrastructure (2 years)</td>
+          <td class="hi">$3,000</td>
+          <td>Backend hosting (Render ~$25/mo), PostgreSQL (Neon ~$19/mo), domain, SSL, monitoring, NEAR gas tokens.</td>
+        </tr>
+        <tr>
+          <td>Legal &amp; First Deal</td>
+          <td class="hi">$5,000</td>
+          <td>Legal review of smart contract terms, notarization of 2 farmer agreements, compliance for RWA structure.</td>
+        </tr>
+        <tr>
+          <td>Developer Salary (6 months)</td>
+          <td class="hi">$18,000</td>
+          <td>Founder / full-stack dev at $3,000/mo — mainnet deployment, NEAR Wallet, investor dashboard, support.</td>
+        </tr>
+        <tr>
+          <td>AI Development Tools (1 year)</td>
+          <td class="hi">$1,000</td>
+          <td>Claude Pro ($20/mo), GitHub Copilot ($10/mo), OpenAI API — used daily for development and code review.</td>
+        </tr>
+        <tr>
+          <td>Operational Reserve</td>
+          <td class="hi">$3,000</td>
+          <td>Buffer for technical issues, additional legal consultations, meetings with farmers and investors.</td>
+        </tr>
+        <tr class="total"><td>TOTAL</td><td>$40,000</td><td>farhodmuhamadiev4@gmail.com · agripartners.vercel.app</td></tr>
+      </table>
+    </div>
+    <div class="slide-footer">
+      <span>AgriPartners · Confidential · May 2026</span><span>12 / 12</span>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <button id="btn-prev" disabled onclick="go(-1)">← Prev</button>
+  <span id="slide-counter">1 / 12</span>
+  <button id="btn-next" onclick="go(1)">Next →</button>
+</div>
+<div class="hint">← → arrow keys to navigate</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let cur = 0;
+
+  function show(n) {
+    slides[cur].classList.remove('active');
+    cur = Math.max(0, Math.min(n, slides.length - 1));
+    slides[cur].classList.add('active');
+    document.getElementById('slide-counter').textContent = (cur + 1) + ' / ' + slides.length;
+    document.getElementById('btn-prev').disabled = cur === 0;
+    document.getElementById('btn-next').disabled = cur === slides.length - 1;
+  }
+
+  function go(dir) { show(cur + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') go(-1);
+  });
+</script>
+
+</body>
+</html>

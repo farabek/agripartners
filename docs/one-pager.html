@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgriPartners — One-Pager</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: #f4f4f4;
+        color: #1a1a1a;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 20px auto;
+        background: #fff;
+        padding: 16mm 18mm;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 3px solid #2d6a4f;
+        padding-bottom: 10px;
+        margin-bottom: 16px;
+      }
+      .logo-area h1 {
+        font-size: 26px;
+        font-weight: 800;
+        color: #2d6a4f;
+        letter-spacing: -0.5px;
+      }
+      .logo-area p {
+        font-size: 11px;
+        color: #555;
+        margin-top: 2px;
+      }
+      .badge {
+        background: #2d6a4f;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+      }
+
+      /* Section */
+      .section {
+        margin-bottom: 14px;
+      }
+      .section-title {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #2d6a4f;
+        margin-bottom: 5px;
+        padding-bottom: 2px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      /* Two-column layout */
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .three-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+      }
+
+      /* Metric cards */
+      .metric-card {
+        background: #f0f7f4;
+        border: 1px solid #c8e6d8;
+        border-radius: 6px;
+        padding: 10px 12px;
+        text-align: center;
+      }
+      .metric-card .value {
+        font-size: 22px;
+        font-weight: 800;
+        color: #2d6a4f;
+      }
+      .metric-card .label {
+        font-size: 10px;
+        color: #555;
+        margin-top: 2px;
+      }
+
+      /* Info box */
+      .info-box {
+        background: #f9f9f9;
+        border-left: 3px solid #2d6a4f;
+        padding: 8px 12px;
+        border-radius: 0 4px 4px 0;
+        font-size: 12px;
+      }
+      .info-box b {
+        color: #2d6a4f;
+      }
+
+      /* Deal table */
+      .deal-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .deal-table th {
+        background: #2d6a4f;
+        color: #fff;
+        padding: 5px 8px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 10px;
+      }
+      .deal-table td {
+        padding: 5px 8px;
+        border-bottom: 1px solid #eee;
+      }
+      .deal-table tr:last-child td {
+        border-bottom: none;
+      }
+      .deal-table tr:nth-child(even) td {
+        background: #f9f9f9;
+      }
+      .highlight {
+        color: #2d6a4f;
+        font-weight: 700;
+      }
+
+      /* Status items */
+      .status-list {
+        list-style: none;
+      }
+      .status-list li {
+        padding: 3px 0;
+        font-size: 12px;
+      }
+      .status-list li::before {
+        content: '✓ ';
+        color: #2d6a4f;
+        font-weight: 700;
+      }
+      .status-list li.pending::before {
+        content: '→ ';
+        color: #e07b39;
+      }
+
+      /* Footer */
+      .footer {
+        margin-top: 16px;
+        padding-top: 10px;
+        border-top: 2px solid #2d6a4f;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+      .footer-links a {
+        color: #2d6a4f;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .footer-links span {
+        margin: 0 6px;
+        color: #ccc;
+      }
+      .footer-contact {
+        text-align: right;
+        font-size: 11px;
+        color: #555;
+      }
+      .footer-contact strong {
+        display: block;
+        color: #1a1a1a;
+        font-size: 12px;
+      }
+
+      /* Ask box */
+      .ask-header {
+        background: #2d6a4f;
+        color: #fff;
+        border-radius: 6px 6px 0 0;
+        padding: 8px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .ask-header .ask-amount {
+        font-size: 26px;
+        font-weight: 800;
+      }
+      .ask-header .ask-tagline {
+        font-size: 11px;
+        opacity: 0.9;
+        text-align: right;
+        line-height: 1.4;
+      }
+      .ask-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11px;
+      }
+      .ask-table th {
+        background: #1b4332;
+        color: #fff;
+        padding: 4px 8px;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 600;
+      }
+      .ask-table td {
+        padding: 4px 8px;
+        border-bottom: 1px solid #e0e0e0;
+        vertical-align: top;
+      }
+      .ask-table tr:last-child td {
+        border-bottom: none;
+      }
+      .ask-table tr:nth-child(even) td {
+        background: #f0f7f4;
+      }
+      .ask-table td:first-child {
+        font-weight: 700;
+        color: #1a1a1a;
+        white-space: nowrap;
+      }
+      .ask-table td:nth-child(2) {
+        color: #2d6a4f;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .ask-table td:last-child {
+        color: #555;
+      }
+      .ask-table .total-row td {
+        background: #2d6a4f !important;
+        color: #fff !important;
+        font-weight: 700;
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+        .page {
+          margin: 0;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- HEADER -->
+      <div class="header">
+        <div class="logo-area">
+          <h1>AgriPartners</h1>
+          <p>
+            Blockchain-powered agricultural investment platform on NEAR Protocol
+          </p>
+        </div>
+        <div class="badge">LIVE ON TESTNET</div>
+      </div>
+
+      <!-- PROBLEM + SOLUTION -->
+      <div class="two-col" style="margin-bottom: 14px">
+        <div class="section">
+          <div class="section-title">The Problem</div>
+          <div class="info-box">
+            Small livestock farmers in emerging markets have
+            <b>no access to working capital</b> to scale operations. Banks
+            require collateral they don't have. Investment deals are handled on
+            paper — slow, opaque, and risky for all parties.
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-title">Our Solution</div>
+          <div class="info-box">
+            <b>AgriPartners</b> tokenizes livestock investment deals as NEAR
+            smart contracts. Investors get transparent, on-chain returns.
+            Farmers get capital with zero upfront cost. Every payment, cycle,
+            and payout is recorded on-chain.
+          </div>
+        </div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="section">
+        <div class="section-title">
+          Investment Returns — Fidlot v5.9 Model (50 heads · 7 cycles · 35
+          months)
+        </div>
+        <div class="three-col">
+          <div class="metric-card">
+            <div class="value">+64%</div>
+            <div class="label">
+              Total ROI for investor<br /><strong>$50k → $82k</strong>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="value">21.9%</div>
+            <div class="label">
+              APR over 35 months<br /><strong>Verified on-chain</strong>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="value">$114k</div>
+            <div class="label">
+              Farmer earnings<br /><strong>+ feedlot asset $18k</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEAL STRUCTURE -->
+      <div class="section">
+        <div class="section-title">Deal Structure</div>
+        <table class="deal-table">
+          <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+            <th>Parameter</th>
+            <th>Value</th>
+          </tr>
+          <tr>
+            <td>Split (Investor / Farmer)</td>
+            <td class="highlight">60% / 40%</td>
+            <td>Cycle duration</td>
+            <td class="highlight">5 months</td>
+          </tr>
+          <tr>
+            <td>Investment size</td>
+            <td class="highlight">$50,000 per deal</td>
+            <td>Total cycles</td>
+            <td class="highlight">7 cycles</td>
+          </tr>
+          <tr>
+            <td>Platform fee</td>
+            <td class="highlight">20% of investor share only</td>
+            <td>Farmer cost</td>
+            <td class="highlight">$0 upfront</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- TRACTION + STATUS -->
+      <div class="section">
+        <div class="section-title">Traction &amp; Status</div>
+        <div class="two-col">
+          <ul class="status-list">
+            <li>Smart contract deployed &amp; tested on NEAR testnet</li>
+            <li>Full lifecycle demo completed (fund → 7 cycles → payout)</li>
+            <li>Backend API live: agripartners.onrender.com</li>
+            <li>Public dashboard: agripartners.vercel.app</li>
+          </ul>
+          <ul class="status-list">
+            <li>
+              Farmer LOI signed: 2 deals × $50k = <strong>$100k ready</strong>
+            </li>
+            <li>JWT auth with farmer/investor roles implemented</li>
+            <li class="pending">Contract audit required before mainnet</li>
+            <li class="pending">Seeking seed funding to launch</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ASK -->
+      <div class="section">
+        <div class="section-title">The Ask — Seed Grant / Investment</div>
+        <div class="ask-header">
+          <div class="ask-amount">$40,000</div>
+          <div class="ask-tagline">
+            Unlocks $100,000 in signed deals immediately.<br />6-month runway to
+            mainnet launch.
+          </div>
+        </div>
+        <table class="ask-table">
+          <tr>
+            <th>Budget Line</th>
+            <th>Amount</th>
+            <th>What it covers</th>
+          </tr>
+          <tr>
+            <td>Smart Contract Audit</td>
+            <td>$10,000</td>
+            <td>
+              Independent security audit by NEAR-ecosystem firm (e.g. OtterSec).
+              Required before deploying to mainnet with real investor funds.
+              Covers full code review + report.
+            </td>
+          </tr>
+          <tr>
+            <td>Infrastructure (2 years)</td>
+            <td>$3,000</td>
+            <td>
+              Backend hosting (Render ~$25/mo), PostgreSQL database (Neon
+              ~$19/mo), domain + SSL, monitoring tools, NEAR mainnet gas tokens
+              for platform operations.
+            </td>
+          </tr>
+          <tr>
+            <td>Legal &amp; First Deal</td>
+            <td>$5,000</td>
+            <td>
+              Local legal review of smart contract terms, notarization of 2
+              farmer agreements, contract translation &amp; localization,
+              compliance consultation for RWA structure.
+            </td>
+          </tr>
+          <tr>
+            <td>Developer Salary (6 months)</td>
+            <td>$18,000</td>
+            <td>
+              Full-stack developer (founder) at $3,000/mo. Covers: mainnet
+              deployment, NEAR Wallet integration, investor dashboard, ongoing
+              maintenance &amp; support for first deals.
+            </td>
+          </tr>
+          <tr>
+            <td>AI Development Tools (1 year)</td>
+            <td>$1,000</td>
+            <td>
+              Claude Pro ($20/mo), GitHub Copilot ($10/mo), OpenAI API for
+              testing (~$50/mo). Used daily for development, code review, and
+              documentation.
+            </td>
+          </tr>
+          <tr>
+            <td>Operational Reserve</td>
+            <td>$3,000</td>
+            <td>
+              Buffer for unexpected technical issues, additional legal
+              consultations, travel for farmer/investor meetings, marketing
+              materials for outreach.
+            </td>
+          </tr>
+          <tr class="total-row">
+            <td>TOTAL</td>
+            <td>$40,000</td>
+            <td>6-month runway · Mainnet launch · First $100k in live deals</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <div class="footer-links">
+          <a href="https://agripartners.vercel.app">agripartners.vercel.app</a>
+          <span>|</span>
+          <a href="https://agripartners.onrender.com">API Docs</a>
+          <span>|</span>
+          <a href="https://github.com/farabek/agripartners">GitHub</a>
+        </div>
+        <div class="footer-contact">
+          <strong>AgriPartners</strong>
+          farhodmuhamadiev4@gmail.com
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
