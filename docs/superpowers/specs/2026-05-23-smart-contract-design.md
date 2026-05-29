@@ -1,54 +1,55 @@
-# AgriPartners — Дизайн смарт-контракта NEAR
+# AgriPartners — NEAR Smart Contract Design
 
-**Дата:** 2026-05-23  
-**Продукты:** Fidlot v5.9 (откорм баранчиков) + Hissar (разведение овцематок)  
-**Статус:** Одобрен
+**Date:** 2026-05-23
+**Products:** Fidlot v5.9 (cattle fattening) + Hissar (ewe breeding)
+**Status:** Approved
 
 ---
 
-## 1. Архитектура
+## 1. Architecture
 
-**Принцип:** Один контракт = одна сделка (один фермер + один инвестор).
+**Principle:** One contract = one deal (one farmer + one investor).
 
-Fidlot и Hissar используют **одинаковый шаблон контракта** — разница только в параметрах при деплое. Каждый инвестор получает свой отдельный экземпляр контракта.
+Fidlot and Hissar use the **same contract template** — the difference is only in the parameters at deploy time. Each investor gets their own separate contract instance.
 
-**Стек:**
-- Язык: Rust
+**Stack:**
+
+- Language: Rust
 - SDK: near-sdk 5.x
-- Токен: Native NEAR (Ⓝ)
-- Верификация циклов: Admin (адрес платформы)
-- Паттерн выплат: Pull (withdraw)
+- Token: Native NEAR (Ⓝ)
+- Cycle verification: Admin (platform address)
+- Payout pattern: Pull (withdraw)
 
 ---
 
-## 2. Участники
+## 2. Participants
 
-| Роль | Описание |
+| Role | Description |
 | --- | --- |
-| `farmer` | Адрес фермера — получает 60% дохода |
-| `investor` | Адрес инвестора — вносит средства, получает 40% дохода |
-| `admin` | Адрес платформы — управляет циклами, верифицирует итоги |
-| `platform` | Адрес для получения Performance Fee |
+| `farmer` | Farmer address — receives 60% of income |
+| `investor` | Investor address — deposits funds, receives 40% of income |
+| `admin` | Platform address — manages cycles, verifies results |
+| `platform` | Address for receiving Performance Fee |
 
 ---
 
-## 3. Параметры деплоя (все переменные)
+## 3. Deploy Parameters (all variables)
 
-| Параметр | Тип | Fidlot | Hissar |
+| Parameter | Type | Fidlot | Hissar |
 | --- | --- | --- | --- |
-| `farmer` | AccountId | адрес фермера | адрес фермера |
-| `investor` | AccountId | адрес инвестора | адрес инвестора |
-| `admin` | AccountId | адрес платформы | адрес платформы |
-| `platform` | AccountId | адрес платформы | адрес платформы |
+| `farmer` | AccountId | farmer address | farmer address |
+| `investor` | AccountId | investor address | investor address |
+| `admin` | AccountId | platform address | platform address |
+| `platform` | AccountId | platform address | platform address |
 | `deal_type` | String | "fidlot" | "hissar" |
-| `investment_amount` | Balance (NEAR) | сумма в NEAR | сумма в NEAR |
+| `investment_amount` | Balance (NEAR) | amount in NEAR | amount in NEAR |
 | `farmer_split_pct` | u8 | 60 | 60 |
 | `investor_split_pct` | u8 | 40 | 40 |
 | `escrow_pct` | u8 | 44 | **44** |
 | `performance_fee_pct` | u8 | 20 | 20 |
-| `cycle_duration_days` | u32 | 150 (5 мес) | **180 (6 мес)** |
+| `cycle_duration_days` | u32 | 150 (5 months) | **180 (6 months)** |
 | `total_cycles` | u8 | 7 | **6** |
-| `capital_return_near` | Balance | ~$20,400 в NEAR | **~$20,600** (от продажи стада) |
+| `capital_return_near` | Balance | ~$20,400 in NEAR | **~$20,600** (from herd sale) |
 
 ---
 
@@ -56,139 +57,150 @@ Fidlot и Hissar используют **одинаковый шаблон кон
 
 ```
 Initialized
-    ↓  investor вызывает fund()
+    ↓  investor calls fund()
 Funded
-    ↓  admin вызывает start_cycle()
+    ↓  admin calls start_cycle()
 CycleActive
-    ↓  admin вызывает report_cycle()
+    ↓  admin calls report_cycle()
 CycleSettlement
-    ↓  контракт автоматически переходит
-    ├── ещё есть циклы → CycleActive (следующий цикл)
-    ├── все циклы завершены → Completed ✅
-    └── критические потери → Terminated ❌
+    ↓  contract transitions automatically
+    ├── cycles remaining → CycleActive (next cycle)
+    ├── all cycles completed → Completed ✅
+    └── critical losses → Terminated ❌
 ```
 
 ---
 
-## 5. Функции
+## 5. Functions
 
-### `fund()` — инвестор
-- Вызывает: только `investor`
-- Статус: только `Initialized`
-- Принимает ровно `investment_amount` NEAR, иначе возврат
-- После успеха: статус → `Funded`
+### `fund()` — investor
+
+- Caller: only `investor`
+- Status: only `Initialized`
+- Accepts exactly `investment_amount` NEAR, otherwise refunds
+- On success: status → `Funded`
 
 ### `start_cycle()` — admin
-- Вызывает: только `admin`
-- Статус: `Funded` или `CycleSettlement`
-- Переводит операционные средства фермеру на цикл
-- После успеха: статус → `CycleActive`
+
+- Caller: only `admin`
+- Status: `Funded` or `CycleSettlement`
+- Transfers operating funds to the farmer for the cycle
+- On success: status → `CycleActive`
 
 ### `report_cycle(losses_near)` — admin
-- Вызывает: только `admin`
-- Статус: только `CycleActive`
-- Admin **прикрепляет NEAR к транзакции** — это и есть прибыль цикла (farmer + investor возвращают капитал + прибыль)
-- Контракт распределяет прикреплённый NEAR по формуле (см. раздел 6)
-- `losses_near` — сумма потерь (0 если успешный цикл)
-- После успеха: статус → `CycleSettlement`
 
-### `withdraw()` — farmer или investor
-- Вызывает: `farmer` или `investor`
-- Доступно после каждого `CycleSettlement`
-- Переводит накопленный доступный баланс вызывающему
-- Эскроу-пул недоступен для вывода до `Completed`
+- Caller: only `admin`
+- Status: only `CycleActive`
+- Admin **attaches NEAR to the transaction** — this is the cycle profit (farmer + investor return capital + profit)
+- Contract distributes attached NEAR according to the formula (see section 6)
+- `losses_near` — loss amount (0 if successful cycle)
+- On success: status → `CycleSettlement`
 
-### View-функции (бесплатно, только чтение)
-- `get_status()` — текущий статус, номер цикла
-- `get_balances()` — балансы farmer, investor, escrow
-- `get_params()` — все параметры контракта
+### `withdraw()` — farmer or investor
+
+- Caller: `farmer` or `investor`
+- Available after each `CycleSettlement`
+- Transfers accumulated available balance to the caller
+- Escrow pool is not available for withdrawal until `Completed`
+
+### View functions (free, read-only)
+
+- `get_status()` — current status, cycle number
+- `get_balances()` — farmer, investor, escrow balances
+- `get_params()` — all contract parameters
 
 ---
 
-## 6. Логика распределения (при report_cycle)
+## 6. Distribution Logic (during report_cycle)
 
 ```
-Доход цикла = profit_near
+Cycle income = profit_near
 
-Доля фермера     = profit_near × farmer_split_pct / 100
-Доля инвестора   = profit_near × investor_split_pct / 100
-Performance fee  = доля инвестора × performance_fee_pct / 100  → platform
-Чистая инвестору = доля инвестора - performance fee
+Farmer share    = profit_near × farmer_split_pct / 100
+Investor share  = profit_near × investor_split_pct / 100
+Performance fee = investor share × performance_fee_pct / 100  → platform
+Net to investor = investor share - performance fee
 
-Эскроу взнос     = доля фермера × escrow_pct / 100  → escrow_pool
-Чистый фермеру   = доля фермера - эскроу взнос  → farmer_available
+Escrow contribution = farmer share × escrow_pct / 100  → escrow_pool
+Net to farmer       = farmer share - escrow contribution  → farmer_available
 ```
 
-**Прибыль цикла** = NEAR прикреплённый к `report_cycle()` транзакции (attached_deposit)
+**Cycle profit** = NEAR attached to `report_cycle()` transaction (attached_deposit)
 
-**При losses_near > 0:**
+**When losses_near > 0:**
+
 ```
-Если losses_near ≤ escrow_pool:
+If losses_near ≤ escrow_pool:
     escrow_pool -= losses_near
-    investor_available += losses_near   (компенсация)
-    цикл продолжается
+    investor_available += losses_near   (compensation)
+    cycle continues
 
-Если losses_near > escrow_pool:
-    investor_available += escrow_pool   (весь эскроу → инвестору)
+If losses_near > escrow_pool:
+    investor_available += escrow_pool   (all escrow → investor)
     escrow_pool = 0
-    статус → Terminated
+    status → Terminated
 ```
 
-**При Completed (все циклы успешны):**
+**On Completed (all cycles successful):**
+
 ```
-escrow_pool → farmer_available          (весь эскроу возвращается фермеру)
-capital_return_near → investor_available (рабочий капитал возвращается инвестору)
+escrow_pool → farmer_available          (all escrow returned to farmer)
+capital_return_near → investor_available (working capital returned to investor)
 ```
 
-**Примечание по операционным расходам фермера:**
-Зарплата ($1,750/цикл) и транспорт ($1,000/цикл) — оффчейн расходы фермера.
-Контракт их не отслеживает. Admin сообщает чистую прибыль (profit_near) уже с
-учётом того, что эти расходы фермер покрывает самостоятельно.
+**Note on farmer operating costs:**
+Salary ($1,750/cycle) and transport ($1,000/cycle) are off-chain farmer expenses.
+The contract does not track them. Admin reports net profit (profit_near) already accounting for
+the fact that the farmer covers these costs independently.
 
 ---
 
-## 7. Защита и контроль доступа
+## 7. Security and Access Control
 
-| Функция | Разрешено |
+| Function | Allowed |
 | --- | --- |
-| `fund()` | только `investor` + статус `Initialized` |
-| `start_cycle()` | только `admin` + статус `Funded`/`CycleSettlement` |
-| `report_cycle()` | только `admin` + статус `CycleActive` |
-| `withdraw()` | `farmer` или `investor` (свой баланс) |
+| `fund()` | only `investor` + status `Initialized` |
+| `start_cycle()` | only `admin` + status `Funded`/`CycleSettlement` |
+| `report_cycle()` | only `admin` + status `CycleActive` |
+| `withdraw()` | `farmer` or `investor` (own balance) |
 
-Нарушение любого условия → паника контракта, NEAR возвращается.
-
----
-
-## 8. Тестирование
-
-### Unit-тесты (Rust, в контракте)
-- [ ] Параметры деплоя сохраняются корректно
-- [ ] `fund()` принимает ровно `investment_amount`
-- [ ] `fund()` отклоняет неверную сумму
-- [ ] `start_cycle()` доступен только admin
-- [ ] `report_cycle()` корректно считает доли (60/40, эскроу, fee)
-- [ ] `withdraw()` отдаёт правильную сумму
-- [ ] Полный успешный путь × 7 циклов → Completed, эскроу возвращается
-- [ ] Частичные потери → списание из эскроу, цикл продолжается
-- [ ] Критические потери → Terminated
-
-### Integration-тесты (NEAR Sandbox)
-- [ ] Happy path: 7 циклов без потерь
-- [ ] Один цикл с частичными потерями
-- [ ] Terminated сценарий
-- [ ] Fidlot параметры vs Hissar параметры
-- [ ] Несанкционированный вызов → паника
-
-### Демо для питча NEAR Protocol
-- Деплой на testnet с реальными адресами
-- Скрипт-демо: полный цикл за ~1 минуту (сжатые временные параметры)
+Any condition violation → contract panic, NEAR is returned.
 
 ---
 
-## 9. Примеры деплоя
+## 8. Testing
 
-**Fidlot контракт:**
+### Unit tests (Rust, in contract)
+
+- [ ] Deploy parameters are stored correctly
+- [ ] `fund()` accepts exactly `investment_amount`
+- [ ] `fund()` rejects incorrect amount
+- [ ] `start_cycle()` accessible only by admin
+- [ ] `report_cycle()` correctly calculates shares (60/40, escrow, fee)
+- [ ] `withdraw()` returns correct amount
+- [ ] Full successful path × 7 cycles → Completed, escrow returned
+- [ ] Partial losses → deducted from escrow, cycle continues
+- [ ] Critical losses → Terminated
+
+### Integration tests (NEAR Sandbox)
+
+- [ ] Happy path: 7 cycles without losses
+- [ ] One cycle with partial losses
+- [ ] Terminated scenario
+- [ ] Fidlot parameters vs Hissar parameters
+- [ ] Unauthorized call → panic
+
+### Demo for NEAR Protocol pitch
+
+- Deploy on testnet with real addresses
+- Demo script: full cycle in ~1 minute (compressed time parameters)
+
+---
+
+## 9. Deploy Examples
+
+**Fidlot contract:**
+
 ```
 farmer = "farmer.testnet"
 investor = "investor1.testnet"
@@ -202,10 +214,11 @@ escrow_pct = 44
 performance_fee_pct = 20
 cycle_duration_days = 150
 total_cycles = 7
-capital_return_near = 20400 NEAR  (рабочий капитал, возвращается инвестору при Completed)
+capital_return_near = 20400 NEAR  (working capital, returned to investor at Completed)
 ```
 
-**Hissar контракт (другой инвестор):**
+**Hissar contract (different investor):**
+
 ```
 farmer = "farmer.testnet"
 investor = "investor2.testnet"
@@ -217,11 +230,11 @@ farmer_split_pct = 60
 investor_split_pct = 40
 escrow_pct = 44
 performance_fee_pct = 20
-cycle_duration_days = 180  (6 месяцев)
+cycle_duration_days = 180  (6 months)
 total_cycles = 6
-capital_return_near = 20600 NEAR  (от продажи маточного стада после цикла 6)
+capital_return_near = 20600 NEAR  (from sale of breeding herd after cycle 6)
 ```
 
-**Примечание Hissar:** Эскроу 44% применяется так же как в Fidlot.
-С цикла 3 "плата за стадо" $2,500/цикл выплачивается инвестору ДО раздела прибыли 60/40.
-Admin учитывает это при отчёте — указывает чистую прибыль уже после вычета платы за стадо.
+**Hissar note:** Escrow 44% is applied the same way as in Fidlot.
+From cycle 3, the "herd fee" of $2,500/cycle is paid to the investor BEFORE the 60/40 profit split.
+Admin accounts for this in the report — specifies net profit already after deducting the herd fee.

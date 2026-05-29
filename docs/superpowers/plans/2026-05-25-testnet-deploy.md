@@ -2,50 +2,53 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Добавить fund-эндпоинт в backend и создать demo.ps1 для запуска AgriPartners на NEAR testnet с одной командой.
+**Goal:** Add fund endpoint to backend and create demo.ps1 to run AgriPartners on NEAR testnet with a single command.
 
-**Architecture:** Backend получает новый эндпоинт `POST /api/admin/deals/:id/fund` который вызывает `fund()` на смарт-контракте. PowerShell-скрипт `demo.ps1` оркестрирует полный demo-цикл через API. Всё запускается локально.
+**Architecture:** Backend gets a new endpoint `POST /api/admin/deals/:id/fund` which calls `fund()` on the smart contract. A PowerShell script `demo.ps1` orchestrates the full demo cycle through the API. Everything runs locally.
 
-**Tech Stack:** Node.js + Express (backend), near-api-js v2 (NEAR вызовы), PowerShell (demo-скрипт), NEAR testnet (farab.testnet).
+**Tech Stack:** Node.js + Express (backend), near-api-js v2 (NEAR calls), PowerShell (demo script), NEAR testnet (farab.testnet).
 
 ---
 
-## Файловая структура
+## File Structure
 
 ```
 E:\agripartners\
-  backend\src\services\nearService.js    — добавить fundContract()
-  backend\src\routes\admin.js            — добавить POST /deals/:id/fund
-  backend\tests\admin.routes.test.js     — добавить 2 теста для fund
-  demo.ps1                               — новый demo-скрипт
+  backend\src\services\nearService.js    — add fundContract()
+  backend\src\routes\admin.js            — add POST /deals/:id/fund
+  backend\tests\admin.routes.test.js     — add 2 tests for fund
+  demo.ps1                               — new demo script
 ```
 
 ---
 
-## Task 1: Fund эндпоинт в backend
+## Task 1: Fund endpoint in backend
 
 **Files:**
+
 - Modify: `E:\agripartners\backend\src\services\nearService.js`
 - Modify: `E:\agripartners\backend\src\routes\admin.js`
 - Modify: `E:\agripartners\backend\tests\admin.routes.test.js`
 
-- [ ] **Шаг 1: Добавить mockDeal.investment_amount в тест-файл**
+- [ ] **Step 1: Add mockDeal.investment_amount to test file**
 
-Открыть `E:\agripartners\backend\tests\admin.routes.test.js`.
+Open `E:\agripartners\backend\tests\admin.routes.test.js`.
 
-Найти строку:
+Find the line:
+
 ```js
 const mockDeal = { id: 1, contract_address: 'ap1.agripartners.testnet', deal_type: 'fidlot' };
 ```
 
-Заменить на:
+Replace with:
+
 ```js
 const mockDeal = { id: 1, contract_address: 'ap1.agripartners.testnet', deal_type: 'fidlot', investment_amount: '10000000000000000000000000' };
 ```
 
-- [ ] **Шаг 2: Написать два failing теста для fund**
+- [ ] **Step 2: Write two failing tests for fund**
 
-В конце файла `admin.routes.test.js`, после последнего теста, добавить:
+At the end of `admin.routes.test.js`, after the last test, add:
 
 ```js
 test('POST /api/admin/deals/:id/fund calls fundContract and records event', async () => {
@@ -74,20 +77,20 @@ test('POST /api/admin/deals/:id/fund returns 404 when deal not found', async () 
 });
 ```
 
-- [ ] **Шаг 3: Запустить тесты и убедиться что новые падают**
+- [ ] **Step 3: Run tests and verify new ones fail**
 
 ```powershell
 Set-Location E:\agripartners\backend
 npm test -- --testPathPattern=admin.routes
 ```
 
-Ожидаемый вывод: два новых теста FAIL (`Cannot read properties of undefined` или `404 expected 200`), остальные 5 PASS.
+Expected output: two new tests FAIL (`Cannot read properties of undefined` or `404 expected 200`), remaining 5 PASS.
 
-- [ ] **Шаг 4: Добавить fundContract в nearService.js**
+- [ ] **Step 4: Add fundContract to nearService.js**
 
-Открыть `E:\agripartners\backend\src\services\nearService.js`.
+Open `E:\agripartners\backend\src\services\nearService.js`.
 
-Перед строкой `module.exports = {` добавить:
+Before the `module.exports = {` line add:
 
 ```js
 async function fundContract(contractAddress, investmentAmount) {
@@ -103,23 +106,25 @@ async function fundContract(contractAddress, investmentAmount) {
 }
 ```
 
-- [ ] **Шаг 5: Экспортировать fundContract**
+- [ ] **Step 5: Export fundContract**
 
-Найти строку:
+Find the line:
+
 ```js
 module.exports = { getContractStatus, getContractBalances, deployContract, startCycle, reportCycle };
 ```
 
-Заменить на:
+Replace with:
+
 ```js
 module.exports = { getContractStatus, getContractBalances, deployContract, startCycle, reportCycle, fundContract };
 ```
 
-- [ ] **Шаг 6: Добавить роут POST /deals/:id/fund в admin.js**
+- [ ] **Step 6: Add route POST /deals/:id/fund to admin.js**
 
-Открыть `E:\agripartners\backend\src\routes\admin.js`.
+Open `E:\agripartners\backend\src\routes\admin.js`.
 
-Перед строкой `module.exports = router;` добавить:
+Before the `module.exports = router;` line add:
 
 ```js
 router.post('/deals/:id/fund', async (req, res) => {
@@ -138,19 +143,20 @@ router.post('/deals/:id/fund', async (req, res) => {
 });
 ```
 
-- [ ] **Шаг 7: Запустить все тесты и убедиться что все проходят**
+- [ ] **Step 7: Run all tests and verify all pass**
 
 ```powershell
 Set-Location E:\agripartners\backend
 npm test
 ```
 
-Ожидаемый вывод:
+Expected output:
+
 ```
 Tests: 31 passed, 31 total
 ```
 
-- [ ] **Шаг 8: Закоммитить**
+- [ ] **Step 8: Commit**
 
 ```powershell
 Set-Location E:\agripartners
@@ -160,17 +166,18 @@ git commit -m "feat: add fund endpoint to backend for testnet demo"
 
 ---
 
-## Task 2: Создать demo.ps1
+## Task 2: Create demo.ps1
 
 **Files:**
+
 - Create: `E:\agripartners\demo.ps1`
 
-- [ ] **Шаг 1: Создать demo.ps1**
+- [ ] **Step 1: Create demo.ps1**
 
 ```powershell
 # AgriPartners Demo Script
-# Запуск: .\demo.ps1
-# Требования: backend запущен (npm start), frontend запущен (serve frontend -p 5500)
+# Run: .\demo.ps1
+# Requirements: backend running (npm start), frontend running (serve frontend -p 5500)
 
 $API_BASE = "http://localhost:3000"
 $API_KEY  = "agripartners-demo-key"
@@ -189,19 +196,19 @@ function Pause($msg) { Read-Host "`n$msg [Enter]" | Out-Null }
 Write-Host "`nAgriPartners Demo — NEAR Testnet" -ForegroundColor Yellow
 Write-Host "=================================" -ForegroundColor Yellow
 
-# 0. Проверка backend
-Step "Проверка backend"
+# 0. Check backend
+Step "Check backend"
 try {
     Invoke-RestMethod "$API_BASE/health" -ErrorAction Stop | Out-Null
-    Ok "Backend доступен на $API_BASE"
+    Ok "Backend available at $API_BASE"
 } catch {
-    Write-Host "ОШИБКА: Backend недоступен. Запустите: cd backend; npm start" -ForegroundColor Red
+    Write-Host "ERROR: Backend unavailable. Run: cd backend; npm start" -ForegroundColor Red
     exit 1
 }
 
-# 1. Деплой сделки
-Step "1. Деплой смарт-контракта"
-Write-Host "Это займёт 10-30 секунд (транзакция на testnet)..."
+# 1. Deploy deal
+Step "1. Deploy smart contract"
+Write-Host "This will take 10-30 seconds (testnet transaction)..."
 
 $dealBody = @{
     deal_type          = "Fidlot v5.9"
@@ -220,67 +227,67 @@ $dealBody = @{
 try {
     $deal = Invoke-RestMethod "$API_BASE/api/admin/deals" -Method POST -Headers $HEADERS -Body $dealBody -ContentType "application/json" -ErrorAction Stop
 } catch {
-    Write-Host "ОШИБКА при деплое: $_" -ForegroundColor Red
+    Write-Host "ERROR during deploy: $_" -ForegroundColor Red
     exit 1
 }
 
 $dealId = $deal.id
-Ok "Контракт задеплоен: $($deal.contract_address)"
+Ok "Contract deployed: $($deal.contract_address)"
 Ok "Deal ID: $dealId"
-Write-Host "`nОткройте в браузере: http://localhost:5500/#deals/$dealId" -ForegroundColor Yellow
-Pause "Просмотрите дашборд, затем продолжите"
+Write-Host "`nOpen in browser: http://localhost:5500/#deals/$dealId" -ForegroundColor Yellow
+Pause "Review dashboard, then continue"
 
-# 2. Финансирование
-Step "2. Внесение инвестиции (fund)"
-Write-Host "Инвестор вносит 10 NEAR..."
+# 2. Fund
+Step "2. Deposit investment (fund)"
+Write-Host "Investor deposits 10 NEAR..."
 try {
     $funded = Invoke-RestMethod "$API_BASE/api/admin/deals/$dealId/fund" -Method POST -Headers $HEADERS -ErrorAction Stop
 } catch {
-    Write-Host "ОШИБКА при fund: $_" -ForegroundColor Red
+    Write-Host "ERROR during fund: $_" -ForegroundColor Red
     exit 1
 }
-Ok "Инвестиция внесена. TX: $($funded.tx_hash)"
-Write-Host "Обновите дашборд — статус изменится на Funded" -ForegroundColor Yellow
-Pause "Нажмите Enter для старта цикла 1"
+Ok "Investment deposited. TX: $($funded.tx_hash)"
+Write-Host "Refresh dashboard — status will change to Funded" -ForegroundColor Yellow
+Pause "Press Enter to start cycle 1"
 
-# 3. Циклы
+# 3. Cycles
 for ($i = 1; $i -le 3; $i++) {
-    Step "$i. Старт цикла $i"
+    Step "$i. Start cycle $i"
     try {
         $started = Invoke-RestMethod "$API_BASE/api/admin/deals/$dealId/start-cycle" -Method POST -Headers $HEADERS -ErrorAction Stop
     } catch {
-        Write-Host "ОШИБКА при start-cycle: $_" -ForegroundColor Red
+        Write-Host "ERROR during start-cycle: $_" -ForegroundColor Red
         exit 1
     }
-    Ok "Цикл $i запущен. TX: $($started.tx_hash)"
-    Write-Host "Обновите дашборд — статус: CycleActive, цикл $i" -ForegroundColor Yellow
-    Pause "Нажмите Enter для репорта цикла $i"
+    Ok "Cycle $i started. TX: $($started.tx_hash)"
+    Write-Host "Refresh dashboard — status: CycleActive, cycle $i" -ForegroundColor Yellow
+    Pause "Press Enter to report cycle $i"
 
     $reportBody = @{ profit_near = $PROFIT; losses_near = "0" } | ConvertTo-Json
     try {
         $reported = Invoke-RestMethod "$API_BASE/api/admin/deals/$dealId/report-cycle" -Method POST -Headers $HEADERS -Body $reportBody -ContentType "application/json" -ErrorAction Stop
     } catch {
-        Write-Host "ОШИБКА при report-cycle: $_" -ForegroundColor Red
+        Write-Host "ERROR during report-cycle: $_" -ForegroundColor Red
         exit 1
     }
-    Ok "Цикл $i завершён. Статус: $($reported.status)"
+    Ok "Cycle $i completed. Status: $($reported.status)"
 
     if ($reported.status -eq "Completed" -or $reported.status -eq "Terminated") {
-        Write-Host "Обновите дашборд — статус: $($reported.status)" -ForegroundColor Yellow
+        Write-Host "Refresh dashboard — status: $($reported.status)" -ForegroundColor Yellow
         break
     }
 
     if ($i -lt 3) {
-        Pause "Нажмите Enter для цикла $($i + 1)"
+        Pause "Press Enter for cycle $($i + 1)"
     }
 }
 
 Write-Host "`n=================================" -ForegroundColor Yellow
-Write-Host "Demo завершён!" -ForegroundColor Green
-Write-Host "Дашборд: http://localhost:5500/#deals/$dealId" -ForegroundColor Yellow
+Write-Host "Demo complete!" -ForegroundColor Green
+Write-Host "Dashboard: http://localhost:5500/#deals/$dealId" -ForegroundColor Yellow
 ```
 
-- [ ] **Шаг 2: Проверить синтаксис скрипта**
+- [ ] **Step 2: Verify script syntax**
 
 ```powershell
 $errors = $null
@@ -288,12 +295,12 @@ $errors = $null
     "E:\agripartners\demo.ps1", [ref]$null, [ref]$errors
 )
 if ($errors) { $errors | ForEach-Object { Write-Host $_.Message -ForegroundColor Red } }
-else { Write-Host "Синтаксис OK" -ForegroundColor Green }
+else { Write-Host "Syntax OK" -ForegroundColor Green }
 ```
 
-Ожидаемый вывод: `Синтаксис OK`
+Expected output: `Syntax OK`
 
-- [ ] **Шаг 3: Закоммитить**
+- [ ] **Step 3: Commit**
 
 ```powershell
 Set-Location E:\agripartners
@@ -303,104 +310,107 @@ git commit -m "feat: add PowerShell demo script for testnet pitch"
 
 ---
 
-## Task 3: Настройка .env и проверка готовности
+## Task 3: .env setup and readiness check
 
-Это инструкции для ручного выполнения (не код). Необходимо сделать до запуска demo.ps1.
+These are manual instructions (not code). Must be done before running demo.ps1.
 
 **Files:**
-- Modify: `E:\agripartners\backend\.env` (вручную, не коммитить)
 
-- [ ] **Шаг 1: Экспортировать приватный ключ из MyNearWallet**
+- Modify: `E:\agripartners\backend\.env` (manually, do not commit)
 
-1. Открыть `testnet.mynearwallet.com` в браузере
-2. Нажать на иконку профиля → Settings
+- [ ] **Step 1: Export private key from MyNearWallet**
+
+1. Open `testnet.mynearwallet.com` in browser
+2. Click profile icon → Settings
 3. Security & Recovery → Export Private Key
-4. Ввести пароль кошелька
-5. Скопировать строку вида `ed25519:...`
+4. Enter wallet password
+5. Copy the string in format `ed25519:...`
 
-- [ ] **Шаг 2: Заполнить backend/.env**
+- [ ] **Step 2: Fill in backend/.env**
 
-Открыть `E:\agripartners\backend\.env` и заполнить:
+Open `E:\agripartners\backend\.env` and fill in:
 
 ```env
 NEAR_NETWORK=testnet
 NEAR_ADMIN_ACCOUNT=farab.testnet
-NEAR_ADMIN_PRIVATE_KEY=ed25519:ВСТАВИТЬ_КЛЮЧ_СЮДА
+NEAR_ADMIN_PRIVATE_KEY=ed25519:INSERT_KEY_HERE
 WASM_PATH=../contract/target/wasm32-unknown-unknown/release/agripartners.wasm
 API_KEY=agripartners-demo-key
 PORT=3000
 DB_PATH=./agripartners.db
 ```
 
-- [ ] **Шаг 3: Убедиться что WASM существует**
+- [ ] **Step 3: Verify WASM exists**
 
 ```powershell
 Test-Path "E:\agripartners\contract\target\wasm32-unknown-unknown\release\agripartners.wasm"
 ```
 
-Ожидаемый вывод: `True`
+Expected output: `True`
 
-Если `False` — собрать WASM:
+If `False` — build WASM:
+
 ```powershell
 Set-Location E:\agripartners\contract
 $env:RUSTUP_TOOLCHAIN = "1.86"
 cargo build --target wasm32-unknown-unknown --release
 ```
 
-- [ ] **Шаг 4: Проверить баланс farab.testnet**
+- [ ] **Step 4: Check farab.testnet balance**
 
-Открыть `https://testnet.nearblocks.io/address/farab.testnet` в браузере.
+Open `https://testnet.nearblocks.io/address/farab.testnet` in browser.
 
-Убедиться что баланс > 15 NEAR (нужно ~12 NEAR на деплой аккаунта + инвестицию + gas).
+Verify balance > 15 NEAR (need ~12 NEAR for account deploy + investment + gas).
 
-Если меньше — получить тестовый NEAR через `https://near-faucet.io`.
+If less — get test NEAR from `https://near-faucet.io`.
 
-- [ ] **Шаг 5: Запустить backend и проверить подключение**
+- [ ] **Step 5: Start backend and verify connection**
 
 ```powershell
 Set-Location E:\agripartners\backend
 npm start
 ```
 
-Ожидаемый вывод: `AgriPartners backend listening on port 3000` (или аналог без ошибок).
+Expected output: `AgriPartners backend listening on port 3000` (or similar with no errors).
 
-Проверить в новом терминале:
+Check in a new terminal:
+
 ```powershell
 Invoke-RestMethod http://localhost:3000/health
 ```
 
-Ожидаемый вывод: `@{status=ok}`
+Expected output: `@{status=ok}`
 
-- [ ] **Шаг 6: Запустить frontend**
+- [ ] **Step 6: Start frontend**
 
 ```powershell
 serve E:\agripartners\frontend -p 5500
 ```
 
-Открыть `http://localhost:5500` — тёмный дашборд загружается, список сделок пустой.
+Open `http://localhost:5500` — dark dashboard loads, deals list is empty.
 
-- [ ] **Шаг 7: Запустить demo**
+- [ ] **Step 7: Run demo**
 
 ```powershell
 Set-Location E:\agripartners
 .\demo.ps1
 ```
 
-Следовать инструкциям скрипта. Между каждым шагом обновлять дашборд кнопкой "Обновить".
+Follow the script instructions. Between each step refresh the dashboard using the "Refresh" button.
 
 ---
 
-## Порядок запуска для питча
+## Launch order for pitch
 
 ```powershell
-# Терминал 1 — backend
+# Terminal 1 — backend
 Set-Location E:\agripartners\backend; npm start
 
-# Терминал 2 — frontend  
+# Terminal 2 — frontend
 serve E:\agripartners\frontend -p 5500
 
-# Терминал 3 — demo
+# Terminal 3 — demo
 Set-Location E:\agripartners; .\demo.ps1
 ```
 
-Браузер: `http://localhost:5500`
+Browser: `http://localhost:5500`

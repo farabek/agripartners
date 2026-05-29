@@ -19,7 +19,7 @@ function authHeaders() {
   return auth ? { Authorization: `Bearer ${auth.token}` } : {};
 }
 
-// --- Утилиты ---
+// --- Utilities ---
 
 function yoctoToNear(yocto) {
   if (!yocto || yocto === '0') return '0.00 NEAR';
@@ -50,7 +50,7 @@ function statusBadge(status) {
   return `<span class="badge badge-${status}">${status}</span>`;
 }
 
-// --- Роутер ---
+// --- Router ---
 
 function showView(viewId) {
   ['view-login', 'view-list', 'view-detail'].forEach(id => {
@@ -91,7 +91,7 @@ window.addEventListener('load', () => {
   }
 });
 
-// --- Логин ---
+// --- Login ---
 
 function showLogin() {
   showView('view-login');
@@ -99,23 +99,23 @@ function showLogin() {
   el.innerHTML = `
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-green-400">AgriPartners</h1>
-      <p class="text-slate-400 mt-1">Войдите в личный кабинет</p>
+      <p class="text-slate-400 mt-1">Sign in to your account</p>
     </div>
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
       <div>
-        <label class="block text-sm text-slate-400 mb-1">Логин</label>
+        <label class="block text-sm text-slate-400 mb-1">Username</label>
         <input id="login-username" type="text" autocomplete="username"
           class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
       </div>
       <div>
-        <label class="block text-sm text-slate-400 mb-1">Пароль</label>
+        <label class="block text-sm text-slate-400 mb-1">Password</label>
         <input id="login-password" type="password" autocomplete="current-password"
           class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
       </div>
       <div id="login-error" class="hidden bg-red-900 text-red-200 px-3 py-2 rounded text-sm"></div>
       <button type="submit"
         class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-medium transition">
-        Войти
+        Sign In
       </button>
     </form>
   `;
@@ -133,7 +133,7 @@ async function handleLogin(username, password) {
   const btn = document.querySelector('#login-form button[type="submit"]');
   errEl.classList.add('hidden');
   btn.disabled = true;
-  btn.textContent = 'Вход...';
+  btn.textContent = 'Signing in...';
   try {
     const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
@@ -142,19 +142,19 @@ async function handleLogin(username, password) {
     });
     const data = await res.json();
     if (!res.ok) {
-      errEl.textContent = data.error || 'Ошибка входа';
+      errEl.textContent = data.error || 'Login failed';
       errEl.classList.remove('hidden');
       btn.disabled = false;
-      btn.textContent = 'Войти';
+      btn.textContent = 'Sign In';
       return;
     }
     setAuth(data.token, data.user);
     location.hash = '#deals';
   } catch {
-    errEl.textContent = 'Сервер недоступен';
+    errEl.textContent = 'Server unavailable';
     errEl.classList.remove('hidden');
     btn.disabled = false;
-    btn.textContent = 'Войти';
+    btn.textContent = 'Sign In';
   }
 }
 
@@ -168,17 +168,17 @@ function logout() {
 function renderNav() {
   const auth = getAuth();
   if (!auth) return '';
-  const labels = { farmer: 'Фермер', investor: 'Инвестор', admin: 'Администратор' };
+  const labels = { farmer: 'Farmer', investor: 'Investor', admin: 'Administrator' };
   const roleLabel = labels[auth.user.role] || auth.user.role;
   return `
     <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
       <span class="text-sm text-slate-400">${roleLabel}: <span class="text-slate-200 font-medium">${auth.user.username}</span></span>
-      <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Выйти →</button>
+      <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
     </div>
   `;
 }
 
-// --- Список сделок ---
+// --- Deals list ---
 
 async function showDeals() {
   showView('view-list');
@@ -186,7 +186,7 @@ async function showDeals() {
   el.innerHTML = `
     ${renderNav()}
     <h1 class="text-3xl font-bold text-green-400 mb-1">AgriPartners</h1>
-    <p class="text-slate-400 mb-6">Агро-инвестиции на NEAR Protocol</p>
+    <p class="text-slate-400 mb-6">Agricultural investments on NEAR Protocol</p>
     <div class="spinner"></div>
   `;
   try {
@@ -196,7 +196,7 @@ async function showDeals() {
     const deals = await res.json();
     el.querySelector('.spinner').remove();
     if (deals.length === 0) {
-      el.innerHTML += '<p class="text-slate-400 mt-4">Нет сделок</p>';
+      el.innerHTML += '<p class="text-slate-400 mt-4">No deals found</p>';
       return;
     }
     const grid = document.createElement('div');
@@ -205,7 +205,7 @@ async function showDeals() {
     el.appendChild(grid);
   } catch (e) {
     el.querySelector('.spinner')?.remove();
-    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend недоступен: ${e.message}</div>`;
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend unavailable: ${e.message}</div>`;
   }
 }
 
@@ -216,23 +216,23 @@ function renderDealCard(d) {
         <div class="flex items-center gap-2 mb-1">
           <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">${d.deal_type}</span>
         </div>
-        <p class="text-sm text-slate-400">Фермер: <span class="text-slate-200">${formatAddress(d.farmer)}</span></p>
-        <p class="text-sm text-slate-400">Инвестор: <span class="text-slate-200">${formatAddress(d.investor)}</span></p>
-        <p class="text-sm text-slate-500">${d.total_cycles} цикл(а) × ${d.cycle_duration_days} дн  ·  ${yoctoToNear(d.investment_amount)}</p>
+        <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${formatAddress(d.farmer)}</span></p>
+        <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${formatAddress(d.investor)}</span></p>
+        <p class="text-sm text-slate-500">${d.total_cycles} cycle(s) × ${d.cycle_duration_days} days  ·  ${yoctoToNear(d.investment_amount)}</p>
       </div>
-      <a href="#deals/${d.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Открыть →</a>
+      <a href="#deals/${d.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open →</a>
     </div>
   `;
 }
 
-// --- Детали сделки ---
+// --- Deal detail ---
 
 async function showDeal(id) {
   showView('view-detail');
   const el = document.getElementById('view-detail');
   el.innerHTML = `
     ${renderNav()}
-    <a href="#deals" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">← Назад</a>
+    <a href="#deals" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">← Back</a>
     <div class="spinner"></div>
   `;
 
@@ -249,8 +249,8 @@ async function showDeal(id) {
   if (dealRes.status === 'rejected' || !dealRes.value.ok) {
     const code = dealRes.value?.status;
     el.innerHTML += code === 404
-      ? '<p class="text-slate-400 mt-8 text-center">Сделка не найдена</p>'
-      : '<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend недоступен</div>';
+      ? '<p class="text-slate-400 mt-8 text-center">Deal not found</p>'
+      : '<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend unavailable</div>';
     return;
   }
 
@@ -266,16 +266,16 @@ async function showDeal(id) {
 }
 
 function renderDealDetail(el, deal, status, balances, events) {
-  const cycleText = status ? `· Цикл ${status.current_cycle}` : '';
+  const cycleText = status ? `· Cycle ${status.current_cycle}` : '';
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
-      <a href="#deals" class="text-slate-400 hover:text-white text-sm">← Назад</a>
+      <a href="#deals" class="text-slate-400 hover:text-white text-sm">← Back</a>
       <span class="text-slate-600">|</span>
       <span class="font-semibold">${deal.deal_type}</span>
       <span id="status-badge">${statusBadge(status?.status)}</span>
       <span id="cycle-text" class="text-slate-400 text-sm">${cycleText}</span>
-      <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Обновить</button>
+      <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
@@ -284,11 +284,11 @@ function renderDealDetail(el, deal, status, balances, events) {
       <div class="bg-slate-800 rounded-xl p-5 flex flex-col items-center justify-center" id="chart-col">
         ${balances
           ? '<canvas id="balances-chart" width="240" height="240"></canvas>'
-          : '<p class="text-slate-500 text-sm">Балансы недоступны</p>'}
+          : '<p class="text-slate-500 text-sm">Balances unavailable</p>'}
       </div>
     </div>
     <div class="bg-slate-800 rounded-xl p-5">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">История событий</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
       ${renderEvents(events)}
     </div>
   `;
@@ -300,17 +300,17 @@ function renderDealDetail(el, deal, status, balances, events) {
 
 function renderParams(deal) {
   const rows = [
-    ['Фермер',             formatAddress(deal.farmer)],
-    ['Инвестор',           formatAddress(deal.investor)],
-    ['Администратор',      formatAddress(deal.admin)],
-    ['Платформа',          formatAddress(deal.platform)],
-    ['Сплит',              `${deal.farmer_split_pct}% / ${deal.investor_split_pct}%`],
-    ['Эскроу',             `${deal.escrow_pct}%`],
+    ['Farmer',             formatAddress(deal.farmer)],
+    ['Investor',           formatAddress(deal.investor)],
+    ['Administrator',      formatAddress(deal.admin)],
+    ['Platform',           formatAddress(deal.platform)],
+    ['Split',              `${deal.farmer_split_pct}% / ${deal.investor_split_pct}%`],
+    ['Escrow',             `${deal.escrow_pct}%`],
     ['Performance Fee',    `${deal.performance_fee_pct}%`],
-    ['Длительность цикла', `${deal.cycle_duration_days} дн`],
-    ['Всего циклов',       deal.total_cycles],
-    ['Инвестиция',         yoctoToNear(deal.investment_amount)],
-    ['Возврат капитала',   yoctoToNear(deal.capital_return_near)],
+    ['Cycle duration',     `${deal.cycle_duration_days} days`],
+    ['Total cycles',       deal.total_cycles],
+    ['Investment',         yoctoToNear(deal.investment_amount)],
+    ['Capital return',     yoctoToNear(deal.capital_return_near)],
   ];
   return rows.map(([k, v]) => `
     <div class="flex justify-between text-sm gap-2">
@@ -320,7 +320,7 @@ function renderParams(deal) {
   `).join('');
 }
 
-// --- Chart, события, refresh ---
+// --- Chart, events, refresh ---
 
 let balancesChartInstance = null;
 
@@ -340,7 +340,7 @@ function renderBalancesChart(balances) {
   balancesChartInstance = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['Фермер', 'Инвестор', 'Платформа', 'Эскроу'],
+      labels: ['Farmer', 'Investor', 'Platform', 'Escrow'],
       datasets: [{
         data,
         backgroundColor: ['#2563eb', '#16a34a', '#ca8a04', '#dc2626'],
@@ -360,7 +360,7 @@ function renderBalancesChart(balances) {
 }
 
 function renderEvents(events) {
-  if (!events.length) return '<p class="text-slate-500 text-sm">Событий нет</p>';
+  if (!events.length) return '<p class="text-slate-500 text-sm">No events</p>';
   return events.map(e => {
     const profitHtml = e.profit_near
       ? `<span class="text-green-400 ml-2">+${yoctoToNear(e.profit_near)}</span>` : '';
@@ -369,12 +369,12 @@ function renderEvents(events) {
     const txHtml = e.tx_hash
       ? `<a href="https://testnet.nearblocks.io/txns/${e.tx_hash}" target="_blank" class="text-blue-400 hover:underline font-mono">${formatAddress(e.tx_hash)}</a>`
       : '';
-    const date = new Date(e.created_at).toLocaleDateString('ru-RU');
+    const date = new Date(e.created_at).toLocaleDateString('en-US');
     return `
       <div class="flex justify-between items-start text-sm py-2.5 border-b border-slate-700 last:border-0 gap-2">
         <div>
           <span class="text-slate-200 font-medium">${e.event_type}</span>
-          ${e.cycle_num != null ? `<span class="text-slate-400 ml-2">цикл ${e.cycle_num}</span>` : ''}
+          ${e.cycle_num != null ? `<span class="text-slate-400 ml-2">cycle ${e.cycle_num}</span>` : ''}
           ${profitHtml}${lossHtml}
         </div>
         <div class="text-right text-slate-500 shrink-0">
@@ -388,7 +388,7 @@ function renderEvents(events) {
 
 async function refreshDeal(id) {
   const btn = document.getElementById('btn-refresh');
-  if (btn) { btn.disabled = true; btn.textContent = 'Обновление...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
 
   const headers = authHeaders();
   const [statusRes, balancesRes] = await Promise.allSettled([
@@ -405,9 +405,9 @@ async function refreshDeal(id) {
     const badgeEl = document.getElementById('status-badge');
     const cycleEl = document.getElementById('cycle-text');
     if (badgeEl) badgeEl.innerHTML = statusBadge(status.status);
-    if (cycleEl) cycleEl.textContent = `· Цикл ${status.current_cycle}`;
+    if (cycleEl) cycleEl.textContent = `· Cycle ${status.current_cycle}`;
   }
   if (balances) renderBalancesChart(balances);
 
-  if (btn) { btn.disabled = false; btn.textContent = 'Обновить'; }
+  if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
 }

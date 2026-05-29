@@ -81,7 +81,7 @@ test('getDealEvents returns events for deal', async () => {
   expect(events).toHaveLength(1);
 });
 
-test('getDealsByUser возвращает сделки фермера по near_account', async () => {
+test('getDealsByUser returns farmer deals by near_account', async () => {
   pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
   const deals = await getDealsByUser('farmer.testnet', 'farmer');
   const [sql, params] = pool.query.mock.calls[0];
@@ -90,7 +90,7 @@ test('getDealsByUser возвращает сделки фермера по near_
   expect(deals).toHaveLength(1);
 });
 
-test('getDealsByUser возвращает сделки инвестора по near_account', async () => {
+test('getDealsByUser returns investor deals by near_account', async () => {
   pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
   const deals = await getDealsByUser('investor.testnet', 'investor');
   const [sql, params] = pool.query.mock.calls[0];
@@ -99,14 +99,14 @@ test('getDealsByUser возвращает сделки инвестора по n
   expect(deals).toHaveLength(1);
 });
 
-test('getDealsByUser возвращает все сделки для роли admin', async () => {
+test('getDealsByUser returns all deals for admin role', async () => {
   pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
   const deals = await getDealsByUser(null, 'admin');
   expect(pool.query).toHaveBeenCalledWith('SELECT * FROM deals ORDER BY created_at DESC');
   expect(deals).toHaveLength(1);
 });
 
-test('getDealsByUser возвращает все сделки когда near_account не задан', async () => {
+test('getDealsByUser returns all deals when near_account is not set', async () => {
   pool.query.mockResolvedValue({ rows: [] });
   await getDealsByUser(null, 'farmer');
   expect(pool.query).toHaveBeenCalledWith('SELECT * FROM deals ORDER BY created_at DESC');

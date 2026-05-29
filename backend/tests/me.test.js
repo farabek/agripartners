@@ -36,19 +36,19 @@ const mockDeals = [
 
 beforeEach(() => jest.clearAllMocks());
 
-test('GET /api/me/deals возвращает 401 без токена', async () => {
+test('GET /api/me/deals returns 401 without token', async () => {
   const res = await request(app).get('/api/me/deals');
   expect(res.status).toBe(401);
 });
 
-test('GET /api/me/deals возвращает 401 при невалидном токене', async () => {
+test('GET /api/me/deals returns 401 for invalid token', async () => {
   const res = await request(app)
     .get('/api/me/deals')
     .set('Authorization', 'Bearer invalid.token.here');
   expect(res.status).toBe(401);
 });
 
-test('GET /api/me/deals возвращает сделки фермера', async () => {
+test('GET /api/me/deals returns farmer deals', async () => {
   dealService.getDealsByUser.mockResolvedValue(mockDeals);
   const res = await request(app)
     .get('/api/me/deals')
@@ -59,7 +59,7 @@ test('GET /api/me/deals возвращает сделки фермера', async
   expect(res.body[0].id).toBe(1);
 });
 
-test('GET /api/me/deals вызывает getDealsByUser с near_account инвестора', async () => {
+test('GET /api/me/deals calls getDealsByUser with investor near_account', async () => {
   dealService.getDealsByUser.mockResolvedValue(mockDeals);
   const res = await request(app)
     .get('/api/me/deals')
@@ -68,7 +68,7 @@ test('GET /api/me/deals вызывает getDealsByUser с near_account инве
   expect(dealService.getDealsByUser).toHaveBeenCalledWith('investor.testnet', 'investor');
 });
 
-test('GET /api/me/deals вызывает getDealsByUser с null для admin', async () => {
+test('GET /api/me/deals calls getDealsByUser with null for admin', async () => {
   dealService.getDealsByUser.mockResolvedValue(mockDeals);
   const res = await request(app)
     .get('/api/me/deals')
@@ -77,7 +77,7 @@ test('GET /api/me/deals вызывает getDealsByUser с null для admin', a
   expect(dealService.getDealsByUser).toHaveBeenCalledWith(null, 'admin');
 });
 
-test('GET /api/me/deals возвращает 500 при ошибке БД', async () => {
+test('GET /api/me/deals returns 500 on DB error', async () => {
   dealService.getDealsByUser.mockRejectedValue(new Error('DB error'));
   const res = await request(app)
     .get('/api/me/deals')

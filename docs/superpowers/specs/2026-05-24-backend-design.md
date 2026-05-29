@@ -1,56 +1,58 @@
-# AgriPartners — Дизайн Backend API
+# AgriPartners — Backend API Design
 
-**Дата:** 2026-05-24  
-**Подход:** B+ (Deal Registry + базовая auth)  
-**Статус:** Одобрен
+**Date:** 2026-05-24
+**Approach:** B+ (Deal Registry + basic auth)
+**Status:** Approved
 
 ---
 
-## 1. Общая архитектура
+## 1. General Architecture
 
-**Стек:** Node.js + Express.js + SQLite (better-sqlite3) + near-api-js
+**Stack:** Node.js + Express.js + SQLite (better-sqlite3) + near-api-js
 
-**Принцип:** Слоистая архитектура — каждый слой делает одно дело.
+**Principle:** Layered architecture — each layer does one thing.
 
 ```
 E:\agripartners\backend\
 ├── src/
 │   ├── routes/
-│   │   ├── deals.js       ← CRUD сделок
+│   │   ├── deals.js       ← CRUD for deals
 │   │   └── admin.js       ← start_cycle, report_cycle, deploy
 │   ├── services/
-│   │   ├── dealService.js ← логика работы со сделками
-│   │   └── nearService.js ← деплой + транзакции + view-вызовы
+│   │   ├── dealService.js ← deal logic
+│   │   └── nearService.js ← deploy + transactions + view calls
 │   ├── db/
-│   │   ├── index.js       ← инициализация SQLite
-│   │   └── schema.sql     ← структура таблиц
+│   │   ├── index.js       ← SQLite initialization
+│   │   └── schema.sql     ← table structure
 │   ├── near/
-│   │   └── client.js      ← NEAR RPC клиент + подписание ключом
+│   │   └── client.js      ← NEAR RPC client + key signing
 │   ├── middleware/
-│   │   └── auth.js        ← проверка API-ключа для /admin
-│   └── app.js             ← Express приложение
+│   │   └── auth.js        ← API key check for /admin
+│   └── app.js             ← Express application
 ├── .env
 ├── package.json
 └── server.js
 ```
 
-**Поток запроса:**
+**Request flow:**
+
 ```
-HTTP запрос
-  → middleware/auth.js (если /admin — проверяет X-API-Key)
-  → routes/           (маршрутизация, без логики)
-  → services/         (бизнес-логика)
-  → db/ или near/     (данные)
-  → JSON ответ
+HTTP request
+  → middleware/auth.js (if /admin — checks X-API-Key)
+  → routes/           (routing, no logic)
+  → services/         (business logic)
+  → db/ or near/      (data)
+  → JSON response
 ```
 
-**Разделение источников данных:**
-- Параметры сделок, история событий → SQLite (БД)
-- Текущий статус и балансы → NEAR RPC (блокчейн, в реальном времени)
+**Data source separation:**
+
+- Deal parameters, event history → SQLite (DB)
+- Current status and balances → NEAR RPC (blockchain, real-time)
 
 ---
 
-## 2. База данных (SQLite)
+## 2. Database (SQLite)
 
 ```sql
 CREATE TABLE deals (
@@ -84,37 +86,38 @@ CREATE TABLE events (
 );
 ```
 
-**Типы event_type:** `deployed` | `cycle_started` | `cycle_reported` | `completed` | `terminated`
+**event_type values:** `deployed` | `cycle_started` | `cycle_reported` | `completed` | `terminated`
 
-**Примечание:** `funded` (вызов fund() инвестором) не записывается в events — инвестор вызывает этот метод напрямую через свой кошелёк, не через backend. Текущий статус "Funded" виден через GET /api/deals/:id/status.
+**Note:** `funded` (investor's fund() call) is not recorded in events — the investor calls this method directly through their wallet, not through the backend. Current "Funded" status is visible via GET /api/deals/:id/status.
 
-**Важно:** Суммы NEAR хранятся как `TEXT` — yoctoNEAR слишком большие числа для JavaScript `NUMBER`. Events — append-only лог.
+**Important:** NEAR amounts are stored as `TEXT` — yoctoNEAR numbers are too large for JavaScript `NUMBER`. Events are an append-only log.
 
 ---
 
-## 3. API эндпоинты
+## 3. API Endpoints
 
-### Публичные (без авторизации)
+### Public (no authorization)
 
-| Метод | URL | Источник | Описание |
+| Method | URL | Source | Description |
 | --- | --- | --- | --- |
-| `GET` | `/api/deals` | БД | Список всех сделок |
-| `GET` | `/api/deals/:id` | БД | Параметры одной сделки |
-| `GET` | `/api/deals/:id/status` | Блокчейн | Статус + номер цикла |
-| `GET` | `/api/deals/:id/balances` | Блокчейн | Балансы farmer/investor/escrow |
-| `GET` | `/api/deals/:id/events` | БД | История событий |
+| `GET` | `/api/deals` | DB | List of all deals |
+| `GET` | `/api/deals/:id` | DB | Parameters of one deal |
+| `GET` | `/api/deals/:id/status` | Blockchain | Status + cycle number |
+| `GET` | `/api/deals/:id/balances` | Blockchain | farmer/investor/escrow balances |
+| `GET` | `/api/deals/:id/events` | DB | Event history |
 
-### Защищённые (требуют заголовок `X-API-Key`)
+### Protected (require `X-API-Key` header)
 
-| Метод | URL | Описание |
+| Method | URL | Description |
 | --- | --- | --- |
-| `POST` | `/api/admin/deals` | Деплой нового контракта + запись в БД |
-| `POST` | `/api/admin/deals/:id/start-cycle` | Вызов `start_cycle()` на контракте |
-| `POST` | `/api/admin/deals/:id/report-cycle` | Вызов `report_cycle()` с profit NEAR |
+| `POST` | `/api/admin/deals` | Deploy new contract + save to DB |
+| `POST` | `/api/admin/deals/:id/start-cycle` | Call `start_cycle()` on contract |
+| `POST` | `/api/admin/deals/:id/report-cycle` | Call `report_cycle()` with profit NEAR |
 
-### Тела запросов
+### Request bodies
 
 **POST /api/admin/deals:**
+
 ```json
 {
   "deal_type": "fidlot",
@@ -132,6 +135,7 @@ CREATE TABLE events (
 ```
 
 **POST /api/admin/deals/:id/report-cycle:**
+
 ```json
 {
   "profit_near": "5000000000000000000000000",
@@ -141,44 +145,47 @@ CREATE TABLE events (
 
 ---
 
-## 4. Интеграция с NEAR
+## 4. NEAR Integration
 
-**Библиотека:** `near-api-js`
+**Library:** `near-api-js`
 
-### near/client.js — инициализация при старте
+### near/client.js — initialization on startup
 
 ```
-1. Читает NEAR_ADMIN_PRIVATE_KEY из .env
-2. Создаёт InMemoryKeyStore с этим ключом
-3. Подключается к NEAR RPC (testnet или mainnet)
-4. Экспортирует функции: deployContract, callMethod, viewMethod
+1. Reads NEAR_ADMIN_PRIVATE_KEY from .env
+2. Creates InMemoryKeyStore with this key
+3. Connects to NEAR RPC (testnet or mainnet)
+4. Exports functions: deployContract, callMethod, viewMethod
 ```
 
-### Три типа операций
+### Three types of operations
 
-**Деплой контракта:**
-```
-Читает WASM → создаёт субаккаунт вида "uuid.agripartners.testnet"
-→ деплоит WASM → вызывает new() с параметрами
-→ возвращает contract_address вида "ap-{nanoid}.agripartners.testnet"
-```
+**Contract deploy:**
 
-**Admin транзакции (start_cycle, report_cycle):**
 ```
-Строит транзакцию → подписывает NEAR_ADMIN_PRIVATE_KEY
-→ отправляет в NEAR RPC → возвращает tx_hash
-→ после report_cycle проверяет новый статус контракта
-→ если статус Completed или Terminated — дописывает соответствующий event
-→ tx_hash сохраняется в events таблицу
+Reads WASM → creates subaccount like "uuid.agripartners.testnet"
+→ deploys WASM → calls new() with parameters
+→ returns contract_address like "ap-{nanoid}.agripartners.testnet"
 ```
 
-**View-вызовы (get_status, get_balances):**
+**Admin transactions (start_cycle, report_cycle):**
+
 ```
-Вызывает view-функцию контракта (бесплатно, без подписи)
-→ возвращает JSON клиенту
+Builds transaction → signs with NEAR_ADMIN_PRIVATE_KEY
+→ sends to NEAR RPC → returns tx_hash
+→ after report_cycle checks new contract status
+→ if status Completed or Terminated — appends corresponding event
+→ tx_hash saved to events table
 ```
 
-### Переменные окружения (.env)
+**View calls (get_status, get_balances):**
+
+```
+Calls contract view function (free, no signature)
+→ returns JSON to client
+```
+
+### Environment variables (.env)
 
 ```
 NEAR_NETWORK=testnet
@@ -191,21 +198,21 @@ PORT=3000
 
 ---
 
-## 5. Что оставлено на v2
+## 5. Deferred to v2
 
-- JWT авторизация с ролями (farmer/investor/admin)
-- Email/Telegram уведомления о событиях цикла
-- Аналитика и статистика по всем сделкам
-- Полноценная admin-панель с UI
-- Polling блокчейна для синхронизации состояния в БД
+- JWT authorization with roles (farmer/investor/admin)
+- Email/Telegram notifications for cycle events
+- Analytics and statistics across all deals
+- Full admin panel with UI
+- Blockchain polling to sync state to DB
 
 ---
 
-## 6. Тестирование
+## 6. Testing
 
-- Запуск сервера локально (`npm start`)
-- Проверка всех публичных эндпоинтов через curl или Postman
-- Проверка защиты /admin — запрос без ключа должен вернуть 401
-- Деплой тестового контракта через POST /api/admin/deals
-- Прогон цикла: start_cycle → report_cycle → проверка events
-- Проверка get_status и get_balances возвращают данные из блокчейна
+- Start server locally (`npm start`)
+- Check all public endpoints via curl or Postman
+- Check /admin protection — request without key should return 401
+- Deploy test contract via POST /api/admin/deals
+- Run cycle: start_cycle → report_cycle → check events
+- Check get_status and get_balances return data from blockchain

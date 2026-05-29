@@ -1,6 +1,6 @@
 # NEAR Foundation Grant Application
 
-AgriPartners — готовые ответы для grants.near.org
+AgriPartners — ready answers for grants.near.org
 
 ---
 

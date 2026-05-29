@@ -1,16 +1,16 @@
 # NEAR Forum Post — forum.near.org
 
-## Раздел: Proposals (или DevHub / Ecosystem)
+## Section: Proposals (or DevHub / Ecosystem)
 
 ---
 
-## ЗАГОЛОВОК ПОСТА
+## POST TITLE
 
 **[Proposal] AgriPartners — Tokenizing Livestock Investment on NEAR | RWA | $100k in Signed Deals | Seeking $40k Grant**
 
 ---
 
-## ТЕКСТ ПОСТА
+## POST BODY
 
 ---
 
@@ -121,16 +121,16 @@ I have direct relationships with farmers in the region and understand the agricu
 
 ### Funding Ask: $40,000
 
-| Line                          | Amount      | Purpose                                                 |
-| ----------------------------- | ----------- | ------------------------------------------------------- |
-| Smart contract security audit | $10,000     | OtterSec or equivalent NEAR-ecosystem firm              |
-| Infrastructure (2 years)      | $3,000      | Render, Neon PostgreSQL, domain, NEAR gas               |
-| Legal & first deal            | $5,000      | Notarization, legal review of 2 agreements              |
-| Developer salary (6 months)   | $15,000     | $2,500/mo — mainnet deploy, wallet integration, support |
-| Company incorporation (Estonia) | $3,000    | e-Residency + LLC registration (OÜ, Osaühing — Estonian equivalent of LLC), legal entity for platform |
-| AI dev tools (1 year)         | $1,000      | Claude Pro, GitHub Copilot                              |
-| Operational reserve           | $3,000      | Buffer for unexpected needs                             |
-| **Total**                     | **$40,000** |                                                         |
+| Line                            | Amount      | Purpose                                                 |
+| ------------------------------- | ----------- | ------------------------------------------------------- |
+| Smart contract security audit   | $10,000     | OtterSec or equivalent NEAR-ecosystem firm              |
+| Infrastructure (2 years)        | $3,000      | Render, Neon PostgreSQL, domain, NEAR gas               |
+| Legal & first deal              | $5,000      | Notarization, legal review of 2 agreements              |
+| Developer salary (6 months)     | $15,000     | $2,500/mo — mainnet deploy, wallet integration, support |
+| Company incorporation (Estonia) | $3,000      | e-Residency + OÜ (LLC), legal entity for platform       |
+| AI dev tools (1 year)           | $1,000      | Claude Pro, GitHub Copilot                              |
+| Operational reserve             | $3,000      | Buffer for unexpected needs                             |
+| **Total**                       | **$40,000** |                                                         |
 
 ---
 

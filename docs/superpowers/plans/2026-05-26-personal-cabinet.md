@@ -1,48 +1,49 @@
-# Personal Cabinet (Личный кабинет) Implementation Plan
+# Personal Cabinet Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Добавить вход по логину/паролю и личный кабинет для farmer/investor — каждый видит только свои сделки.
+**Goal:** Add login with username/password and a personal cabinet for farmer/investor — each sees only their own deals.
 
-**Architecture:** Backend получает новый эндпоинт `GET /api/me/deals` (JWT → near_account → фильтр по роли), JWT токен расширяется полем `near_account`. Frontend обретает экран логина (`#login`), auth-guard в роутере и nav-bar с кнопкой «Выйти». Auth state хранится в localStorage.
+**Architecture:** Backend gets a new endpoint `GET /api/me/deals` (JWT → near_account → filter by role), JWT token is extended with `near_account` field. Frontend gets a login screen (`#login`), auth-guard in the router, and a nav bar with a "Sign out" button. Auth state is stored in localStorage.
 
-**Tech Stack:** Node.js/Express + jsonwebtoken (backend), Vanilla JS + Tailwind CSS (frontend), Jest + supertest (тесты)
+**Tech Stack:** Node.js/Express + jsonwebtoken (backend), Vanilla JS + Tailwind CSS (frontend), Jest + supertest (tests)
 
 ---
 
-## Карта файлов
+## File Map
 
-| Файл | Действие | Что меняется |
+| File | Action | What changes |
 | --- | --- | --- |
-| `backend/src/services/dealService.js` | Изменить | Добавить `getDealsByUser(near_account, role)` |
-| `backend/src/routes/auth.js` | Изменить | `signToken` + login-ответ включают `near_account` |
-| `backend/src/routes/me.js` | Создать | `GET /api/me/deals` |
-| `backend/src/app.js` | Изменить | Подключить `/api/me` роутер |
-| `backend/tests/dealService.test.js` | Изменить | Тесты для `getDealsByUser` |
-| `backend/tests/auth.test.js` | Изменить | Тест `near_account` в токене |
-| `backend/tests/me.test.js` | Создать | Тесты для `GET /api/me/deals` |
-| `frontend/index.html` | Изменить | Добавить `<div id="view-login">` |
-| `frontend/app.js` | Изменить | Auth state, login view, роутер с guard, nav-bar |
+| `backend/src/services/dealService.js` | Modify | Add `getDealsByUser(near_account, role)` |
+| `backend/src/routes/auth.js` | Modify | `signToken` + login response include `near_account` |
+| `backend/src/routes/me.js` | Create | `GET /api/me/deals` |
+| `backend/src/app.js` | Modify | Mount `/api/me` router |
+| `backend/tests/dealService.test.js` | Modify | Tests for `getDealsByUser` |
+| `backend/tests/auth.test.js` | Modify | Test `near_account` in token |
+| `backend/tests/me.test.js` | Create | Tests for `GET /api/me/deals` |
+| `frontend/index.html` | Modify | Add `<div id="view-login">` |
+| `frontend/app.js` | Modify | Auth state, login view, router with guard, nav bar |
 
 ---
 
-## Task 1: dealService — добавить getDealsByUser
+## Task 1: dealService — add getDealsByUser
 
 **Files:**
+
 - Modify: `backend/src/services/dealService.js`
 - Test: `backend/tests/dealService.test.js`
 
-- [ ] **Step 1: Написать failing тесты для getDealsByUser**
+- [ ] **Step 1: Write failing tests for getDealsByUser**
 
-Добавить в конец `backend/tests/dealService.test.js`:
+Add to the end of `backend/tests/dealService.test.js`:
 
 ```js
 const { getAllDeals, getDealById, createDeal, addEvent, getDealEvents, getDealsByUser } =
   require('../src/services/dealService');
 
-// ... в конец файла добавить:
+// ... add to end of file:
 
-test('getDealsByUser возвращает сделки фермера по near_account', async () => {
+test('getDealsByUser returns farmer deals by near_account', async () => {
   pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
   const deals = await getDealsByUser('farmer.testnet', 'farmer');
   const [sql, params] = pool.query.mock.calls[0];
@@ -51,7 +52,7 @@ test('getDealsByUser возвращает сделки фермера по near_
   expect(deals).toHaveLength(1);
 });
 
-test('getDealsByUser возвращает сделки инвестора по near_account', async () => {
+test('getDealsByUser returns investor deals by near_account', async () => {
   pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
   const deals = await getDealsByUser('investor.testnet', 'investor');
   const [sql, params] = pool.query.mock.calls[0];
@@ -60,45 +61,46 @@ test('getDealsByUser возвращает сделки инвестора по n
   expect(deals).toHaveLength(1);
 });
 
-test('getDealsByUser возвращает все сделки для роли admin', async () => {
+test('getDealsByUser returns all deals for admin role', async () => {
   pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
   const deals = await getDealsByUser(null, 'admin');
   expect(pool.query).toHaveBeenCalledWith('SELECT * FROM deals ORDER BY created_at DESC');
   expect(deals).toHaveLength(1);
 });
 
-test('getDealsByUser возвращает все сделки когда near_account не задан', async () => {
+test('getDealsByUser returns all deals when near_account is not set', async () => {
   pool.query.mockResolvedValue({ rows: [] });
   await getDealsByUser(null, 'farmer');
   expect(pool.query).toHaveBeenCalledWith('SELECT * FROM deals ORDER BY created_at DESC');
 });
 ```
 
-- [ ] **Step 2: Запустить тесты — убедиться что падают**
+- [ ] **Step 2: Run tests — verify they fail**
 
 ```powershell
 cd E:\agripartners\backend
 npx jest tests/dealService.test.js --no-coverage
 ```
 
-Ожидаемый результат: `getDealsByUser is not a function` или аналогичная ошибка.
+Expected result: `getDealsByUser is not a function` or similar error.
 
-- [ ] **Step 3: Обновить import в верхней строке dealService.test.js**
+- [ ] **Step 3: Update import in the first line of dealService.test.js**
 
-Первую строку с require заменить:
+Replace the first require line:
+
 ```js
-// БЫЛО:
+// WAS:
 const { getAllDeals, getDealById, createDeal, addEvent, getDealEvents } =
   require('../src/services/dealService');
 
-// СТАЛО:
+// BECOMES:
 const { getAllDeals, getDealById, createDeal, addEvent, getDealEvents, getDealsByUser } =
   require('../src/services/dealService');
 ```
 
-- [ ] **Step 4: Реализовать getDealsByUser в dealService.js**
+- [ ] **Step 4: Implement getDealsByUser in dealService.js**
 
-Добавить в конец `backend/src/services/dealService.js` (перед `module.exports`):
+Add to the end of `backend/src/services/dealService.js` (before `module.exports`):
 
 ```js
 async function getDealsByUser(near_account, role) {
@@ -121,20 +123,21 @@ async function getDealsByUser(near_account, role) {
 }
 ```
 
-Обновить `module.exports`:
+Update `module.exports`:
+
 ```js
 module.exports = { getAllDeals, getDealById, createDeal, addEvent, getDealEvents, getDealsByUser };
 ```
 
-- [ ] **Step 5: Запустить тесты — убедиться что проходят**
+- [ ] **Step 5: Run tests — verify they pass**
 
 ```powershell
 npx jest tests/dealService.test.js --no-coverage
 ```
 
-Ожидаемый результат: все тесты PASS.
+Expected result: all tests PASS.
 
-- [ ] **Step 6: Коммит**
+- [ ] **Step 6: Commit**
 
 ```powershell
 git add backend/src/services/dealService.js backend/tests/dealService.test.js
@@ -143,18 +146,19 @@ git commit -m "feat: add getDealsByUser to dealService"
 
 ---
 
-## Task 2: JWT — добавить near_account в токен
+## Task 2: JWT — add near_account to token
 
 **Files:**
+
 - Modify: `backend/src/routes/auth.js`
 - Test: `backend/tests/auth.test.js`
 
-- [ ] **Step 1: Написать failing тест**
+- [ ] **Step 1: Write failing tests**
 
-Добавить в конец `backend/tests/auth.test.js`:
+Add to the end of `backend/tests/auth.test.js`:
 
 ```js
-test('POST /api/auth/login токен содержит near_account', async () => {
+test('POST /api/auth/login token contains near_account', async () => {
   userService.findByUsername.mockResolvedValue({ ...mockUser, near_account: 'farmer.testnet' });
   userService.verifyPassword.mockResolvedValue(true);
 
@@ -165,8 +169,8 @@ test('POST /api/auth/login токен содержит near_account', async () =
   expect(res.body.user.near_account).toBe('farmer.testnet');
 });
 
-test('POST /api/auth/login near_account равен null когда не задан', async () => {
-  userService.findByUsername.mockResolvedValue(mockUser); // mockUser без near_account
+test('POST /api/auth/login near_account is null when not set', async () => {
+  userService.findByUsername.mockResolvedValue(mockUser); // mockUser without near_account
   userService.verifyPassword.mockResolvedValue(true);
 
   const res = await request(app).post('/api/auth/login').send({ username: 'admin', password: 'Admin123!' });
@@ -177,19 +181,20 @@ test('POST /api/auth/login near_account равен null когда не зада
 });
 ```
 
-- [ ] **Step 2: Запустить тесты — убедиться что падают**
+- [ ] **Step 2: Run tests — verify they fail**
 
 ```powershell
 npx jest tests/auth.test.js --no-coverage
 ```
 
-Ожидаемый результат: 2 новых теста FAIL (near_account не в токене).
+Expected result: 2 new tests FAIL (near_account not in token).
 
-- [ ] **Step 3: Обновить signToken и login-ответ в auth.js**
+- [ ] **Step 3: Update signToken and login response in auth.js**
 
-Изменить функцию `signToken` в `backend/src/routes/auth.js`:
+Change the `signToken` function in `backend/src/routes/auth.js`:
+
 ```js
-// БЫЛО:
+// WAS:
 function signToken(user) {
   return jwt.sign(
     { id: user.id, username: user.username, role: user.role },
@@ -198,7 +203,7 @@ function signToken(user) {
   );
 }
 
-// СТАЛО:
+// BECOMES:
 function signToken(user) {
   return jwt.sign(
     { id: user.id, username: user.username, role: user.role, near_account: user.near_account || null },
@@ -208,27 +213,28 @@ function signToken(user) {
 }
 ```
 
-Изменить login-ответ в том же файле:
+Change the login response in the same file:
+
 ```js
-// БЫЛО:
+// WAS:
 res.json({ token: signToken(user), user: { id: user.id, username: user.username, role: user.role } });
 
-// СТАЛО:
+// BECOMES:
 res.json({
   token: signToken(user),
   user: { id: user.id, username: user.username, role: user.role, near_account: user.near_account || null }
 });
 ```
 
-- [ ] **Step 4: Запустить все тесты auth**
+- [ ] **Step 4: Run all auth tests**
 
 ```powershell
 npx jest tests/auth.test.js --no-coverage
 ```
 
-Ожидаемый результат: все тесты PASS.
+Expected result: all tests PASS.
 
-- [ ] **Step 5: Коммит**
+- [ ] **Step 5: Commit**
 
 ```powershell
 git add backend/src/routes/auth.js backend/tests/auth.test.js
@@ -237,15 +243,16 @@ git commit -m "feat: add near_account to JWT payload and login response"
 
 ---
 
-## Task 3: Backend — маршрут /api/me/deals
+## Task 3: Backend — /api/me/deals route
 
 **Files:**
+
 - Create: `backend/src/routes/me.js`
 - Create: `backend/tests/me.test.js`
 
-- [ ] **Step 1: Написать тесты**
+- [ ] **Step 1: Write tests**
 
-Создать `backend/tests/me.test.js`:
+Create `backend/tests/me.test.js`:
 
 ```js
 process.env.JWT_SECRET = 'test-jwt-secret';
@@ -286,19 +293,19 @@ const mockDeals = [
 
 beforeEach(() => jest.clearAllMocks());
 
-test('GET /api/me/deals возвращает 401 без токена', async () => {
+test('GET /api/me/deals returns 401 without token', async () => {
   const res = await request(app).get('/api/me/deals');
   expect(res.status).toBe(401);
 });
 
-test('GET /api/me/deals возвращает 401 при невалидном токене', async () => {
+test('GET /api/me/deals returns 401 for invalid token', async () => {
   const res = await request(app)
     .get('/api/me/deals')
     .set('Authorization', 'Bearer invalid.token.here');
   expect(res.status).toBe(401);
 });
 
-test('GET /api/me/deals возвращает сделки фермера', async () => {
+test('GET /api/me/deals returns farmer deals', async () => {
   dealService.getDealsByUser.mockResolvedValue(mockDeals);
   const res = await request(app)
     .get('/api/me/deals')
@@ -309,7 +316,7 @@ test('GET /api/me/deals возвращает сделки фермера', async
   expect(res.body[0].id).toBe(1);
 });
 
-test('GET /api/me/deals вызывает getDealsByUser с near_account инвестора', async () => {
+test('GET /api/me/deals calls getDealsByUser with investor near_account', async () => {
   dealService.getDealsByUser.mockResolvedValue(mockDeals);
   const res = await request(app)
     .get('/api/me/deals')
@@ -318,7 +325,7 @@ test('GET /api/me/deals вызывает getDealsByUser с near_account инве
   expect(dealService.getDealsByUser).toHaveBeenCalledWith('investor.testnet', 'investor');
 });
 
-test('GET /api/me/deals вызывает getDealsByUser с null для admin', async () => {
+test('GET /api/me/deals calls getDealsByUser with null for admin', async () => {
   dealService.getDealsByUser.mockResolvedValue(mockDeals);
   const res = await request(app)
     .get('/api/me/deals')
@@ -327,7 +334,7 @@ test('GET /api/me/deals вызывает getDealsByUser с null для admin', a
   expect(dealService.getDealsByUser).toHaveBeenCalledWith(null, 'admin');
 });
 
-test('GET /api/me/deals возвращает 500 при ошибке БД', async () => {
+test('GET /api/me/deals returns 500 on DB error', async () => {
   dealService.getDealsByUser.mockRejectedValue(new Error('DB error'));
   const res = await request(app)
     .get('/api/me/deals')
@@ -337,17 +344,17 @@ test('GET /api/me/deals возвращает 500 при ошибке БД', asyn
 });
 ```
 
-- [ ] **Step 2: Запустить тесты — убедиться что падают**
+- [ ] **Step 2: Run tests — verify they fail**
 
 ```powershell
 npx jest tests/me.test.js --no-coverage
 ```
 
-Ожидаемый результат: `Cannot find module '../src/routes/me'`.
+Expected result: `Cannot find module '../src/routes/me'`.
 
-- [ ] **Step 3: Создать me.js роутер**
+- [ ] **Step 3: Create me.js router**
 
-Создать файл `backend/src/routes/me.js`:
+Create file `backend/src/routes/me.js`:
 
 ```js
 const router = require('express').Router();
@@ -366,15 +373,15 @@ router.get('/deals', async (req, res) => {
 module.exports = router;
 ```
 
-- [ ] **Step 4: Запустить тесты**
+- [ ] **Step 4: Run tests**
 
 ```powershell
 npx jest tests/me.test.js --no-coverage
 ```
 
-Ожидаемый результат: все 6 тестов PASS.
+Expected result: all 6 tests PASS.
 
-- [ ] **Step 5: Коммит**
+- [ ] **Step 5: Commit**
 
 ```powershell
 git add backend/src/routes/me.js backend/tests/me.test.js
@@ -383,24 +390,26 @@ git commit -m "feat: add GET /api/me/deals endpoint"
 
 ---
 
-## Task 4: Backend — подключить /api/me в app.js
+## Task 4: Backend — mount /api/me in app.js
 
 **Files:**
+
 - Modify: `backend/src/app.js`
 
-- [ ] **Step 1: Добавить meRouter в app.js**
+- [ ] **Step 1: Add meRouter to app.js**
 
-Изменить `backend/src/app.js`:
+Modify `backend/src/app.js`:
 
 ```js
-// ДОБАВИТЬ в импорты (после adminRouter):
+// ADD to imports (after adminRouter):
 const meRouter = require('./routes/me');
 
-// ДОБАВИТЬ после строки с /api/admin:
+// ADD after the /api/admin line:
 app.use('/api/me', requireJWT, meRouter);
 ```
 
-Полный файл после правки:
+Full file after edit:
+
 ```js
 require('dotenv').config();
 const express = require('express');
@@ -437,15 +446,15 @@ app.use('/api/me', requireJWT, meRouter);
 module.exports = app;
 ```
 
-- [ ] **Step 2: Запустить все тесты**
+- [ ] **Step 2: Run all tests**
 
 ```powershell
 npx jest --no-coverage
 ```
 
-Ожидаемый результат: все тесты PASS (было 38 + добавили ~10 новых = ~48).
+Expected result: all tests PASS (was 38 + added ~10 new = ~48).
 
-- [ ] **Step 3: Коммит**
+- [ ] **Step 3: Commit**
 
 ```powershell
 git add backend/src/app.js
@@ -454,19 +463,20 @@ git commit -m "feat: mount /api/me router in app"
 
 ---
 
-## Task 5: Frontend — auth state + экран логина
+## Task 5: Frontend — auth state + login screen
 
 **Files:**
+
 - Modify: `frontend/index.html`
 - Modify: `frontend/app.js`
 
-- [ ] **Step 1: Добавить view-login в index.html**
+- [ ] **Step 1: Add view-login to index.html**
 
-Изменить `frontend/index.html` — добавить div после `view-detail`:
+Modify `frontend/index.html` — add div after `view-detail`:
 
 ```html
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -484,9 +494,9 @@ git commit -m "feat: mount /api/me router in app"
 </html>
 ```
 
-- [ ] **Step 2: Добавить auth-утилиты в начало app.js**
+- [ ] **Step 2: Add auth utilities to beginning of app.js**
 
-Вставить сразу после строки `const API_BASE = '...'`:
+Insert immediately after the `const API_BASE = '...'` line:
 
 ```js
 // --- Auth state ---
@@ -509,12 +519,12 @@ function authHeaders() {
 }
 ```
 
-- [ ] **Step 3: Добавить showLogin и handleLogin в app.js**
+- [ ] **Step 3: Add showLogin and handleLogin to app.js**
 
-Вставить перед секцией `// --- Список сделок ---`:
+Insert before the `// --- Deals list ---` section:
 
 ```js
-// --- Логин ---
+// --- Login ---
 
 function showLogin() {
   showView('view-login');
@@ -522,23 +532,23 @@ function showLogin() {
   el.innerHTML = `
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-green-400">AgriPartners</h1>
-      <p class="text-slate-400 mt-1">Войдите в личный кабинет</p>
+      <p class="text-slate-400 mt-1">Sign in to your account</p>
     </div>
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
       <div>
-        <label class="block text-sm text-slate-400 mb-1">Логин</label>
+        <label class="block text-sm text-slate-400 mb-1">Username</label>
         <input id="login-username" type="text" autocomplete="username"
           class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
       </div>
       <div>
-        <label class="block text-sm text-slate-400 mb-1">Пароль</label>
+        <label class="block text-sm text-slate-400 mb-1">Password</label>
         <input id="login-password" type="password" autocomplete="current-password"
           class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
       </div>
       <div id="login-error" class="hidden bg-red-900 text-red-200 px-3 py-2 rounded text-sm"></div>
       <button type="submit"
         class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-medium transition">
-        Войти
+        Sign In
       </button>
     </form>
   `;
@@ -556,7 +566,7 @@ async function handleLogin(username, password) {
   const btn = document.querySelector('#login-form button[type="submit"]');
   errEl.classList.add('hidden');
   btn.disabled = true;
-  btn.textContent = 'Вход...';
+  btn.textContent = 'Signing in...';
   try {
     const res = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST',
@@ -565,19 +575,19 @@ async function handleLogin(username, password) {
     });
     const data = await res.json();
     if (!res.ok) {
-      errEl.textContent = data.error || 'Ошибка входа';
+      errEl.textContent = data.error || 'Login failed';
       errEl.classList.remove('hidden');
       btn.disabled = false;
-      btn.textContent = 'Войти';
+      btn.textContent = 'Sign In';
       return;
     }
     setAuth(data.token, data.user);
     location.hash = '#deals';
   } catch {
-    errEl.textContent = 'Сервер недоступен';
+    errEl.textContent = 'Server unavailable';
     errEl.classList.remove('hidden');
     btn.disabled = false;
-    btn.textContent = 'Войти';
+    btn.textContent = 'Sign In';
   }
 }
 
@@ -587,19 +597,19 @@ function logout() {
 }
 ```
 
-- [ ] **Step 4: Обновить showView для поддержки view-login**
+- [ ] **Step 4: Update showView to support view-login**
 
-Заменить функцию `showView` в app.js:
+Replace the `showView` function in app.js:
 
 ```js
-// БЫЛО:
+// WAS:
 function showView(viewId) {
   document.getElementById('view-list').classList.add('hidden');
   document.getElementById('view-detail').classList.add('hidden');
   document.getElementById(viewId).classList.remove('hidden');
 }
 
-// СТАЛО:
+// BECOMES:
 function showView(viewId) {
   ['view-login', 'view-list', 'view-detail'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
@@ -608,9 +618,9 @@ function showView(viewId) {
 }
 ```
 
-- [ ] **Step 5: Добавить renderNav в app.js**
+- [ ] **Step 5: Add renderNav to app.js**
 
-Вставить после функции `logout()`:
+Insert after the `logout()` function:
 
 ```js
 // --- Nav bar ---
@@ -618,23 +628,23 @@ function showView(viewId) {
 function renderNav() {
   const auth = getAuth();
   if (!auth) return '';
-  const labels = { farmer: 'Фермер', investor: 'Инвестор', admin: 'Администратор' };
+  const labels = { farmer: 'Farmer', investor: 'Investor', admin: 'Administrator' };
   const roleLabel = labels[auth.user.role] || auth.user.role;
   return `
     <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
       <span class="text-sm text-slate-400">${roleLabel}: <span class="text-slate-200 font-medium">${auth.user.username}</span></span>
-      <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Выйти →</button>
+      <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
     </div>
   `;
 }
 ```
 
-- [ ] **Step 6: Обновить роутер с auth-guard**
+- [ ] **Step 6: Update router with auth-guard**
 
-Заменить функцию `route` в app.js:
+Replace the `route` function in app.js:
 
 ```js
-// БЫЛО:
+// WAS:
 function route() {
   const hash = location.hash;
   const m = hash.match(/^#deals\/(\d+)$/);
@@ -645,7 +655,7 @@ function route() {
   }
 }
 
-// СТАЛО:
+// BECOMES:
 function route() {
   const auth = getAuth();
   const hash = location.hash;
@@ -670,16 +680,16 @@ function route() {
 }
 ```
 
-Обновить load-handler (в конце app.js):
+Update the load handler (at the end of app.js):
 
 ```js
-// БЫЛО:
+// WAS:
 window.addEventListener('load', () => {
   if (!location.hash || location.hash === '#') location.hash = '#deals';
   else route();
 });
 
-// СТАЛО:
+// BECOMES:
 window.addEventListener('load', () => {
   if (!location.hash || location.hash === '#') {
     location.hash = getAuth() ? '#deals' : '#login';
@@ -689,13 +699,13 @@ window.addEventListener('load', () => {
 });
 ```
 
-- [ ] **Step 7: Проверить вручную — экран логина**
+- [ ] **Step 7: Manually verify — login screen**
 
-Открыть `frontend/index.html` через `serve E:\agripartners\frontend -p 5500` и перейти на http://localhost:5500. Должен открыться экран логина.
+Open `frontend/index.html` via `serve E:\agripartners\frontend -p 5500` and go to <http://localhost:5500>. Should show login screen.
 
-Ввести неправильные данные — должно показать ошибку. Ввести правильные (admin / Demo2024!) — должен открыться `#deals`.
+Enter wrong credentials — should show error. Enter correct ones (admin / Demo2024!) — should open `#deals`.
 
-- [ ] **Step 8: Коммит**
+- [ ] **Step 8: Commit**
 
 ```powershell
 cd E:\agripartners
@@ -705,14 +715,15 @@ git commit -m "feat: add login screen and auth state to frontend"
 
 ---
 
-## Task 6: Frontend — личный кабинет (showDeals + nav)
+## Task 6: Frontend — personal cabinet (showDeals + nav)
 
 **Files:**
+
 - Modify: `frontend/app.js`
 
-- [ ] **Step 1: Обновить showDeals — использовать /api/me/deals**
+- [ ] **Step 1: Update showDeals — use /api/me/deals**
 
-Заменить функцию `showDeals` в app.js:
+Replace the `showDeals` function in app.js:
 
 ```js
 async function showDeals() {
@@ -721,7 +732,7 @@ async function showDeals() {
   el.innerHTML = `
     ${renderNav()}
     <h1 class="text-3xl font-bold text-green-400 mb-1">AgriPartners</h1>
-    <p class="text-slate-400 mb-6">Агро-инвестиции на NEAR Protocol</p>
+    <p class="text-slate-400 mb-6">Agricultural investments on NEAR Protocol</p>
     <div class="spinner"></div>
   `;
   try {
@@ -731,7 +742,7 @@ async function showDeals() {
     const deals = await res.json();
     el.querySelector('.spinner').remove();
     if (deals.length === 0) {
-      el.innerHTML += '<p class="text-slate-400 mt-4">Нет сделок</p>';
+      el.innerHTML += '<p class="text-slate-400 mt-4">No deals found</p>';
       return;
     }
     const grid = document.createElement('div');
@@ -740,18 +751,18 @@ async function showDeals() {
     el.appendChild(grid);
   } catch (e) {
     el.querySelector('.spinner')?.remove();
-    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend недоступен: ${e.message}</div>`;
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend unavailable: ${e.message}</div>`;
   }
 }
 ```
 
-- [ ] **Step 2: Проверить вручную**
+- [ ] **Step 2: Manually verify**
 
-Войти как admin — список должен загрузиться. Вверху должна быть строка `Администратор: admin | Выйти →`.
+Log in as admin — list should load. At the top should be the line `Administrator: admin | Sign out →`.
 
-Нажать «Выйти» — должен вернуться экран логина. После обновления страницы — снова экран логина.
+Click "Sign out" — should return to login screen. After page refresh — login screen again.
 
-- [ ] **Step 3: Коммит**
+- [ ] **Step 3: Commit**
 
 ```powershell
 git add frontend/app.js
@@ -760,14 +771,15 @@ git commit -m "feat: showDeals uses /api/me/deals with auth headers and nav bar"
 
 ---
 
-## Task 7: Frontend — авторизация в деталях сделки
+## Task 7: Frontend — auth in deal detail
 
 **Files:**
+
 - Modify: `frontend/app.js`
 
-- [ ] **Step 1: Обновить showDeal — добавить nav и auth headers**
+- [ ] **Step 1: Update showDeal — add nav and auth headers**
 
-Заменить начало функции `showDeal` (только loading state — до `Promise.allSettled`):
+Replace the beginning of `showDeal` function (only loading state — before `Promise.allSettled`):
 
 ```js
 async function showDeal(id) {
@@ -775,7 +787,7 @@ async function showDeal(id) {
   const el = document.getElementById('view-detail');
   el.innerHTML = `
     ${renderNav()}
-    <a href="#deals" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">← Назад</a>
+    <a href="#deals" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">← Back</a>
     <div class="spinner"></div>
   `;
 
@@ -787,25 +799,25 @@ async function showDeal(id) {
     fetch(`${API_BASE}/api/deals/${id}/events`, { headers })
   ]);
 
-  // ... остальное без изменений
+  // ... rest unchanged
 ```
 
-- [ ] **Step 2: Обновить renderDealDetail — добавить nav**
+- [ ] **Step 2: Update renderDealDetail — add nav**
 
-Заменить начало `el.innerHTML` в функции `renderDealDetail`:
+Replace the beginning of `el.innerHTML` in `renderDealDetail`:
 
 ```js
 function renderDealDetail(el, deal, status, balances, events) {
-  const cycleText = status ? `· Цикл ${status.current_cycle}` : '';
+  const cycleText = status ? `· Cycle ${status.current_cycle}` : '';
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
-      <a href="#deals" class="text-slate-400 hover:text-white text-sm">← Назад</a>
+      <a href="#deals" class="text-slate-400 hover:text-white text-sm">← Back</a>
       <span class="text-slate-600">|</span>
       <span class="font-semibold">${deal.deal_type}</span>
       <span id="status-badge">${statusBadge(status?.status)}</span>
       <span id="cycle-text" class="text-slate-400 text-sm">${cycleText}</span>
-      <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Обновить</button>
+      <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
@@ -814,11 +826,11 @@ function renderDealDetail(el, deal, status, balances, events) {
       <div class="bg-slate-800 rounded-xl p-5 flex flex-col items-center justify-center" id="chart-col">
         ${balances
           ? '<canvas id="balances-chart" width="240" height="240"></canvas>'
-          : '<p class="text-slate-500 text-sm">Балансы недоступны</p>'}
+          : '<p class="text-slate-500 text-sm">Balances unavailable</p>'}
       </div>
     </div>
     <div class="bg-slate-800 rounded-xl p-5">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">История событий</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
       ${renderEvents(events)}
     </div>
   `;
@@ -828,26 +840,26 @@ function renderDealDetail(el, deal, status, balances, events) {
 }
 ```
 
-- [ ] **Step 3: Финальная проверка вручную**
+- [ ] **Step 3: Final manual check**
 
-1. Открыть http://localhost:5500 — должен показать экран логина
-2. Войти как admin (admin / Demo2024!) — открылся список сделок с nav-bar
-3. Кликнуть на сделку — открылась детальная страница с nav-bar
-4. Нажать «← Назад» — вернулся список
-5. Нажать «Выйти →» — вернулся экран логина
-6. Обновить страницу — снова экран логина (localStorage очищен)
-7. Войти повторно → перейти на http://localhost:5500/#deals — открылся список без повторного логина
+1. Open <http://localhost:5500> — should show login screen
+2. Log in as admin (admin / Demo2024!) — deals list opened with nav bar
+3. Click on a deal — detail page opened with nav bar
+4. Click "← Back" — returned to list
+5. Click "Sign out →" — returned to login screen
+6. Refresh page — login screen again (localStorage cleared)
+7. Log in again → go to <http://localhost:5500/#deals> — list opened without re-login
 
-- [ ] **Step 4: Запустить все backend тесты финально**
+- [ ] **Step 4: Run all backend tests finally**
 
 ```powershell
 cd E:\agripartners\backend
 npx jest --no-coverage
 ```
 
-Ожидаемый результат: все тесты PASS.
+Expected result: all tests PASS.
 
-- [ ] **Step 5: Финальный коммит**
+- [ ] **Step 5: Final commit**
 
 ```powershell
 cd E:\agripartners
@@ -859,20 +871,22 @@ git commit -m "feat: add nav bar and auth headers to deal detail view"
 
 ## Self-Review
 
-**Покрытие spec:**
-- ✅ Вход обязателен — роутер с auth-guard, редирект на #login
-- ✅ Только просмотр — кнопка withdraw не добавляется
-- ✅ Одинаковый вид для farmer и investor — renderDealCard/renderDealDetail не меняются
-- ✅ Расширить существующий app.js — не создаём новых файлов фронтенда
-- ✅ Маршруты: #login, #deals (свои), #deals/:id
+**Spec coverage:**
+
+- ✅ Login required — router with auth-guard, redirect to #login
+- ✅ View only — no withdraw button added
+- ✅ Same view for farmer and investor — renderDealCard/renderDealDetail unchanged
+- ✅ Extend existing app.js — no new frontend files created
+- ✅ Routes: #login, #deals (own), #deals/:id
 - ✅ Auth state: localStorage ap_auth { token, user }
-- ✅ GET /api/me/deals с JWT и фильтром по роли
-- ✅ near_account в JWT payload
+- ✅ GET /api/me/deals with JWT and role filter
+- ✅ near_account in JWT payload
 
-**Проверка типов и имён:**
-- `getDealsByUser(near_account, role)` — одинаково в dealService.js, me.js и тестах
-- `authHeaders()` — используется в showDeals и showDeal
-- `renderNav()` — используется в showDeals, showDeal loading state и renderDealDetail
-- `getAuth()`, `setAuth()`, `clearAuth()` — согласованы везде
+**Type and name check:**
 
-**Placeholders:** отсутствуют — весь код полный.
+- `getDealsByUser(near_account, role)` — consistent across dealService.js, me.js and tests
+- `authHeaders()` — used in showDeals and showDeal
+- `renderNav()` — used in showDeals, showDeal loading state and renderDealDetail
+- `getAuth()`, `setAuth()`, `clearAuth()` — consistent everywhere
+
+**Placeholders:** none — all code is complete.

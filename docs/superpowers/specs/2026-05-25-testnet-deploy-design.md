@@ -1,49 +1,49 @@
 # Testnet Deploy Design: AgriPartners
 
-**Date:** 2026-05-25  
-**Status:** Approved  
-**Goal:** Запустить AgriPartners локально с реальным NEAR testnet для питча NEAR Protocol команде
+**Date:** 2026-05-25
+**Status:** Approved
+**Goal:** Run AgriPartners locally with real NEAR testnet for the NEAR Protocol team pitch
 
 ---
 
 ## Overview
 
-Backend уже умеет деплоить контракты через near-api-js — near-cli не нужен. Один аккаунт `farab.testnet` используется как admin + farmer + investor (допустимо для демо). Всё работает локально, хостинг не нужен.
+The backend already knows how to deploy contracts via near-api-js — near-cli is not needed. One account `farab.testnet` is used as admin + farmer + investor (acceptable for demo). Everything runs locally, no hosting needed.
 
 ---
 
-## Компоненты
+## Components
 
-| Компонент | Статус | Что делать |
+| Component | Status | What to do |
 | --- | --- | --- |
-| Смарт-контракт (WASM) | ✅ готов | Убедиться что файл существует |
-| Backend API | ✅ готов | Добавить эндпоинт fund, заполнить .env |
-| Frontend дашборд | ✅ готов | Ничего не менять |
-| demo.ps1 | ❌ нет | Создать |
+| Smart contract (WASM) | ✅ ready | Verify the file exists |
+| Backend API | ✅ ready | Add fund endpoint, fill .env |
+| Frontend dashboard | ✅ ready | No changes needed |
+| demo.ps1 | ❌ missing | Create |
 
 ---
 
-## Шаг 1: Экспорт приватного ключа
+## Step 1: Export private key
 
-Аккаунт `farab.testnet` есть только в браузерном кошельке. Нужно получить приватный ключ:
+Account `farab.testnet` exists only in the browser wallet. Need to get the private key:
 
-1. Открыть `testnet.mynearwallet.com`
+1. Open `testnet.mynearwallet.com`
 2. Settings → Security & Recovery → Export Private Key
-3. Скопировать строку формата `ed25519:...`
-4. Вставить в `backend/.env` как `NEAR_ADMIN_PRIVATE_KEY`
+3. Copy the string in format `ed25519:...`
+4. Paste into `backend/.env` as `NEAR_ADMIN_PRIVATE_KEY`
 
-Ключ нигде не публиковать. Это testnet — реальных денег нет, но всё равно хранить аккуратно.
+Do not publish the key anywhere. This is testnet — no real money, but still store it carefully.
 
 ---
 
-## Шаг 2: Backend .env
+## Step 2: Backend .env
 
-Заполнить `E:\agripartners\backend\.env`:
+Fill in `E:\agripartners\backend\.env`:
 
 ```env
 NEAR_NETWORK=testnet
 NEAR_ADMIN_ACCOUNT=farab.testnet
-NEAR_ADMIN_PRIVATE_KEY=ed25519:ВАША_СТРОКА_ЗДЕСЬ
+NEAR_ADMIN_PRIVATE_KEY=ed25519:YOUR_STRING_HERE
 WASM_PATH=../contract/target/wasm32-unknown-unknown/release/agripartners.wasm
 API_KEY=agripartners-demo-key
 PORT=3000
@@ -52,16 +52,17 @@ DB_PATH=./agripartners.db
 
 ---
 
-## Шаг 3: Новый backend эндпоинт — fund
+## Step 3: New backend endpoint — fund
 
-`fund()` в контракте вызывается от имени investor с депозитом = `investment_amount`. В демо `farab.testnet` одновременно admin и investor, поэтому admin-аккаунт может вызвать fund().
+`fund()` in the contract is called on behalf of the investor with deposit = `investment_amount`. In the demo `farab.testnet` is simultaneously admin and investor, so the admin account can call fund().
 
-**Добавить в backend:**
+**Add to backend:**
 
-- `nearService.fundContract(contractAddress, investmentAmount)` — вызов `fund()` с депозитом
-- `POST /api/admin/deals/:id/fund` — защищённый эндпоинт (X-API-Key)
+- `nearService.fundContract(contractAddress, investmentAmount)` — call `fund()` with deposit
+- `POST /api/admin/deals/:id/fund` — protected endpoint (X-API-Key)
 
 **nearService.fundContract:**
+
 ```js
 async function fundContract(contractAddress, investmentAmount) {
   const account = await getAdminAccount();
@@ -77,6 +78,7 @@ async function fundContract(contractAddress, investmentAmount) {
 ```
 
 **admin route:**
+
 ```js
 router.post('/deals/:id/fund', async (req, res) => {
   const deal = dealService.getDealById(req.params.id);
@@ -96,60 +98,62 @@ router.post('/deals/:id/fund', async (req, res) => {
 
 ---
 
-## Шаг 4: demo.ps1
+## Step 4: demo.ps1
 
-Файл `E:\agripartners\demo.ps1` — полный demo-цикл одной командой для питча.
+File `E:\agripartners\demo.ps1` — full demo cycle with one command for the pitch.
 
-**Что делает:**
-1. Проверяет что backend запущен (GET /health)
-2. Деплоит сделку (`POST /api/admin/deals`) — Fidlot, 3 цикла × 1 день, 1000 NEAR
-3. Финансирует (`POST /api/admin/deals/:id/fund`)
-4. Старт цикла 1 (`POST /api/admin/deals/:id/start-cycle`)
-5. Репорт цикла 1 — profit 300 NEAR (`POST /api/admin/deals/:id/report-cycle`)
-6. Выводит ссылку: `http://localhost:5500/#deals/:id`
-7. Спрашивает продолжить → цикл 2 → цикл 3 → Completed
+**What it does:**
 
-**Параметры:**
+1. Checks that backend is running (GET /health)
+2. Deploys deal (`POST /api/admin/deals`) — Fidlot, 3 cycles × 1 day, 1000 NEAR
+3. Funds (`POST /api/admin/deals/:id/fund`)
+4. Start cycle 1 (`POST /api/admin/deals/:id/start-cycle`)
+5. Report cycle 1 — profit 300 NEAR (`POST /api/admin/deals/:id/report-cycle`)
+6. Outputs link: `http://localhost:5500/#deals/:id`
+7. Asks to continue → cycle 2 → cycle 3 → Completed
+
+**Parameters:**
+
 ```
 API_KEY     = agripartners-demo-key
 API_BASE    = http://localhost:3000
-INVESTMENT  = "10000000000000000000000000"   # 10 NEAR в yocto (testnet faucet даёт ~200 NEAR)
-PROFIT      = "3000000000000000000000000"    # 3 NEAR в yocto
+INVESTMENT  = "10000000000000000000000000"   # 10 NEAR in yocto (testnet faucet gives ~200 NEAR)
+PROFIT      = "3000000000000000000000000"    # 3 NEAR in yocto
 FARMER      = farab.testnet
 INVESTOR    = farab.testnet
 DEAL_TYPE   = Fidlot v5.9
 CYCLES      = 3
 CYCLE_DAYS  = 1
-CAPITAL_RETURN = "4080000000000000000000000" # 4.08 NEAR в yocto (40.8% от 10 NEAR)
+CAPITAL_RETURN = "4080000000000000000000000" # 4.08 NEAR in yocto (40.8% of 10 NEAR)
 ```
 
-**После каждого шага:** пауза с сообщением "Нажмите Enter для продолжения" — чтобы показать дашборд между шагами на питче.
+**After each step:** pause with message "Press Enter to continue" — to show dashboard between steps at the pitch.
 
 ---
 
-## Шаг 5: Запуск для демо
+## Step 5: Running for demo
 
 ```powershell
-# Терминал 1
+# Terminal 1
 Set-Location E:\agripartners\backend
 npm start
 
-# Терминал 2
+# Terminal 2
 serve E:\agripartners\frontend -p 5500
 
-# Терминал 3 (запуск демо)
+# Terminal 3 (run demo)
 Set-Location E:\agripartners
 .\demo.ps1
 ```
 
-Открыть браузер: `http://localhost:5500`
+Open browser: `http://localhost:5500`
 
 ---
 
-## Что НЕ входит в scope
+## What is NOT in scope
 
-- Хостинг в облаке
-- Отдельные аккаунты для farmer/investor
-- Обновление demo.sh (оставить как есть)
-- Mainnet деплой
-- NEAR CLI установка
+- Cloud hosting
+- Separate accounts for farmer/investor
+- Updating demo.sh (leave as-is)
+- Mainnet deployment
+- NEAR CLI installation

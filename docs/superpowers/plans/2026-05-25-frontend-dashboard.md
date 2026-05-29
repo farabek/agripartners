@@ -2,47 +2,48 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Статичный HTML/JS/CSS дашборд для AgriPartners — список сделок и детальная страница каждой сделки с балансами из блокчейна.
+**Goal:** A static HTML/JS/CSS dashboard for AgriPartners — deals list and a detail page for each deal with blockchain balances.
 
-**Architecture:** Hash-based SPA (без build-шага). Два вида: `#deals` (карточки сделок) и `#deals/:id` (детали + Chart.js donut + история событий). Frontend обращается к backend API на `localhost:3000`.
+**Architecture:** Hash-based SPA (no build step). Two views: `#deals` (deal cards) and `#deals/:id` (details + Chart.js donut + event history). Frontend calls backend API at `localhost:3000`.
 
-**Tech Stack:** HTML5, Tailwind CSS v3 (CDN), Chart.js v4 (CDN), vanilla JS (BigInt для yoctoNEAR), Express cors middleware.
+**Tech Stack:** HTML5, Tailwind CSS v3 (CDN), Chart.js v4 (CDN), vanilla JS (BigInt for yoctoNEAR), Express cors middleware.
 
 ---
 
-## Файловая структура
+## File Structure
 
 ```
 E:\agripartners\
-  backend\src\app.js          — добавить cors middleware
+  backend\src\app.js          — add cors middleware
   frontend\
     index.html                — HTML skeleton, CDN imports
     style.css                 — dark theme, status badge colors, spinner
-    app.js                    — utilities, router, все view-функции
+    app.js                    — utilities, router, all view functions
 ```
 
 ---
 
-## Task 1: Добавить CORS в backend
+## Task 1: Add CORS to backend
 
 **Files:**
+
 - Modify: `E:\agripartners\backend\src\app.js`
-- Modify: `E:\agripartners\backend\package.json` (через npm install)
+- Modify: `E:\agripartners\backend\package.json` (via npm install)
 
-Без CORS браузер блокирует fetch-запросы с `file://` или другого порта к `localhost:3000`.
+Without CORS the browser blocks fetch requests from `file://` or another port to `localhost:3000`.
 
-- [ ] **Шаг 1: Установить cors**
+- [ ] **Step 1: Install cors**
 
 ```powershell
 Set-Location E:\agripartners\backend
 npm install cors
 ```
 
-Ожидаемый вывод: `added 1 package` (или аналог).
+Expected output: `added 1 package` (or similar).
 
-- [ ] **Шаг 2: Подключить cors в app.js**
+- [ ] **Step 2: Add cors to app.js**
 
-Открыть `E:\agripartners\backend\src\app.js` и добавить cors после строки `const express = require('express');`:
+Open `E:\agripartners\backend\src\app.js` and add cors after the `const express = require('express');` line:
 
 ```js
 require('dotenv').config();
@@ -67,25 +68,25 @@ app.use('/api/admin', requireApiKey, adminRouter);
 module.exports = app;
 ```
 
-- [ ] **Шаг 3: Проверить что backend запускается**
+- [ ] **Step 3: Verify backend starts**
 
 ```powershell
 Set-Location E:\agripartners\backend
 npm start
 ```
 
-Ожидаемый вывод: `AgriPartners backend listening on port 3000` (или аналог). Нажать Ctrl+C.
+Expected output: `AgriPartners backend listening on port 3000` (or similar). Press Ctrl+C.
 
-- [ ] **Шаг 4: Проверить что тесты проходят**
+- [ ] **Step 4: Verify tests pass**
 
 ```powershell
 Set-Location E:\agripartners\backend
 npm test
 ```
 
-Ожидаемый вывод: `29 passed` (все тесты зелёные).
+Expected output: `29 passed` (all tests green).
 
-- [ ] **Шаг 5: Закоммитить**
+- [ ] **Step 5: Commit**
 
 ```powershell
 Set-Location E:\agripartners
@@ -98,14 +99,15 @@ git commit -m "feat: add CORS middleware to backend"
 ## Task 2: HTML skeleton + dark theme CSS
 
 **Files:**
+
 - Create: `E:\agripartners\frontend\index.html`
 - Create: `E:\agripartners\frontend\style.css`
 
-- [ ] **Шаг 1: Создать `index.html`**
+- [ ] **Step 1: Create `index.html`**
 
 ```html
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -122,7 +124,7 @@ git commit -m "feat: add CORS middleware to backend"
 </html>
 ```
 
-- [ ] **Шаг 2: Создать `style.css`**
+- [ ] **Step 2: Create `style.css`**
 
 ```css
 .badge {
@@ -151,22 +153,24 @@ git commit -m "feat: add CORS middleware to backend"
 @keyframes spin { to { transform: rotate(360deg); } }
 ```
 
-- [ ] **Шаг 3: Визуально проверить**
+- [ ] **Step 3: Visual check**
 
-Установить `serve` если нет:
+Install `serve` if not available:
+
 ```powershell
 npm install -g serve
 ```
 
-Запустить:
+Run:
+
 ```powershell
 serve E:\agripartners\frontend -p 5500
 ```
 
-Открыть `http://localhost:5500` в браузере.
-Ожидаемый результат: тёмная страница (bg-slate-900), оба `div` скрыты (содержимого не видно). Ошибок в DevTools Console нет.
+Open `http://localhost:5500` in browser.
+Expected result: dark page (bg-slate-900), both `div`s hidden (no visible content). No errors in DevTools Console.
 
-- [ ] **Шаг 4: Закоммитить**
+- [ ] **Step 4: Commit**
 
 ```powershell
 Set-Location E:\agripartners
@@ -176,17 +180,18 @@ git commit -m "feat: add frontend HTML skeleton and dark theme CSS"
 
 ---
 
-## Task 3: app.js — утилиты + роутер
+## Task 3: app.js — utilities + router
 
 **Files:**
+
 - Create: `E:\agripartners\frontend\app.js`
 
-- [ ] **Шаг 1: Создать `app.js` с утилитами и роутером**
+- [ ] **Step 1: Create `app.js` with utilities and router**
 
 ```js
 const API_BASE = 'http://localhost:3000';
 
-// --- Утилиты ---
+// --- Utilities ---
 
 function yoctoToNear(yocto) {
   if (!yocto || yocto === '0') return '0.00 NEAR';
@@ -217,7 +222,7 @@ function statusBadge(status) {
   return `<span class="badge badge-${status}">${status}</span>`;
 }
 
-// --- Роутер ---
+// --- Router ---
 
 function showView(viewId) {
   document.getElementById('view-list').classList.add('hidden');
@@ -241,19 +246,20 @@ window.addEventListener('load', () => {
   else route();
 });
 
-// --- Placeholder для следующих задач ---
+// --- Placeholder for next tasks ---
 function showDeals() { showView('view-list'); document.getElementById('view-list').innerHTML = '<p class="text-slate-400">Loading...</p>'; }
 function showDeal(id) { showView('view-detail'); document.getElementById('view-detail').innerHTML = `<p class="text-slate-400">Deal ${id}</p>`; }
 ```
 
-- [ ] **Шаг 2: Проверить роутер в браузере**
+- [ ] **Step 2: Check router in browser**
 
-Открыть `http://localhost:5500` (serve должен работать из Task 2).
-- Перейти на `http://localhost:5500/#deals` → видно "Loading..."
-- Перейти на `http://localhost:5500/#deals/1` → видно "Deal 1"
-- Перейти на `http://localhost:5500/` → должен редиректнуть на `#deals`
+Open `http://localhost:5500` (serve should be running from Task 2).
 
-- [ ] **Шаг 3: Проверить утилиты в DevTools Console**
+- Go to `http://localhost:5500/#deals` → see "Loading..."
+- Go to `http://localhost:5500/#deals/1` → see "Deal 1"
+- Go to `http://localhost:5500/` → should redirect to `#deals`
+
+- [ ] **Step 3: Check utilities in DevTools Console**
 
 ```js
 yoctoToNear('1000000000000000000000000')   // → "1.00 NEAR"
@@ -261,10 +267,10 @@ yoctoToNear('2500000000000000000000000')   // → "2.50 NEAR"
 yoctoToNear('0')                           // → "0.00 NEAR"
 formatAddress('alice.testnet')             // → "alice.testnet"
 formatAddress('abcdef1234567890abcdef1234567890abcdef12') // → "abcdef…ef12"
-statusBadge('CycleActive')                 // → строка с классом badge-CycleActive
+statusBadge('CycleActive')                 // → string with class badge-CycleActive
 ```
 
-- [ ] **Шаг 4: Закоммитить**
+- [ ] **Step 4: Commit**
 
 ```powershell
 Set-Location E:\agripartners
@@ -274,19 +280,21 @@ git commit -m "feat: add frontend utilities and hash router"
 
 ---
 
-## Task 4: Список сделок (showDeals + renderDealCard)
+## Task 4: Deals list (showDeals + renderDealCard)
 
 **Files:**
-- Modify: `E:\agripartners\frontend\app.js` — заменить placeholder `showDeals` на полную реализацию
 
-- [ ] **Шаг 1: Заменить функцию `showDeals` в app.js**
+- Modify: `E:\agripartners\frontend\app.js` — replace placeholder `showDeals` with full implementation
 
-Найти строку:
+- [ ] **Step 1: Replace `showDeals` function in app.js**
+
+Find the line:
+
 ```js
 function showDeals() { showView('view-list'); document.getElementById('view-list').innerHTML = '<p class="text-slate-400">Loading...</p>'; }
 ```
 
-Заменить на:
+Replace with:
 
 ```js
 async function showDeals() {
@@ -294,7 +302,7 @@ async function showDeals() {
   const el = document.getElementById('view-list');
   el.innerHTML = `
     <h1 class="text-3xl font-bold text-green-400 mb-1">AgriPartners</h1>
-    <p class="text-slate-400 mb-6">Агро-инвестиции на NEAR Protocol</p>
+    <p class="text-slate-400 mb-6">Agricultural investments on NEAR Protocol</p>
     <div class="spinner"></div>
   `;
   try {
@@ -303,7 +311,7 @@ async function showDeals() {
     const deals = await res.json();
     el.querySelector('.spinner').remove();
     if (deals.length === 0) {
-      el.innerHTML += '<p class="text-slate-400 mt-4">Нет сделок</p>';
+      el.innerHTML += '<p class="text-slate-400 mt-4">No deals found</p>';
       return;
     }
     const grid = document.createElement('div');
@@ -312,7 +320,7 @@ async function showDeals() {
     el.appendChild(grid);
   } catch (e) {
     el.querySelector('.spinner')?.remove();
-    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend недоступен: ${e.message}</div>`;
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend unavailable: ${e.message}</div>`;
   }
 }
 
@@ -323,36 +331,37 @@ function renderDealCard(d) {
         <div class="flex items-center gap-2 mb-1">
           <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">${d.deal_type}</span>
         </div>
-        <p class="text-sm text-slate-400">Фермер: <span class="text-slate-200">${formatAddress(d.farmer)}</span></p>
-        <p class="text-sm text-slate-400">Инвестор: <span class="text-slate-200">${formatAddress(d.investor)}</span></p>
-        <p class="text-sm text-slate-500">${d.total_cycles} цикл(а) × ${d.cycle_duration_days} дн  ·  ${yoctoToNear(d.investment_amount)}</p>
+        <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${formatAddress(d.farmer)}</span></p>
+        <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${formatAddress(d.investor)}</span></p>
+        <p class="text-sm text-slate-500">${d.total_cycles} cycle(s) × ${d.cycle_duration_days} days  ·  ${yoctoToNear(d.investment_amount)}</p>
       </div>
-      <a href="#deals/${d.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Открыть →</a>
+      <a href="#deals/${d.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open →</a>
     </div>
   `;
 }
 ```
 
-- [ ] **Шаг 2: Запустить backend**
+- [ ] **Step 2: Start backend**
 
 ```powershell
 Set-Location E:\agripartners\backend
 npm start
 ```
 
-- [ ] **Шаг 3: Проверить список сделок в браузере**
+- [ ] **Step 3: Check deals list in browser**
 
-Открыть `http://localhost:5500/#deals`.
+Open `http://localhost:5500/#deals`.
 
-Ожидаемые результаты:
-- Заголовок "AgriPartners" зелёного цвета
-- Спиннер появляется на секунду, затем исчезает
-- Карточки сделок отображаются (если БД содержит сделки)
-- Кнопка "Открыть →" зелёная, при клике переходит на `#deals/:id`
+Expected results:
 
-Проверить пустое состояние: временно изменить `${API_BASE}/api/deals` на несуществующий URL, убедиться что показывается красная плашка "Backend недоступен", вернуть URL обратно.
+- "AgriPartners" heading in green
+- Spinner appears for a second then disappears
+- Deal cards are displayed (if DB contains deals)
+- "Open →" button is green, clicking navigates to `#deals/:id`
 
-- [ ] **Шаг 4: Закоммитить**
+Check empty state: temporarily change `${API_BASE}/api/deals` to a non-existent URL, verify red "Backend unavailable" banner appears, then revert.
+
+- [ ] **Step 4: Commit**
 
 ```powershell
 Set-Location E:\agripartners
@@ -362,26 +371,28 @@ git commit -m "feat: add deals list view with cards"
 
 ---
 
-## Task 5: Детали сделки — параметры + статус
+## Task 5: Deal detail — parameters + status
 
 **Files:**
-- Modify: `E:\agripartners\frontend\app.js` — заменить placeholder `showDeal`, добавить `renderDealDetail`, `renderParams`
 
-- [ ] **Шаг 1: Заменить функцию `showDeal` в app.js**
+- Modify: `E:\agripartners\frontend\app.js` — replace placeholder `showDeal`, add `renderDealDetail`, `renderParams`
 
-Найти строку:
+- [ ] **Step 1: Replace `showDeal` function in app.js**
+
+Find the line:
+
 ```js
 function showDeal(id) { showView('view-detail'); document.getElementById('view-detail').innerHTML = `<p class="text-slate-400">Deal ${id}</p>`; }
 ```
 
-Заменить на:
+Replace with:
 
 ```js
 async function showDeal(id) {
   showView('view-detail');
   const el = document.getElementById('view-detail');
   el.innerHTML = `
-    <a href="#deals" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">← Назад</a>
+    <a href="#deals" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">← Back</a>
     <div class="spinner"></div>
   `;
 
@@ -397,8 +408,8 @@ async function showDeal(id) {
   if (dealRes.status === 'rejected' || !dealRes.value.ok) {
     const code = dealRes.value?.status;
     el.innerHTML += code === 404
-      ? '<p class="text-slate-400 mt-8 text-center">Сделка не найдена</p>'
-      : `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend недоступен</div>`;
+      ? '<p class="text-slate-400 mt-8 text-center">Deal not found</p>'
+      : `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend unavailable</div>`;
     return;
   }
 
@@ -414,15 +425,15 @@ async function showDeal(id) {
 }
 
 function renderDealDetail(el, deal, status, balances, events) {
-  const cycleText = status ? `· Цикл ${status.current_cycle}` : '';
+  const cycleText = status ? `· Cycle ${status.current_cycle}` : '';
   el.innerHTML = `
     <div class="flex flex-wrap items-center gap-3 mb-6">
-      <a href="#deals" class="text-slate-400 hover:text-white text-sm">← Назад</a>
+      <a href="#deals" class="text-slate-400 hover:text-white text-sm">← Back</a>
       <span class="text-slate-600">|</span>
       <span class="font-semibold">${deal.deal_type}</span>
       <span id="status-badge">${statusBadge(status?.status)}</span>
       <span id="cycle-text" class="text-slate-400 text-sm">${cycleText}</span>
-      <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Обновить</button>
+      <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
@@ -431,11 +442,11 @@ function renderDealDetail(el, deal, status, balances, events) {
       <div class="bg-slate-800 rounded-xl p-5 flex flex-col items-center justify-center" id="chart-col">
         ${balances
           ? '<canvas id="balances-chart" width="240" height="240"></canvas>'
-          : '<p class="text-slate-500 text-sm">Балансы недоступны</p>'}
+          : '<p class="text-slate-500 text-sm">Balances unavailable</p>'}
       </div>
     </div>
     <div class="bg-slate-800 rounded-xl p-5">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">История событий</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
       ${renderEvents(events)}
     </div>
   `;
@@ -447,17 +458,17 @@ function renderDealDetail(el, deal, status, balances, events) {
 
 function renderParams(deal) {
   const rows = [
-    ['Фермер',           formatAddress(deal.farmer)],
-    ['Инвестор',         formatAddress(deal.investor)],
-    ['Администратор',    formatAddress(deal.admin)],
-    ['Платформа',        formatAddress(deal.platform)],
-    ['Сплит',            `${deal.farmer_split_pct}% / ${deal.investor_split_pct}%`],
-    ['Эскроу',           `${deal.escrow_pct}%`],
+    ['Farmer',           formatAddress(deal.farmer)],
+    ['Investor',         formatAddress(deal.investor)],
+    ['Administrator',    formatAddress(deal.admin)],
+    ['Platform',         formatAddress(deal.platform)],
+    ['Split',            `${deal.farmer_split_pct}% / ${deal.investor_split_pct}%`],
+    ['Escrow',           `${deal.escrow_pct}%`],
     ['Performance Fee',  `${deal.performance_fee_pct}%`],
-    ['Длительность цикла', `${deal.cycle_duration_days} дн`],
-    ['Всего циклов',     deal.total_cycles],
-    ['Инвестиция',       yoctoToNear(deal.investment_amount)],
-    ['Возврат капитала', yoctoToNear(deal.capital_return_near)],
+    ['Cycle duration',   `${deal.cycle_duration_days} days`],
+    ['Total cycles',     deal.total_cycles],
+    ['Investment',       yoctoToNear(deal.investment_amount)],
+    ['Capital return',   yoctoToNear(deal.capital_return_near)],
   ];
   return rows.map(([k, v]) => `
     <div class="flex justify-between text-sm gap-2">
@@ -467,26 +478,27 @@ function renderParams(deal) {
   `).join('');
 }
 
-// Placeholder для следующей задачи
+// Placeholder for next task
 function renderBalancesChart(balances) {}
-function renderEvents(events) { return '<p class="text-slate-500 text-sm">Загрузка...</p>'; }
+function renderEvents(events) { return '<p class="text-slate-500 text-sm">Loading...</p>'; }
 async function refreshDeal(id) {}
 ```
 
-- [ ] **Шаг 2: Проверить страницу деталей в браузере**
+- [ ] **Step 2: Check deal detail page in browser**
 
-Открыть `http://localhost:5500/#deals`, нажать "Открыть →" на любой карточке.
+Open `http://localhost:5500/#deals`, click "Open →" on any card.
 
-Ожидаемые результаты:
-- Хлебная крошка "← Назад" работает (возвращает на список)
-- Заголовок: тип сделки + badge статуса + номер цикла
-- Левая колонка: все параметры сделки в таблице
-- Правая колонка: "Балансы недоступны" (chart-функция ещё пустая)
-- Секция событий: "Загрузка..."
+Expected results:
 
-Проверить `#deals/99999` → должно показать "Сделка не найдена".
+- "← Back" breadcrumb works (returns to list)
+- Header: deal type + status badge + cycle number
+- Left column: all deal parameters in a table
+- Right column: "Balances unavailable" (chart function still empty)
+- Events section: "Loading..."
 
-- [ ] **Шаг 3: Закоммитить**
+Check `#deals/99999` → should show "Deal not found".
+
+- [ ] **Step 3: Commit**
 
 ```powershell
 Set-Location E:\agripartners
@@ -496,19 +508,21 @@ git commit -m "feat: add deal detail view with params and status"
 
 ---
 
-## Task 6: Balances chart + события + refresh
+## Task 6: Balances chart + events + refresh
 
 **Files:**
-- Modify: `E:\agripartners\frontend\app.js` — заменить три placeholder-функции
 
-- [ ] **Шаг 1: Заменить `renderBalancesChart` в app.js**
+- Modify: `E:\agripartners\frontend\app.js` — replace three placeholder functions
 
-Найти:
+- [ ] **Step 1: Replace `renderBalancesChart` in app.js**
+
+Find:
+
 ```js
 function renderBalancesChart(balances) {}
 ```
 
-Заменить на:
+Replace with:
 
 ```js
 let balancesChartInstance = null;
@@ -529,7 +543,7 @@ function renderBalancesChart(balances) {
   balancesChartInstance = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['Фермер', 'Инвестор', 'Платформа', 'Эскроу'],
+      labels: ['Farmer', 'Investor', 'Platform', 'Escrow'],
       datasets: [{
         data,
         backgroundColor: ['#2563eb', '#16a34a', '#ca8a04', '#dc2626'],
@@ -549,18 +563,19 @@ function renderBalancesChart(balances) {
 }
 ```
 
-- [ ] **Шаг 2: Заменить `renderEvents` в app.js**
+- [ ] **Step 2: Replace `renderEvents` in app.js**
 
-Найти:
+Find:
+
 ```js
-function renderEvents(events) { return '<p class="text-slate-500 text-sm">Загрузка...</p>'; }
+function renderEvents(events) { return '<p class="text-slate-500 text-sm">Loading...</p>'; }
 ```
 
-Заменить на:
+Replace with:
 
 ```js
 function renderEvents(events) {
-  if (!events.length) return '<p class="text-slate-500 text-sm">Событий нет</p>';
+  if (!events.length) return '<p class="text-slate-500 text-sm">No events</p>';
   return events.map(e => {
     const profitHtml = e.profit_near
       ? `<span class="text-green-400 ml-2">+${yoctoToNear(e.profit_near)}</span>` : '';
@@ -569,12 +584,12 @@ function renderEvents(events) {
     const txHtml = e.tx_hash
       ? `<a href="https://testnet.nearblocks.io/txns/${e.tx_hash}" target="_blank" class="text-blue-400 hover:underline font-mono">${formatAddress(e.tx_hash)}</a>`
       : '';
-    const date = new Date(e.created_at).toLocaleDateString('ru-RU');
+    const date = new Date(e.created_at).toLocaleDateString('en-US');
     return `
       <div class="flex justify-between items-start text-sm py-2.5 border-b border-slate-700 last:border-0 gap-2">
         <div>
           <span class="text-slate-200 font-medium">${e.event_type}</span>
-          ${e.cycle_num != null ? `<span class="text-slate-400 ml-2">цикл ${e.cycle_num}</span>` : ''}
+          ${e.cycle_num != null ? `<span class="text-slate-400 ml-2">cycle ${e.cycle_num}</span>` : ''}
           ${profitHtml}${lossHtml}
         </div>
         <div class="text-right text-slate-500 shrink-0">
@@ -587,19 +602,20 @@ function renderEvents(events) {
 }
 ```
 
-- [ ] **Шаг 3: Заменить `refreshDeal` в app.js**
+- [ ] **Step 3: Replace `refreshDeal` in app.js**
 
-Найти:
+Find:
+
 ```js
 async function refreshDeal(id) {}
 ```
 
-Заменить на:
+Replace with:
 
 ```js
 async function refreshDeal(id) {
   const btn = document.getElementById('btn-refresh');
-  if (btn) { btn.disabled = true; btn.textContent = 'Обновление...'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
 
   const [statusRes, balancesRes] = await Promise.allSettled([
     fetch(`${API_BASE}/api/deals/${id}/status`),
@@ -615,26 +631,27 @@ async function refreshDeal(id) {
     const badgeEl = document.getElementById('status-badge');
     const cycleEl = document.getElementById('cycle-text');
     if (badgeEl) badgeEl.innerHTML = statusBadge(status.status);
-    if (cycleEl) cycleEl.textContent = `· Цикл ${status.current_cycle}`;
+    if (cycleEl) cycleEl.textContent = `· Cycle ${status.current_cycle}`;
   }
   if (balances) renderBalancesChart(balances);
 
-  if (btn) { btn.disabled = false; btn.textContent = 'Обновить'; }
+  if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
 }
 ```
 
-- [ ] **Шаг 4: Проверить chart + события + refresh в браузере**
+- [ ] **Step 4: Check chart + events + refresh in browser**
 
-Открыть `http://localhost:5500/#deals`, зайти в любую сделку.
+Open `http://localhost:5500/#deals`, open any deal.
 
-Ожидаемые результаты:
-- Правая колонка: donut-диаграмма с 4 сегментами (синий/зелёный/жёлтый/красный)
-- Легенда под диаграммой: Фермер / Инвестор / Платформа / Эскроу
-- Если все балансы = 0 (сделка только создана), диаграмма может быть пустой — это нормально
-- История событий: список с типами, циклами, суммами
-- Нажать "Обновить" → кнопка становится "Обновление..." на секунду, затем диаграмма обновляется
+Expected results:
 
-- [ ] **Шаг 5: Закоммитить**
+- Right column: donut chart with 4 segments (blue/green/yellow/red)
+- Legend below chart: Farmer / Investor / Platform / Escrow
+- If all balances = 0 (deal just created), chart may be empty — that's normal
+- Event history: list with types, cycles, amounts
+- Click "Refresh" → button becomes "Refreshing..." for a second, then chart updates
+
+- [ ] **Step 5: Commit**
 
 ```powershell
 Set-Location E:\agripartners
@@ -644,37 +661,39 @@ git commit -m "feat: add balances chart, events timeline and refresh button"
 
 ---
 
-## Task 7: Финальная проверка + polish
+## Task 7: Final check + polish
 
 **Files:**
-- Modify (если нужно): `E:\agripartners\frontend\style.css`, `E:\agripartners\frontend\app.js`
 
-- [ ] **Шаг 1: Проверить все сценарии ошибок**
+- Modify (if needed): `E:\agripartners\frontend\style.css`, `E:\agripartners\frontend\app.js`
 
-| Сценарий | Как проверить | Ожидаемый результат |
+- [ ] **Step 1: Check all error scenarios**
+
+| Scenario | How to check | Expected result |
 | --- | --- | --- |
-| Backend недоступен | Остановить backend, открыть `#deals` | Красная плашка "Backend недоступен" |
-| Сделка не найдена | Открыть `#deals/99999` | "Сделка не найдена" |
-| Нет сделок | Проверить пустую БД или временно подменить URL | "Нет сделок" |
-| Blockchain недоступен | Нельзя симулировать легко — пропустить |
+| Backend unavailable | Stop backend, open `#deals` | Red banner "Backend unavailable" |
+| Deal not found | Open `#deals/99999` | "Deal not found" |
+| No deals | Check empty DB or temporarily substitute URL | "No deals found" |
+| Blockchain unavailable | Cannot simulate easily — skip |
 
-- [ ] **Шаг 2: Проверить навигацию**
+- [ ] **Step 2: Check navigation**
 
-- Открыть `http://localhost:5500/` → редирект на `#deals`
-- Зайти в сделку → нажать "← Назад" → вернуться на список
-- В списке нажать "Открыть →" → перейти в детали
-- Нажать кнопку Back браузера → вернуться на список
+- Open `http://localhost:5500/` → redirects to `#deals`
+- Open a deal → click "← Back" → return to list
+- In list click "Open →" → go to details
+- Click browser Back button → return to list
 
-- [ ] **Шаг 3: Проверить корректность отображения NEAR**
+- [ ] **Step 3: Check NEAR display correctness**
 
-В DevTools Console на странице:
+In DevTools Console on the page:
+
 ```js
 yoctoToNear('1000000000000000000000000')  // "1.00 NEAR"
-yoctoToNear('500000000000000000000000')   // "0.50 NEAR"  
+yoctoToNear('500000000000000000000000')   // "0.50 NEAR"
 yoctoToNear('0')                          // "0.00 NEAR"
 ```
 
-- [ ] **Шаг 4: Финальный коммит**
+- [ ] **Step 4: Final commit**
 
 ```powershell
 Set-Location E:\agripartners
@@ -683,21 +702,21 @@ git status
 git commit -m "feat: complete AgriPartners frontend dashboard"
 ```
 
-- [ ] **Шаг 5: Обновить memory**
+- [ ] **Step 5: Update memory**
 
-Сохранить в памяти что frontend завершён.
+Save to memory that frontend is complete.
 
 ---
 
-## Как запустить для демо
+## How to run for demo
 
 ```powershell
-# Терминал 1 — backend
+# Terminal 1 — backend
 Set-Location E:\agripartners\backend
 npm start
 
-# Терминал 2 — frontend
+# Terminal 2 — frontend
 serve E:\agripartners\frontend -p 5500
 ```
 
-Открыть: `http://localhost:5500`
+Open: `http://localhost:5500`

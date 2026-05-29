@@ -1,87 +1,90 @@
 # AgriPartners — Contact List
 
-Статус: [ ] не отправлено · [→] отправлено · [✓] ответили · [✗] отказ
+Status: [ ] not sent · [→] sent · [✓] replied · [✗] declined
 
 ---
 
-## Направление A: NEAR Foundation & Grants
+## Direction A: NEAR Foundation & Grants
 
-| # | Организация | Контакт | Как писать | Шаблон |
+| # | Organization | Contact | How to reach | Template |
 | --- | --- | --- | --- | --- |
-| 1 | **NEAR Grants Program** | grants.near.org | Форма заявки на сайте | A |
-| 2 | **NEAR DevHub Forum** | forum.near.org | Публичный пост в разделе Proposals | A |
-| 3 | **NEAR Foundation** | Twitter @NEARProtocol | DM + тег @NEARProtocol | A |
-| 4 | **Illia Polosukhin** (co-founder NEAR) | Twitter @ilblackdragon | DM с кратким питчем | A |
-| 5 | **NEAR DevHub Telegram** | t.me/neardev | Написать модераторам | A |
-| 6 | **Proximity Labs** (NEAR ecosystem fund) | proximity.dev | Форма на сайте | A |
+| 1 | **NEAR Grants Program** | grants.near.org | Application form on the website | A |
+| 2 | **NEAR DevHub Forum** | forum.near.org | Public post in Proposals section | A |
+| 3 | **NEAR Foundation** | Twitter @NEARProtocol | DM + tag @NEARProtocol | A |
+| 4 | **Illia Polosukhin** (co-founder NEAR) | Twitter @ilblackdragon | DM with brief pitch | A |
+| 5 | **NEAR DevHub Telegram** | t.me/neardev | Message moderators | A |
+| 6 | **Proximity Labs** (NEAR ecosystem fund) | proximity.dev | Form on the website | A |
 
-**Приоритет:** сначала #1 (грантовая форма) + #2 (форум) — это официальный путь.
+**Priority:** start with #1 (grant form) + #2 (forum) — this is the official path.
 
 ---
 
-## Направление B: RWA Крипто-фонды
+## Direction B: RWA Crypto Funds
 
-| # | Организация | Фокус | Как писать | Шаблон |
+| # | Organization | Focus | How to reach | Template |
 | --- | --- | --- | --- | --- |
-| 7 | **Goldfinch** | RWA кредиты в развивающихся рынках | Discord + форма на goldfinch.finance | B |
-| 8 | **Credix** | RWA кредиты для Латинской Америки / EM | credix.finance → Contact | B |
-| 9 | **Outlier Ventures** | Web3 accelerator, RWA трек | outlierventures.io → Apply | B |
+| 7 | **Goldfinch** | RWA lending in emerging markets | Discord + form at goldfinch.finance | B |
+| 8 | **Credix** | RWA lending for Latin America / EM | credix.finance → Contact | B |
+| 9 | **Outlier Ventures** | Web3 accelerator, RWA track | outlierventures.io → Apply | B |
 | 10 | **Encode Club** | Web3 grants & accelerator | encode.club → Programs | B |
 | 11 | **Fasanara Digital** | Digital assets, RWA | fasanara.com → Contact | B |
 | 12 | **Alliance DAO** | Web3 accelerator | alliance.xyz → Apply | B |
 
-**Приоритет:** #9 Outlier Ventures и #10 Encode Club — у них открытые программы с дедлайнами.
+**Priority:** #9 Outlier Ventures and #10 Encode Club — they have open programs with deadlines.
 
 ---
 
-## Направление C: Агро и Regional
+## Direction C: Agro and Regional
 
-| # | Организация | Фокус | Как писать | Шаблон |
+| # | Organization | Focus | How to reach | Template |
 | --- | --- | --- | --- | --- |
-| 13 | **IFC** (World Bank Group) | Агро-финансирование EM | ifc.org → Agriculture | C |
-| 14 | **ADB** (Asian Development Bank) | Центральная Азия, агро | adb.org → Financing | C |
-| 15 | **EBRD** | Agribusiness в ЦА | ebrd.com → Apply for financing | C |
-| 16 | **USAID AgriLinks** | Агро-программы | agrilinks.org | C |
-| 17 | **Uzpromstroybank** | Агро-кредиты Узбекистан | upb.uz | C |
-| 18 | **Агро-ассоциации Узбекистана** | Местные фермерские союзы | Прямой контакт | C |
+| 13 | **IFC** (World Bank Group) | Agro-financing EM | ifc.org → Agriculture | C |
+| 14 | **ADB** (Asian Development Bank) | Central Asia, agro | adb.org → Financing | C |
+| 15 | **EBRD** | Agribusiness in Central Asia | ebrd.com → Apply for financing | C |
+| 16 | **USAID AgriLinks** | Agro programs | agrilinks.org | C |
+| 17 | **Uzpromstroybank** | Agro loans Uzbekistan | upb.uz | C |
+| 18 | **Agricultural Associations of Uzbekistan** | Local farmers' unions | Direct contact | C |
 
 ---
 
-## Трекинг отправки
+## Sending Tracker
 
-| # | Организация | Дата отправки | Статус | Следующий шаг |
+| # | Organization | Date sent | Status | Next step |
 | --- | --- | --- | --- | --- |
-| 1 | NEAR Grants Program | — | [ ] | Заполнить форму |
-| 2 | NEAR DevHub Forum | — | [ ] | Написать пост |
+| 1 | NEAR Grants Program | — | [ ] | Fill out form |
+| 2 | NEAR DevHub Forum | — | [ ] | Write post |
 | 3 | NEAR Foundation Twitter | — | [ ] | DM |
 | 4 | Illia Polosukhin | — | [ ] | DM |
-| 5 | NEAR DevHub Telegram | — | [ ] | Написать |
-| 6 | Proximity Labs | — | [ ] | Форма |
-| 7 | Goldfinch | — | [ ] | Discord/форма |
-| 8 | Credix | — | [ ] | Форма |
+| 5 | NEAR DevHub Telegram | — | [ ] | Write |
+| 6 | Proximity Labs | — | [ ] | Form |
+| 7 | Goldfinch | — | [ ] | Discord/form |
+| 8 | Credix | — | [ ] | Form |
 | 9 | Outlier Ventures | — | [ ] | Apply |
 | 10 | Encode Club | — | [ ] | Programs |
 | 11 | Fasanara Digital | — | [ ] | Contact |
 | 12 | Alliance DAO | — | [ ] | Apply |
-| 13 | IFC | — | [ ] | Форма |
-| 14 | ADB | — | [ ] | Форма |
-| 15 | EBRD | — | [ ] | Форма |
+| 13 | IFC | — | [ ] | Form |
+| 14 | ADB | — | [ ] | Form |
+| 15 | EBRD | — | [ ] | Form |
 
 ---
 
-## Очерёдность на первую неделю
+## First Week Schedule
 
-**День 1–2:**
-- [ ] Подать заявку NEAR Grants (#1)
-- [ ] Написать пост на NEAR Forum (#2)
-- [ ] Подать заявку Outlier Ventures (#9)
+**Day 1–2:**
 
-**День 3–4:**
+- [ ] Submit NEAR Grants application (#1)
+- [ ] Write post on NEAR Forum (#2)
+- [ ] Submit Outlier Ventures application (#9)
+
+**Day 3–4:**
+
 - [ ] DM @ilblackdragon + @NEARProtocol (#3, #4)
-- [ ] Написать в NEAR DevHub Telegram (#5)
-- [ ] Подать заявку Encode Club (#10)
+- [ ] Write in NEAR DevHub Telegram (#5)
+- [ ] Submit Encode Club application (#10)
 
-**День 5–7:**
+**Day 5–7:**
+
 - [ ] Goldfinch Discord (#7)
-- [ ] Credix форма (#8)
+- [ ] Credix form (#8)
 - [ ] Alliance DAO (#12)
