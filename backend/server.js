@@ -7,11 +7,18 @@ const PORT = process.env.PORT || 3000;
 
 async function start() {
   await migrate();
-  await seed();
-  app.listen(PORT, () => console.log(`AgriPartners backend running on port ${PORT}`));
+  if (
+    process.env.RUN_SEED === 'true' ||
+    process.env.NODE_ENV !== 'production'
+  ) {
+    await seed();
+  }
+  app.listen(PORT, () =>
+    console.log(`AgriPartners backend running on port ${PORT}`),
+  );
 }
 
-start().catch(err => {
+start().catch((err) => {
   console.error('Failed to start:', err);
   process.exit(1);
 });

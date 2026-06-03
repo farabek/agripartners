@@ -1,1 +1,3 @@
-TRUNCATE TABLE users RESTART IDENTITY;
+-- Deprecated unsafe migration.
+-- This migration previously truncated the users table.
+-- It is intentionally left empty to prevent data loss in production.
