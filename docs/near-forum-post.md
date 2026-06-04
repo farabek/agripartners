@@ -165,4 +165,5 @@ Happy to share the contract code, run a live demo, or answer any questions below
 ---
 
 _AgriPartners · May 2026 · [farhodmuhamadiev4@gmail.com](mailto:farhodmuhamadiev4@gmail.com)_
+_📱 [t.me/farhodmuhamadiev68](https://t.me/farhodmuhamadiev68) · WhatsApp: +998 99 047 10 25_
 _Demo: agripartners.vercel.app · GitHub: github.com/farabek/agripartners_

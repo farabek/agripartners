@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgriPartners — NEAR Forum Post</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: #f4f4f4;
+        color: #1a1a1a;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 20px auto;
+        background: #fff;
+        padding: 14mm 18mm;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 3px solid #00c08b;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .logo-area h1 { font-size: 24px; font-weight: 800; color: #00c08b; }
+      .logo-area p { font-size: 11px; color: #666; margin-top: 2px; }
+      .badge {
+        background: #00c08b; color: #fff;
+        font-size: 10px; font-weight: 700;
+        padding: 4px 10px; border-radius: 20px;
+      }
+
+      /* Post title block */
+      .post-title-block {
+        background: #f0fdf8;
+        border: 1px solid #00c08b;
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-bottom: 22px;
+      }
+      .post-title-label {
+        font-size: 10px; font-weight: 700;
+        color: #00c08b; text-transform: uppercase;
+        letter-spacing: 0.8px; margin-bottom: 6px;
+      }
+      .post-title-text {
+        font-size: 14px; font-weight: 700; color: #1a1a1a;
+        line-height: 1.4;
+      }
+      .post-section-label {
+        font-size: 10px; color: #888; margin-top: 6px;
+      }
+
+      /* Section titles */
+      h3 {
+        font-size: 13px; font-weight: 700;
+        color: #00c08b;
+        margin: 20px 0 8px;
+        border-left: 3px solid #00c08b;
+        padding-left: 8px;
+      }
+
+      p { margin-bottom: 10px; font-size: 12px; }
+
+      /* Lists */
+      ul { padding-left: 18px; margin-bottom: 10px; }
+      ul li { font-size: 12px; margin-bottom: 4px; color: #333; }
+
+      /* Highlight numbers */
+      .num { font-weight: 700; color: #00c08b; }
+      strong { color: #1a1a1a; }
+
+      /* Table */
+      table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
+      th { background: #00c08b; color: #fff; padding: 7px 10px; text-align: left; font-weight: 600; }
+      td { padding: 6px 10px; border-bottom: 1px solid #eee; }
+      tr:nth-child(even) td { background: #f9fffe; }
+      td.check { color: #00c08b; font-weight: 700; }
+
+      /* Returns box */
+      .returns-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 12px 0;
+      }
+      .return-card {
+        border-radius: 8px;
+        padding: 12px 14px;
+        font-size: 12px;
+      }
+      .return-card.investor {
+        background: #f0fdf8;
+        border: 1px solid #00c08b;
+      }
+      .return-card.farmer {
+        background: #f0f6ff;
+        border: 1px solid #3b82f6;
+      }
+      .return-card .label {
+        font-size: 10px; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.5px;
+        margin-bottom: 6px;
+      }
+      .return-card.investor .label { color: #00c08b; }
+      .return-card.farmer .label { color: #3b82f6; }
+      .return-card .big { font-size: 18px; font-weight: 800; margin: 4px 0; }
+      .return-card.investor .big { color: #00c08b; }
+      .return-card.farmer .big { color: #3b82f6; }
+      .return-card .sub { font-size: 11px; color: #555; }
+
+      /* Milestones */
+      .milestones { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+      .milestone {
+        display: flex; align-items: flex-start; gap: 10px;
+        background: #f9fffe; border: 1px solid #d1fae5;
+        border-radius: 8px; padding: 10px 12px;
+      }
+      .milestone-period {
+        min-width: 80px; font-size: 11px; font-weight: 700;
+        color: #00c08b; padding-top: 1px;
+      }
+      .milestone-text { font-size: 12px; color: #333; }
+
+      /* Traction box */
+      .traction-box {
+        background: #fffbeb; border: 1px solid #f59e0b;
+        border-radius: 8px; padding: 12px 16px; margin: 12px 0;
+        font-size: 12px;
+      }
+      .traction-box strong { color: #92400e; }
+
+      /* Why NEAR */
+      .near-grid {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0;
+      }
+      .near-item {
+        background: #f9fffe; border: 1px solid #d1fae5;
+        border-radius: 6px; padding: 8px 10px; font-size: 11px;
+      }
+      .near-item strong { color: #00c08b; display: block; margin-bottom: 2px; }
+
+      /* Team card */
+      .team-card {
+        background: #f9f9f9; border: 1px solid #e0e0e0;
+        border-radius: 8px; padding: 12px 14px; margin: 10px 0;
+      }
+      .team-card .name { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+      .team-card .role { font-size: 11px; color: #666; margin-bottom: 8px; }
+      .team-card .contacts { font-size: 11px; color: #444; margin-top: 8px; }
+      .team-card .contacts a { color: #00c08b; text-decoration: none; }
+
+      /* Looking for */
+      .looking-box {
+        background: #f0f6ff; border: 1px solid #3b82f6;
+        border-radius: 8px; padding: 12px 16px; margin: 12px 0;
+        font-size: 12px;
+      }
+
+      /* Impact */
+      .impact-list { list-style: none; padding: 0; margin: 8px 0; }
+      .impact-list li {
+        padding: 5px 0 5px 20px; font-size: 12px; color: #333;
+        border-bottom: 1px solid #f0f0f0; position: relative;
+      }
+      .impact-list li::before {
+        content: "→"; position: absolute; left: 0;
+        color: #00c08b; font-weight: 700;
+      }
+
+      /* Footer */
+      .footer {
+        border-top: 2px solid #00c08b; margin-top: 22px;
+        padding-top: 10px; font-size: 11px; color: #555;
+        display: flex; justify-content: space-between; align-items: center;
+        flex-wrap: wrap; gap: 4px;
+      }
+      .footer a { color: #00c08b; text-decoration: none; }
+
+      /* Divider */
+      hr { border: none; border-top: 1px solid #e8e8e8; margin: 16px 0; }
+
+      /* Links */
+      a { color: #00c08b; }
+
+      @media print {
+        body { background: #fff; }
+        .page { margin: 0; box-shadow: none; width: 100%; padding: 12mm 16mm; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+
+      <!-- Header -->
+      <div class="header">
+        <div class="logo-area">
+          <h1>AgriPartners</h1>
+          <p>RWA Livestock Investment on NEAR Protocol</p>
+        </div>
+        <div class="badge">NEAR FORUM PROPOSAL</div>
+      </div>
+
+      <!-- Post Title -->
+      <div class="post-title-block">
+        <div class="post-title-label">Post Title</div>
+        <div class="post-title-text">
+          [Proposal] AgriPartners — Tokenizing Livestock Investment on NEAR | RWA | $100k in Signed Deals | Seeking $40k Grant
+        </div>
+        <div class="post-section-label">Section: Governance → Proposals / DevHub</div>
+      </div>
+
+      <!-- Summary -->
+      <h3>Summary</h3>
+      <p>Hi NEAR community 👋</p>
+      <p>
+        I'm Farhod, a developer from Central Asia. I built <strong>AgriPartners</strong> — a platform that tokenizes
+        livestock investment deals as NEAR smart contracts.
+      </p>
+      <p>
+        The short version: a real farmer is ready to sign contracts worth <span class="num">$100,000</span> the moment
+        we launch on mainnet. The only blocker is a security audit. We're applying for a
+        <span class="num">$40,000 grant</span> to cover the audit and a 6-month runway.
+      </p>
+      <p>
+        Live demo: <a href="https://agripartners.vercel.app"><strong>agripartners.vercel.app</strong></a> &nbsp;·&nbsp;
+        GitHub: <a href="https://github.com/farabek/agripartners"><strong>github.com/farabek/agripartners</strong></a>
+      </p>
+
+      <hr>
+
+      <!-- Problem -->
+      <h3>The Problem We're Solving</h3>
+      <p>In Central Asia and many emerging markets, smallholder livestock farmers are locked in a vicious cycle:</p>
+      <ul>
+        <li>They have land, skills, and market access — but <strong>zero working capital</strong></li>
+        <li>Banks require collateral they don't have</li>
+        <li>Private investment deals happen on paper — opaque, unenforceable, full of fraud risk</li>
+        <li>Result: farmers stay small, investors stay away</li>
+      </ul>
+      <p>
+        This isn't a niche problem. There are <span class="num">500M+ smallholder farmers</span> globally,
+        operating in a <span class="num">$1.5 trillion</span> livestock market that traditional finance barely touches.
+      </p>
+
+      <hr>
+
+      <!-- What it does -->
+      <h3>What AgriPartners Does</h3>
+      <p>We replace paper investment agreements with NEAR smart contracts.</p>
+      <p><strong>The model (Fidlot v5.9):</strong></p>
+      <ul>
+        <li>Investor funds a deal: <strong>$50,000</strong></li>
+        <li>Farmer raises 50 heads of cattle over 7 cycles × 5 months = <strong>35 months</strong></li>
+        <li>Profit splits 60/40 (farmer/investor) — automatically, on-chain</li>
+        <li>Platform fee: 20% of investor share only. Farmer pays <strong>nothing</strong></li>
+      </ul>
+
+      <div class="returns-grid">
+        <div class="return-card investor">
+          <div class="label">Investor Returns</div>
+          <div class="big">+64% ROI</div>
+          <div class="sub">$50,000 → ~$82,000 · <strong>21.9% APR</strong></div>
+          <div class="sub" style="margin-top:4px;">Payouts every 5 months</div>
+        </div>
+        <div class="return-card farmer">
+          <div class="label">Farmer Returns</div>
+          <div class="big">$114,250</div>
+          <div class="sub">$0 invested → $96,250 cash</div>
+          <div class="sub">+ $18,000 feedlot asset</div>
+        </div>
+      </div>
+      <p>Every payment, every cycle, every payout — recorded on NEAR.</p>
+
+      <hr>
+
+      <!-- Why NEAR -->
+      <h3>Why NEAR?</h3>
+      <div class="near-grid">
+        <div class="near-item"><strong>Near-zero fees</strong> &lt;$0.001 per tx — critical for per-cycle micropayments</div>
+        <div class="near-item"><strong>1-second finality</strong> — essential for real-time deal tracking</div>
+        <div class="near-item"><strong>Human-readable accounts</strong> — farmers don't need to deal with hex addresses</div>
+        <div class="near-item"><strong>Carbon-neutral</strong> — aligned with agricultural sustainability narratives</div>
+        <div class="near-item" style="grid-column: span 2;"><strong>Active RWA ecosystem</strong> — NEAR is where real-world assets are being built</div>
+      </div>
+
+      <hr>
+
+      <!-- Built -->
+      <h3>What We've Built (Testnet)</h3>
+      <p>Everything is live and working today:</p>
+      <table>
+        <thead>
+          <tr><th>Component</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Rust smart contract (near-sdk 5.7, ~127KB WASM)</td><td class="check">✅ Testnet</td></tr>
+          <tr><td>State machine: Initialized → Funded → CycleActive → Completed</td><td class="check">✅ Tested</td></tr>
+          <tr><td>Backend API (Node.js + PostgreSQL + JWT auth)</td><td class="check">✅ Live</td></tr>
+          <tr><td>Farmer + investor dashboard with role-based access</td><td class="check">✅ Live</td></tr>
+          <tr><td>Full lifecycle demo: fund → 7 cycles → automated payout</td><td class="check">✅ Completed</td></tr>
+          <tr><td>21 unit tests + 3 integration tests</td><td class="check">✅ Passing</td></tr>
+        </tbody>
+      </table>
+
+      <hr>
+
+      <!-- Traction -->
+      <h3>Real Traction</h3>
+      <div class="traction-box">
+        <strong>This is not a whitepaper or a concept.</strong><br><br>
+        A livestock farmer I work with directly has agreed to sign <strong>2 deals at $50,000 each = $100,000 in committed volume</strong> —
+        pending our mainnet launch. The agreements are based on PDF contracts we've already prepared and reviewed together.
+        <br><br>
+        The platform is ready. The farmer is ready. The only blocker is the security audit required before deploying with real funds.
+      </div>
+
+      <hr>
+
+      <!-- Team -->
+      <h3>Team</h3>
+      <div class="team-card">
+        <div class="name">Farhod Muhamadiev</div>
+        <div class="role">Founder & Full-Stack Developer</div>
+        <p>Built everything solo in under 3 months:</p>
+        <ul>
+          <li>Rust smart contract with full state machine</li>
+          <li>REST API with JWT authentication and role-based access</li>
+          <li>Investor/farmer portal with real-time on-chain data</li>
+          <li>End-to-end testnet demo</li>
+        </ul>
+        <p>I have direct relationships with farmers in the region and understand the agricultural finance gap from the ground up.</p>
+        <div class="contacts">
+          📧 <a href="mailto:farhodmuhamadiev4@gmail.com">farhodmuhamadiev4@gmail.com</a> &nbsp;·&nbsp;
+          📱 <a href="https://t.me/farhodmuhamadiev68">t.me/farhodmuhamadiev68</a> &nbsp;·&nbsp;
+          WhatsApp: +998 99 047 10 25 &nbsp;·&nbsp;
+          💻 <a href="https://github.com/farabek">github.com/farabek</a>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Funding -->
+      <h3>Funding Ask: $40,000</h3>
+      <table>
+        <thead>
+          <tr><th>Line</th><th>Amount</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Smart contract security audit</td><td><strong>$10,000</strong></td><td>OtterSec or equivalent NEAR-ecosystem firm</td></tr>
+          <tr><td>Infrastructure (2 years)</td><td>$3,000</td><td>Render, Neon PostgreSQL, domain, NEAR gas</td></tr>
+          <tr><td>Legal & first deal</td><td>$5,000</td><td>Notarization, legal review of 2 agreements</td></tr>
+          <tr><td>Developer salary (6 months)</td><td>$15,000</td><td>$2,500/mo — mainnet deploy, wallet integration, support</td></tr>
+          <tr><td>Company incorporation (Estonia)</td><td>$3,000</td><td>e-Residency + OÜ (LLC), legal entity for platform</td></tr>
+          <tr><td>AI dev tools (1 year)</td><td>$1,000</td><td>Claude Pro, GitHub Copilot</td></tr>
+          <tr><td>Operational reserve</td><td>$3,000</td><td>Buffer for unexpected needs</td></tr>
+          <tr style="background:#f0fdf8;"><td><strong>Total</strong></td><td><strong style="color:#00c08b;">$40,000</strong></td><td></td></tr>
+        </tbody>
+      </table>
+
+      <hr>
+
+      <!-- Milestones -->
+      <h3>Milestones</h3>
+      <div class="milestones">
+        <div class="milestone">
+          <div class="milestone-period">Month 1–2</div>
+          <div class="milestone-text">Security audit → publish report publicly on GitHub</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-period">Month 2–3</div>
+          <div class="milestone-text">Mainnet deploy → NEAR Wallet integration → first 2 live deals ($100k)</div>
+        </div>
+        <div class="milestone">
+          <div class="milestone-period">Month 3–6</div>
+          <div class="milestone-text">Running first 2 live deals → Telegram notifications → first platform revenue → case study published</div>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Impact -->
+      <h3>Impact on NEAR</h3>
+      <ul class="impact-list">
+        <li><strong>Real RWA on NEAR</strong> — not synthetic DeFi, actual livestock with actual revenue</li>
+        <li><strong>New users</strong> — farmers and agro-investors who've never touched blockchain</li>
+        <li><strong>TVL</strong> — $100k at launch, targeting $500k going forward</li>
+        <li><strong>Open source</strong> — full codebase available for others to fork</li>
+        <li><strong>Case study</strong> — proof that NEAR can power real financial infrastructure in emerging markets</li>
+      </ul>
+
+      <hr>
+
+      <!-- Looking for -->
+      <h3>Looking For</h3>
+      <div class="looking-box">
+        <p>Beyond funding, I'd love to connect with:</p>
+        <ul>
+          <li>NEAR builders who've worked on RWA or DeFi lending</li>
+          <li>Anyone with experience in agricultural finance or microfinance on blockchain</li>
+          <li>Feedback on the smart contract design and security model</li>
+        </ul>
+        <p style="margin-top:8px;">Happy to share the contract code, run a live demo, or answer any questions below 👇</p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <span>AgriPartners · May 2026 · <a href="mailto:farhodmuhamadiev4@gmail.com">farhodmuhamadiev4@gmail.com</a></span>
+        <span>📱 <a href="https://t.me/farhodmuhamadiev68">t.me/farhodmuhamadiev68</a> · WhatsApp: +998 99 047 10 25</span>
+        <span><a href="https://agripartners.vercel.app">agripartners.vercel.app</a> · <a href="https://github.com/farabek/agripartners">github.com/farabek</a></span>
+      </div>
+
+    </div>
+  </body>
+</html>

@@ -165,4 +165,5 @@ GitHub: **[github.com/farabek/agripartners](https://github.com/farabek/agripartn
 ---
 
 *AgriPartners · Май 2026 · [farhodmuhamadiev4@gmail.com](mailto:farhodmuhamadiev4@gmail.com)*
+*📱 [t.me/farhodmuhamadiev68](https://t.me/farhodmuhamadiev68) · WhatsApp: +998 99 047 10 25*
 *Демо: agripartners.vercel.app · GitHub: github.com/farabek/agripartners*

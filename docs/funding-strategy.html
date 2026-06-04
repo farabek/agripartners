@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgriPartners — Стратегия финансирования</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: #f4f4f4;
+        color: #1a1a1a;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 20px auto;
+        background: #fff;
+        padding: 14mm 18mm;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 3px solid #2d6a4f;
+        padding-bottom: 10px;
+        margin-bottom: 18px;
+      }
+      .logo-area h1 { font-size: 24px; font-weight: 800; color: #2d6a4f; }
+      .logo-area p { font-size: 11px; color: #666; margin-top: 2px; }
+      .badge {
+        background: #2d6a4f; color: #fff;
+        font-size: 10px; font-weight: 700;
+        padding: 4px 10px; border-radius: 20px;
+      }
+
+      /* Section titles */
+      .section-title {
+        font-size: 14px; font-weight: 700;
+        color: #2d6a4f; text-transform: uppercase;
+        letter-spacing: 0.5px; margin: 18px 0 10px;
+        border-left: 4px solid #2d6a4f;
+        padding-left: 8px;
+      }
+
+      /* Two-column layout */
+      .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+      .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+
+      /* Cards */
+      .card {
+        border: 1px solid #e0e0e0; border-radius: 8px;
+        padding: 12px 14px; background: #fafafa;
+      }
+      .card.green { border-color: #2d6a4f; background: #f0f7f4; }
+      .card.blue { border-color: #1a6b9a; background: #f0f6fb; }
+      .card.orange { border-color: #c97a00; background: #fdf8f0; }
+      .card.gray { border-color: #ccc; background: #f8f8f8; }
+
+      .card-title {
+        font-size: 12px; font-weight: 700; margin-bottom: 6px;
+      }
+      .card-title.green { color: #2d6a4f; }
+      .card-title.blue { color: #1a6b9a; }
+      .card-title.orange { color: #c97a00; }
+
+      .card p { font-size: 12px; color: #444; margin-bottom: 4px; }
+      .card ul { padding-left: 14px; }
+      .card ul li { font-size: 12px; color: #444; margin-bottom: 3px; }
+
+      /* Big number */
+      .big-num { font-size: 28px; font-weight: 800; }
+      .big-num.green { color: #2d6a4f; }
+      .big-num.blue { color: #1a6b9a; }
+      .sub { font-size: 10px; color: #777; margin-top: 1px; }
+
+      /* Step boxes */
+      .steps { display: flex; flex-direction: column; gap: 8px; }
+      .step {
+        display: flex; align-items: flex-start; gap: 10px;
+        border: 1px solid #e0e0e0; border-radius: 8px;
+        padding: 10px 12px; background: #fafafa;
+      }
+      .step-num {
+        min-width: 26px; height: 26px;
+        background: #2d6a4f; color: #fff;
+        border-radius: 50%; font-size: 12px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .step-body { flex: 1; }
+      .step-body strong { font-size: 12px; color: #1a1a1a; }
+      .step-body p { font-size: 11px; color: #555; margin-top: 2px; }
+
+      /* Table */
+      table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px; }
+      th { background: #2d6a4f; color: #fff; padding: 7px 10px; text-align: left; font-weight: 600; }
+      td { padding: 6px 10px; border-bottom: 1px solid #eee; }
+      tr:nth-child(even) td { background: #f7f7f7; }
+
+      /* Highlight box */
+      .highlight {
+        background: #f0f7f4; border: 1px solid #2d6a4f;
+        border-radius: 8px; padding: 12px 16px;
+        margin: 12px 0; font-size: 12px;
+      }
+      .highlight strong { color: #2d6a4f; }
+
+      /* Warning box */
+      .warning {
+        background: #fff8e1; border: 1px solid #f0c040;
+        border-radius: 8px; padding: 10px 14px;
+        margin: 10px 0; font-size: 12px; color: #7a5800;
+      }
+
+      /* Tags */
+      .tag {
+        display: inline-block; font-size: 10px; font-weight: 700;
+        padding: 2px 8px; border-radius: 10px; margin-right: 4px; margin-bottom: 4px;
+      }
+      .tag.green { background: #d4edda; color: #2d6a4f; }
+      .tag.blue { background: #d0e8f5; color: #1a6b9a; }
+      .tag.orange { background: #fde8c0; color: #c97a00; }
+      .tag.gray { background: #e8e8e8; color: #555; }
+
+      /* Footer */
+      .footer {
+        border-top: 1px solid #ddd; margin-top: 18px;
+        padding-top: 8px; font-size: 10px; color: #999;
+        display: flex; justify-content: space-between;
+      }
+
+      /* Page break for print */
+      .page-break { page-break-before: always; }
+
+      @media print {
+        body { background: #fff; }
+        .page { margin: 0; box-shadow: none; width: 100%; padding: 12mm 16mm; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- PAGE 1 -->
+    <div class="page">
+
+      <div class="header">
+        <div class="logo-area">
+          <h1>AgriPartners</h1>
+          <p>RWA Агро-инвестиции на блокчейне NEAR</p>
+        </div>
+        <div class="badge">СТРАТЕГИЯ ФИНАНСИРОВАНИЯ</div>
+      </div>
+
+      <!-- INTRO -->
+      <div class="highlight">
+        <strong>Цель документа:</strong> AgriPartners строит платформу (вариант B) — технологический продукт для масштабируемых агро-инвестиций.
+        Для запуска нужны два независимых потока финансирования одновременно.
+      </div>
+
+      <!-- SECTION 1: TWO TYPES OF MONEY -->
+      <div class="section-title">1. Два типа финансирования</div>
+
+      <div class="two-col">
+        <div class="card green">
+          <div class="card-title green">Тип A — Разработка платформы</div>
+          <div class="big-num green">$40k</div>
+          <div class="sub">Грант / инвестиция в компанию</div>
+          <br>
+          <ul>
+            <li>Аудит смарт-контракта (~$15k)</li>
+            <li>Деплой на mainnet</li>
+            <li>Доработка функционала</li>
+            <li>Команда и операционные расходы</li>
+          </ul>
+          <br>
+          <p><strong>Кто даёт:</strong></p>
+          <span class="tag green">NEAR Foundation</span>
+          <span class="tag green">Web3 акселераторы</span>
+          <span class="tag green">Крипто-фонды RWA</span>
+        </div>
+
+        <div class="card blue">
+          <div class="card-title blue">Тип B — Капитал для сделок</div>
+          <div class="big-num blue">$50–100k</div>
+          <div class="sub">Инвестиция в реальные сделки</div>
+          <br>
+          <ul>
+            <li>Молодняк КРС или овцы</li>
+            <li>Откормочная база / кошара</li>
+            <li>Операционный резерв</li>
+            <li>Выплаты фермеру по циклам</li>
+          </ul>
+          <br>
+          <p><strong>Кто даёт:</strong></p>
+          <span class="tag blue">Пилотный инвестор</span>
+          <span class="tag blue">RWA-фонды</span>
+          <span class="tag blue">Family offices</span>
+        </div>
+      </div>
+
+      <div class="warning">
+        <strong>Важно:</strong> Это параллельные треки, не последовательные. Грант на платформу не решает проблему капитала для сделок, и наоборот.
+        Оба нужны одновременно.
+      </div>
+
+      <!-- SECTION 2: THE CIRCLE PROBLEM -->
+      <div class="section-title">2. Проблема замкнутого круга</div>
+
+      <div class="three-col">
+        <div class="card gray">
+          <div class="card-title" style="color:#c0392b;">Инвесторы говорят:</div>
+          <p>«Покажите реальную сделку на mainnet — тогда инвестируем в платформу»</p>
+        </div>
+        <div class="card gray" style="text-align:center; padding-top:24px;">
+          <span style="font-size:28px; color:#999;">⟷</span>
+        </div>
+        <div class="card gray">
+          <div class="card-title" style="color:#c0392b;">Платформа говорит:</div>
+          <p>«Нужен аудит и mainnet — для этого нужны деньги инвесторов»</p>
+        </div>
+      </div>
+
+      <div class="highlight">
+        <strong>Решение:</strong> Найти двух пилотных инвесторов по $50k каждый — под <em>два готовых договора с фермером</em>:
+        <strong>Fidlot v5.9</strong> (откорм КРС, 35 мес) и <strong>VariantB v2.1</strong> (гиссарские овцы, 36 мес).
+        Фермер уже готов подписать оба договора прямо сейчас. Два реальных контракта на mainnet разрывают этот круг навсегда.
+      </div>
+
+      <!-- RWA EXPLANATION -->
+      <div class="section-title">3. Что такое RWA (Real World Assets)?</div>
+
+      <div class="three-col">
+        <div class="card green">
+          <div class="card-title green">RWA — это</div>
+          <p>Реальные физические активы (скот, земля, недвижимость, товары), токенизированные на блокчейне. Инвестор получает доход от реального бизнеса — не от спекуляций с токенами.</p>
+        </div>
+        <div class="card blue">
+          <div class="card-title blue">AgriPartners в RWA</div>
+          <p>Каждая сделка — это смарт-контракт на NEAR, привязанный к реальному стаду. Деньги инвестора заперты в коде и освобождаются только при выполнении условий договора.</p>
+        </div>
+        <div class="card orange">
+          <div class="card-title orange">Почему RWA растёт</div>
+          <p>Рынок RWA на блокчейне вырос с $5 млрд (2023) до $20+ млрд (2025). Крупнейшие игроки — BlackRock, Franklin Templeton — уже токенизируют реальные активы.</p>
+        </div>
+      </div>
+
+      <!-- SECTION 4: INVESTOR PROFILE -->
+      <div class="section-title">4. Профиль двух пилотных инвесторов</div>
+
+      <div class="two-col">
+        <div class="card green">
+          <div class="card-title green">Основной фокус — крипто-инвестор</div>
+          <ul>
+            <li>Держит $50k+ в крипте (NEAR, USDT, ETH)</li>
+            <li>Знает что такое RWA, ищет yield с реальным обеспечением</li>
+            <li>Устал от волатильности токенов, хочет стабильный доход</li>
+            <li>Часть NEAR/DeFi экосистемы или RWA-сообщества</li>
+            <li>Готов к 35–36-месячному горизонту ради 22% APR</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title green">Что его мотивирует</div>
+          <ul>
+            <li>22% APR — выше большинства DeFi-протоколов без риска ликвидации</li>
+            <li>Реальное обеспечение: скот + база/кошара, не алгоритм</li>
+            <li>NEAR смарт-контракт = деньги в коде, не на доверии человеку</li>
+            <li>Участие в первом агро-RWA проекте на NEAR</li>
+            <li>Статус Early Supporter + сниженная комиссия пилота</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="warning">
+        <strong>Важно для крипто-инвестора:</strong> AgriPartners — это не DeFi-протокол и не токен.
+        Это реальный бизнес с реальным фермером и реальным скотом. Блокчейн здесь — инструмент защиты и прозрачности, а не спекуляции.
+        Ожидаемый локап — 35–36 месяцев. Подходит для инвесторов, ищущих стабильный yield, а не быстрый флип.
+      </div>
+
+      <div class="footer">
+        <span>AgriPartners — Confidential</span>
+        <span>agripartners.vercel.app | agripartners.onrender.com</span>
+        <span>Стр. 1 / 2</span>
+      </div>
+    </div>
+
+    <!-- PAGE 2 -->
+    <div class="page page-break">
+
+      <div class="header">
+        <div class="logo-area">
+          <h1>AgriPartners</h1>
+          <p>RWA Агро-инвестиции на блокчейне NEAR</p>
+        </div>
+        <div class="badge">СТРАТЕГИЯ ФИНАНСИРОВАНИЯ</div>
+      </div>
+
+      <!-- SECTION 5: WHERE TO FIND -->
+      <div class="section-title">5. Где искать двух пилотных инвесторов</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Канал</th>
+            <th>Целевая аудитория</th>
+            <th>Как выйти на контакт</th>
+            <th>Скорость</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#f0f7f4;">
+            <td colspan="4" style="font-size:11px; font-weight:700; color:#2d6a4f; padding:5px 10px;">
+              🔑 ПРИОРИТЕТ 1 — Крипто-каналы
+            </td>
+          </tr>
+          <tr>
+            <td><strong>NEAR Forum</strong></td>
+            <td>Крипто-инвесторы NEAR-экосистемы, RWA интерес</td>
+            <td>Пост в разделе Proposals/Governance</td>
+            <td><span class="tag green">2–3 нед.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Telegram NEAR</strong></td>
+            <td>Активные участники NEAR (RU/EN чаты)</td>
+            <td>Пост с демо + ссылка на agripartners.vercel.app</td>
+            <td><span class="tag green">1–2 нед.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Twitter/X</strong></td>
+            <td>#RWA #NEARProtocol #DeFi аудитория</td>
+            <td>Посты с цифрами, ответы в RWA-тредах</td>
+            <td><span class="tag green">2–3 нед.</span></td>
+          </tr>
+          <tr>
+            <td><strong>RWA Telegram-группы</strong></td>
+            <td>Инвесторы Goldfinch, Centrifuge, Ondo — уже «прогреты» к RWA</td>
+            <td>Публикация кейса AgriPartners с доходностью</td>
+            <td><span class="tag blue">2–4 нед.</span></td>
+          </tr>
+          <tr>
+            <td><strong>NEAR DevHub / Events</strong></td>
+            <td>Состоятельные участники экосистемы, DAO-трежери</td>
+            <td>Участие в онлайн-мероприятиях NEAR</td>
+            <td><span class="tag blue">3–5 нед.</span></td>
+          </tr>
+          <tr style="background:#f0f6fb;">
+            <td colspan="4" style="font-size:11px; font-weight:700; color:#1a6b9a; padding:5px 10px;">
+              📌 ПРИОРИТЕТ 2 — Другие каналы
+            </td>
+          </tr>
+          <tr>
+            <td><strong>LinkedIn</strong></td>
+            <td>Состоятельные предприниматели, агро-бизнес</td>
+            <td>Cold DM с one-pager, пост с кейсом</td>
+            <td><span class="tag blue">3–5 нед.</span></td>
+          </tr>
+          <tr>
+            <td><strong>RWA крипто-фонды</strong></td>
+            <td>Fasanara, Goldfinch, Credix — институциональный капитал</td>
+            <td>Cold email с one-pager и pitch deck</td>
+            <td><span class="tag orange">2–3 мес.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Акселераторы</strong></td>
+            <td>Outlier Ventures, Encode Club — Web3 стартапы</td>
+            <td>Подать заявку на программу</td>
+            <td><span class="tag orange">2–4 мес.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Агро-инвесторы</strong></td>
+            <td>Агро-фонды и ассоциации региона</td>
+            <td>Предложение без блокчейн-жаргона, PDF-договор</td>
+            <td><span class="tag orange">1–3 мес.</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- SECTION 6: PILOT OFFER -->
+      <div class="section-title">6. Условия пилота для двух первых инвесторов</div>
+
+      <div class="highlight">
+        <strong>Ситуация:</strong> Фермер готов подписать <strong>2 договора</strong> прямо сейчас — каждый на $50,000 от инвестора.
+        Итого нужно привлечь <strong>$100,000</strong> от двух инвесторов. Оба получают специальные условия как Early Supporters.
+      </div>
+
+      <div class="two-col">
+        <div class="card green">
+          <div class="card-title green">Договор 1 — Fidlot v5.9 · Откорм КРС</div>
+          <ul>
+            <li><strong>Животные:</strong> 50 бычков, закупка $200/гол, продажа $1,000/гол</li>
+            <li><strong>Цикл:</strong> 5 мес × 7 циклов = 35 месяцев</li>
+            <li><strong>Стартовый пул:</strong> $50,000 (молодняк $20k + база $18k + резерв $12k)</li>
+            <li><strong>Сплит:</strong> 60% фермер / 40% инвестор · Fee 20% с инвестора</li>
+            <li><strong>Выплаты фермеру:</strong> Ц1–Ц2: $15,250/цикл · Ц3–Ц7: $13,150/цикл</li>
+            <li><strong>Итого фермеру:</strong> $96,250 деньгами + откормбаза $18,000</li>
+            <li><strong>Актив фермера:</strong> Откормочная база $18,000 (через 35 мес)</li>
+          </ul>
+        </div>
+        <div class="card blue">
+          <div class="card-title blue">Договор 2 — VariantB v2.1 · Гиссарские овцы</div>
+          <ul>
+            <li><strong>Животные:</strong> 38 овцематок ($700/гол) → продажа 34 баранчика × $900</li>
+            <li><strong>Цикл:</strong> 6 мес × 6 циклов = 36 месяцев</li>
+            <li><strong>Стартовый пул:</strong> $50,000 (стадо $26,600 + кошара $18k + корма $5,400)</li>
+            <li><strong>Сплит:</strong> 60% фермер / 40% инвестор · Fee 20% с инвестора</li>
+            <li><strong>Выплаты фермеру:</strong> Ц1–Ц2: $15,260/цикл · Ц3–Ц6: $11,660/цикл</li>
+            <li><strong>Итого фермеру:</strong> $83,160 деньгами + кошара $18,000</li>
+            <li><strong>Актив фермера:</strong> Кошара $18,000 (через 36 мес)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card orange">
+          <div class="card-title orange">Специальные условия пилота (оба инвестора)</div>
+          <ul>
+            <li>Комиссия платформы: <strong>10%</strong> (вместо 20%)</li>
+            <li>Статус: <strong>Early Supporter #1</strong> и <strong>#2</strong></li>
+            <li>Участие в развитии продукта</li>
+            <li>Приоритет в следующих сделках</li>
+            <li>Публичное упоминание (по желанию)</li>
+          </ul>
+        </div>
+        <div class="card gray">
+          <div class="card-title" style="color:#555;">Что получает каждый инвестор</div>
+          <ul>
+            <li>Инвестиция: $50,000</li>
+            <li>Fidlot: возврат ~$82,000 · ROI +64% · APR ~22%</li>
+            <li>VariantB: возврат ~$81,672 · ROI +63% · APR ~21%</li>
+            <li>Обеспечение: реальный скот + смарт-контракт</li>
+            <li>Договор: PDF + блокчейн NEAR mainnet</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SECTION 7: PITCH SCRIPT -->
+      <div class="section-title">7. Как питчить — ключевые сообщения</div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <strong>Реальный фермер, реальные животные</strong>
+            <p>«Есть конкретный фермер, готовый подписать договор прямо сейчас. Откорм 50 бычков, 35 месяцев, проверенная модель.»</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <strong>Деньги защищены кодом, не доверием</strong>
+            <p>«Смарт-контракт — это не хайп. Ваши $50k заблокированы в коде: фермер не может взять больше своей доли, все выплаты автоматические.»</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <strong>Показать живое демо прямо сейчас</strong>
+            <p>«Откройте agripartners.vercel.app — это не макет, это работающая платформа. Полный цикл уже прошёл на тестовой сети.»</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <strong>Сравнение с альтернативами</strong>
+            <p>«Банковский депозит даёт 5–10%. Здесь 22% APR с реальным обеспечением. Это не крипто-спекуляция — это агро-бизнес.»</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <strong>Вы первый — это ваше преимущество</strong>
+            <p>«Комиссия для первого инвестора: 10% вместо 20%. Вы получаете лучшие условия и становитесь частью истории платформы.»</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 8: 30-DAY PLAN -->
+      <div class="section-title">8. План действий — 30 дней</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Период</th>
+            <th>Действие</th>
+            <th>Цель</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Неделя 1–2</strong></td>
+            <td>Пост на forum.near.org + Telegram NEAR-каналы</td>
+            <td>Видимость в крипто-сообществе</td>
+          </tr>
+          <tr>
+            <td><strong>Неделя 2</strong></td>
+            <td>LinkedIn пост с демо + cold DM 10 контактам</td>
+            <td>3–5 ответов</td>
+          </tr>
+          <tr>
+            <td><strong>Неделя 3</strong></td>
+            <td>Twitter/X: пост с цифрами и ссылкой на демо</td>
+            <td>Охват RWA-аудитории</td>
+          </tr>
+          <tr>
+            <td><strong>Неделя 3–4</strong></td>
+            <td>Созвоны с заинтересованными, показ демо, отправка PDF</td>
+            <td>1 подтверждённый инвестор</td>
+          </tr>
+          <tr>
+            <td><strong>Параллельно</strong></td>
+            <td>Подать заявку NEAR Grants + пост на форуме</td>
+            <td>Запустить грантовый трек</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="highlight">
+        <strong>Критерий успеха месяца:</strong> Два инвестора говорят «да» → подписываем 2 договора с фермером → деплоим на mainnet →
+        разрываем замкнутый круг. $100k привлечено, фермер работает, платформа живёт. После этого привлечение гранта NEAR и следующих инвесторов становится значительно проще.
+      </div>
+
+      <div class="footer">
+        <span>AgriPartners — Confidential</span>
+        <span>agripartners.vercel.app | agripartners.onrender.com</span>
+        <span>Стр. 2 / 4</span>
+      </div>
+    </div>
+
+    <!-- PAGE 3: RISKS -->
+    <div class="page page-break">
+
+      <div class="header">
+        <div class="logo-area">
+          <h1>AgriPartners</h1>
+          <p>RWA Агро-инвестиции на блокчейне NEAR</p>
+        </div>
+        <div class="badge">СТРАТЕГИЯ ФИНАНСИРОВАНИЯ</div>
+      </div>
+
+      <!-- SECTION 9: RISKS -->
+      <div class="section-title">9. Риски и как они закрыты</div>
+
+      <div class="highlight">
+        Любой серьёзный инвестор задаёт вопросы о рисках. Ниже — честный разбор каждого риска
+        и конкретные механизмы защиты, уже заложенные в платформу и договоры.
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Риск</th>
+            <th>Вероятность</th>
+            <th>Как закрыт</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Гибель части животных</strong><br><span style="font-size:11px;color:#666;">Болезнь, падёж скота</span></td>
+            <td><span class="tag blue">Средняя</span></td>
+            <td>Оборотный резерв $12,000 (Fidlot) / $5,400 (VariantB) покрывает потери. Смарт-контракт принимает <code>report_cycle(losses)</code> — потери фиксируются on-chain и вычитаются из расчёта до раздела прибыли.</td>
+          </tr>
+          <tr>
+            <td><strong>Фермер не выполняет обязательства</strong><br><span style="font-size:11px;color:#666;">Не откармливает, не продаёт</span></td>
+            <td><span class="tag blue">Низкая</span></td>
+            <td>Деньги инвестора заперты в смарт-контракте — фермер не имеет к ним прямого доступа. Откормочная база/кошара строится на земле фермера и является его мотивацией завершить программу. PDF-договор подписан юридически.</td>
+          </tr>
+          <tr>
+            <td><strong>Баг или взлом смарт-контракта</strong><br><span style="font-size:11px;color:#666;">Уязвимость в коде</span></td>
+            <td><span class="tag green">Низкая</span></td>
+            <td>Перед mainnet — обязательный аудит независимой компанией (OtterSec или аналог). Код открыт на GitHub. Контракт написан на Rust — один из самых безопасных языков. Аудит покрывается грантом NEAR ($10k).</td>
+          </tr>
+          <tr>
+            <td><strong>Падение цен на скот</strong><br><span style="font-size:11px;color:#666;">Рыночная волатильность</span></td>
+            <td><span class="tag blue">Низкая</span></td>
+            <td>Модель рассчитана по консервативным ценам: $1,000/бычок и $900/барашек — исторически стабильные цены в Центральной Азии. Даже при снижении на 15% инвестор сохраняет положительный ROI. <strong>Важно:</strong> рынок скота работает симметрично — когда цены продажи падают, цена закупки молодняка падает пропорционально. Это естественный хедж: маржа сохраняется даже при общем снижении рынка.</td>
+          </tr>
+          <tr>
+            <td><strong>Нет ликвидности (досрочный выход)</strong><br><span style="font-size:11px;color:#666;">Деньги заперты на 35–36 мес</span></td>
+            <td><span class="tag orange">Высокая вероятность вопроса</span></td>
+            <td>Честно: досрочный выход не предусмотрен — это реальный бизнес-цикл, не DeFi-пул. Инвестор получает выплаты каждые 5–6 месяцев (частичный cashflow). В будущем — возможен вторичный рынок долей.</td>
+          </tr>
+          <tr>
+            <td><strong>Платформа перестаёт работать</strong><br><span style="font-size:11px;color:#666;">Сайт/API недоступны</span></td>
+            <td><span class="tag blue">Низкая</span></td>
+            <td>Смарт-контракт на NEAR — неизменяем и работает независимо от платформы. Даже если сайт упадёт, средства в контракте защищены. Инвестор может взаимодействовать с контрактом напрямую через NEAR CLI.</td>
+          </tr>
+          <tr>
+            <td><strong>Регуляторный риск</strong><br><span style="font-size:11px;color:#666;">Крипта под запретом в регионе</span></td>
+            <td><span class="tag blue">Низкая</span></td>
+            <td>PDF-договоры юридически действительны без блокчейна. Смарт-контракт — дополнительный слой прозрачности, не замена правовому договору. Планируется регистрация юрлица (Estonia e-Residency).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="two-col" style="margin-top:14px;">
+        <div class="card green">
+          <div class="card-title green">Что защищает инвестора</div>
+          <ul>
+            <li>Деньги в смарт-контракте, не у человека</li>
+            <li>Оборотный резерв на непредвиденное</li>
+            <li>Аудит кода перед mainnet</li>
+            <li>PDF-договор с юридической силой</li>
+            <li>Cashflow каждые 5–6 месяцев</li>
+          </ul>
+        </div>
+        <div class="card orange">
+          <div class="card-title orange">Что инвестор должен принять</div>
+          <ul>
+            <li>Локап 35–36 месяцев — нет досрочного выхода</li>
+            <li>Реальный бизнес = реальные риски (природа, рынок)</li>
+            <li>Пилотная сделка — первая на mainnet</li>
+            <li>Команда из одного человека на старте</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span>AgriPartners — Confidential</span>
+        <span>agripartners.vercel.app | agripartners.onrender.com</span>
+        <span>Стр. 3 / 4</span>
+      </div>
+    </div>
+
+    <!-- PAGE 4 -->
+    <div class="page page-break">
+
+      <div class="header">
+        <div class="logo-area">
+          <h1>AgriPartners</h1>
+          <p>RWA Агро-инвестиции на блокчейне NEAR</p>
+        </div>
+        <div class="badge">СТРАТЕГИЯ ФИНАНСИРОВАНИЯ</div>
+      </div>
+
+      <!-- SECTION 10: INVESTORS FOUND, NEAR NOT YET -->
+      <div class="section-title">10. Если инвесторы нашлись, а NEAR ещё не ответил</div>
+
+      <div class="highlight">
+        <strong>Главный вывод:</strong> NEAR грант — это ускоритель, не стартовый ключ.
+        Если нашёл инвесторов — уже можешь двигаться. Более того, заявка на грант
+        с реальными сделками на mainnet <strong>в 10 раз сильнее</strong>, чем заявка с демо на testnet.
+      </div>
+
+      <div class="section-title" style="font-size:12px; margin-top:14px;">Три варианта действий</div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num" style="background:#2d6a4f;">1</div>
+          <div class="step-body">
+            <strong>Аудит за свой счёт — лучший вариант</strong>
+            <p>Аудит стоит ~$10–15k. Найти эту сумму самостоятельно (личные средства или короткий займ) → оплатить аудит → задеплоить на mainnet → провести 2 реальные сделки → подать заявку на NEAR грант уже с доказательством живых транзакций.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="background:#1a6b9a;">2</div>
+          <div class="step-body">
+            <strong>Старт с PDF-договором, потом смарт-контракт</strong>
+            <p>Если $10–15k на аудит недоступны прямо сейчас: подписать с инвесторами PDF-договор (уже готов), начать сделки в традиционном режиме, параллельно добить грант или накопить комиссию платформы на аудит, затем мигрировать на смарт-контракт.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="background:#c97a00;">3</div>
+          <div class="step-body">
+            <strong>Деплой без формального аудита — только для малого пилота</strong>
+            <p>Технически возможно, но допустимо лишь если инвестор понимает риск и сумма небольшая. Не рекомендуется для $50k без аудита.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title" style="font-size:12px; margin-top:16px;">Сводная таблица сценариев</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Ситуация</th>
+            <th>Действие</th>
+            <th>Результат</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Инвесторы есть, $10–15k можно найти</strong></td>
+            <td>Аудит → mainnet → сделки → грант</td>
+            <td><span class="tag green">Оптимально</span></td>
+          </tr>
+          <tr>
+            <td><strong>Инвесторы есть, денег на аудит нет</strong></td>
+            <td>PDF-договор → бизнес идёт → грант потом</td>
+            <td><span class="tag blue">Рабочий</span></td>
+          </tr>
+          <tr>
+            <td><strong>Инвесторы есть, грант одобрен</strong></td>
+            <td>Аудит из гранта → mainnet → сделки</td>
+            <td><span class="tag green">Идеально</span></td>
+          </tr>
+          <tr>
+            <td><strong>Грант есть, инвесторов нет</strong></td>
+            <td>Аудит + mainnet, продолжать искать инвесторов</td>
+            <td><span class="tag orange">Неполный</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-title" style="font-size:12px; margin-top:16px;">Почему инвесторы важнее гранта</div>
+
+      <div class="two-col">
+        <div class="card green">
+          <div class="card-title green">Инвесторы дают</div>
+          <ul>
+            <li>$100k капитала для реальных сделок</li>
+            <li>Доказательство спроса на продукт</li>
+            <li>Реальные транзакции на mainnet</li>
+            <li>Выручку платформы (комиссия 20%)</li>
+            <li>Трекшн для следующих инвесторов</li>
+          </ul>
+        </div>
+        <div class="card blue">
+          <div class="card-title blue">Грант NEAR даёт</div>
+          <ul>
+            <li>$40k на разработку и аудит</li>
+            <li>Видимость в экосистеме NEAR</li>
+            <li>Доверие и легитимность</li>
+            <li>Снижение личных затрат на запуск</li>
+            <li>Доступ к сети NEAR-партнёров</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="highlight">
+        <strong>Порядок приоритетов:</strong> Инвесторы → Аудит → Mainnet → Реальные сделки → Грант (с сильной позицией).
+        Не ждать гранта, чтобы начать — начать, чтобы получить грант на лучших условиях.
+      </div>
+
+      <div class="footer">
+        <span>AgriPartners — Confidential</span>
+        <span>agripartners.vercel.app | agripartners.onrender.com</span>
+        <span>Стр. 4 / 4</span>
+      </div>
+    </div>
+
+  </body>
+</html>

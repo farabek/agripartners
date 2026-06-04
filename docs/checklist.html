@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgriPartners — Чек-лист привлечения инвестиций</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',Arial,sans-serif; background:#f0f4f8; color:#1a1a1a; font-size:14px; line-height:1.6; }
+
+    .container { max-width:900px; margin:30px auto; padding:0 20px 60px; }
+
+    /* Header */
+    .header { background:#2d6a4f; color:#fff; border-radius:12px; padding:24px 28px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; }
+    .header h1 { font-size:22px; font-weight:800; }
+    .header p { font-size:12px; opacity:.8; margin-top:4px; }
+    .progress-box { text-align:right; }
+    .progress-box .pct { font-size:32px; font-weight:800; }
+    .progress-box .plabel { font-size:11px; opacity:.8; }
+    .progress-bar-wrap { background:rgba(255,255,255,.25); border-radius:6px; height:8px; width:180px; margin-top:6px; }
+    .progress-bar { background:#fff; border-radius:6px; height:8px; transition:.3s; }
+
+    /* Block */
+    .block { background:#fff; border-radius:12px; margin-bottom:16px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.08); }
+    .block-header { padding:14px 20px; display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none; border-bottom:1px solid #f0f0f0; }
+    .block-header:hover { background:#fafafa; }
+    .block-num { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; flex-shrink:0; }
+    .block-title { flex:1; font-weight:700; font-size:14px; }
+    .block-meta { font-size:11px; color:#999; }
+    .block-progress { font-size:11px; font-weight:600; margin-left:8px; }
+    .toggle-icon { font-size:16px; color:#aaa; transition:.2s; }
+    .block-body { padding:0 20px 16px; }
+
+    /* Colors */
+    .red .block-num { background:#e53e3e; }
+    .orange .block-num { background:#dd6b20; }
+    .blue .block-num { background:#3182ce; }
+    .teal .block-num { background:#319795; }
+    .green .block-num { background:#2d6a4f; }
+    .purple .block-num { background:#805ad5; }
+
+    .red .block-progress { color:#e53e3e; }
+    .orange .block-progress { color:#dd6b20; }
+    .blue .block-progress { color:#3182ce; }
+    .teal .block-progress { color:#319795; }
+    .green .block-progress { color:#2d6a4f; }
+    .purple .block-progress { color:#805ad5; }
+
+    /* Task item */
+    .task { display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid #f5f5f5; }
+    .task:last-child { border-bottom:none; }
+    .task input[type=checkbox] { margin-top:3px; width:16px; height:16px; flex-shrink:0; cursor:pointer; accent-color:#2d6a4f; }
+    .task-content { flex:1; }
+    .task-title { font-weight:600; font-size:13px; }
+    .task-title.done { text-decoration:line-through; color:#aaa; }
+    .task-desc { font-size:12px; color:#666; margin-top:2px; }
+    .task-desc a { color:#3182ce; }
+    .task-tags { margin-top:5px; display:flex; flex-wrap:wrap; gap:4px; }
+    .tag { font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; }
+    .tag.auto { background:#dbeafe; color:#1a6b9a; }
+    .tag.manual { background:#fde8c0; color:#c97a00; }
+    .tag.ready { background:#d4edda; color:#2d6a4f; }
+    .tag.urgent { background:#fee2e2; color:#c53030; }
+    .tag.wait { background:#e8e8e8; color:#555; }
+
+    /* Section label */
+    .section-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:#999; padding:12px 0 4px; }
+
+    /* Note box */
+    .note { background:#f0f7f4; border:1px solid #b7dfc8; border-radius:8px; padding:10px 14px; font-size:12px; color:#2d6a4f; margin:12px 0 4px; }
+    .note strong { font-weight:700; }
+    .warn { background:#fff8e1; border:1px solid #f0c040; border-radius:8px; padding:10px 14px; font-size:12px; color:#7a5800; margin:12px 0 4px; }
+
+    /* Collapsed state */
+    .block-body.collapsed { display:none; }
+
+    /* Stats bar */
+    .stats { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+    .stat { background:#fff; border-radius:8px; padding:12px 18px; flex:1; min-width:120px; box-shadow:0 1px 4px rgba(0,0,0,.07); text-align:center; }
+    .stat .num { font-size:24px; font-weight:800; color:#2d6a4f; }
+    .stat .lbl { font-size:11px; color:#888; margin-top:2px; }
+
+    /* Legend */
+    .legend { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; font-size:11px; color:#666; }
+    .legend span { display:flex; align-items:center; gap:4px; }
+
+    @media(max-width:600px) {
+      .header { flex-direction:column; gap:12px; text-align:center; }
+      .progress-bar-wrap { width:100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>AgriPartners — Чек-лист инвестиций</h1>
+      <p>Пошаговый план привлечения $140k (инвесторы + грант NEAR)</p>
+    </div>
+    <div class="progress-box">
+      <div class="pct" id="pct">0%</div>
+      <div class="plabel">выполнено</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="pbar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat"><div class="num" id="s-done">0</div><div class="lbl">Выполнено</div></div>
+    <div class="stat"><div class="num" id="s-total">0</div><div class="lbl">Всего задач</div></div>
+    <div class="stat"><div class="num" id="s-auto">0</div><div class="lbl">Можно автоматом</div></div>
+    <div class="stat"><div class="num" id="s-left">0</div><div class="lbl">Осталось</div></div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <span><span class="tag auto">авто</span> агент делает сам</span>
+    <span><span class="tag manual">вручную</span> нужен ты</span>
+    <span><span class="tag ready">готово</span> материал уже есть</span>
+    <span><span class="tag urgent">срочно</span> сделай первым</span>
+    <span><span class="tag wait">ждать</span> зависит от другого</span>
+  </div>
+
+  <!-- BLOCK 0: Подготовка -->
+  <div class="block red" id="block-0">
+    <div class="block-header" onclick="toggleBlock('block-0')">
+      <div class="block-num">0</div>
+      <div class="block-title">Подготовка — убедиться что всё работает</div>
+      <div class="block-meta">до начала рассылки</div>
+      <div class="block-progress" id="bp-0">0/5</div>
+      <div class="toggle-icon" id="ti-0">▼</div>
+    </div>
+    <div class="block-body" id="bb-0">
+      <div class="note"><strong>Зачем:</strong> Инвестор откроет ссылку ещё во время разговора. Если демо не работает — сделки нет.</div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Проверить agripartners.vercel.app — всё работает?</div>
+          <div class="task-desc">Открой, войди, создай тестовую сделку, убедись что смарт-контракт отвечает. Должно грузиться за &lt;3 сек.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag urgent">срочно</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Проверить agripartners.onrender.com (API)</div>
+          <div class="task-desc">GET /api/deals должен возвращать данные. Render может «засыпать» — если так, перейди на бесплатный VPS или Railway.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag urgent">срочно</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">GitHub репозиторий открыт и читаем</div>
+          <div class="task-desc">github.com/farabek/agripartners — README актуален, код без очевидных TODO/FIXME, смарт-контракт в репо.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag ready">готово</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Убедиться что PDF-договоры актуальны</div>
+          <div class="task-desc">Agri-Investor-Fidlot-v5.9-6040.pdf — последняя версия? Фермер подписал хотя бы одно письмо о намерениях (LOI)?</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag urgent">срочно</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Подготовить 2-минутный питч текстом (для DM)</div>
+          <div class="task-desc">3–4 предложения: что это, сколько дохода, что нужно от инвестора, ссылка на демо. Сохранить в заметках — копировать в каждый канал.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag urgent">срочно</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 1: День 1-2 -->
+  <div class="block orange" id="block-1">
+    <div class="block-header" onclick="toggleBlock('block-1')">
+      <div class="block-num">1</div>
+      <div class="block-title">День 1–2 — Официальные каналы NEAR</div>
+      <div class="block-meta">грант $40k · приоритет 1</div>
+      <div class="block-progress" id="bp-1">0/4</div>
+      <div class="toggle-icon" id="ti-1">▼</div>
+    </div>
+    <div class="block-body" id="bb-1">
+      <div class="note"><strong>Цель:</strong> Запустить официальный грантовый трек. Заявка на грант — основа легитимности при разговоре с любым инвестором.</div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Подать заявку на NEAR Grants — grants.near.org</div>
+          <div class="task-desc">Текст готов: <code>near-grant-application.md</code>. Нужен аккаунт на grants.near.org → заполнить форму → вставить текст из файла. <strong>Агент может сделать это автоматически.</strong></div>
+          <div class="task-tags"><span class="tag auto">авто</span><span class="tag ready">готово</span><span class="tag urgent">срочно</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Опубликовать пост на forum.near.org</div>
+          <div class="task-desc">Раздел: Ecosystem / Proposals. Текст готов: <code>near-forum-post.md</code>. Нужен аккаунт на форуме. <strong>Агент может опубликовать автоматически.</strong></div>
+          <div class="task-tags"><span class="tag auto">авто</span><span class="tag ready">готово</span><span class="tag urgent">срочно</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Подать заявку на Proximity Labs — proximity.dev</div>
+          <div class="task-desc">Экосистемный фонд NEAR, финансирует проекты на NEAR. Заполнить форму на сайте → описание проекта + ссылки на демо и GitHub.</div>
+          <div class="task-tags"><span class="tag auto">авто</span><span class="tag urgent">срочно</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Написать в NEAR DevHub Telegram — t.me/neardev</div>
+          <div class="task-desc">Краткий питч + ссылка на форум-пост (после публикации). Попросить обратную связь от комьюнити. <strong>Агент может написать через web.telegram.org.</strong></div>
+          <div class="task-tags"><span class="tag auto">авто</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 2: День 3-4 -->
+  <div class="block blue" id="block-2">
+    <div class="block-header" onclick="toggleBlock('block-2')">
+      <div class="block-num">2</div>
+      <div class="block-title">День 3–4 — Акселераторы и Web3 фонды</div>
+      <div class="block-meta">Outlier Ventures · Encode Club · Alliance DAO</div>
+      <div class="block-progress" id="bp-2">0/5</div>
+      <div class="toggle-icon" id="ti-2">▼</div>
+    </div>
+    <div class="block-body" id="bb-2">
+      <div class="note"><strong>Цель:</strong> Попасть в акселераторную программу = менторы + нетворк + капитал. Outlier Ventures — самый сильный Web3 акселератор с RWA-треком.</div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Подать заявку на Outlier Ventures — outlierventures.io/apply</div>
+          <div class="task-desc">Open Metaverse / Base Camp программа. Заполнить форму: проект, команда, traction (демо + 71 тест + farmer LOI). <strong>Агент заполняет форму автоматически.</strong></div>
+          <div class="task-tags"><span class="tag auto">авто</span><span class="tag urgent">срочно</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Подать заявку на Encode Club — encode.club/programs</div>
+          <div class="task-desc">Менее известный, но более доступный акселератор. Принимают ранние проекты с работающим демо.</div>
+          <div class="task-tags"><span class="tag auto">авто</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Подать заявку на Alliance DAO — alliance.xyz</div>
+          <div class="task-desc">Web3 стартап-акселератор. Форма на сайте. Акцент: реальный юзкейс (не просто крипто), traction, продукт.</div>
+          <div class="task-tags"><span class="tag auto">авто</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Написать в Goldfinch Discord</div>
+          <div class="task-desc">goldfinch.finance → Discord → канал #borrow или #builders. Описать проект: RWA, EM, livestock, NEAR. Goldfinch уже работает с агро в developing markets.</div>
+          <div class="task-tags"><span class="tag auto">авто</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Отправить форму Credix — credix.finance</div>
+          <div class="task-desc">RWA-кредитование в EM (Latam, Africa). Есть форма для borrowers/projects. Описать AgriPartners как EM agri-RWA.</div>
+          <div class="task-tags"><span class="tag auto">авто</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 3: День 3-5 DMs -->
+  <div class="block teal" id="block-3">
+    <div class="block-header" onclick="toggleBlock('block-3')">
+      <div class="block-num">3</div>
+      <div class="block-title">День 3–5 — Прямые DM ключевым людям</div>
+      <div class="block-meta">Twitter/X · один правильный контакт = всё</div>
+      <div class="block-progress" id="bp-3">0/5</div>
+      <div class="toggle-icon" id="ti-3">▼</div>
+    </div>
+    <div class="block-body" id="bb-3">
+      <div class="warn"><strong>Важно:</strong> DM должен быть коротким — 3 предложения максимум. Не копировать весь one-pager. Цель DM — получить «пришли подробности» в ответ.</div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">DM @ilblackdragon (Illia Polosukhin, co-founder NEAR) в Twitter/X</div>
+          <div class="task-desc">Питч: «Построил RWA агро-платформу на NEAR. Фермер готов подписать 2 договора на $100k прямо сейчас. Нужен аудит на $15k для mainnet. Вот демо: agripartners.vercel.app» <strong>Агент может отправить через Twitter.</strong></div>
+          <div class="task-tags"><span class="tag auto">авто</span><span class="tag urgent">срочно</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Тег @NEARProtocol в Twitter/X с постом о проекте</div>
+          <div class="task-desc">Опубликовать твит: цифры (22% APR, $100k в подписанных сделках, NEAR testnet), ссылка на демо, тег @NEARProtocol + #RWA #NEARProtocol. <strong>Агент публикует автоматически.</strong></div>
+          <div class="task-tags"><span class="tag auto">авто</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Найти 5–10 RWA инвесторов в Twitter/X и написать им</div>
+          <div class="task-desc">Поиск: «RWA investor» «agri finance» «NEAR ecosystem» «DeFi yield». Посмотреть кто активно постит про RWA → DM. <strong>Частично автоматизируемо: агент ищет + пишет черновики, ты проверяешь.</strong></div>
+          <div class="task-tags"><span class="tag auto">авто</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">LinkedIn: пост с демо + cold DM 10 контактам</div>
+          <div class="task-desc">Таргет: «Web3 investor», «RWA fund», «agri finance Central Asia». Пост: история фермера + цифры + ссылка. DM: короткий питч + one-pager как вложение. <strong>Агент публикует и пишет DM автоматически.</strong></div>
+          <div class="task-tags"><span class="tag auto">авто</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Написать в RWA Telegram-группы</div>
+          <div class="task-desc">Искать: «RWA investing», «Real World Assets», «Goldfinch community», «Centrifuge». Кратко: «AgriPartners — agri RWA on NEAR, 22% APR, farmer ready. Demo: agripartners.vercel.app» <strong>Агент пишет через web.telegram.org.</strong></div>
+          <div class="task-tags"><span class="tag auto">авто</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 4: Неделя 2 -->
+  <div class="block green" id="block-4">
+    <div class="block-header" onclick="toggleBlock('block-4')">
+      <div class="block-num">4</div>
+      <div class="block-title">Неделя 2 — Институциональный трек</div>
+      <div class="block-meta">IFC · ADB · Fasanara · региональные фонды</div>
+      <div class="block-progress" id="bp-4">0/5</div>
+      <div class="toggle-icon" id="ti-4">▼</div>
+    </div>
+    <div class="block-body" id="bb-4">
+      <div class="note"><strong>Цель:</strong> Институциональный трек медленнее (2–3 мес), но суммы больше и он работает параллельно с крипто-треком.</div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Отправить заявку в IFC (World Bank) — ifc.org → Agriculture</div>
+          <div class="task-desc">IFC финансирует агро-проекты в EM. Описать без блокчейн-жаргона: «цифровая платформа для агро-финансирования в Центральной Азии». Приложить PDF-договор.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag wait">ждать</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Отправить заявку в ADB — adb.org → Financing</div>
+          <div class="task-desc">Asian Development Bank активен в Узбекистане и Центральной Азии. Агро-финансирование — один из приоритетов. Форма на сайте.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag wait">ждать</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Написать в Fasanara Digital — fasanara.com</div>
+          <div class="task-desc">Крипто-фонд с RWA-треком. Cold email: краткое описание + one-pager.html в PDF. Тема письма: «AgriPartners — Livestock RWA on NEAR, $100k in signed deals, seeking co-investor».</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Контакт с агро-ассоциациями Узбекистана</div>
+          <div class="task-desc">Местные инвесторы знают агро-бизнес, доверяют реальному скоту больше чем блокчейну. Питч: без крипто-жаргона, акцент на доходность и договор.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Участие в онлайн-мероприятии NEAR DevHub</div>
+          <div class="task-desc">Следить за events.near.org и NEAR DevHub Twitter. Выступить с 3-минутным питчем проекта. Живое демо.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag wait">ждать</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 5: Работа с заинтересованными -->
+  <div class="block purple" id="block-5">
+    <div class="block-header" onclick="toggleBlock('block-5')">
+      <div class="block-num">5</div>
+      <div class="block-title">Когда появился заинтересованный — что делать</div>
+      <div class="block-meta">воронка: интерес → звонок → договор</div>
+      <div class="block-progress" id="bp-5">0/6</div>
+      <div class="toggle-icon" id="ti-5">▼</div>
+    </div>
+    <div class="block-body" id="bb-5">
+      <div class="note"><strong>Важно:</strong> Скорость критична. Если инвестор ответил — созвониться в течение 24 часов. Промедление = потеря интереса.</div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Ответить в течение 2–4 часов, назначить созвон</div>
+          <div class="task-desc">Calendly или просто предложить 2–3 слота. Видео-звонок 30 мин — достаточно для первого разговора.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag urgent">срочно</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">На звонке: показать живое демо agripartners.vercel.app</div>
+          <div class="task-desc">Открыть демо, показать как создаётся сделка, как деньги блокируются в смарт-контракте, как происходит выплата. Не слайды — живой продукт.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">После звонка: отправить pitch-deck + one-pager + PDF договор</div>
+          <div class="task-desc">pitch-deck.html → сохранить как PDF. one-pager.html → PDF. + Agri-Investor-Fidlot-v5.9-6040.pdf. Отправить в течение 1 часа после звонка пока горячо.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag ready">готово</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Дать 48 часов — потом один follow-up</div>
+          <div class="task-desc">Если нет ответа через 48 ч: «Хотел уточнить — есть ли вопросы по документам?» Не более одного follow-up в первую неделю.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Если инвестор согласен: подписать PDF-договор</div>
+          <div class="task-desc">PDF-договор подписывается в первую очередь — до деплоя на mainnet. Фермер подписывает с его стороны. DocuSign или физически.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">После подписания: заказать аудит смарт-контракта</div>
+          <div class="task-desc">OtterSec (ottersec.io) или Halborn — аудит Rust/NEAR контрактов ~$10–15k. Или ждать гранта NEAR. Аудит = 2–4 недели. Без аудита — нельзя деплоить $50k на mainnet.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag wait">ждать</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 6: Трекинг -->
+  <div class="block red" id="block-6">
+    <div class="block-header" onclick="toggleBlock('block-6')">
+      <div class="block-num">6</div>
+      <div class="block-title">Ежедневный трекинг — не упустить нити</div>
+      <div class="block-meta">каждый день · 15 минут</div>
+      <div class="block-progress" id="bp-6">0/4</div>
+      <div class="toggle-icon" id="ti-6">▼</div>
+    </div>
+    <div class="block-body" id="bb-6">
+      <div class="note"><strong>Правило:</strong> Каждое утро — 15 минут на просмотр ответов и обновление contacts.md. Без этого нити теряются.</div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Проверять ответы в Twitter/X DM каждое утро</div>
+          <div class="task-desc">Отвечать в течение 2–4 часов. Если заинтересованный — переходить к блоку 5.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Проверять NEAR Forum — комментарии к посту</div>
+          <div class="task-desc">Отвечать на каждый комментарий — это поднимает пост в видимости и показывает активность проекта.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Обновлять contacts.md после каждого действия</div>
+          <div class="task-desc">Менять статус: [ ] → [→] отправлено → [✓] ответил → [✗] отказал. Добавлять дату и следующий шаг.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Раз в неделю: оценить что сработало, что нет</div>
+          <div class="task-desc">Какой канал дал ответы? Откуда самые заинтересованные? Удвоить усилия там. Что не дало ни одного ответа — временно отложить.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 7: Mainnet -->
+  <div class="block green" id="block-7">
+    <div class="block-header" onclick="toggleBlock('block-7')">
+      <div class="block-num">7</div>
+      <div class="block-title">Финал — деплой на mainnet и первые реальные сделки</div>
+      <div class="block-meta">после получения инвестиций и аудита</div>
+      <div class="block-progress" id="bp-7">0/4</div>
+      <div class="toggle-icon" id="ti-7">▼</div>
+    </div>
+    <div class="block-body" id="bb-7">
+      <div class="note"><strong>Это финал первого раунда.</strong> После этих шагов у тебя будут реальные транзакции на mainnet — и заявка на грант NEAR становится в 10 раз сильнее.</div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Заказать и пройти аудит смарт-контракта</div>
+          <div class="task-desc">OtterSec или Halborn. Предоставить: GitHub ссылка, описание контракта, список функций. Срок: 2–4 недели. Стоимость: ~$10–15k.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span><span class="tag wait">ждать</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Задеплоить смарт-контракт на NEAR mainnet</div>
+          <div class="task-desc">Та же процедура что и на testnet: build → wasm-opt → deploy → init. Аккаунт: agripartners.near (зарегистрировать). Проверить все функции.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Подписать 2 договора с фермером и создать сделки on-chain</div>
+          <div class="task-desc">Fidlot v5.9 + VariantB v2.1. Инвестор переводит USDC → контракт блокирует → фермер начинает работу. Первые транзакции на mainnet.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+
+      <div class="task">
+        <input type="checkbox" onchange="update()">
+        <div class="task-content">
+          <div class="task-title">Обновить заявку на NEAR грант: добавить ссылки на mainnet транзакции</div>
+          <div class="task-desc">Написать в NEAR Grants: «Проект запущен на mainnet, вот транзакции, просим рассмотреть заявку». С доказательством — шансы на грант кратно выше.</div>
+          <div class="task-tags"><span class="tag manual">вручную</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // State
+  const state = {};
+  let totalAuto = 0;
+
+  function initCheckboxes() {
+    const checks = document.querySelectorAll('input[type=checkbox]');
+    totalAuto = document.querySelectorAll('.tag.auto').length;
+    checks.forEach((cb, i) => {
+      const saved = localStorage.getItem('ap-cb-' + i);
+      if (saved === 'true') { cb.checked = true; updateTitle(cb); }
+      cb.dataset.idx = i;
+      cb.addEventListener('change', () => { localStorage.setItem('ap-cb-' + i, cb.checked); updateTitle(cb); update(); });
+    });
+    update();
+  }
+
+  function updateTitle(cb) {
+    const title = cb.closest('.task').querySelector('.task-title');
+    if (cb.checked) title.classList.add('done'); else title.classList.remove('done');
+  }
+
+  function update() {
+    const checks = document.querySelectorAll('input[type=checkbox]');
+    const total = checks.length;
+    let done = 0;
+    checks.forEach(cb => { if (cb.checked) done++; });
+    const pct = total ? Math.round(done/total*100) : 0;
+
+    document.getElementById('pct').textContent = pct + '%';
+    document.getElementById('pbar').style.width = pct + '%';
+    document.getElementById('s-done').textContent = done;
+    document.getElementById('s-total').textContent = total;
+    document.getElementById('s-auto').textContent = totalAuto;
+    document.getElementById('s-left').textContent = total - done;
+
+    // Per-block progress
+    for (let b = 0; b <= 7; b++) {
+      const block = document.getElementById('block-' + b);
+      if (!block) continue;
+      const bChecks = block.querySelectorAll('input[type=checkbox]');
+      let bDone = 0;
+      bChecks.forEach(c => { if (c.checked) bDone++; });
+      const el = document.getElementById('bp-' + b);
+      if (el) el.textContent = bDone + '/' + bChecks.length;
+    }
+  }
+
+  function toggleBlock(id) {
+    const body = document.getElementById('bb-' + id.split('-')[1]);
+    const icon = document.getElementById('ti-' + id.split('-')[1]);
+    if (!body) return;
+    const collapsed = body.classList.toggle('collapsed');
+    icon.textContent = collapsed ? '▶' : '▼';
+    localStorage.setItem('ap-block-' + id, collapsed ? '1' : '0');
+  }
+
+  // Restore collapse state
+  for (let b = 0; b <= 7; b++) {
+    const saved = localStorage.getItem('ap-block-block-' + b);
+    if (saved === '1') {
+      const body = document.getElementById('bb-' + b);
+      const icon = document.getElementById('ti-' + b);
+      if (body) body.classList.add('collapsed');
+      if (icon) icon.textContent = '▶';
+    }
+  }
+
+  initCheckboxes();
+</script>
+</body>
+</html>
