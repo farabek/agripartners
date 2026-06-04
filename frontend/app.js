@@ -109,8 +109,14 @@ function showLogin() {
       </div>
       <div>
         <label class="block text-sm text-slate-400 mb-1">Password</label>
-        <input id="login-password" type="password" autocomplete="current-password"
-          class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        <div class="relative">
+          <input id="login-password" type="password" autocomplete="current-password"
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 pr-12 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+          <button type="button" id="toggle-password"
+            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-100">
+            👁
+          </button>
+        </div>
       </div>
       <div id="login-error" class="hidden bg-red-900 text-red-200 px-3 py-2 rounded text-sm"></div>
       <button type="submit"
@@ -125,6 +131,18 @@ function showLogin() {
       document.getElementById('login-username').value.trim(),
       document.getElementById('login-password').value
     );
+  });
+  document.getElementById('toggle-password').addEventListener('click', () => {
+    const input = document.getElementById('login-password');
+    const btn = document.getElementById('toggle-password');
+
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
   });
 }
 
