@@ -19,6 +19,14 @@ function authHeaders() {
   return auth ? { Authorization: `Bearer ${auth.token}` } : {};
 }
 
+function jsonAuthHeaders() {
+  return { ...authHeaders(), 'Content-Type': 'application/json' };
+}
+
+function isAdmin() {
+  return getAuth()?.user?.role === 'admin';
+}
+
 // --- Utilities ---
 
 function yoctoToNear(yocto) {
@@ -41,6 +49,25 @@ function yoctoToNearFloat(yocto) {
 
 function formatYoctoRaw(yocto) {
   return `${yocto || '0'} yoctoNEAR`;
+}
+
+function nearToYocto(near) {
+  const value = String(near || '').trim();
+  if (!/^\d+(\.\d{1,24})?$/.test(value)) {
+    throw new Error('Enter a valid NEAR amount with up to 24 decimal places');
+  }
+  const [whole, frac = ''] = value.split('.');
+  return (BigInt(whole) * BigInt('1000000000000000000000000')
+    + BigInt(frac.padEnd(24, '0'))).toString();
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function formatAddress(addr) {
@@ -312,15 +339,17 @@ function renderDealDetail(el, deal, status, balances, events) {
           : '<p class="text-slate-500 text-sm">Balances unavailable</p>'}
       </div>
     </div>
+    ${isAdmin() ? renderAdminActions(deal) : ''}
     <div class="bg-slate-800 rounded-xl p-5">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
-      ${renderEvents(events)}
+      <div id="events-list">${renderEvents(events)}</div>
     </div>
   `;
 
   if (balances) renderBalancesChart(balances);
 
   document.getElementById('btn-refresh').addEventListener('click', () => refreshDeal(deal.id));
+  if (isAdmin()) bindAdminActions(deal);
 }
 
 function renderParams(deal) {
@@ -362,6 +391,135 @@ function renderBalancesSummary(balances) {
       </span>
     </div>
   `).join('');
+}
+
+function renderAdminActions(deal) {
+  return `
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Admin Actions</h3>
+        <span class="text-xs text-slate-500">Blockchain transactions require confirmation</span>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        <button type="button" class="admin-action-btn action-fund" data-action="fund">Fund</button>
+        <button type="button" class="admin-action-btn" data-action="start-cycle">Start Cycle</button>
+        <button type="button" class="admin-action-btn" data-action="report-profit">Report Profit</button>
+        <button type="button" class="admin-action-btn" data-action="withdraw-farmer">Withdraw Farmer</button>
+        <button type="button" class="admin-action-btn" data-action="withdraw-investor">Withdraw Investor</button>
+        <button type="button" class="admin-action-btn" data-action="withdraw-platform">Withdraw Platform</button>
+      </div>
+      <div id="admin-action-result" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></div>
+    </div>
+  `;
+}
+
+function bindAdminActions(deal) {
+  document.querySelectorAll('.admin-action-btn').forEach(btn => {
+    btn.addEventListener('click', () => runAdminAction(deal, btn.dataset.action));
+  });
+}
+
+function setAdminActionBusy(isBusy) {
+  document.querySelectorAll('.admin-action-btn').forEach(btn => {
+    btn.disabled = isBusy;
+  });
+}
+
+function showAdminActionResult(type, message, txHash) {
+  const el = document.getElementById('admin-action-result');
+  if (!el) return;
+  const isSuccess = type === 'success';
+  el.className = `${isSuccess ? 'bg-green-900 text-green-100' : 'bg-red-900 text-red-100'} mt-4 rounded-lg px-4 py-3 text-sm`;
+  el.innerHTML = `
+    <div class="font-medium">${escapeHtml(message)}</div>
+    ${txHash ? `<div class="mt-1 text-xs">Tx: <a href="https://testnet.nearblocks.io/txns/${escapeHtml(txHash)}" target="_blank" class="font-mono underline">${escapeHtml(txHash)}</a></div>` : ''}
+  `;
+  el.classList.remove('hidden');
+}
+
+function adminActionConfig(deal, action) {
+  const base = `${API_BASE}/api/admin/deals/${deal.id}`;
+  const configs = {
+    fund: {
+      label: 'Fund deal',
+      confirm: `Fund this deal as investor ${deal.investor}?`,
+      url: `${base}/fund-as`,
+      body: { account_id: deal.investor }
+    },
+    'start-cycle': {
+      label: 'Start cycle',
+      confirm: 'Start the next contract cycle?',
+      url: `${base}/start-cycle`
+    },
+    'withdraw-farmer': {
+      label: 'Withdraw farmer',
+      confirm: `Withdraw farmer balance to ${deal.farmer}?`,
+      url: `${base}/withdraw-as`,
+      body: { account_id: deal.farmer }
+    },
+    'withdraw-investor': {
+      label: 'Withdraw investor',
+      confirm: `Withdraw investor balance to ${deal.investor}?`,
+      url: `${base}/withdraw-as`,
+      body: { account_id: deal.investor }
+    },
+    'withdraw-platform': {
+      label: 'Withdraw platform',
+      confirm: `Withdraw platform balance to ${deal.platform}?`,
+      url: deal.platform === deal.admin ? `${base}/withdraw` : `${base}/withdraw-as`,
+      body: deal.platform === deal.admin ? null : { account_id: deal.platform }
+    }
+  };
+
+  if (action === 'report-profit') {
+    const profitNear = prompt('Profit amount in NEAR', '300');
+    if (profitNear == null) return null;
+    const lossesNear = prompt('Losses amount in NEAR', '0');
+    if (lossesNear == null) return null;
+    const profitYocto = nearToYocto(profitNear);
+    const lossesYocto = nearToYocto(lossesNear || '0');
+    return {
+      label: 'Report profit',
+      confirm: `Report profit ${profitNear} NEAR and losses ${lossesNear || '0'} NEAR?`,
+      url: `${base}/report-cycle`,
+      body: { profit_near: profitYocto, losses_near: lossesYocto }
+    };
+  }
+
+  return configs[action];
+}
+
+async function runAdminAction(deal, action) {
+  let config;
+  try {
+    config = adminActionConfig(deal, action);
+  } catch (err) {
+    showAdminActionResult('error', err.message);
+    return;
+  }
+  if (!config) return;
+  if (!confirm(config.confirm)) return;
+
+  setAdminActionBusy(true);
+  showAdminActionResult('success', `${config.label} submitted...`);
+
+  try {
+    const res = await fetch(config.url, {
+      method: 'POST',
+      headers: jsonAuthHeaders(),
+      body: config.body ? JSON.stringify(config.body) : undefined
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    showAdminActionResult('success', `${config.label} completed successfully`, data.tx_hash);
+    await refreshDeal(deal.id);
+  } catch (err) {
+    showAdminActionResult('error', `${config.label} failed: ${err.message}`);
+  } finally {
+    setAdminActionBusy(false);
+  }
 }
 
 // --- Chart, events, refresh ---
@@ -435,15 +593,18 @@ async function refreshDeal(id) {
   if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
 
   const headers = authHeaders();
-  const [statusRes, balancesRes] = await Promise.allSettled([
+  const [statusRes, balancesRes, eventsRes] = await Promise.allSettled([
     fetch(`${API_BASE}/api/deals/${id}/status`, { headers }),
-    fetch(`${API_BASE}/api/deals/${id}/balances`, { headers })
+    fetch(`${API_BASE}/api/deals/${id}/balances`, { headers }),
+    fetch(`${API_BASE}/api/deals/${id}/events`, { headers })
   ]);
 
   const status = statusRes.status === 'fulfilled' && statusRes.value.ok
     ? await statusRes.value.json() : null;
   const balances = balancesRes.status === 'fulfilled' && balancesRes.value.ok
     ? await balancesRes.value.json() : null;
+  const events = eventsRes.status === 'fulfilled' && eventsRes.value.ok
+    ? await eventsRes.value.json() : null;
 
   if (status) {
     const badgeEl = document.getElementById('status-badge');
@@ -456,6 +617,11 @@ async function refreshDeal(id) {
   if (balances) {
     const summaryEl = document.getElementById('balances-summary');
     if (summaryEl) summaryEl.innerHTML = renderBalancesSummary(balances);
+  }
+
+  if (events) {
+    const eventsEl = document.getElementById('events-list');
+    if (eventsEl) eventsEl.innerHTML = renderEvents(events);
   }
 
   if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }

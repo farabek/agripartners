@@ -57,3 +57,30 @@
   font-size: 0.75rem;
   overflow-wrap: anywhere;
 }
+
+.admin-action-btn {
+  background-color: #334155;
+  border-radius: 8px;
+  color: #f8fafc;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 10px 12px;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.admin-action-btn:hover:not(:disabled) {
+  background-color: #475569;
+}
+
+.admin-action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.admin-action-btn.action-fund {
+  background-color: #16a34a;
+}
+
+.admin-action-btn.action-fund:hover:not(:disabled) {
+  background-color: #22c55e;
+}
