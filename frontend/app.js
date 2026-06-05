@@ -51,6 +51,10 @@ function formatYoctoRaw(yocto) {
   return `${yocto || '0'} yoctoNEAR`;
 }
 
+function addYocto(a, b) {
+  return (BigInt(a || '0') + BigInt(b || '0')).toString();
+}
+
 function nearToYocto(near) {
   const value = String(near || '').trim();
   if (!/^\d+(\.\d{1,24})?$/.test(value)) {
@@ -84,7 +88,7 @@ function statusBadge(status) {
 // --- Router ---
 
 function showView(viewId) {
-  ['view-login', 'view-list', 'view-detail'].forEach(id => {
+  ['view-login', 'view-list', 'view-detail', 'view-investor'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   document.getElementById(viewId).classList.remove('hidden');
@@ -105,18 +109,34 @@ function route() {
     return;
   }
 
+  const investorDeal = hash.match(/^#investor\/deals\/(\d+)$/);
+  if (investorDeal) {
+    showInvestorDeal(investorDeal[1]);
+    return;
+  }
+
+  if (hash === '#investor') {
+    showInvestorPortal();
+    return;
+  }
+
   const m = hash.match(/^#deals\/(\d+)$/);
   if (m) {
     showDeal(m[1]);
   } else {
-    showDeals();
+    if (auth.user.role === 'investor') {
+      location.hash = '#investor';
+    } else {
+      showDeals();
+    }
   }
 }
 
 window.addEventListener('hashchange', route);
 window.addEventListener('load', () => {
   if (!location.hash || location.hash === '#') {
-    location.hash = getAuth() ? '#deals' : '#login';
+    const auth = getAuth();
+    location.hash = auth ? (auth.user.role === 'investor' ? '#investor' : '#deals') : '#login';
   } else {
     route();
   }
@@ -198,7 +218,7 @@ async function handleLogin(username, password) {
       return;
     }
     setAuth(data.token, data.user);
-    location.hash = '#deals';
+    location.hash = data.user.role === 'investor' ? '#investor' : '#deals';
   } catch {
     errEl.textContent = 'Server unavailable';
     errEl.classList.remove('hidden');
@@ -222,7 +242,11 @@ function renderNav() {
   return `
     <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
       <span class="text-sm text-slate-400">${roleLabel}: <span class="text-slate-200 font-medium">${auth.user.username}</span></span>
-      <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
+      <div class="flex items-center gap-3">
+        <a href="#investor" class="text-sm text-slate-400 hover:text-green-400 transition">Investor Portal</a>
+        ${auth.user.role === 'admin' ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Dashboard</a>' : ''}
+        <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
+      </div>
     </div>
   `;
 }
@@ -236,6 +260,9 @@ async function showDeals() {
     ${renderNav()}
     <h1 class="text-3xl font-bold text-green-400 mb-1">AgriPartners</h1>
     <p class="text-slate-400 mb-6">Agricultural investments on NEAR Protocol</p>
+    <div class="mb-6">
+      <a href="#investor" class="inline-flex bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open Investor Portal</a>
+    </div>
     <div class="spinner"></div>
   `;
   try {
@@ -272,6 +299,290 @@ function renderDealCard(d) {
       <a href="#deals/${d.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open →</a>
     </div>
   `;
+}
+
+// --- Investor Portal ---
+
+async function showInvestorPortal() {
+  showView('view-investor');
+  const el = document.getElementById('view-investor');
+  const auth = getAuth();
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-green-400 mb-1">Investor Portal</h1>
+      <p class="text-slate-400">Signed in as <span class="text-slate-200 font-medium">${escapeHtml(auth.user.username)}</span></p>
+    </div>
+    <h2 class="text-xl font-semibold mb-4">My Investments</h2>
+    <div class="spinner"></div>
+  `;
+
+  try {
+    const res = await fetch(`${API_BASE}/api/me/deals`, { headers: authHeaders() });
+    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const deals = await res.json();
+    const enrichedDeals = await enrichDealsForInvestor(deals);
+    renderInvestorDashboard(el, enrichedDeals);
+  } catch (e) {
+    el.querySelector('.spinner')?.remove();
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Investor Portal unavailable: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+async function enrichDealsForInvestor(deals) {
+  const headers = authHeaders();
+  return Promise.all(deals.map(async deal => {
+    const [statusRes, balancesRes] = await Promise.allSettled([
+      fetch(`${API_BASE}/api/deals/${deal.id}/status`, { headers }),
+      fetch(`${API_BASE}/api/deals/${deal.id}/balances`, { headers })
+    ]);
+    const status = statusRes.status === 'fulfilled' && statusRes.value.ok
+      ? await statusRes.value.json() : null;
+    const balances = balancesRes.status === 'fulfilled' && balancesRes.value.ok
+      ? await balancesRes.value.json() : null;
+    return { ...deal, status, balances };
+  }));
+}
+
+function investorMetrics(deals) {
+  return deals.reduce((acc, deal) => {
+    acc.totalInvested = addYocto(acc.totalInvested, deal.investment_amount);
+    acc.totalInvestorAvailable = addYocto(acc.totalInvestorAvailable, deal.balances?.investor);
+    if (deal.status?.status === 'Completed') acc.completedDeals += 1;
+    if (deal.status?.status && !['Completed', 'Terminated'].includes(deal.status.status)) {
+      acc.activeDeals += 1;
+    }
+    return acc;
+  }, {
+    totalInvested: '0',
+    activeDeals: 0,
+    completedDeals: 0,
+    totalInvestorAvailable: '0'
+  });
+}
+
+function renderInvestorDashboard(el, deals) {
+  el.querySelector('.spinner')?.remove();
+  const metrics = investorMetrics(deals);
+
+  if (deals.length === 0) {
+    el.innerHTML += `
+      ${renderInvestorMetrics(metrics)}
+      <p class="text-slate-400 mt-6">No investments found</p>
+    `;
+    return;
+  }
+
+  el.innerHTML += `
+    ${renderInvestorMetrics(metrics)}
+    <div class="grid gap-4 mt-6">
+      ${deals.map(renderInvestorDealCard).join('')}
+    </div>
+  `;
+}
+
+function renderInvestorMetrics(metrics) {
+  return `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="metric-box">
+        <span class="metric-label">Total Invested</span>
+        <span class="metric-value">${yoctoToNear(metrics.totalInvested)}</span>
+        <span class="metric-raw">${formatYoctoRaw(metrics.totalInvested)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Active Deals</span>
+        <span class="metric-value">${metrics.activeDeals}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Completed Deals</span>
+        <span class="metric-value">${metrics.completedDeals}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Investor Available</span>
+        <span class="metric-value">${yoctoToNear(metrics.totalInvestorAvailable)}</span>
+        <span class="metric-raw">${formatYoctoRaw(metrics.totalInvestorAvailable)}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderInvestorDealCard(deal) {
+  const status = deal.status?.status || 'Unknown';
+  const currentCycle = deal.status?.current_cycle ?? '—';
+  return `
+    <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="space-y-1 min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">Deal #${deal.id}</span>
+          ${statusBadge(status)}
+          <span class="text-xs text-slate-500">Cycle ${currentCycle}</span>
+        </div>
+        <p class="text-sm text-slate-400">Contract: <span class="text-slate-200 font-mono">${escapeHtml(formatAddress(deal.contract_address))}</span></p>
+        <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${escapeHtml(formatAddress(deal.farmer))}</span></p>
+        <p class="text-sm text-slate-400">
+          Investment:
+          <span class="text-slate-100 font-mono">${yoctoToNear(deal.investment_amount)}</span>
+          <span class="block text-xs text-slate-500 font-mono">${formatYoctoRaw(deal.investment_amount)}</span>
+        </p>
+      </div>
+      <a href="#investor/deals/${deal.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
+    </div>
+  `;
+}
+
+async function showInvestorDeal(id) {
+  showView('view-investor');
+  const el = document.getElementById('view-investor');
+  el.innerHTML = `
+    ${renderNav()}
+    <a href="#investor" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Investor Portal</a>
+    <div class="spinner"></div>
+  `;
+
+  try {
+    const { deal, status, balances, events } = await fetchInvestorDealBundle(id);
+    renderInvestorDealDetail(el, deal, status, balances, events);
+  } catch (e) {
+    el.querySelector('.spinner')?.remove();
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Deal unavailable: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+async function fetchInvestorDealBundle(id) {
+  const headers = authHeaders();
+  const [dealRes, statusRes, balancesRes, eventsRes] = await Promise.allSettled([
+    fetch(`${API_BASE}/api/deals/${id}`, { headers }),
+    fetch(`${API_BASE}/api/deals/${id}/status`, { headers }),
+    fetch(`${API_BASE}/api/deals/${id}/balances`, { headers }),
+    fetch(`${API_BASE}/api/deals/${id}/events`, { headers })
+  ]);
+
+  if (dealRes.status === 'rejected' || !dealRes.value.ok) {
+    throw new Error(dealRes.value?.status === 404 ? 'Deal not found' : 'Backend unavailable');
+  }
+
+  return {
+    deal: await dealRes.value.json(),
+    status: statusRes.status === 'fulfilled' && statusRes.value.ok ? await statusRes.value.json() : null,
+    balances: balancesRes.status === 'fulfilled' && balancesRes.value.ok ? await balancesRes.value.json() : null,
+    events: eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : []
+  };
+}
+
+function renderInvestorDealDetail(el, deal, status, balances, events) {
+  const investorBalance = balances?.investor || '0';
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <a href="#investor" class="text-slate-400 hover:text-white text-sm">Back to Investor Portal</a>
+      <span class="text-slate-600">|</span>
+      <span class="font-semibold">Deal #${deal.id}</span>
+      <span id="investor-status-badge">${statusBadge(status?.status)}</span>
+      <span id="investor-cycle-text" class="text-slate-400 text-sm">Cycle ${status?.current_cycle ?? '—'}</span>
+      <button id="btn-investor-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-6">
+      <div class="bg-slate-800 rounded-xl p-5 space-y-2">
+        ${renderInvestorDealParams(deal, status, investorBalance)}
+      </div>
+      <div class="bg-slate-800 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Investor Actions</h3>
+        <p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2 mb-4">Testnet MVP: investor withdrawal is executed through backend signer support.</p>
+        <button id="btn-investor-withdraw" class="admin-action-btn w-full">Withdraw Investor</button>
+        <div id="investor-action-result" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></div>
+      </div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
+      <div id="investor-events-list">${renderEvents(events)}</div>
+    </div>
+  `;
+
+  document.getElementById('btn-investor-refresh').addEventListener('click', () => refreshInvestorDeal(deal.id));
+  document.getElementById('btn-investor-withdraw').addEventListener('click', () => withdrawInvestorFromPortal(deal));
+}
+
+function renderInvestorDealParams(deal, status, investorBalance) {
+  const rows = [
+    ['Contract ID',        deal.contract_address],
+    ['Farmer',             deal.farmer],
+    ['Investor',           deal.investor],
+    ['Investment Amount',  `${yoctoToNear(deal.investment_amount)} · ${formatYoctoRaw(deal.investment_amount)}`],
+    ['Status',             status?.status || 'Unknown'],
+    ['Current Cycle',      status?.current_cycle ?? '—'],
+    ['Investor Available', `${yoctoToNear(investorBalance)} · ${formatYoctoRaw(investorBalance)}`],
+  ];
+  return rows.map(([k, v]) => `
+    <div class="flex justify-between text-sm gap-3">
+      <span class="text-slate-400 shrink-0">${k}</span>
+      <span ${k === 'Investor Available' ? 'id="investor-available-balance"' : ''} class="text-slate-100 font-mono text-right break-all">${escapeHtml(v)}</span>
+    </div>
+  `).join('');
+}
+
+function showInvestorActionResult(type, message, txHash) {
+  const el = document.getElementById('investor-action-result');
+  if (!el) return;
+  const isSuccess = type === 'success';
+  el.className = `${isSuccess ? 'bg-green-900 text-green-100' : 'bg-red-900 text-red-100'} mt-4 rounded-lg px-4 py-3 text-sm`;
+  el.innerHTML = `
+    <div class="font-medium">${escapeHtml(message)}</div>
+    ${txHash ? `<div class="mt-1 text-xs">Tx: <a href="https://testnet.nearblocks.io/txns/${escapeHtml(txHash)}" target="_blank" class="font-mono underline">${escapeHtml(txHash)}</a></div>` : ''}
+  `;
+  el.classList.remove('hidden');
+}
+
+async function withdrawInvestorFromPortal(deal) {
+  if (!confirm(`Withdraw investor balance to ${deal.investor}?`)) return;
+
+  const btn = document.getElementById('btn-investor-withdraw');
+  if (btn) { btn.disabled = true; btn.textContent = 'Withdrawing...'; }
+  showInvestorActionResult('success', 'Investor withdrawal submitted...');
+
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/deals/${deal.id}/withdraw-as`, {
+      method: 'POST',
+      headers: jsonAuthHeaders(),
+      body: JSON.stringify({ account_id: deal.investor })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    showInvestorActionResult('success', 'Investor withdrawal completed successfully', data.tx_hash);
+    await refreshInvestorDeal(deal.id);
+  } catch (err) {
+    showInvestorActionResult('error', `Investor withdrawal failed: ${err.message}`);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Withdraw Investor'; }
+  }
+}
+
+async function refreshInvestorDeal(id) {
+  const btn = document.getElementById('btn-investor-refresh');
+  if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
+
+  try {
+    const { status, balances, events } = await fetchInvestorDealBundle(id);
+    const badgeEl = document.getElementById('investor-status-badge');
+    const cycleEl = document.getElementById('investor-cycle-text');
+    const eventsEl = document.getElementById('investor-events-list');
+    if (badgeEl) badgeEl.innerHTML = statusBadge(status?.status);
+    if (cycleEl) cycleEl.textContent = `Cycle ${status?.current_cycle ?? '—'}`;
+    if (eventsEl) eventsEl.innerHTML = renderEvents(events);
+
+    const investorBalanceEl = document.getElementById('investor-available-balance');
+    if (investorBalanceEl) {
+      const investorBalance = balances?.investor || '0';
+      investorBalanceEl.textContent = `${yoctoToNear(investorBalance)} · ${formatYoctoRaw(investorBalance)}`;
+    }
+  } catch (err) {
+    showInvestorActionResult('error', `Refresh failed: ${err.message}`);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
+  }
 }
 
 // --- Deal detail ---

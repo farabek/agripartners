@@ -11,6 +11,7 @@
 .badge-CycleSettlement { background-color: #7c2d12; color: #fdba74; }
 .badge-Completed       { background-color: #14532d; color: #86efac; }
 .badge-Terminated      { background-color: #7f1d1d; color: #fca5a5; }
+.badge-Unknown         { background-color: #374151; color: #cbd5e1; }
 
 .spinner {
   border: 3px solid #334155;
@@ -83,4 +84,35 @@
 
 .admin-action-btn.action-fund:hover:not(:disabled) {
   background-color: #22c55e;
+}
+
+.metric-box {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px;
+}
+
+.metric-label {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  color: #f8fafc;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.metric-raw {
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.7rem;
+  overflow-wrap: anywhere;
 }
