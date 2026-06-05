@@ -6,9 +6,9 @@ let accountInstance = null;
 async function getNear() {
   if (nearInstance) return nearInstance;
   const networkId = process.env.NEAR_NETWORK || 'testnet';
-  const nodeUrl = networkId === 'mainnet'
+  const nodeUrl = process.env.NEAR_RPC_URL || (networkId === 'mainnet'
     ? 'https://rpc.mainnet.near.org'
-    : 'https://rpc.testnet.near.org';
+    : 'https://rpc.testnet.fastnear.com');
   const keyStore = new keyStores.InMemoryKeyStore();
   await keyStore.setKey(networkId, process.env.NEAR_ADMIN_ACCOUNT, KeyPair.fromString(process.env.NEAR_ADMIN_PRIVATE_KEY));
   nearInstance = await connect({ networkId, nodeUrl, keyStore, deps: { keyStore } });

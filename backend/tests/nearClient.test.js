@@ -14,7 +14,10 @@ process.env.NEAR_NETWORK = 'testnet';
 
 const { getAdminAccount, resetInstances } = require('../src/near/client');
 
-beforeEach(() => resetInstances());
+beforeEach(() => {
+  delete process.env.NEAR_RPC_URL;
+  resetInstances();
+});
 
 test('getAdminAccount returns account object', async () => {
   const account = await getAdminAccount();
@@ -25,4 +28,13 @@ test('getAdminAccount returns same instance on repeated calls', async () => {
   const a1 = await getAdminAccount();
   const a2 = await getAdminAccount();
   expect(a1).toBe(a2);
+});
+
+test('getAdminAccount uses FastNear as the default testnet RPC', async () => {
+  await getAdminAccount();
+  const { connect } = require('near-api-js');
+  expect(connect).toHaveBeenCalledWith(expect.objectContaining({
+    networkId: 'testnet',
+    nodeUrl: 'https://rpc.testnet.fastnear.com'
+  }));
 });
