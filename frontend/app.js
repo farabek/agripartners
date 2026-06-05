@@ -39,6 +39,10 @@ function yoctoToNearFloat(yocto) {
   return whole + frac;
 }
 
+function formatYoctoRaw(yocto) {
+  return `${yocto || '0'} yoctoNEAR`;
+}
+
 function formatAddress(addr) {
   if (!addr) return '—';
   if (addr.length <= 20) return addr;
@@ -301,7 +305,10 @@ function renderDealDetail(el, deal, status, balances, events) {
       </div>
       <div class="bg-slate-800 rounded-xl p-5 flex flex-col items-center justify-center" id="chart-col">
         ${balances
-          ? '<canvas id="balances-chart" width="240" height="240"></canvas>'
+          ? `<canvas id="balances-chart" width="240" height="240"></canvas>
+             <div id="balances-summary" class="w-full mt-4 space-y-2">
+               ${renderBalancesSummary(balances)}
+             </div>`
           : '<p class="text-slate-500 text-sm">Balances unavailable</p>'}
       </div>
     </div>
@@ -334,6 +341,25 @@ function renderParams(deal) {
     <div class="flex justify-between text-sm gap-2">
       <span class="text-slate-400 shrink-0">${k}</span>
       <span class="text-slate-100 font-mono text-right">${v}</span>
+    </div>
+  `).join('');
+}
+
+function renderBalancesSummary(balances) {
+  const rows = [
+    ['Farmer', balances.farmer],
+    ['Investor', balances.investor],
+    ['Platform', balances.platform],
+    ['Escrow', balances.escrow],
+  ];
+
+  return rows.map(([label, raw]) => `
+    <div class="balance-row">
+      <span class="balance-label">${label}</span>
+      <span class="balance-values">
+        <span class="balance-near">${yoctoToNear(raw)}</span>
+        <span class="balance-raw">${formatYoctoRaw(raw)}</span>
+      </span>
     </div>
   `).join('');
 }
@@ -426,6 +452,11 @@ async function refreshDeal(id) {
     if (cycleEl) cycleEl.textContent = `· Cycle ${status.current_cycle}`;
   }
   if (balances) renderBalancesChart(balances);
+
+  if (balances) {
+    const summaryEl = document.getElementById('balances-summary');
+    if (summaryEl) summaryEl.innerHTML = renderBalancesSummary(balances);
+  }
 
   if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
 }
