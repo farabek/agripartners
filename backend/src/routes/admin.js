@@ -2,6 +2,23 @@ const router = require('express').Router();
 const dealService = require('../services/dealService');
 const nearService = require('../services/nearService');
 
+function requireNonProduction(req, res) {
+  if (process.env.NODE_ENV === 'production') {
+    res.status(403).json({ error: 'This endpoint is only available outside production' });
+    return false;
+  }
+  return true;
+}
+
+function validateDealAccount(deal, accountId, allowedFields) {
+  if (!accountId) return 'account_id is required';
+  const allowedAccounts = allowedFields.map((field) => deal[field]).filter(Boolean);
+  if (!allowedAccounts.includes(accountId)) {
+    return `account_id must match one of: ${allowedFields.join(', ')}`;
+  }
+  return null;
+}
+
 router.post('/deals', async (req, res) => {
   const { deal_type, farmer, investor, investment_amount, farmer_split_pct,
     investor_split_pct, escrow_pct, performance_fee_pct,
@@ -97,11 +114,53 @@ router.post('/deals/:id/fund', async (req, res) => {
   }
 });
 
+router.post('/deals/:id/fund-as', async (req, res) => {
+  if (!requireNonProduction(req, res)) return;
+
+  const deal = await dealService.getDealById(req.params.id);
+  if (!deal) return res.status(404).json({ error: 'Deal not found' });
+
+  const { account_id } = req.body;
+  const validationError = validateDealAccount(deal, account_id, ['investor']);
+  if (validationError) return res.status(400).json({ error: validationError });
+
+  try {
+    const { txHash } = await nearService.fundContractAs(
+      account_id,
+      deal.contract_address,
+      deal.investment_amount
+    );
+    await dealService.addEvent({ deal_id: deal.id, event_type: 'funded', tx_hash: txHash });
+    res.json({ success: true, tx_hash: txHash });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/deals/:id/withdraw', async (req, res) => {
   const deal = await dealService.getDealById(req.params.id);
   if (!deal) return res.status(404).json({ error: 'Deal not found' });
   try {
     const { txHash } = await nearService.withdrawContract(deal.contract_address);
+    await dealService.addEvent({ deal_id: deal.id, event_type: 'withdrawn', tx_hash: txHash });
+    res.json({ success: true, tx_hash: txHash });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/deals/:id/withdraw-as', async (req, res) => {
+  if (!requireNonProduction(req, res)) return;
+
+  const deal = await dealService.getDealById(req.params.id);
+  if (!deal) return res.status(404).json({ error: 'Deal not found' });
+
+  const { account_id } = req.body;
+  const validationError = validateDealAccount(deal, account_id, ['farmer', 'investor', 'platform']);
+  if (validationError) return res.status(400).json({ error: validationError });
+
+  try {
+    const { txHash } = await nearService.withdrawContractAs(account_id, deal.contract_address);
     await dealService.addEvent({ deal_id: deal.id, event_type: 'withdrawn', tx_hash: txHash });
     res.json({ success: true, tx_hash: txHash });
   } catch (err) {

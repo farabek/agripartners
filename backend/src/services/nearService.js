@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const nearApi = require('near-api-js');
 const BN = require('bn.js');
-const { getAdminAccount } = require('../near/client');
+const { getAdminAccount, getAccountFromLocalCredentials } = require('../near/client');
 
 async function getContractStatus(contractAddress) {
   const account = await getAdminAccount();
@@ -84,6 +84,15 @@ async function reportCycle(contractAddress, profitNear, lossesNear) {
 
 async function fundContract(contractAddress, investmentAmount) {
   const account = await getAdminAccount();
+  return fundContractWithAccount(account, contractAddress, investmentAmount);
+}
+
+async function fundContractAs(accountId, contractAddress, investmentAmount) {
+  const account = await getAccountFromLocalCredentials(accountId);
+  return fundContractWithAccount(account, contractAddress, investmentAmount);
+}
+
+async function fundContractWithAccount(account, contractAddress, investmentAmount) {
   const result = await account.functionCall({
     contractId: contractAddress,
     methodName: 'fund',
@@ -96,6 +105,15 @@ async function fundContract(contractAddress, investmentAmount) {
 
 async function withdrawContract(contractAddress) {
   const account = await getAdminAccount();
+  return withdrawContractWithAccount(account, contractAddress);
+}
+
+async function withdrawContractAs(accountId, contractAddress) {
+  const account = await getAccountFromLocalCredentials(accountId);
+  return withdrawContractWithAccount(account, contractAddress);
+}
+
+async function withdrawContractWithAccount(account, contractAddress) {
   const result = await account.functionCall({
     contractId: contractAddress,
     methodName: 'withdraw',
@@ -112,5 +130,7 @@ module.exports = {
   startCycle,
   reportCycle,
   fundContract,
-  withdrawContract
+  fundContractAs,
+  withdrawContract,
+  withdrawContractAs
 };

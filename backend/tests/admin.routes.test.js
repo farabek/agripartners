@@ -21,9 +21,18 @@ app.use('/api/admin', requireJWT, requireRole('admin'), adminRouter);
 const adminToken = jwt.sign({ id: 1, username: 'admin', role: 'admin' }, 'test-jwt-secret');
 const farmerToken = jwt.sign({ id: 2, username: 'farmer1', role: 'farmer' }, 'test-jwt-secret');
 
-const mockDeal = { id: 1, contract_address: 'ap1.agripartners.testnet', deal_type: 'fidlot', investment_amount: '10000000000000000000000000' };
+const mockDeal = {
+  id: 1,
+  contract_address: 'ap1.agripartners.testnet',
+  deal_type: 'fidlot',
+  farmer: 'farmer-ap.testnet',
+  investor: 'investor-ap.testnet',
+  platform: 'platform-ap.testnet',
+  investment_amount: '10000000000000000000000000'
+};
 
 beforeEach(() => {
+  process.env.NODE_ENV = 'test';
   dealService.getDealById.mockResolvedValue(mockDeal);
   dealService.createDeal.mockResolvedValue(mockDeal);
   dealService.addEvent.mockResolvedValue(undefined);
@@ -33,6 +42,8 @@ beforeEach(() => {
   nearService.getContractStatus.mockResolvedValue({ status: 'CycleActive', current_cycle: 1 });
   nearService.fundContract = jest.fn().mockResolvedValue({ txHash: 'tx4' });
   nearService.withdrawContract = jest.fn().mockResolvedValue({ txHash: 'tx5' });
+  nearService.fundContractAs = jest.fn().mockResolvedValue({ txHash: 'tx6' });
+  nearService.withdrawContractAs = jest.fn().mockResolvedValue({ txHash: 'tx7' });
 });
 
 test('POST /api/admin/deals without token returns 401', async () => {
@@ -122,6 +133,40 @@ test('POST /api/admin/deals/:id/fund returns 404 when deal not found', async () 
   expect(res.status).toBe(404);
 });
 
+test('POST /api/admin/deals/:id/fund-as calls fundContractAs for deal investor outside production', async () => {
+  const res = await request(app)
+    .post('/api/admin/deals/1/fund-as')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ account_id: 'investor-ap.testnet' });
+  expect(res.status).toBe(200);
+  expect(res.body).toEqual({ success: true, tx_hash: 'tx6' });
+  expect(nearService.fundContractAs).toHaveBeenCalledWith(
+    'investor-ap.testnet',
+    'ap1.agripartners.testnet',
+    '10000000000000000000000000'
+  );
+  expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'funded', tx_hash: 'tx6' }));
+});
+
+test('POST /api/admin/deals/:id/fund-as rejects non-investor signer', async () => {
+  const res = await request(app)
+    .post('/api/admin/deals/1/fund-as')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ account_id: 'farmer-ap.testnet' });
+  expect(res.status).toBe(400);
+  expect(nearService.fundContractAs).not.toHaveBeenCalled();
+});
+
+test('POST /api/admin/deals/:id/fund-as is disabled in production', async () => {
+  process.env.NODE_ENV = 'production';
+  const res = await request(app)
+    .post('/api/admin/deals/1/fund-as')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ account_id: 'investor-ap.testnet' });
+  expect(res.status).toBe(403);
+  expect(nearService.fundContractAs).not.toHaveBeenCalled();
+});
+
 test('POST /api/admin/deals/:id/withdraw calls withdrawContract and records event', async () => {
   const res = await request(app)
     .post('/api/admin/deals/1/withdraw')
@@ -138,4 +183,37 @@ test('POST /api/admin/deals/:id/withdraw returns 404 when deal not found', async
     .post('/api/admin/deals/999/withdraw')
     .set('Authorization', `Bearer ${adminToken}`);
   expect(res.status).toBe(404);
+});
+
+test('POST /api/admin/deals/:id/withdraw-as calls withdrawContractAs for deal party outside production', async () => {
+  const res = await request(app)
+    .post('/api/admin/deals/1/withdraw-as')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ account_id: 'farmer-ap.testnet' });
+  expect(res.status).toBe(200);
+  expect(res.body).toEqual({ success: true, tx_hash: 'tx7' });
+  expect(nearService.withdrawContractAs).toHaveBeenCalledWith(
+    'farmer-ap.testnet',
+    'ap1.agripartners.testnet'
+  );
+  expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'withdrawn', tx_hash: 'tx7' }));
+});
+
+test('POST /api/admin/deals/:id/withdraw-as rejects account outside deal parties', async () => {
+  const res = await request(app)
+    .post('/api/admin/deals/1/withdraw-as')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ account_id: 'stranger-ap.testnet' });
+  expect(res.status).toBe(400);
+  expect(nearService.withdrawContractAs).not.toHaveBeenCalled();
+});
+
+test('POST /api/admin/deals/:id/withdraw-as is disabled in production', async () => {
+  process.env.NODE_ENV = 'production';
+  const res = await request(app)
+    .post('/api/admin/deals/1/withdraw-as')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ account_id: 'farmer-ap.testnet' });
+  expect(res.status).toBe(403);
+  expect(nearService.withdrawContractAs).not.toHaveBeenCalled();
 });

@@ -1,14 +1,18 @@
 jest.mock('../src/near/client', () => ({
-  getAdminAccount: jest.fn()
+  getAdminAccount: jest.fn(),
+  getAccountFromLocalCredentials: jest.fn()
 }));
 
-const { getAdminAccount } = require('../src/near/client');
+const { getAdminAccount, getAccountFromLocalCredentials } = require('../src/near/client');
 const {
   getContractStatus,
   getContractBalances,
   startCycle,
   reportCycle,
-  withdrawContract
+  fundContract,
+  fundContractAs,
+  withdrawContract,
+  withdrawContractAs
 } = require('../src/services/nearService');
 
 test('getContractStatus returns status and current_cycle', async () => {
@@ -67,6 +71,47 @@ test('reportCycle passes losses_near arg and profit as attachedDeposit', async (
   });
 });
 
+test('fundContract calls fund on contract with attached investment amount', async () => {
+  const mockAccount = {
+    functionCall: jest.fn().mockResolvedValue({ transaction: { hash: 'tx_fund123' } })
+  };
+  getAdminAccount.mockResolvedValue(mockAccount);
+
+  const result = await fundContract('ap1.agripartners.testnet', '10000000000000000000000000');
+
+  expect(result.txHash).toBe('tx_fund123');
+  expect(mockAccount.functionCall).toHaveBeenCalledWith({
+    contractId: 'ap1.agripartners.testnet',
+    methodName: 'fund',
+    args: {},
+    gas: '100000000000000',
+    attachedDeposit: '10000000000000000000000000'
+  });
+});
+
+test('fundContractAs funds using requested local account credentials', async () => {
+  const mockAccount = {
+    functionCall: jest.fn().mockResolvedValue({ transaction: { hash: 'tx_fund_as123' } })
+  };
+  getAccountFromLocalCredentials.mockResolvedValue(mockAccount);
+
+  const result = await fundContractAs(
+    'investor-ap.testnet',
+    'ap1.agripartners.testnet',
+    '10000000000000000000000000'
+  );
+
+  expect(result.txHash).toBe('tx_fund_as123');
+  expect(getAccountFromLocalCredentials).toHaveBeenCalledWith('investor-ap.testnet');
+  expect(mockAccount.functionCall).toHaveBeenCalledWith({
+    contractId: 'ap1.agripartners.testnet',
+    methodName: 'fund',
+    args: {},
+    gas: '100000000000000',
+    attachedDeposit: '10000000000000000000000000'
+  });
+});
+
 test('withdrawContract calls withdraw on contract and returns txHash', async () => {
   const mockAccount = {
     functionCall: jest.fn().mockResolvedValue({ transaction: { hash: 'tx_withdraw123' } })
@@ -76,6 +121,24 @@ test('withdrawContract calls withdraw on contract and returns txHash', async () 
   const result = await withdrawContract('ap1.agripartners.testnet');
 
   expect(result.txHash).toBe('tx_withdraw123');
+  expect(mockAccount.functionCall).toHaveBeenCalledWith({
+    contractId: 'ap1.agripartners.testnet',
+    methodName: 'withdraw',
+    args: {},
+    gas: '100000000000000'
+  });
+});
+
+test('withdrawContractAs withdraws using requested local account credentials', async () => {
+  const mockAccount = {
+    functionCall: jest.fn().mockResolvedValue({ transaction: { hash: 'tx_withdraw_as123' } })
+  };
+  getAccountFromLocalCredentials.mockResolvedValue(mockAccount);
+
+  const result = await withdrawContractAs('farmer-ap.testnet', 'ap1.agripartners.testnet');
+
+  expect(result.txHash).toBe('tx_withdraw_as123');
+  expect(getAccountFromLocalCredentials).toHaveBeenCalledWith('farmer-ap.testnet');
   expect(mockAccount.functionCall).toHaveBeenCalledWith({
     contractId: 'ap1.agripartners.testnet',
     methodName: 'withdraw',
