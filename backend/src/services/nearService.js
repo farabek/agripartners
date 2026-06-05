@@ -94,4 +94,23 @@ async function fundContract(contractAddress, investmentAmount) {
   return { txHash: result.transaction.hash };
 }
 
-module.exports = { getContractStatus, getContractBalances, deployContract, startCycle, reportCycle, fundContract };
+async function withdrawContract(contractAddress) {
+  const account = await getAdminAccount();
+  const result = await account.functionCall({
+    contractId: contractAddress,
+    methodName: 'withdraw',
+    args: {},
+    gas: '100000000000000'
+  });
+  return { txHash: result.transaction.hash };
+}
+
+module.exports = {
+  getContractStatus,
+  getContractBalances,
+  deployContract,
+  startCycle,
+  reportCycle,
+  fundContract,
+  withdrawContract
+};

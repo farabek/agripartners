@@ -97,4 +97,16 @@ router.post('/deals/:id/fund', async (req, res) => {
   }
 });
 
+router.post('/deals/:id/withdraw', async (req, res) => {
+  const deal = await dealService.getDealById(req.params.id);
+  if (!deal) return res.status(404).json({ error: 'Deal not found' });
+  try {
+    const { txHash } = await nearService.withdrawContract(deal.contract_address);
+    await dealService.addEvent({ deal_id: deal.id, event_type: 'withdrawn', tx_hash: txHash });
+    res.json({ success: true, tx_hash: txHash });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

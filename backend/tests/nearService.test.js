@@ -3,7 +3,13 @@ jest.mock('../src/near/client', () => ({
 }));
 
 const { getAdminAccount } = require('../src/near/client');
-const { getContractStatus, getContractBalances, startCycle, reportCycle } = require('../src/services/nearService');
+const {
+  getContractStatus,
+  getContractBalances,
+  startCycle,
+  reportCycle,
+  withdrawContract
+} = require('../src/services/nearService');
 
 test('getContractStatus returns status and current_cycle', async () => {
   getAdminAccount.mockResolvedValue({
@@ -58,5 +64,22 @@ test('reportCycle passes losses_near arg and profit as attachedDeposit', async (
     args: { losses_near: '100000000000000000000000' },
     gas: '100000000000000',
     attachedDeposit: '5000000000000000000000000'
+  });
+});
+
+test('withdrawContract calls withdraw on contract and returns txHash', async () => {
+  const mockAccount = {
+    functionCall: jest.fn().mockResolvedValue({ transaction: { hash: 'tx_withdraw123' } })
+  };
+  getAdminAccount.mockResolvedValue(mockAccount);
+
+  const result = await withdrawContract('ap1.agripartners.testnet');
+
+  expect(result.txHash).toBe('tx_withdraw123');
+  expect(mockAccount.functionCall).toHaveBeenCalledWith({
+    contractId: 'ap1.agripartners.testnet',
+    methodName: 'withdraw',
+    args: {},
+    gas: '100000000000000'
   });
 });

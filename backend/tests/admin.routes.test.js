@@ -32,6 +32,7 @@ beforeEach(() => {
   nearService.reportCycle.mockResolvedValue({ txHash: 'tx3' });
   nearService.getContractStatus.mockResolvedValue({ status: 'CycleActive', current_cycle: 1 });
   nearService.fundContract = jest.fn().mockResolvedValue({ txHash: 'tx4' });
+  nearService.withdrawContract = jest.fn().mockResolvedValue({ txHash: 'tx5' });
 });
 
 test('POST /api/admin/deals without token returns 401', async () => {
@@ -117,6 +118,24 @@ test('POST /api/admin/deals/:id/fund returns 404 when deal not found', async () 
   dealService.getDealById.mockResolvedValueOnce(null);
   const res = await request(app)
     .post('/api/admin/deals/999/fund')
+    .set('Authorization', `Bearer ${adminToken}`);
+  expect(res.status).toBe(404);
+});
+
+test('POST /api/admin/deals/:id/withdraw calls withdrawContract and records event', async () => {
+  const res = await request(app)
+    .post('/api/admin/deals/1/withdraw')
+    .set('Authorization', `Bearer ${adminToken}`);
+  expect(res.status).toBe(200);
+  expect(res.body).toEqual({ success: true, tx_hash: 'tx5' });
+  expect(nearService.withdrawContract).toHaveBeenCalledWith('ap1.agripartners.testnet');
+  expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'withdrawn', tx_hash: 'tx5' }));
+});
+
+test('POST /api/admin/deals/:id/withdraw returns 404 when deal not found', async () => {
+  dealService.getDealById.mockResolvedValueOnce(null);
+  const res = await request(app)
+    .post('/api/admin/deals/999/withdraw')
     .set('Authorization', `Bearer ${adminToken}`);
   expect(res.status).toBe(404);
 });
