@@ -1,4 +1,9 @@
 const API_BASE = 'https://agripartners.onrender.com';
+const NEAR_WALLET_NETWORK = 'testnet';
+const NEAR_WALLET_URL = 'https://testnet.mynearwallet.com/login/';
+const NEAR_WALLET_CONTRACT_ID = 'farab.testnet';
+const NEAR_WALLET_STORAGE_KEY = 'ap_near_wallet_account';
+const NEAR_WALLET_CALLBACK_PARAMS = ['account_id', 'all_keys', 'public_key'];
 
 // --- Auth state ---
 
@@ -25,6 +30,83 @@ function jsonAuthHeaders() {
 
 function isAdmin() {
   return getAuth()?.user?.role === 'admin';
+}
+
+// --- NEAR Wallet identity state ---
+
+function getNearWalletAccount() {
+  return localStorage.getItem(NEAR_WALLET_STORAGE_KEY) || '';
+}
+
+function setNearWalletAccount(accountId) {
+  localStorage.setItem(NEAR_WALLET_STORAGE_KEY, accountId);
+}
+
+function clearNearWalletAccount() {
+  localStorage.removeItem(NEAR_WALLET_STORAGE_KEY);
+}
+
+function walletCallbackUrl() {
+  return `${window.location.origin}${window.location.pathname}#investor`;
+}
+
+function nearWalletLoginUrl() {
+  const callbackUrl = walletCallbackUrl();
+  const walletUrl = new URL(NEAR_WALLET_URL);
+  walletUrl.searchParams.set('contract_id', NEAR_WALLET_CONTRACT_ID);
+  walletUrl.searchParams.set('success_url', callbackUrl);
+  walletUrl.searchParams.set('failure_url', callbackUrl);
+  return walletUrl.toString();
+}
+
+function getWalletCallbackParams() {
+  const searchParams = new URLSearchParams(window.location.search);
+  const callbackParams = {};
+  NEAR_WALLET_CALLBACK_PARAMS.forEach(key => {
+    const value = searchParams.get(key);
+    if (value) callbackParams[key] = value;
+  });
+
+  const hashQueryIndex = window.location.hash.indexOf('?');
+  if (hashQueryIndex === -1) return callbackParams;
+
+  const hashParams = new URLSearchParams(window.location.hash.slice(hashQueryIndex + 1));
+  NEAR_WALLET_CALLBACK_PARAMS.forEach(key => {
+    const value = hashParams.get(key);
+    if (value) callbackParams[key] = value;
+  });
+
+  return callbackParams;
+}
+
+function cleanWalletCallbackUrl() {
+  const url = new URL(window.location.href);
+  NEAR_WALLET_CALLBACK_PARAMS.forEach(key => {
+    url.searchParams.delete(key);
+  });
+
+  const hashQueryIndex = url.hash.indexOf('?');
+  if (hashQueryIndex !== -1) {
+    url.hash = url.hash.slice(0, hashQueryIndex);
+  }
+
+  window.history.replaceState({}, document.title, url.toString());
+}
+
+function syncNearWalletCallback() {
+  const params = getWalletCallbackParams();
+  if (!params.account_id) return;
+  setNearWalletAccount(params.account_id);
+  cleanWalletCallbackUrl();
+}
+
+function connectNearWallet() {
+  window.location.href = nearWalletLoginUrl();
+}
+
+function disconnectNearWallet() {
+  clearNearWalletAccount();
+  renderNearWalletSection();
 }
 
 // --- Utilities ---
@@ -134,6 +216,7 @@ function route() {
 
 window.addEventListener('hashchange', route);
 window.addEventListener('load', () => {
+  syncNearWalletCallback();
   if (!location.hash || location.hash === '#') {
     const auth = getAuth();
     location.hash = auth ? (auth.user.role === 'investor' ? '#investor' : '#deals') : '#login';
@@ -313,9 +396,11 @@ async function showInvestorPortal() {
       <h1 class="text-3xl font-bold text-green-400 mb-1">Investor Portal</h1>
       <p class="text-slate-400">Signed in as <span class="text-slate-200 font-medium">${escapeHtml(auth.user.username)}</span></p>
     </div>
+    <div id="near-wallet-section" class="mb-6"></div>
     <h2 class="text-xl font-semibold mb-4">My Investments</h2>
     <div class="spinner"></div>
   `;
+  renderNearWalletSection();
 
   try {
     const res = await fetch(`${API_BASE}/api/me/deals`, { headers: authHeaders() });
@@ -328,6 +413,43 @@ async function showInvestorPortal() {
     el.querySelector('.spinner')?.remove();
     el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Investor Portal unavailable: ${escapeHtml(e.message)}</div>`;
   }
+}
+
+function renderNearWalletSection() {
+  const el = document.getElementById('near-wallet-section');
+  if (!el) return;
+
+  const accountId = getNearWalletAccount();
+  const connectLabel = accountId ? 'Reconnect NEAR Wallet' : 'Connect NEAR Wallet';
+  el.innerHTML = `
+    <div class="wallet-panel">
+      <div class="wallet-header">
+        <div>
+          <h2 class="wallet-title">NEAR Wallet</h2>
+          <p class="wallet-note">Wallet integration is currently testnet-only.</p>
+        </div>
+        <span class="wallet-network">Network: ${NEAR_WALLET_NETWORK}</span>
+      </div>
+      <div class="wallet-body">
+        <div class="wallet-account">
+          <span class="wallet-label">Connected account</span>
+          <span class="wallet-value">${accountId ? escapeHtml(accountId) : 'Not connected'}</span>
+        </div>
+        <div class="wallet-actions">
+          <button type="button" id="btn-connect-near-wallet" class="wallet-btn wallet-btn-primary">
+            ${connectLabel}
+          </button>
+          <button type="button" id="btn-disconnect-near-wallet" class="wallet-btn" ${accountId ? '' : 'disabled'}>
+            Disconnect Wallet
+          </button>
+        </div>
+      </div>
+      <p class="wallet-helper">Wallet connection is used for identity display only. Funding and withdrawals are not executed through the wallet yet.</p>
+    </div>
+  `;
+
+  document.getElementById('btn-connect-near-wallet')?.addEventListener('click', connectNearWallet);
+  document.getElementById('btn-disconnect-near-wallet')?.addEventListener('click', disconnectNearWallet);
 }
 
 async function enrichDealsForInvestor(deals) {
@@ -365,21 +487,24 @@ function investorMetrics(deals) {
 function renderInvestorDashboard(el, deals) {
   el.querySelector('.spinner')?.remove();
   const metrics = investorMetrics(deals);
+  const dashboard = document.createElement('div');
 
   if (deals.length === 0) {
-    el.innerHTML += `
+    dashboard.innerHTML = `
       ${renderInvestorMetrics(metrics)}
       <p class="text-slate-400 mt-6">No investments found</p>
     `;
+    el.appendChild(dashboard);
     return;
   }
 
-  el.innerHTML += `
+  dashboard.innerHTML = `
     ${renderInvestorMetrics(metrics)}
     <div class="grid gap-4 mt-6">
       ${deals.map(renderInvestorDealCard).join('')}
     </div>
   `;
+  el.appendChild(dashboard);
 }
 
 function renderInvestorMetrics(metrics) {

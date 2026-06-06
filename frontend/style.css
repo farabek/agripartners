@@ -116,3 +116,128 @@
   font-size: 0.7rem;
   overflow-wrap: anywhere;
 }
+
+.wallet-panel {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.wallet-header,
+.wallet-body {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.wallet-header {
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.wallet-body {
+  align-items: center;
+}
+
+.wallet-title {
+  color: #f8fafc;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.wallet-note {
+  color: #fde68a;
+  font-size: 0.875rem;
+  margin-top: 2px;
+}
+
+.wallet-network {
+  background-color: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 9999px;
+  color: #cbd5e1;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  text-transform: uppercase;
+}
+
+.wallet-account {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.wallet-label {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.wallet-value {
+  color: #f8fafc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  overflow-wrap: anywhere;
+}
+
+.wallet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.wallet-btn {
+  background-color: #334155;
+  border-radius: 8px;
+  color: #f8fafc;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 10px 12px;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.wallet-btn:hover:not(:disabled) {
+  background-color: #475569;
+}
+
+.wallet-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.wallet-btn-primary {
+  background-color: #16a34a;
+}
+
+.wallet-btn-primary:hover:not(:disabled) {
+  background-color: #22c55e;
+}
+
+.wallet-helper {
+  border-top: 1px solid #334155;
+  color: #94a3b8;
+  font-size: 0.8125rem;
+  margin-top: 14px;
+  padding-top: 12px;
+}
+
+@media (max-width: 640px) {
+  .wallet-header,
+  .wallet-body {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .wallet-actions {
+    justify-content: stretch;
+  }
+
+  .wallet-btn {
+    flex: 1 1 100%;
+  }
+}
