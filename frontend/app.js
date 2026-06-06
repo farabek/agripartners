@@ -1,4 +1,6 @@
-const API_BASE = 'https://agripartners.onrender.com';
+const API_BASE = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+  ? 'http://localhost:3000'
+  : 'https://agripartners.onrender.com';
 const NEAR_WALLET_NETWORK = 'testnet';
 const NEAR_WALLET_URL = 'https://testnet.mynearwallet.com/login/';
 const NEAR_WALLET_CONTRACT_ID = 'farab.testnet';
