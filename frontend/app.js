@@ -109,6 +109,7 @@ function connectNearWallet() {
 function disconnectNearWallet() {
   clearNearWalletAccount();
   renderNearWalletSection();
+  renderNoWalletInvestorDashboard();
 }
 
 // --- Utilities ---
@@ -392,6 +393,7 @@ async function showInvestorPortal() {
   showView('view-investor');
   const el = document.getElementById('view-investor');
   const auth = getAuth();
+  const connectedWalletAccount = getNearWalletAccount();
   el.innerHTML = `
     ${renderNav()}
     <div class="mb-6">
@@ -399,22 +401,57 @@ async function showInvestorPortal() {
       <p class="text-slate-400">Signed in as <span class="text-slate-200 font-medium">${escapeHtml(auth.user.username)}</span></p>
     </div>
     <div id="near-wallet-section" class="mb-6"></div>
+    <div id="investor-dashboard-content"></div>
+  `;
+  renderNearWalletSection();
+  const dashboardEl = document.getElementById('investor-dashboard-content');
+
+  if (!connectedWalletAccount) {
+    renderInvestorPortalMessage(
+      dashboardEl,
+      'Connect your NEAR wallet to view investments linked to your account.'
+    );
+    return;
+  }
+
+  dashboardEl.innerHTML = `
     <h2 class="text-xl font-semibold mb-4">My Investments</h2>
     <div class="spinner"></div>
   `;
-  renderNearWalletSection();
 
   try {
     const res = await fetch(`${API_BASE}/api/me/deals`, { headers: authHeaders() });
     if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const deals = await res.json();
-    const enrichedDeals = await enrichDealsForInvestor(deals);
-    renderInvestorDashboard(el, enrichedDeals);
+    if (getNearWalletAccount() !== connectedWalletAccount) {
+      renderNoWalletInvestorDashboard();
+      return;
+    }
+    const walletDeals = deals.filter(deal => deal.investor === connectedWalletAccount);
+    const enrichedDeals = await enrichDealsForInvestor(walletDeals);
+    if (getNearWalletAccount() !== connectedWalletAccount) {
+      renderNoWalletInvestorDashboard();
+      return;
+    }
+    renderInvestorDashboard(dashboardEl, enrichedDeals, connectedWalletAccount);
   } catch (e) {
-    el.querySelector('.spinner')?.remove();
-    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Investor Portal unavailable: ${escapeHtml(e.message)}</div>`;
+    dashboardEl.querySelector('.spinner')?.remove();
+    renderInvestorPortalMessage(
+      dashboardEl,
+      `Investor Portal unavailable: ${e.message}`,
+      'error'
+    );
   }
+}
+
+function renderNoWalletInvestorDashboard() {
+  const dashboardEl = document.getElementById('investor-dashboard-content');
+  if (!dashboardEl) return;
+  renderInvestorPortalMessage(
+    dashboardEl,
+    'Connect your NEAR wallet to view investments linked to your account.'
+  );
 }
 
 function renderNearWalletSection() {
@@ -447,11 +484,22 @@ function renderNearWalletSection() {
         </div>
       </div>
       <p class="wallet-helper">Wallet connection is used for identity display only. Funding and withdrawals are not executed through the wallet yet.</p>
+      <p class="wallet-helper">Wallet Phase 2 uses frontend filtering. Backend wallet authorization will be added in a later phase.</p>
     </div>
   `;
 
   document.getElementById('btn-connect-near-wallet')?.addEventListener('click', connectNearWallet);
   document.getElementById('btn-disconnect-near-wallet')?.addEventListener('click', disconnectNearWallet);
+}
+
+function renderInvestorPortalMessage(el, message, type = 'info') {
+  const isError = type === 'error';
+  el.innerHTML = `
+    <div class="${isError ? 'bg-red-900 text-red-100 border-red-800' : 'bg-slate-800 text-slate-200 border-slate-700'} border rounded-lg px-4 py-3">
+      <p>${escapeHtml(message)}</p>
+      <p class="text-xs ${isError ? 'text-red-200' : 'text-slate-400'} mt-2">Wallet Phase 2 uses frontend filtering. Backend wallet authorization will be added in a later phase.</p>
+    </div>
+  `;
 }
 
 async function enrichDealsForInvestor(deals) {
@@ -486,7 +534,7 @@ function investorMetrics(deals) {
   });
 }
 
-function renderInvestorDashboard(el, deals) {
+function renderInvestorDashboard(el, deals, connectedWalletAccount) {
   el.querySelector('.spinner')?.remove();
   const metrics = investorMetrics(deals);
   const dashboard = document.createElement('div');
@@ -494,7 +542,8 @@ function renderInvestorDashboard(el, deals) {
   if (deals.length === 0) {
     dashboard.innerHTML = `
       ${renderInvestorMetrics(metrics)}
-      <p class="text-slate-400 mt-6">No investments found</p>
+      <p class="text-slate-400 mt-6">No investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>
+      <p class="text-xs text-slate-500 mt-2">Wallet Phase 2 uses frontend filtering. Backend wallet authorization will be added in a later phase.</p>
     `;
     el.appendChild(dashboard);
     return;
@@ -502,6 +551,7 @@ function renderInvestorDashboard(el, deals) {
 
   dashboard.innerHTML = `
     ${renderInvestorMetrics(metrics)}
+    <p class="text-xs text-slate-500 mt-3">Wallet Phase 2 uses frontend filtering. Backend wallet authorization will be added in a later phase.</p>
     <div class="grid gap-4 mt-6">
       ${deals.map(renderInvestorDealCard).join('')}
     </div>
@@ -561,6 +611,7 @@ function renderInvestorDealCard(deal) {
 async function showInvestorDeal(id) {
   showView('view-investor');
   const el = document.getElementById('view-investor');
+  const connectedWalletAccount = getNearWalletAccount();
   el.innerHTML = `
     ${renderNav()}
     <a href="#investor" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Investor Portal</a>
@@ -569,6 +620,10 @@ async function showInvestorDeal(id) {
 
   try {
     const { deal, status, balances, events } = await fetchInvestorDealBundle(id);
+    if (!connectedWalletAccount || deal.investor !== connectedWalletAccount) {
+      renderInvestorDealAccessMessage(el);
+      return;
+    }
     renderInvestorDealDetail(el, deal, status, balances, events);
   } catch (e) {
     el.querySelector('.spinner')?.remove();
@@ -595,6 +650,18 @@ async function fetchInvestorDealBundle(id) {
     balances: balancesRes.status === 'fulfilled' && balancesRes.value.ok ? await balancesRes.value.json() : null,
     events: eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : []
   };
+}
+
+function renderInvestorDealAccessMessage(el) {
+  el.querySelector('.spinner')?.remove();
+  el.innerHTML = `
+    ${renderNav()}
+    <a href="#investor" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Investor Portal</a>
+    <div class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-200">
+      <p>This deal is not linked to the connected wallet account.</p>
+      <p class="text-xs text-slate-400 mt-2">Wallet Phase 2 uses frontend filtering. Backend wallet authorization will be added in a later phase.</p>
+    </div>
+  `;
 }
 
 function renderInvestorDealDetail(el, deal, status, balances, events) {
