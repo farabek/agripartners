@@ -49,8 +49,8 @@ const investorProfile = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  dealService.getDealsByUser.mockResolvedValue([investorDeal]);
-  dealService.getDealById.mockResolvedValue(investorDeal);
+  dealService.getInvestorDeals.mockResolvedValue([investorDeal]);
+  dealService.getInvestorDealById.mockResolvedValue(investorDeal);
   dealService.getDealEvents.mockResolvedValue([]);
   dealService.addEvent.mockResolvedValue();
   investorProfileService.getOrCreateInvestorProfile.mockResolvedValue(investorProfile);
@@ -129,21 +129,28 @@ test('GET /api/investor/deals returns deals for wallet account', async () => {
     .set('Authorization', `Bearer ${walletToken}`);
 
   expect(res.status).toBe(200);
-  expect(dealService.getDealsByUser).toHaveBeenCalledWith('investor.testnet', 'investor');
+  expect(dealService.getInvestorDeals).toHaveBeenCalledWith('investor.testnet');
   expect(res.body).toHaveLength(1);
 });
 
-test('GET /api/investor/deals/:id rejects deals for another investor wallet', async () => {
-  dealService.getDealById.mockResolvedValue({
-    ...investorDeal,
-    investor: 'other.testnet',
-  });
+test('GET /api/investor/deals/:id returns owned deal', async () => {
+  const res = await request(app)
+    .get('/api/investor/deals/1')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(200);
+  expect(dealService.getInvestorDealById).toHaveBeenCalledWith('investor.testnet', '1');
+  expect(res.body.id).toBe(1);
+});
+
+test('GET /api/investor/deals/:id returns 404 for missing or non-owned deal', async () => {
+  dealService.getInvestorDealById.mockResolvedValue(null);
 
   const res = await request(app)
     .get('/api/investor/deals/1')
     .set('Authorization', `Bearer ${walletToken}`);
 
-  expect(res.status).toBe(403);
+  expect(res.status).toBe(404);
 });
 
 test('GET /api/investor/deals/:id/status uses protected investor deal', async () => {
@@ -153,6 +160,39 @@ test('GET /api/investor/deals/:id/status uses protected investor deal', async ()
 
   expect(res.status).toBe(200);
   expect(nearService.getContractStatus).toHaveBeenCalledWith('ap1.agripartners.testnet');
+});
+
+test('GET /api/investor/deals/:id/status returns 404 for non-owned deal', async () => {
+  dealService.getInvestorDealById.mockResolvedValue(null);
+
+  const res = await request(app)
+    .get('/api/investor/deals/1/status')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(404);
+  expect(nearService.getContractStatus).not.toHaveBeenCalled();
+});
+
+test('GET /api/investor/deals/:id/balances returns 404 for non-owned deal', async () => {
+  dealService.getInvestorDealById.mockResolvedValue(null);
+
+  const res = await request(app)
+    .get('/api/investor/deals/1/balances')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(404);
+  expect(nearService.getContractBalances).not.toHaveBeenCalled();
+});
+
+test('GET /api/investor/deals/:id/events returns 404 for non-owned deal', async () => {
+  dealService.getInvestorDealById.mockResolvedValue(null);
+
+  const res = await request(app)
+    .get('/api/investor/deals/1/events')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(404);
+  expect(dealService.getDealEvents).not.toHaveBeenCalled();
 });
 
 test('POST /api/investor/deals/:id/withdraw uses wallet-protected investor signer', async () => {
@@ -171,4 +211,16 @@ test('POST /api/investor/deals/:id/withdraw uses wallet-protected investor signe
     tx_hash: 'tx_withdraw123',
   }));
   expect(res.body.tx_hash).toBe('tx_withdraw123');
+});
+
+test('POST /api/investor/deals/:id/withdraw returns 404 for non-owned deal without contract call', async () => {
+  dealService.getInvestorDealById.mockResolvedValue(null);
+
+  const res = await request(app)
+    .post('/api/investor/deals/1/withdraw')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(404);
+  expect(nearService.withdrawContractAs).not.toHaveBeenCalled();
+  expect(dealService.addEvent).not.toHaveBeenCalled();
 });

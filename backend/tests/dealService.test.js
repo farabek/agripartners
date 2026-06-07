@@ -1,7 +1,16 @@
 const pool = require('../src/db/index');
 jest.mock('../src/db/index', () => ({ query: jest.fn() }));
 
-const { getAllDeals, getDealById, createDeal, addEvent, getDealEvents, getDealsByUser } =
+const {
+  getAllDeals,
+  getDealById,
+  getInvestorDeals,
+  getInvestorDealById,
+  createDeal,
+  addEvent,
+  getDealEvents,
+  getDealsByUser,
+} =
   require('../src/services/dealService');
 
 const sampleDeal = {
@@ -46,6 +55,34 @@ test('getDealById returns row when found', async () => {
 test('getDealById returns null when not found', async () => {
   pool.query.mockResolvedValue({ rows: [] });
   const deal = await getDealById(9999);
+  expect(deal).toBeNull();
+});
+
+test('getInvestorDeals returns deals for exact investor account without fallback', async () => {
+  pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
+  const deals = await getInvestorDeals('investor.testnet');
+
+  expect(pool.query).toHaveBeenCalledWith(
+    'SELECT * FROM deals WHERE investor = $1 ORDER BY created_at DESC',
+    ['investor.testnet']
+  );
+  expect(deals).toHaveLength(1);
+});
+
+test('getInvestorDealById returns deal by id and investor account', async () => {
+  pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
+  const deal = await getInvestorDealById('investor.testnet', 1);
+
+  expect(pool.query).toHaveBeenCalledWith(
+    'SELECT * FROM deals WHERE id = $1 AND investor = $2',
+    [1, 'investor.testnet']
+  );
+  expect(deal.id).toBe(1);
+});
+
+test('getInvestorDealById returns null for missing or non-owned deal', async () => {
+  pool.query.mockResolvedValue({ rows: [] });
+  const deal = await getInvestorDealById('investor.testnet', 9999);
   expect(deal).toBeNull();
 });
 

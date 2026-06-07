@@ -4,14 +4,9 @@ const investorProfileService = require('../services/investorProfileService');
 const nearService = require('../services/nearService');
 
 async function getInvestorDeal(req, res) {
-  const deal = await dealService.getDealById(req.params.id);
+  const deal = await dealService.getInvestorDealById(req.wallet.account_id, req.params.id);
   if (!deal) {
     res.status(404).json({ error: 'Deal not found' });
-    return null;
-  }
-
-  if (deal.investor !== req.wallet.account_id) {
-    res.status(403).json({ error: 'Deal is not linked to this wallet account' });
     return null;
   }
 
@@ -47,7 +42,7 @@ router.put('/profile', async (req, res) => {
 
 router.get('/deals', async (req, res) => {
   try {
-    const deals = await dealService.getDealsByUser(req.wallet.account_id, 'investor');
+    const deals = await dealService.getInvestorDeals(req.wallet.account_id);
     res.json(deals);
   } catch (err) {
     res.status(500).json({ error: err.message });

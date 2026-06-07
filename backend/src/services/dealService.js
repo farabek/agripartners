@@ -15,6 +15,22 @@ async function getDealById(id) {
   return rows[0] || null;
 }
 
+async function getInvestorDeals(accountId) {
+  const { rows } = await pool.query(
+    'SELECT * FROM deals WHERE investor = $1 ORDER BY created_at DESC',
+    [accountId]
+  );
+  return rows;
+}
+
+async function getInvestorDealById(accountId, dealId) {
+  const { rows } = await pool.query(
+    'SELECT * FROM deals WHERE id = $1 AND investor = $2',
+    [dealId, accountId]
+  );
+  return rows[0] || null;
+}
+
 async function createDeal(deal) {
   const { rows } = await pool.query(
     `INSERT INTO deals (
@@ -73,4 +89,13 @@ async function getDealsByUser(near_account, role) {
   return rows;
 }
 
-module.exports = { getAllDeals, getDealById, createDeal, addEvent, getDealEvents, getDealsByUser };
+module.exports = {
+  getAllDeals,
+  getDealById,
+  getInvestorDeals,
+  getInvestorDealById,
+  createDeal,
+  addEvent,
+  getDealEvents,
+  getDealsByUser,
+};
