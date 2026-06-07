@@ -3,6 +3,12 @@ node_modules/
 backend/.env
 backend/.env.render
 
+# Frontend build artifacts
+frontend/dist/
+
+# Local screenshots
+screenshots/
+
 # Rust build artifacts
 contract/target/
 

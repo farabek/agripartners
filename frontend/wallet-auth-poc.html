@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgriPartners Wallet Auth POC</title>
+  <link rel="stylesheet" href="wallet-auth-poc.css">
+</head>
+<body>
+  <main class="poc-shell">
+    <section class="poc-panel">
+      <div>
+        <p class="eyebrow">Wallet Phase 3 POC</p>
+        <h1>NEAR signed-message authentication</h1>
+        <p class="lede">
+          Isolated test page for MyNearWallet on testnet. This does not change Investor Portal filtering,
+          withdrawals, contracts, or existing wallet display behavior.
+        </p>
+      </div>
+
+      <div class="poc-actions">
+        <button id="btn-init-selector" type="button">Initialize Wallet Selector</button>
+        <button id="btn-sign-message" type="button" disabled>Sign Message</button>
+        <button id="btn-check-session" type="button">Check /api/investor/me</button>
+        <button id="btn-clear-poc" type="button" class="secondary">Clear POC Session</button>
+      </div>
+
+      <dl class="poc-status">
+        <div>
+          <dt>Network</dt>
+          <dd>testnet</dd>
+        </div>
+        <div>
+          <dt>Wallet</dt>
+          <dd id="wallet-status">Not initialized</dd>
+        </div>
+        <div>
+          <dt>Backend auth</dt>
+          <dd id="auth-status">No POC token</dd>
+        </div>
+      </dl>
+
+      <pre id="poc-log" aria-live="polite"></pre>
+    </section>
+  </main>
+
+  <script type="module" src="wallet-auth-poc.js"></script>
+</body>
+</html>

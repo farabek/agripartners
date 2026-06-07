@@ -1,0 +1,20 @@
+{
+  "name": "agripartners-wallet-auth-poc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:wallet-poc": "vite --host 127.0.0.1 --port 5173",
+    "build:wallet-poc": "vite build"
+  },
+  "dependencies": {
+    "@near-wallet-selector/core": "8.10.0",
+    "@near-wallet-selector/my-near-wallet": "8.10.0",
+    "@noble/hashes": "1.8.0",
+    "buffer": "6.0.3",
+    "near-api-js": "4.0.3"
+  },
+  "devDependencies": {
+    "vite": "8.0.16"
+  }
+}

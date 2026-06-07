@@ -1,11 +1,22 @@
+import { Buffer } from 'buffer';
+
+globalThis.global = globalThis;
+globalThis.Buffer = Buffer;
+
+if (typeof window !== 'undefined') {
+  window.Buffer = Buffer;
+}
+
+const { setupWalletSelector } = await import('@near-wallet-selector/core');
+const { setupMyNearWallet } = await import('@near-wallet-selector/my-near-wallet');
+
 const API_BASE = ['localhost', '127.0.0.1'].includes(window.location.hostname)
   ? 'http://localhost:3000'
   : 'https://agripartners.onrender.com';
 const NEAR_WALLET_NETWORK = 'testnet';
-const NEAR_WALLET_URL = 'https://testnet.mynearwallet.com/login/';
-const NEAR_WALLET_CONTRACT_ID = 'farab.testnet';
-const NEAR_WALLET_STORAGE_KEY = 'ap_near_wallet_account';
-const NEAR_WALLET_CALLBACK_PARAMS = ['account_id', 'all_keys', 'public_key'];
+const WALLET_AUTH_CHALLENGE_KEY = 'ap_wallet_auth_challenge';
+
+let walletSelector;
 
 // --- Auth state ---
 
@@ -19,6 +30,7 @@ function setAuth(token, user) {
 
 function clearAuth() {
   localStorage.removeItem('ap_auth');
+  localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
 }
 
 function authHeaders() {
@@ -34,82 +46,140 @@ function isAdmin() {
   return getAuth()?.user?.role === 'admin';
 }
 
-// --- NEAR Wallet identity state ---
+function isWalletAuth() {
+  return getAuth()?.user?.auth_type === 'wallet';
+}
+
+function getConnectedWalletAccount() {
+  const user = getAuth()?.user;
+  if (user?.auth_type !== 'wallet') return '';
+  return user.account_id || user.near_account || '';
+}
 
 function getNearWalletAccount() {
-  return localStorage.getItem(NEAR_WALLET_STORAGE_KEY) || '';
+  return getConnectedWalletAccount();
 }
 
-function setNearWalletAccount(accountId) {
-  localStorage.setItem(NEAR_WALLET_STORAGE_KEY, accountId);
+async function postJson(path, body) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body || {}),
+  });
+  const data = await readJsonResponse(response);
+  if (!response.ok) {
+    throw new Error(data.error || `Request failed with ${response.status}`);
+  }
+  return data;
 }
 
-function clearNearWalletAccount() {
-  localStorage.removeItem(NEAR_WALLET_STORAGE_KEY);
+async function readJsonResponse(response) {
+  const text = await response.text();
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    throw new Error(`Expected JSON from ${response.url}; received ${contentType || 'unknown content type'}`);
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`Invalid JSON from ${response.url}`);
+  }
 }
 
 function walletCallbackUrl() {
-  return `${window.location.origin}${window.location.pathname}#investor`;
+  return `${window.location.origin}${window.location.pathname}`;
 }
 
-function nearWalletLoginUrl() {
-  const callbackUrl = walletCallbackUrl();
-  const walletUrl = new URL(NEAR_WALLET_URL);
-  walletUrl.searchParams.set('contract_id', NEAR_WALLET_CONTRACT_ID);
-  walletUrl.searchParams.set('success_url', callbackUrl);
-  walletUrl.searchParams.set('failure_url', callbackUrl);
-  return walletUrl.toString();
+async function getWalletSelector() {
+  if (walletSelector) return walletSelector;
+  walletSelector = await setupWalletSelector({
+    network: NEAR_WALLET_NETWORK,
+    modules: [setupMyNearWallet()],
+  });
+  return walletSelector;
 }
 
-function getWalletCallbackParams() {
-  const searchParams = new URLSearchParams(window.location.search);
-  const callbackParams = {};
-  NEAR_WALLET_CALLBACK_PARAMS.forEach(key => {
-    const value = searchParams.get(key);
-    if (value) callbackParams[key] = value;
-  });
+function readWalletCallbackParams() {
+  const params = new URLSearchParams(window.location.search);
+  const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
+  const hashParams = new URLSearchParams(hash);
 
-  const hashQueryIndex = window.location.hash.indexOf('?');
-  if (hashQueryIndex === -1) return callbackParams;
-
-  const hashParams = new URLSearchParams(window.location.hash.slice(hashQueryIndex + 1));
-  NEAR_WALLET_CALLBACK_PARAMS.forEach(key => {
-    const value = hashParams.get(key);
-    if (value) callbackParams[key] = value;
-  });
-
-  return callbackParams;
-}
-
-function cleanWalletCallbackUrl() {
-  const url = new URL(window.location.href);
-  NEAR_WALLET_CALLBACK_PARAMS.forEach(key => {
-    url.searchParams.delete(key);
-  });
-
-  const hashQueryIndex = url.hash.indexOf('?');
-  if (hashQueryIndex !== -1) {
-    url.hash = url.hash.slice(0, hashQueryIndex);
+  for (const [key, value] of hashParams.entries()) {
+    if (!params.has(key)) params.set(key, value);
   }
 
+  return Object.fromEntries(params.entries());
+}
+
+function cleanWalletAuthCallbackUrl() {
+  const url = new URL(window.location.href);
+  ['accountId', 'account_id', 'publicKey', 'public_key', 'signature', 'callbackUrl', 'state'].forEach(key => {
+    url.searchParams.delete(key);
+  });
+  url.hash = '#investor';
   window.history.replaceState({}, document.title, url.toString());
 }
 
-function syncNearWalletCallback() {
-  const params = getWalletCallbackParams();
-  if (!params.account_id) return;
-  setNearWalletAccount(params.account_id);
-  cleanWalletCallbackUrl();
+function buildWalletUser(verified) {
+  return {
+    role: 'investor',
+    username: verified.account_id,
+    auth_type: 'wallet',
+    account_id: verified.account_id,
+    near_account: verified.account_id,
+    public_key: verified.public_key,
+    network: verified.network,
+  };
 }
 
-function connectNearWallet() {
-  window.location.href = nearWalletLoginUrl();
+async function loginWithNearWallet() {
+  const selector = await getWalletSelector();
+  const wallet = await selector.wallet('my-near-wallet');
+  const challenge = await postJson('/api/wallet-auth/challenge');
+  challenge.callbackUrl = walletCallbackUrl();
+  localStorage.setItem(WALLET_AUTH_CHALLENGE_KEY, JSON.stringify(challenge));
+
+  const nonce = Buffer.from(challenge.nonceBase64, 'base64');
+  if (nonce.length !== 32) {
+    throw new Error(`Challenge nonce must decode to exactly 32 bytes; received ${nonce.length}`);
+  }
+
+  await wallet.signMessage({
+    message: challenge.message,
+    recipient: challenge.recipient,
+    nonce,
+    callbackUrl: challenge.callbackUrl,
+  });
 }
 
-function disconnectNearWallet() {
-  clearNearWalletAccount();
-  renderNearWalletSection();
-  renderNoWalletInvestorDashboard();
+async function verifyWalletCallbackIfPresent() {
+  const params = readWalletCallbackParams();
+  if (!params.signature) return false;
+
+  try {
+    const challengeRaw = localStorage.getItem(WALLET_AUTH_CHALLENGE_KEY);
+    if (!challengeRaw) throw new Error('Wallet challenge was not found. Please try logging in again.');
+    const challenge = JSON.parse(challengeRaw);
+    const verified = await postJson('/api/wallet-auth/verify', {
+      account_id: params.accountId || params.account_id,
+      public_key: params.publicKey || params.public_key,
+      signature: params.signature?.replace(/ /g, '+'),
+      nonce: challenge.nonce,
+      callbackUrl: challenge.callbackUrl || walletCallbackUrl(),
+    });
+
+    if (!verified.token) throw new Error('Wallet verification did not return a token');
+    setAuth(verified.token, buildWalletUser(verified));
+    localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
+    cleanWalletAuthCallbackUrl();
+    return true;
+  } catch (err) {
+    localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
+    cleanWalletAuthCallbackUrl();
+    sessionStorage.setItem('ap_login_error', err.message || 'Wallet login failed');
+    return false;
+  }
 }
 
 // --- Utilities ---
@@ -217,22 +287,30 @@ function route() {
   }
 }
 
-window.addEventListener('hashchange', route);
-window.addEventListener('load', () => {
-  syncNearWalletCallback();
+async function initializeApp() {
+  await verifyWalletCallbackIfPresent();
   if (!location.hash || location.hash === '#') {
     const auth = getAuth();
     location.hash = auth ? (auth.user.role === 'investor' ? '#investor' : '#deals') : '#login';
   } else {
     route();
   }
-});
+}
+
+window.addEventListener('hashchange', route);
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}
 
 // --- Login ---
 
 function showLogin() {
   showView('view-login');
   const el = document.getElementById('view-login');
+  const pendingLoginError = sessionStorage.getItem('ap_login_error');
+  sessionStorage.removeItem('ap_login_error');
   el.innerHTML = `
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-green-400">AgriPartners</h1>
@@ -260,8 +338,22 @@ function showLogin() {
         class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-medium transition">
         Sign In
       </button>
+      <div class="flex items-center gap-3 py-1">
+        <span class="h-px flex-1 bg-slate-700"></span>
+        <span class="text-xs uppercase tracking-wide text-slate-500">or</span>
+        <span class="h-px flex-1 bg-slate-700"></span>
+      </div>
+      <button type="button" id="login-near-wallet"
+        class="w-full bg-slate-100 hover:bg-white text-slate-950 py-2 rounded-lg font-medium transition">
+        Login with NEAR Wallet
+      </button>
     </form>
   `;
+  if (pendingLoginError) {
+    const errEl = document.getElementById('login-error');
+    errEl.textContent = pendingLoginError;
+    errEl.classList.remove('hidden');
+  }
   document.getElementById('login-form').addEventListener('submit', async e => {
     e.preventDefault();
     await handleLogin(
@@ -281,6 +373,7 @@ function showLogin() {
       btn.textContent = '👁';
     }
   });
+  document.getElementById('login-near-wallet').addEventListener('click', handleWalletLogin);
 }
 
 async function handleLogin(username, password) {
@@ -313,10 +406,29 @@ async function handleLogin(username, password) {
   }
 }
 
+async function handleWalletLogin() {
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-near-wallet');
+  errEl.classList.add('hidden');
+  btn.disabled = true;
+  btn.textContent = 'Opening wallet...';
+
+  try {
+    await loginWithNearWallet();
+  } catch (err) {
+    errEl.textContent = err.message || 'Wallet login failed';
+    errEl.classList.remove('hidden');
+    btn.disabled = false;
+    btn.textContent = 'Login with NEAR Wallet';
+  }
+}
+
 function logout() {
   clearAuth();
   location.hash = '#login';
 }
+
+window.logout = logout;
 
 // --- Nav bar ---
 
@@ -324,10 +436,11 @@ function renderNav() {
   const auth = getAuth();
   if (!auth) return '';
   const labels = { farmer: 'Farmer', investor: 'Investor', admin: 'Administrator' };
-  const roleLabel = labels[auth.user.role] || auth.user.role;
+  const roleLabel = isWalletAuth() ? 'Wallet Investor' : (labels[auth.user.role] || auth.user.role);
+  const displayName = isWalletAuth() ? auth.user.account_id : auth.user.username;
   return `
     <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
-      <span class="text-sm text-slate-400">${roleLabel}: <span class="text-slate-200 font-medium">${auth.user.username}</span></span>
+      <span class="text-sm text-slate-400">${roleLabel}: <span class="text-slate-200 font-medium">${escapeHtml(displayName)}</span></span>
       <div class="flex items-center gap-3">
         <a href="#investor" class="text-sm text-slate-400 hover:text-green-400 transition">Investor Portal</a>
         ${auth.user.role === 'admin' ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Dashboard</a>' : ''}
@@ -394,11 +507,12 @@ async function showInvestorPortal() {
   const el = document.getElementById('view-investor');
   const auth = getAuth();
   const connectedWalletAccount = getNearWalletAccount();
+  const signedInLabel = connectedWalletAccount || auth.user.username;
   el.innerHTML = `
     ${renderNav()}
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-green-400 mb-1">Investor Portal</h1>
-      <p class="text-slate-400">Signed in as <span class="text-slate-200 font-medium">${escapeHtml(auth.user.username)}</span></p>
+      <p class="text-slate-400">Signed in as <span class="text-slate-200 font-medium">${escapeHtml(signedInLabel)}</span></p>
     </div>
     <div id="near-wallet-section" class="mb-6"></div>
     <div id="investor-dashboard-content"></div>
@@ -409,7 +523,7 @@ async function showInvestorPortal() {
   if (!connectedWalletAccount) {
     renderInvestorPortalMessage(
       dashboardEl,
-      'Connect your NEAR wallet to view investments linked to your account.'
+      'Investor Portal access requires a signed NEAR wallet session. Use Login with NEAR Wallet on the sign-in screen.'
     );
     return;
   }
@@ -420,20 +534,15 @@ async function showInvestorPortal() {
   `;
 
   try {
-    const res = await fetch(`${API_BASE}/api/me/deals`, { headers: authHeaders() });
+    const res = await fetch(`${API_BASE}/api/investor/deals`, { headers: authHeaders() });
     if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (res.status === 403) {
+      renderInvestorPortalMessage(dashboardEl, 'This session is not authorized for wallet investor data.', 'error');
+      return;
+    }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const deals = await res.json();
-    if (getNearWalletAccount() !== connectedWalletAccount) {
-      renderNoWalletInvestorDashboard();
-      return;
-    }
-    const walletDeals = deals.filter(deal => deal.investor === connectedWalletAccount);
-    const enrichedDeals = await enrichDealsForInvestor(walletDeals);
-    if (getNearWalletAccount() !== connectedWalletAccount) {
-      renderNoWalletInvestorDashboard();
-      return;
-    }
+    const enrichedDeals = await enrichDealsForInvestor(deals);
     renderInvestorDashboard(dashboardEl, enrichedDeals, connectedWalletAccount);
   } catch (e) {
     dashboardEl.querySelector('.spinner')?.remove();
@@ -450,7 +559,7 @@ function renderNoWalletInvestorDashboard() {
   if (!dashboardEl) return;
   renderInvestorPortalMessage(
     dashboardEl,
-    'Connect your NEAR wallet to view investments linked to your account.'
+    'Investor Portal access requires a signed NEAR wallet session. Use Login with NEAR Wallet on the sign-in screen.'
   );
 }
 
@@ -459,13 +568,12 @@ function renderNearWalletSection() {
   if (!el) return;
 
   const accountId = getNearWalletAccount();
-  const connectLabel = accountId ? 'Reconnect NEAR Wallet' : 'Connect NEAR Wallet';
   el.innerHTML = `
     <div class="wallet-panel">
       <div class="wallet-header">
         <div>
           <h2 class="wallet-title">NEAR Wallet</h2>
-          <p class="wallet-note">Wallet integration is currently testnet-only.</p>
+          <p class="wallet-note">Authenticated with NEP-413 wallet signature.</p>
         </div>
         <span class="wallet-network">Network: ${NEAR_WALLET_NETWORK}</span>
       </div>
@@ -475,21 +583,16 @@ function renderNearWalletSection() {
           <span class="wallet-value">${accountId ? escapeHtml(accountId) : 'Not connected'}</span>
         </div>
         <div class="wallet-actions">
-          <button type="button" id="btn-connect-near-wallet" class="wallet-btn wallet-btn-primary">
-            ${connectLabel}
-          </button>
-          <button type="button" id="btn-disconnect-near-wallet" class="wallet-btn" ${accountId ? '' : 'disabled'}>
-            Disconnect Wallet
+          <button type="button" id="btn-wallet-logout" class="wallet-btn" ${accountId ? '' : 'disabled'}>
+            Logout
           </button>
         </div>
       </div>
-      <p class="wallet-helper">Wallet connection is used for identity display only. Funding and withdrawals are not executed through the wallet yet.</p>
-      <p class="wallet-helper">Wallet Phase 2 uses frontend filtering. Backend wallet authorization will be added in a later phase.</p>
+      <p class="wallet-helper">Investor data is loaded through wallet-protected API routes using this session JWT.</p>
     </div>
   `;
 
-  document.getElementById('btn-connect-near-wallet')?.addEventListener('click', connectNearWallet);
-  document.getElementById('btn-disconnect-near-wallet')?.addEventListener('click', disconnectNearWallet);
+  document.getElementById('btn-wallet-logout')?.addEventListener('click', logout);
 }
 
 function renderInvestorPortalMessage(el, message, type = 'info') {
@@ -497,7 +600,6 @@ function renderInvestorPortalMessage(el, message, type = 'info') {
   el.innerHTML = `
     <div class="${isError ? 'bg-red-900 text-red-100 border-red-800' : 'bg-slate-800 text-slate-200 border-slate-700'} border rounded-lg px-4 py-3">
       <p>${escapeHtml(message)}</p>
-      <p class="text-xs ${isError ? 'text-red-200' : 'text-slate-400'} mt-2">Wallet Phase 2 uses frontend filtering. Backend wallet authorization will be added in a later phase.</p>
     </div>
   `;
 }
@@ -506,8 +608,8 @@ async function enrichDealsForInvestor(deals) {
   const headers = authHeaders();
   return Promise.all(deals.map(async deal => {
     const [statusRes, balancesRes] = await Promise.allSettled([
-      fetch(`${API_BASE}/api/deals/${deal.id}/status`, { headers }),
-      fetch(`${API_BASE}/api/deals/${deal.id}/balances`, { headers })
+      fetch(`${API_BASE}/api/investor/deals/${deal.id}/status`, { headers }),
+      fetch(`${API_BASE}/api/investor/deals/${deal.id}/balances`, { headers })
     ]);
     const status = statusRes.status === 'fulfilled' && statusRes.value.ok
       ? await statusRes.value.json() : null;
@@ -543,7 +645,6 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
     dashboard.innerHTML = `
       ${renderInvestorMetrics(metrics)}
       <p class="text-slate-400 mt-6">No investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>
-      <p class="text-xs text-slate-500 mt-2">Wallet Phase 2 uses frontend filtering. Backend wallet authorization will be added in a later phase.</p>
     `;
     el.appendChild(dashboard);
     return;
@@ -551,7 +652,6 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
 
   dashboard.innerHTML = `
     ${renderInvestorMetrics(metrics)}
-    <p class="text-xs text-slate-500 mt-3">Wallet Phase 2 uses frontend filtering. Backend wallet authorization will be added in a later phase.</p>
     <div class="grid gap-4 mt-6">
       ${deals.map(renderInvestorDealCard).join('')}
     </div>
@@ -611,7 +711,6 @@ function renderInvestorDealCard(deal) {
 async function showInvestorDeal(id) {
   showView('view-investor');
   const el = document.getElementById('view-investor');
-  const connectedWalletAccount = getNearWalletAccount();
   el.innerHTML = `
     ${renderNav()}
     <a href="#investor" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Investor Portal</a>
@@ -620,10 +719,6 @@ async function showInvestorDeal(id) {
 
   try {
     const { deal, status, balances, events } = await fetchInvestorDealBundle(id);
-    if (!connectedWalletAccount || deal.investor !== connectedWalletAccount) {
-      renderInvestorDealAccessMessage(el);
-      return;
-    }
     renderInvestorDealDetail(el, deal, status, balances, events);
   } catch (e) {
     el.querySelector('.spinner')?.remove();
@@ -634,14 +729,21 @@ async function showInvestorDeal(id) {
 async function fetchInvestorDealBundle(id) {
   const headers = authHeaders();
   const [dealRes, statusRes, balancesRes, eventsRes] = await Promise.allSettled([
-    fetch(`${API_BASE}/api/deals/${id}`, { headers }),
-    fetch(`${API_BASE}/api/deals/${id}/status`, { headers }),
-    fetch(`${API_BASE}/api/deals/${id}/balances`, { headers }),
-    fetch(`${API_BASE}/api/deals/${id}/events`, { headers })
+    fetch(`${API_BASE}/api/investor/deals/${id}`, { headers }),
+    fetch(`${API_BASE}/api/investor/deals/${id}/status`, { headers }),
+    fetch(`${API_BASE}/api/investor/deals/${id}/balances`, { headers }),
+    fetch(`${API_BASE}/api/investor/deals/${id}/events`, { headers })
   ]);
 
   if (dealRes.status === 'rejected' || !dealRes.value.ok) {
-    throw new Error(dealRes.value?.status === 404 ? 'Deal not found' : 'Backend unavailable');
+    const status = dealRes.value?.status;
+    if (status === 401) {
+      clearAuth();
+      location.hash = '#login';
+      throw new Error('Wallet session expired');
+    }
+    if (status === 403) throw new Error('This deal is not linked to the connected wallet account');
+    throw new Error(status === 404 ? 'Deal not found' : 'Backend unavailable');
   }
 
   return {
@@ -659,7 +761,6 @@ function renderInvestorDealAccessMessage(el) {
     <a href="#investor" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Investor Portal</a>
     <div class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-200">
       <p>This deal is not linked to the connected wallet account.</p>
-      <p class="text-xs text-slate-400 mt-2">Wallet Phase 2 uses frontend filtering. Backend wallet authorization will be added in a later phase.</p>
     </div>
   `;
 }
@@ -737,10 +838,9 @@ async function withdrawInvestorFromPortal(deal) {
   showInvestorActionResult('success', 'Investor withdrawal submitted...');
 
   try {
-    const res = await fetch(`${API_BASE}/api/admin/deals/${deal.id}/withdraw-as`, {
+    const res = await fetch(`${API_BASE}/api/investor/deals/${deal.id}/withdraw`, {
       method: 'POST',
       headers: jsonAuthHeaders(),
-      body: JSON.stringify({ account_id: deal.investor })
     });
     const data = await res.json().catch(() => ({}));
     if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
