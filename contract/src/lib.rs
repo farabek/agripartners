@@ -1,5 +1,5 @@
-use near_sdk::{near, env, AccountId, Promise, require, NearToken};
 use near_sdk::json_types::U128;
+use near_sdk::{env, near, require, AccountId, NearToken, Promise};
 
 #[derive(Clone, PartialEq, Debug)]
 #[near(serializers = [json, borsh])]
@@ -16,6 +16,7 @@ pub enum ContractStatus {
 pub struct ContractParams {
     pub farmer: AccountId,
     pub investor: AccountId,
+    pub investor_withdraw_signer: AccountId,
     pub admin: AccountId,
     pub platform: AccountId,
     pub deal_type: String,
@@ -33,6 +34,7 @@ pub struct ContractParams {
 pub struct AgriPartnersContract {
     pub farmer: AccountId,
     pub investor: AccountId,
+    pub investor_withdraw_signer: AccountId,
     pub admin: AccountId,
     pub platform: AccountId,
     pub deal_type: String,
@@ -58,6 +60,7 @@ impl Default for AgriPartnersContract {
         Self {
             farmer: placeholder.clone(),
             investor: placeholder.clone(),
+            investor_withdraw_signer: placeholder.clone(),
             admin: placeholder.clone(),
             platform: placeholder,
             deal_type: String::new(),
@@ -85,6 +88,7 @@ impl AgriPartnersContract {
     pub fn new(
         farmer: AccountId,
         investor: AccountId,
+        investor_withdraw_signer: AccountId,
         admin: AccountId,
         platform: AccountId,
         deal_type: String,
@@ -111,6 +115,7 @@ impl AgriPartnersContract {
         Self {
             farmer,
             investor,
+            investor_withdraw_signer,
             admin,
             platform,
             deal_type,
@@ -155,8 +160,7 @@ impl AgriPartnersContract {
             "Only admin can start cycle"
         );
         require!(
-            self.status == ContractStatus::Funded
-                || self.status == ContractStatus::CycleSettlement,
+            self.status == ContractStatus::Funded || self.status == ContractStatus::CycleSettlement,
             "Contract must be in Funded or CycleSettlement status"
         );
         self.current_cycle += 1;
@@ -218,25 +222,25 @@ impl AgriPartnersContract {
 
     pub fn withdraw(&mut self) -> Promise {
         let caller = env::predecessor_account_id();
-        let amount = if caller == self.farmer {
+        let (recipient, amount) = if caller == self.farmer {
             let amt = self.farmer_available;
             require!(amt > 0, "No balance to withdraw");
             self.farmer_available = 0;
-            amt
-        } else if caller == self.investor {
+            (self.farmer.clone(), amt)
+        } else if caller == self.investor || caller == self.investor_withdraw_signer {
             let amt = self.investor_available;
             require!(amt > 0, "No balance to withdraw");
             self.investor_available = 0;
-            amt
+            (self.investor.clone(), amt)
         } else if caller == self.platform {
             let amt = self.platform_available;
             require!(amt > 0, "No balance to withdraw");
             self.platform_available = 0;
-            amt
+            (self.platform.clone(), amt)
         } else {
-            env::panic_str("Unauthorized: only farmer, investor, or platform can withdraw");
+            env::panic_str("Unauthorized: only farmer, investor, platform, or investor withdraw signer can withdraw");
         };
-        Promise::new(caller).transfer(NearToken::from_yoctonear(amount))
+        Promise::new(recipient).transfer(NearToken::from_yoctonear(amount))
     }
 
     pub fn get_status(&self) -> (ContractStatus, u8) {
@@ -256,6 +260,7 @@ impl AgriPartnersContract {
         ContractParams {
             farmer: self.farmer.clone(),
             investor: self.investor.clone(),
+            investor_withdraw_signer: self.investor_withdraw_signer.clone(),
             admin: self.admin.clone(),
             platform: self.platform.clone(),
             deal_type: self.deal_type.clone(),
@@ -274,7 +279,7 @@ impl AgriPartnersContract {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use near_sdk::test_utils::{accounts, VMContextBuilder};
+    use near_sdk::test_utils::{accounts, get_created_receipts, VMContextBuilder};
     use near_sdk::testing_env;
 
     const ONE_NEAR: u128 = 1_000_000_000_000_000_000_000_000;
@@ -284,20 +289,25 @@ mod tests {
     fn setup_context(predecessor: AccountId) {
         let mut ctx = VMContextBuilder::new();
         ctx.predecessor_account_id(predecessor)
-           .account_balance(NearToken::from_near(10_000));
+            .account_balance(NearToken::from_near(10_000));
         testing_env!(ctx.build());
     }
 
     fn new_contract() -> AgriPartnersContract {
         AgriPartnersContract::new(
-            accounts(0),          // farmer
-            accounts(1),          // investor
-            accounts(2),          // admin
-            accounts(3),          // platform
+            accounts(0), // farmer
+            accounts(1), // investor
+            accounts(4), // investor withdraw signer
+            accounts(2), // admin
+            accounts(3), // platform
             "fidlot".to_string(),
             U128(INVESTMENT),
-            60, 40, 44, 20,       // splits, escrow, fee
-            150, 7,               // cycle_duration_days, total_cycles
+            60,
+            40,
+            44,
+            20, // splits, escrow, fee
+            150,
+            7, // cycle_duration_days, total_cycles
             U128(CAPITAL_RETURN),
         )
     }
@@ -314,6 +324,7 @@ mod tests {
         let c = new_contract();
         assert_eq!(c.farmer, accounts(0));
         assert_eq!(c.investor, accounts(1));
+        assert_eq!(c.investor_withdraw_signer, accounts(4));
         assert_eq!(c.admin, accounts(2));
         assert_eq!(c.platform, accounts(3));
         assert_eq!(c.deal_type, "fidlot");
@@ -340,7 +351,7 @@ mod tests {
 
         let mut ctx = VMContextBuilder::new();
         ctx.predecessor_account_id(accounts(1))
-           .attached_deposit(NearToken::from_yoctonear(INVESTMENT));
+            .attached_deposit(NearToken::from_yoctonear(INVESTMENT));
         testing_env!(ctx.build());
 
         c.fund();
@@ -355,7 +366,7 @@ mod tests {
 
         let mut ctx = VMContextBuilder::new();
         ctx.predecessor_account_id(accounts(1))
-           .attached_deposit(NearToken::from_yoctonear(INVESTMENT - 1));
+            .attached_deposit(NearToken::from_yoctonear(INVESTMENT - 1));
         testing_env!(ctx.build());
 
         c.fund();
@@ -369,7 +380,7 @@ mod tests {
 
         let mut ctx = VMContextBuilder::new();
         ctx.predecessor_account_id(accounts(0)) // farmer, not investor
-           .attached_deposit(NearToken::from_yoctonear(INVESTMENT));
+            .attached_deposit(NearToken::from_yoctonear(INVESTMENT));
         testing_env!(ctx.build());
 
         c.fund();
@@ -378,7 +389,7 @@ mod tests {
     fn fund_contract(c: &mut AgriPartnersContract) {
         let mut ctx = VMContextBuilder::new();
         ctx.predecessor_account_id(accounts(1))
-           .attached_deposit(NearToken::from_yoctonear(INVESTMENT));
+            .attached_deposit(NearToken::from_yoctonear(INVESTMENT));
         testing_env!(ctx.build());
         c.fund();
     }
@@ -420,7 +431,7 @@ mod tests {
     fn report_cycle(c: &mut AgriPartnersContract, profit: u128, losses: u128) {
         let mut ctx = VMContextBuilder::new();
         ctx.predecessor_account_id(accounts(2)) // admin
-           .attached_deposit(NearToken::from_yoctonear(profit));
+            .attached_deposit(NearToken::from_yoctonear(profit));
         testing_env!(ctx.build());
         c.report_cycle(U128(losses));
     }
@@ -504,7 +515,10 @@ mod tests {
         let investor_net = investor_gross - platform_fee;
 
         assert_eq!(c.escrow_pool, escrow_after_c1 + escrow_added - loss);
-        assert_eq!(c.investor_available, investor_after_c1 + investor_net + loss);
+        assert_eq!(
+            c.investor_available,
+            investor_after_c1 + investor_net + loss
+        );
         assert_eq!(c.status, ContractStatus::CycleSettlement);
     }
 
@@ -542,10 +556,16 @@ mod tests {
 
         assert_eq!(c.status, ContractStatus::Completed);
         assert_eq!(c.escrow_pool, 0); // returned to farmer
-        // farmer: 7x net profit + 7x escrow returned
-        assert_eq!(c.farmer_available, farmer_net_per_cycle * 7 + escrow_per_cycle * 7);
+                                      // farmer: 7x net profit + 7x escrow returned
+        assert_eq!(
+            c.farmer_available,
+            farmer_net_per_cycle * 7 + escrow_per_cycle * 7
+        );
         // investor: 7x net profit + capital return
-        assert_eq!(c.investor_available, investor_net_per_cycle * 7 + CAPITAL_RETURN);
+        assert_eq!(
+            c.investor_available,
+            investor_net_per_cycle * 7 + CAPITAL_RETURN
+        );
         assert_eq!(c.platform_available, platform_fee * 7);
     }
 
@@ -583,6 +603,28 @@ mod tests {
         setup_context(accounts(1)); // investor withdraws
         c.withdraw();
         assert_eq!(c.investor_available, 0);
+    }
+
+    #[test]
+    fn test_withdraw_investor_signer_zeroes_investor_balance() {
+        setup_context(accounts(0));
+        let mut c = new_contract();
+        fund_contract(&mut c);
+        start_cycle(&mut c);
+        report_cycle(&mut c, PROFIT, 0);
+
+        let investor_gross = PROFIT * 40 / 100;
+        let platform_fee = investor_gross * 20 / 100;
+        let expected = investor_gross - platform_fee;
+        assert_eq!(c.investor_available, expected);
+
+        setup_context(accounts(4)); // backend investor withdraw signer
+        c.withdraw();
+        assert_eq!(c.investor_available, 0);
+
+        let receipts = get_created_receipts();
+        assert_eq!(receipts.len(), 1);
+        assert_eq!(receipts[0].receiver_id, accounts(1));
     }
 
     #[test]
@@ -633,6 +675,7 @@ mod tests {
         let c = new_contract();
         let p = c.get_params();
         assert_eq!(p.deal_type, "fidlot");
+        assert_eq!(p.investor_withdraw_signer, accounts(4));
         assert_eq!(p.farmer_split_pct, 60);
         assert_eq!(p.investor_split_pct, 40);
         assert_eq!(p.escrow_pct, 44);

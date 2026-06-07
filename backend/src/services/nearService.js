@@ -31,6 +31,7 @@ async function deployContract(params) {
   const initArgs = Buffer.from(JSON.stringify({
     farmer: params.farmer,
     investor: params.investor,
+    investor_withdraw_signer: params.investor_withdraw_signer,
     admin: adminAccount,
     platform: adminAccount,
     deal_type: params.deal_type,

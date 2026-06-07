@@ -2,6 +2,7 @@ process.env.JWT_SECRET = 'test-jwt-secret';
 process.env.API_KEY = 'test-api-key';
 process.env.NEAR_ADMIN_ACCOUNT = 'agripartners.testnet';
 process.env.NEAR_ADMIN_PRIVATE_KEY = 'ed25519:test';
+process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID = 'investor-ap.testnet';
 
 jest.mock('../src/services/dealService');
 jest.mock('../src/services/nearService');
@@ -32,7 +33,9 @@ const mockDeal = {
 };
 
 beforeEach(() => {
+  jest.clearAllMocks();
   process.env.NODE_ENV = 'test';
+  process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID = 'investor-ap.testnet';
   dealService.getDealById.mockResolvedValue(mockDeal);
   dealService.createDeal.mockResolvedValue(mockDeal);
   dealService.addEvent.mockResolvedValue(undefined);
@@ -73,9 +76,33 @@ test('POST /api/admin/deals with admin token deploys contract and saves to DB', 
       capital_return_near: '20400000000000000000000000'
     });
   expect(res.status).toBe(201);
-  expect(nearService.deployContract).toHaveBeenCalled();
+  expect(nearService.deployContract).toHaveBeenCalledWith(expect.objectContaining({
+    investor: 'investor.testnet',
+    investor_withdraw_signer: 'investor-ap.testnet',
+  }));
   expect(dealService.createDeal).toHaveBeenCalled();
   expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'deployed' }));
+});
+
+test('POST /api/admin/deals returns configuration error when investor withdraw signer is missing', async () => {
+  delete process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID;
+
+  const res = await request(app)
+    .post('/api/admin/deals')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({
+      deal_type: 'fidlot',
+      farmer: 'farmer.testnet',
+      investor: 'investor.testnet',
+      investment_amount: '50000000000000000000000000',
+      total_cycles: 7,
+      cycle_duration_days: 150,
+      capital_return_near: '20400000000000000000000000'
+    });
+
+  expect(res.status).toBe(500);
+  expect(res.body.error).toBe('NEAR_INVESTOR_SIGNER_ACCOUNT_ID is required for contract investor withdraw signer');
+  expect(nearService.deployContract).not.toHaveBeenCalled();
 });
 
 test('POST /api/admin/deals returns 400 when required fields missing', async () => {

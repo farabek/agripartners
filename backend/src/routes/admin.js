@@ -19,6 +19,14 @@ function validateDealAccount(deal, accountId, allowedFields) {
   return null;
 }
 
+function getInvestorWithdrawSignerAccountId() {
+  const accountId = process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID;
+  if (!accountId) {
+    throw new Error('NEAR_INVESTOR_SIGNER_ACCOUNT_ID is required for contract investor withdraw signer');
+  }
+  return accountId;
+}
+
 router.post('/deals', async (req, res) => {
   const { deal_type, farmer, investor, investment_amount, farmer_split_pct,
     investor_split_pct, escrow_pct, performance_fee_pct,
@@ -29,8 +37,10 @@ router.post('/deals', async (req, res) => {
   }
 
   try {
+    const investorWithdrawSigner = getInvestorWithdrawSignerAccountId();
     const { contractId, txHash } = await nearService.deployContract({
       deal_type, farmer, investor, investment_amount,
+      investor_withdraw_signer: investorWithdrawSigner,
       farmer_split_pct: farmer_split_pct ?? 60,
       investor_split_pct: investor_split_pct ?? 40,
       escrow_pct: escrow_pct ?? 44,
