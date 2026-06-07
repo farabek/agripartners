@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const dealService = require('../services/dealService');
+const investorProfileService = require('../services/investorProfileService');
 const nearService = require('../services/nearService');
 
 async function getInvestorDeal(req, res) {
@@ -23,6 +24,25 @@ router.get('/me', (req, res) => {
     public_key: req.wallet.public_key,
     network: req.wallet.network,
   });
+});
+
+router.get('/profile', async (req, res) => {
+  try {
+    const profile = await investorProfileService.getOrCreateInvestorProfile(req.wallet.account_id);
+    res.json(profile);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put('/profile', async (req, res) => {
+  try {
+    const profile = await investorProfileService.updateInvestorProfile(req.wallet.account_id, req.body);
+    res.json(profile);
+  } catch (err) {
+    const status = /cannot be edited|must be|not a valid|payload must/i.test(err.message) ? 400 : 500;
+    res.status(status).json({ error: err.message });
+  }
 });
 
 router.get('/deals', async (req, res) => {

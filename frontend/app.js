@@ -515,18 +515,23 @@ async function showInvestorPortal() {
       <p class="text-slate-400">Signed in as <span class="text-slate-200 font-medium">${escapeHtml(signedInLabel)}</span></p>
     </div>
     <div id="near-wallet-section" class="mb-6"></div>
+    <div id="investor-profile-section" class="mb-6"></div>
     <div id="investor-dashboard-content"></div>
   `;
   renderNearWalletSection();
+  const profileEl = document.getElementById('investor-profile-section');
   const dashboardEl = document.getElementById('investor-dashboard-content');
 
   if (!connectedWalletAccount) {
+    renderInvestorProfileLoginMessage(profileEl);
     renderInvestorPortalMessage(
       dashboardEl,
       'Investor Portal access requires a signed NEAR wallet session. Use Login with NEAR Wallet on the sign-in screen.'
     );
     return;
   }
+
+  loadInvestorProfile();
 
   dashboardEl.innerHTML = `
     <h2 class="text-xl font-semibold mb-4">My Investments</h2>
@@ -593,6 +598,169 @@ function renderNearWalletSection() {
   `;
 
   document.getElementById('btn-wallet-logout')?.addEventListener('click', logout);
+}
+
+function renderInvestorProfileLoginMessage(el) {
+  if (!el) return;
+  el.innerHTML = `
+    <div class="wallet-panel">
+      <h2 class="wallet-title">Investor Profile</h2>
+      <p class="wallet-helper">Investor Profile requires a signed NEAR wallet session.</p>
+    </div>
+  `;
+}
+
+function renderInvestorProfileLoading(el) {
+  el.innerHTML = `
+    <div class="wallet-panel">
+      <div class="wallet-header">
+        <div>
+          <h2 class="wallet-title">Investor Profile</h2>
+          <p class="wallet-note">Loading wallet-linked profile...</p>
+        </div>
+      </div>
+      <div class="spinner"></div>
+    </div>
+  `;
+}
+
+async function loadInvestorProfile() {
+  const el = document.getElementById('investor-profile-section');
+  if (!el) return;
+  renderInvestorProfileLoading(el);
+
+  try {
+    const res = await fetch(`${API_BASE}/api/investor/profile`, { headers: authHeaders() });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    renderInvestorProfileForm(el, data);
+  } catch (err) {
+    renderInvestorProfileError(el, err.message || 'Profile unavailable');
+  }
+}
+
+function profileOption(value, label, selectedValue) {
+  return `<option value="${value}" ${selectedValue === value ? 'selected' : ''}>${label}</option>`;
+}
+
+function renderInvestorProfileForm(el, profile, message = null, type = 'success') {
+  const accountId = profile.account_id || getNearWalletAccount();
+  el.innerHTML = `
+    <form id="investor-profile-form" class="wallet-panel">
+      <div class="wallet-header">
+        <div>
+          <h2 class="wallet-title">Investor Profile</h2>
+          <p class="wallet-note">Linked to your authenticated wallet account.</p>
+        </div>
+        <span class="wallet-network">KYC: ${escapeHtml(profile.kyc_status || 'not_started')}</span>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Wallet account</label>
+          <input type="text" value="${escapeHtml(accountId)}" readonly
+            class="w-full bg-slate-900 text-slate-300 px-3 py-2 rounded-lg border border-slate-700 font-mono" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">KYC status</label>
+          <input type="text" value="${escapeHtml(profile.kyc_status || 'not_started')}" readonly
+            class="w-full bg-slate-900 text-slate-300 px-3 py-2 rounded-lg border border-slate-700" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Display name</label>
+          <input id="profile-display-name" type="text" maxlength="120" value="${escapeHtml(profile.display_name || '')}"
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Country</label>
+          <input id="profile-country" type="text" maxlength="80" value="${escapeHtml(profile.country || '')}"
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Investor type</label>
+          <select id="profile-investor-type"
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500">
+            <option value="">Not specified</option>
+            ${profileOption('individual', 'Individual', profile.investor_type)}
+            ${profileOption('company', 'Company', profile.investor_type)}
+            ${profileOption('fund', 'Fund', profile.investor_type)}
+            ${profileOption('other', 'Other', profile.investor_type)}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Risk profile</label>
+          <select id="profile-risk-profile"
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500">
+            <option value="">Not specified</option>
+            ${profileOption('conservative', 'Conservative', profile.risk_profile)}
+            ${profileOption('balanced', 'Balanced', profile.risk_profile)}
+            ${profileOption('growth', 'Growth', profile.risk_profile)}
+            ${profileOption('high_risk', 'High risk', profile.risk_profile)}
+          </select>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-700">
+        <div id="profile-save-state" class="${message ? '' : 'hidden'} text-sm ${type === 'error' ? 'text-red-200' : 'text-green-200'}">
+          ${message ? escapeHtml(message) : ''}
+        </div>
+        <button type="submit" id="btn-save-investor-profile" class="wallet-btn wallet-btn-primary ml-auto">
+          Save Profile
+        </button>
+      </div>
+    </form>
+  `;
+
+  document.getElementById('investor-profile-form')?.addEventListener('submit', saveInvestorProfile);
+}
+
+function renderInvestorProfileError(el, message) {
+  el.innerHTML = `
+    <div class="wallet-panel">
+      <h2 class="wallet-title">Investor Profile</h2>
+      <div class="bg-red-900 text-red-100 border border-red-800 rounded-lg px-4 py-3 mt-3">
+        ${escapeHtml(message)}
+      </div>
+    </div>
+  `;
+}
+
+async function saveInvestorProfile(event) {
+  event.preventDefault();
+  const btn = document.getElementById('btn-save-investor-profile');
+  const stateEl = document.getElementById('profile-save-state');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+  if (stateEl) {
+    stateEl.className = 'text-sm text-slate-300';
+    stateEl.textContent = 'Saving profile...';
+  }
+
+  const payload = {
+    display_name: document.getElementById('profile-display-name')?.value || '',
+    country: document.getElementById('profile-country')?.value || '',
+    investor_type: document.getElementById('profile-investor-type')?.value || '',
+    risk_profile: document.getElementById('profile-risk-profile')?.value || '',
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/api/investor/profile`, {
+      method: 'PUT',
+      headers: jsonAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    renderInvestorProfileForm(document.getElementById('investor-profile-section'), data, 'Profile saved.');
+  } catch (err) {
+    if (stateEl) {
+      stateEl.className = 'text-sm text-red-200';
+      stateEl.textContent = err.message || 'Profile save failed';
+    }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Profile'; }
+  }
 }
 
 function renderInvestorPortalMessage(el, message, type = 'info') {

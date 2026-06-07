@@ -27,3 +27,15 @@ CREATE TABLE IF NOT EXISTS events (
   tx_hash     TEXT,
   created_at  TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS investor_profiles (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  account_id    TEXT NOT NULL UNIQUE,
+  display_name  TEXT,
+  country       TEXT,
+  investor_type TEXT,
+  risk_profile  TEXT,
+  kyc_status    TEXT NOT NULL DEFAULT 'not_started',
+  created_at    TEXT NOT NULL,
+  updated_at    TEXT NOT NULL
+);
