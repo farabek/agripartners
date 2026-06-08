@@ -427,6 +427,24 @@ function showLogin() {
         class="w-full bg-slate-100 hover:bg-white text-slate-950 py-2 rounded-lg font-medium transition">
         Login with NEAR Wallet
       </button>
+      <div class="bg-slate-900 border border-slate-700 rounded-lg p-4 space-y-3">
+        <div>
+          <h2 class="text-sm font-semibold text-slate-100">New to AgriPartners?</h2>
+          <p class="text-sm text-slate-400 mt-1">
+            Create or import a NEAR testnet wallet first, then return here and click Login with NEAR Wallet.
+          </p>
+        </div>
+        <div class="grid gap-2 sm:grid-cols-2">
+          <a href="https://testnet.mynearwallet.com/create" target="_blank" rel="noopener noreferrer"
+            class="text-center bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition">
+            Create NEAR Testnet Wallet
+          </a>
+          <a href="https://testnet.mynearwallet.com/recover-account" target="_blank" rel="noopener noreferrer"
+            class="text-center bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition">
+            Import Existing Wallet
+          </a>
+        </div>
+      </div>
     </form>
   `;
   if (pendingLoginError) {
