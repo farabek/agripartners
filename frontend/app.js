@@ -243,7 +243,7 @@ function statusBadge(status) {
 // --- Router ---
 
 function showView(viewId) {
-  ['view-login', 'view-list', 'view-detail', 'view-investor'].forEach(id => {
+  ['view-login', 'view-list', 'view-detail', 'view-investor', 'view-farmer'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   document.getElementById(viewId).classList.remove('hidden');
@@ -261,6 +261,17 @@ function route() {
 
   if (!auth) {
     location.hash = '#login';
+    return;
+  }
+
+  const farmerDeal = hash.match(/^#farmer\/deals\/(\d+)$/);
+  if (farmerDeal) {
+    showFarmerDeal(farmerDeal[1]);
+    return;
+  }
+
+  if (hash === '#farmer') {
+    showFarmerPortal();
     return;
   }
 
@@ -436,13 +447,14 @@ function renderNav() {
   const auth = getAuth();
   if (!auth) return '';
   const labels = { farmer: 'Farmer', investor: 'Investor', admin: 'Administrator' };
-  const roleLabel = isWalletAuth() ? 'Wallet Investor' : (labels[auth.user.role] || auth.user.role);
+  const roleLabel = isWalletAuth() ? 'Wallet Account' : (labels[auth.user.role] || auth.user.role);
   const displayName = isWalletAuth() ? auth.user.account_id : auth.user.username;
   return `
     <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
       <span class="text-sm text-slate-400">${roleLabel}: <span class="text-slate-200 font-medium">${escapeHtml(displayName)}</span></span>
       <div class="flex items-center gap-3">
         <a href="#investor" class="text-sm text-slate-400 hover:text-green-400 transition">Investor Portal</a>
+        <a href="#farmer" class="text-sm text-slate-400 hover:text-green-400 transition">Farmer Portal</a>
         ${auth.user.role === 'admin' ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Dashboard</a>' : ''}
         <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
       </div>
@@ -461,6 +473,7 @@ async function showDeals() {
     <p class="text-slate-400 mb-6">Agricultural investments on NEAR Protocol</p>
     <div class="mb-6">
       <a href="#investor" class="inline-flex bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open Investor Portal</a>
+      <a href="#farmer" class="inline-flex bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition ml-2">Open Farmer Portal</a>
     </div>
     <div class="spinner"></div>
   `;
@@ -498,6 +511,260 @@ function renderDealCard(d) {
       <a href="#deals/${d.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open →</a>
     </div>
   `;
+}
+
+// --- Farmer Portal ---
+
+async function fetchFarmerJson(path, options = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      ...(options.body ? jsonAuthHeaders() : authHeaders()),
+      ...(options.headers || {}),
+    },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401) {
+    clearAuth();
+    location.hash = '#login';
+    throw new Error('Wallet session expired');
+  }
+  if (res.status === 403 || res.status === 404) {
+    throw new Error(data.error || 'Farmer deal not found');
+  }
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+async function showFarmerPortal() {
+  showView('view-farmer');
+  const el = document.getElementById('view-farmer');
+  const connectedWalletAccount = getNearWalletAccount();
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-green-400 mb-1">Farmer Portal</h1>
+      <p class="text-slate-400">Wallet: <span class="text-slate-200 font-medium">${escapeHtml(connectedWalletAccount || 'Not connected')}</span></p>
+    </div>
+    <div id="farmer-dashboard-content">
+      <h2 class="text-xl font-semibold mb-4">Active Deals</h2>
+      <div class="spinner"></div>
+    </div>
+  `;
+
+  const contentEl = document.getElementById('farmer-dashboard-content');
+  if (!connectedWalletAccount) {
+    contentEl.innerHTML = `
+      <div class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-200">
+        Farmer Portal access requires a signed NEAR wallet session.
+      </div>
+    `;
+    return;
+  }
+
+  try {
+    const data = await fetchFarmerJson('/api/farmer/deals');
+    renderFarmerDashboard(contentEl, data.deals || [], data.farmer);
+  } catch (err) {
+    contentEl.querySelector('.spinner')?.remove();
+    contentEl.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Farmer Portal unavailable: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function renderFarmerDashboard(el, deals, farmer) {
+  el.querySelector('.spinner')?.remove();
+  if (deals.length === 0) {
+    el.innerHTML = `
+      <h2 class="text-xl font-semibold mb-4">Active Deals</h2>
+      <p class="text-slate-400">No farmer deals found for wallet: <span class="font-mono text-slate-200">${escapeHtml(farmer)}</span></p>
+    `;
+    return;
+  }
+
+  el.innerHTML = `
+    <h2 class="text-xl font-semibold mb-4">Active Deals</h2>
+    <div class="grid gap-4">
+      ${deals.map(renderFarmerDealCard).join('')}
+    </div>
+  `;
+}
+
+function renderFarmerDealCard(deal) {
+  return `
+    <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="space-y-1 min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">Deal #${deal.id}</span>
+          ${statusBadge(deal.status)}
+          <span class="text-xs text-slate-500">Cycle ${deal.activeCycleId ?? 'none'}</span>
+        </div>
+        <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${escapeHtml(formatAddress(deal.investor))}</span></p>
+        <p class="text-sm text-slate-400">Amount: <span class="text-slate-100 font-mono">${yoctoToNear(deal.amount || deal.investment_amount)}</span></p>
+      </div>
+      <a href="#farmer/deals/${deal.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open deal</a>
+    </div>
+  `;
+}
+
+async function showFarmerDeal(id) {
+  showView('view-farmer');
+  const el = document.getElementById('view-farmer');
+  el.innerHTML = `
+    ${renderNav()}
+    <a href="#farmer" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Farmer Portal</a>
+    <div class="spinner"></div>
+  `;
+
+  try {
+    const [dealData, cyclesData] = await Promise.all([
+      fetchFarmerJson(`/api/farmer/deals/${id}`),
+      fetchFarmerJson(`/api/farmer/deals/${id}/cycles`),
+    ]);
+    renderFarmerDealDetail(el, dealData.deal, cyclesData.cycles || []);
+  } catch (err) {
+    el.querySelector('.spinner')?.remove();
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Deal unavailable: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function renderFarmerDealDetail(el, deal, cycles) {
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <a href="#farmer" class="text-slate-400 hover:text-white text-sm">Back to Farmer Portal</a>
+      <span class="text-slate-600">|</span>
+      <span class="font-semibold">Deal #${deal.id}</span>
+      ${statusBadge(deal.status)}
+      <button id="btn-farmer-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-6">
+      <div class="bg-slate-800 rounded-xl p-5 space-y-2">
+        ${renderFarmerDealParams(deal)}
+      </div>
+      <div class="bg-slate-800 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Actions</h3>
+        <p class="text-xs text-slate-400 mb-4">Confirm received funding and submit text reports for active cycles.</p>
+        <div id="farmer-action-result" class="hidden rounded-lg px-4 py-3 text-sm"></div>
+      </div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycles</h3>
+      <div id="farmer-cycles-list">${renderFarmerCycles(deal.id, cycles)}</div>
+    </div>
+  `;
+
+  document.getElementById('btn-farmer-refresh').addEventListener('click', () => showFarmerDeal(deal.id));
+  bindFarmerCycleActions(deal.id);
+}
+
+function renderFarmerDealParams(deal) {
+  const rows = [
+    ['Farmer', deal.farmer],
+    ['Investor', deal.investor],
+    ['Amount', yoctoToNear(deal.amount || deal.investment_amount)],
+    ['Status', deal.status],
+    ['Active Cycle', deal.activeCycleId ?? 'none'],
+    ['Contract', deal.contract_address],
+  ];
+  return rows.map(([k, v]) => `
+    <div class="flex justify-between text-sm gap-3">
+      <span class="text-slate-400 shrink-0">${k}</span>
+      <span class="text-slate-100 font-mono text-right break-all">${escapeHtml(v)}</span>
+    </div>
+  `).join('');
+}
+
+function renderFarmerCycles(dealId, cycles) {
+  if (!cycles.length) return '<p class="text-slate-500 text-sm">No cycles found yet</p>';
+  return cycles.map((cycle) => `
+    <div class="farmer-cycle-row">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-2 mb-2">
+          <span class="font-semibold text-slate-100">Cycle #${cycle.id}</span>
+          <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(cycle.status)}</span>
+        </div>
+        <p class="text-sm text-slate-400">Funding received: <span class="text-slate-200">${cycle.fundingReceived ? 'Confirmed' : 'Not confirmed'}</span></p>
+        <p class="text-sm text-slate-400">Report: <span class="text-slate-200">${cycle.reportStatus === 'submitted' ? 'Submitted' : 'Not submitted'}</span></p>
+        ${cycle.report ? `<p class="text-xs text-slate-500 mt-1">${escapeHtml(cycle.report.title || '')}</p>` : ''}
+      </div>
+      <div class="farmer-cycle-actions">
+        <button type="button" class="admin-action-btn farmer-confirm-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${cycle.fundingReceived ? 'disabled' : ''}>Confirm funding received</button>
+        <button type="button" class="admin-action-btn farmer-report-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}">Create report</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function bindFarmerCycleActions(dealId) {
+  document.querySelectorAll('.farmer-confirm-btn').forEach((btn) => {
+    btn.addEventListener('click', () => confirmFarmerFunding(btn.dataset.dealId, btn.dataset.cycleId));
+  });
+  document.querySelectorAll('.farmer-report-btn').forEach((btn) => {
+    btn.addEventListener('click', () => showFarmerReportForm(dealId, btn.dataset.cycleId));
+  });
+}
+
+function showFarmerActionResult(type, message) {
+  const el = document.getElementById('farmer-action-result');
+  if (!el) return;
+  el.className = `${type === 'success' ? 'bg-green-900 text-green-100' : 'bg-red-900 text-red-100'} rounded-lg px-4 py-3 text-sm`;
+  el.textContent = message;
+  el.classList.remove('hidden');
+}
+
+async function confirmFarmerFunding(dealId, cycleId) {
+  try {
+    await fetchFarmerJson(`/api/farmer/deals/${dealId}/confirm-funding`, {
+      method: 'POST',
+      body: JSON.stringify({ cycleId: Number(cycleId) }),
+    });
+    showFarmerActionResult('success', 'Funding receipt confirmed');
+    await showFarmerDeal(dealId);
+  } catch (err) {
+    showFarmerActionResult('error', `Confirmation failed: ${err.message}`);
+  }
+}
+
+function showFarmerReportForm(dealId, cycleId) {
+  const el = document.getElementById('farmer-action-result');
+  if (!el) return;
+  el.className = 'bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-sm';
+  el.innerHTML = `
+    <form id="farmer-report-form" class="space-y-3">
+      <div class="font-semibold text-slate-100">Cycle #${escapeHtml(cycleId)} report</div>
+      <input id="farmer-report-title" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" placeholder="Report title" />
+      <textarea id="farmer-report-description" rows="4" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" placeholder="Description"></textarea>
+      <input id="farmer-report-amount" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" placeholder="Amount used" />
+      <input id="farmer-report-evidence" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" placeholder="Evidence URL" />
+      <button type="submit" class="admin-action-btn action-fund w-full">Submit report</button>
+    </form>
+  `;
+  el.classList.remove('hidden');
+  document.getElementById('farmer-report-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    await submitFarmerReport(dealId, cycleId);
+  });
+}
+
+async function submitFarmerReport(dealId, cycleId) {
+  const payload = {
+    title: document.getElementById('farmer-report-title').value.trim(),
+    description: document.getElementById('farmer-report-description').value.trim(),
+    amountUsed: document.getElementById('farmer-report-amount').value.trim(),
+    evidenceUrl: document.getElementById('farmer-report-evidence').value.trim(),
+  };
+  try {
+    await fetchFarmerJson(`/api/farmer/deals/${dealId}/cycles/${cycleId}/report`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    showFarmerActionResult('success', 'Cycle report submitted');
+    await showFarmerDeal(dealId);
+  } catch (err) {
+    showFarmerActionResult('error', `Report failed: ${err.message}`);
+  }
 }
 
 // --- Investor Portal ---

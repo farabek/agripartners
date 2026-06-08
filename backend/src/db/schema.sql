@@ -39,3 +39,18 @@ CREATE TABLE IF NOT EXISTS investor_profiles (
   created_at    TEXT NOT NULL,
   updated_at    TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS farmer_cycle_updates (
+  id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+  deal_id               INTEGER NOT NULL REFERENCES deals(id),
+  cycle_num             INTEGER NOT NULL,
+  funding_received_at   TEXT,
+  report_title          TEXT,
+  report_description    TEXT,
+  report_amount_used    TEXT,
+  report_evidence_url   TEXT,
+  report_submitted_at   TEXT,
+  created_at            TEXT NOT NULL,
+  updated_at            TEXT NOT NULL,
+  UNIQUE (deal_id, cycle_num)
+);

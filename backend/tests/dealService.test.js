@@ -6,9 +6,14 @@ const {
   getDealById,
   getInvestorDeals,
   getInvestorDealById,
+  getFarmerDeals,
+  getFarmerDealById,
   createDeal,
   addEvent,
   getDealEvents,
+  getFarmerDealCycles,
+  confirmFarmerFunding,
+  submitFarmerCycleReport,
   getDealsByUser,
 } =
   require('../src/services/dealService');
@@ -86,6 +91,28 @@ test('getInvestorDealById returns null for missing or non-owned deal', async () 
   expect(deal).toBeNull();
 });
 
+test('getFarmerDeals returns deals for exact farmer account', async () => {
+  pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
+  const deals = await getFarmerDeals('farmer.testnet');
+
+  expect(pool.query).toHaveBeenCalledWith(
+    'SELECT * FROM deals WHERE farmer = $1 ORDER BY created_at DESC',
+    ['farmer.testnet']
+  );
+  expect(deals).toHaveLength(1);
+});
+
+test('getFarmerDealById returns deal by id and farmer account', async () => {
+  pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
+  const deal = await getFarmerDealById('farmer.testnet', 1);
+
+  expect(pool.query).toHaveBeenCalledWith(
+    'SELECT * FROM deals WHERE id = $1 AND farmer = $2',
+    [1, 'farmer.testnet']
+  );
+  expect(deal.id).toBe(1);
+});
+
 test('createDeal inserts and returns created row', async () => {
   const created = { id: 1, ...sampleDeal };
   pool.query.mockResolvedValue({ rows: [created] });
@@ -116,6 +143,70 @@ test('getDealEvents returns events for deal', async () => {
     [1]
   );
   expect(events).toHaveLength(1);
+});
+
+test('getFarmerDealCycles combines cycle events and farmer updates', async () => {
+  pool.query
+    .mockResolvedValueOnce({
+      rows: [
+        { id: 1, deal_id: 1, event_type: 'cycle_started', cycle_num: 1 },
+        { id: 2, deal_id: 1, event_type: 'cycle_reported', cycle_num: 1 },
+      ],
+    })
+    .mockResolvedValueOnce({
+      rows: [{
+        deal_id: 1,
+        cycle_num: 1,
+        funding_received_at: '2026-06-08T01:00:00Z',
+        report_title: 'Cycle 1 report',
+        report_description: 'Purchased livestock',
+        report_amount_used: '1.32',
+        report_evidence_url: 'https://example.com',
+        report_submitted_at: '2026-06-08T02:00:00Z',
+      }],
+    });
+
+  const cycles = await getFarmerDealCycles(1);
+
+  expect(cycles).toEqual([expect.objectContaining({
+    id: 1,
+    status: 'reported',
+    fundingReceived: true,
+    reportStatus: 'submitted',
+  })]);
+});
+
+test('confirmFarmerFunding upserts confirmation timestamp', async () => {
+  pool.query.mockResolvedValue({ rows: [{ deal_id: 1, cycle_num: 1, funding_received_at: 'now' }] });
+  const update = await confirmFarmerFunding(1, 1);
+  const [sql, params] = pool.query.mock.calls[0];
+  expect(sql).toContain('INSERT INTO farmer_cycle_updates');
+  expect(sql).toContain('ON CONFLICT');
+  expect(params).toEqual([1, 1]);
+  expect(update.cycle_num).toBe(1);
+});
+
+test('submitFarmerCycleReport upserts report fields', async () => {
+  pool.query.mockResolvedValue({
+    rows: [{
+      deal_id: 1,
+      cycle_num: 1,
+      report_title: 'Cycle report',
+      report_description: 'Purchased feed',
+      report_amount_used: '1.32',
+      report_evidence_url: null,
+    }],
+  });
+  const update = await submitFarmerCycleReport(1, 1, {
+    title: 'Cycle report',
+    description: 'Purchased feed',
+    amountUsed: '1.32',
+  });
+  const [sql, params] = pool.query.mock.calls[0];
+  expect(sql).toContain('INSERT INTO farmer_cycle_updates');
+  expect(sql).toContain('report_title');
+  expect(params).toEqual([1, 1, 'Cycle report', 'Purchased feed', '1.32', null]);
+  expect(update.report_title).toBe('Cycle report');
 });
 
 test('getDealsByUser returns farmer deals by near_account', async () => {

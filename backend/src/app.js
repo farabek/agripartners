@@ -9,6 +9,7 @@ const adminRouter = require('./routes/admin');
 const meRouter = require('./routes/me');
 const walletAuthRouter = require('./routes/walletAuth');
 const investorRouter = require('./routes/investor');
+const farmerRouter = require('./routes/farmer');
 const { requireWalletAuth } = require('./middleware/walletAuth');
 
 ['API_KEY', 'NEAR_ADMIN_ACCOUNT', 'NEAR_ADMIN_PRIVATE_KEY', 'JWT_SECRET'].forEach(k => {
@@ -32,6 +33,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/deals', dealsRouter);
 app.use('/api/wallet-auth', walletAuthRouter);
 app.use('/api/investor', requireWalletAuth, investorRouter);
+app.use('/api/farmer', requireWalletAuth, farmerRouter);
 app.use('/api/admin', requireJWT, requireRole('admin'), adminRouter);
 app.use('/api/me', requireJWT, meRouter);
 

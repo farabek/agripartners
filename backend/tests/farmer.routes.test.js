@@ -1,0 +1,230 @@
+process.env.JWT_SECRET = 'test-jwt-secret';
+
+jest.mock('../src/services/dealService');
+jest.mock('../src/services/nearService');
+
+const request = require('supertest');
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const farmerRouter = require('../src/routes/farmer');
+const { requireWalletAuth } = require('../src/middleware/walletAuth');
+const dealService = require('../src/services/dealService');
+const nearService = require('../src/services/nearService');
+
+const app = express();
+app.use(express.json());
+app.use('/api/farmer', requireWalletAuth, farmerRouter);
+
+const farmerToken = jwt.sign(
+  {
+    type: 'wallet-auth-poc',
+    account_id: 'farmer.testnet',
+    public_key: 'ed25519:FARMER',
+    network: 'testnet',
+  },
+  'test-jwt-secret'
+);
+
+const investorToken = jwt.sign(
+  {
+    type: 'wallet-auth-poc',
+    account_id: 'investor.testnet',
+    public_key: 'ed25519:INVESTOR',
+    network: 'testnet',
+  },
+  'test-jwt-secret'
+);
+
+const farmerDeal = {
+  id: 3,
+  farmer: 'farmer.testnet',
+  investor: 'farab.testnet',
+  investment_amount: '1320000000000000000000000',
+  contract_address: 'ap3.farab.testnet',
+  deal_type: 'fidlot',
+  total_cycles: 7,
+  cycle_duration_days: 150,
+};
+
+const cycle = {
+  id: 1,
+  status: 'funding_sent',
+  fundingReceived: false,
+  reportStatus: 'not_submitted',
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  dealService.getFarmerDeals.mockResolvedValue([farmerDeal]);
+  dealService.getFarmerDealById.mockResolvedValue(farmerDeal);
+  dealService.getDealById.mockResolvedValue(farmerDeal);
+  dealService.getFarmerDealCycles.mockResolvedValue([cycle]);
+  dealService.confirmFarmerFunding.mockResolvedValue({ deal_id: 3, cycle_num: 1 });
+  dealService.submitFarmerCycleReport.mockResolvedValue({
+    report_title: 'Cycle 1 sheep purchase report',
+    report_description: 'Purchased initial livestock and feed.',
+    report_amount_used: '1.32',
+    report_evidence_url: 'https://example.com/evidence',
+  });
+  dealService.addEvent.mockResolvedValue();
+  nearService.getContractStatus.mockResolvedValue({ status: 'Funded', current_cycle: 1 });
+});
+
+test('GET /api/farmer/deals requires wallet auth', async () => {
+  const res = await request(app).get('/api/farmer/deals');
+
+  expect(res.status).toBe(401);
+  expect(dealService.getFarmerDeals).not.toHaveBeenCalled();
+});
+
+test('GET /api/farmer/deals returns only current farmer deals', async () => {
+  const res = await request(app)
+    .get('/api/farmer/deals')
+    .set('Authorization', `Bearer ${farmerToken}`);
+
+  expect(res.status).toBe(200);
+  expect(dealService.getFarmerDeals).toHaveBeenCalledWith('farmer.testnet');
+  expect(res.body).toMatchObject({
+    ok: true,
+    farmer: 'farmer.testnet',
+    deals: [expect.objectContaining({ id: 3, farmer: 'farmer.testnet', activeCycleId: 1 })],
+  });
+});
+
+test('GET /api/farmer/deals/:dealId returns owned deal', async () => {
+  const res = await request(app)
+    .get('/api/farmer/deals/3')
+    .set('Authorization', `Bearer ${farmerToken}`);
+
+  expect(res.status).toBe(200);
+  expect(dealService.getDealById).toHaveBeenCalledWith('3');
+  expect(res.body.deal.id).toBe(3);
+});
+
+test('GET /api/farmer/deals/:dealId returns 403 for another farmer deal', async () => {
+  const res = await request(app)
+    .get('/api/farmer/deals/3')
+    .set('Authorization', `Bearer ${investorToken}`);
+
+  expect(res.status).toBe(403);
+  expect(res.body.error).toBe('Only deal farmer can access this deal');
+});
+
+test('GET /api/farmer/deals/:dealId/cycles returns cycles for owned deal', async () => {
+  const res = await request(app)
+    .get('/api/farmer/deals/3/cycles')
+    .set('Authorization', `Bearer ${farmerToken}`);
+
+  expect(res.status).toBe(200);
+  expect(res.body).toMatchObject({
+    ok: true,
+    dealId: 3,
+    cycles: [expect.objectContaining({ id: 1, status: 'funding_sent' })],
+  });
+});
+
+test('POST /api/farmer/deals/:dealId/confirm-funding confirms own cycle', async () => {
+  const res = await request(app)
+    .post('/api/farmer/deals/3/confirm-funding')
+    .set('Authorization', `Bearer ${farmerToken}`)
+    .send({ cycleId: 1 });
+
+  expect(res.status).toBe(200);
+  expect(dealService.confirmFarmerFunding).toHaveBeenCalledWith(3, 1);
+  expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({
+    deal_id: 3,
+    event_type: 'farmer_funding_confirmed',
+    cycle_num: 1,
+  }));
+  expect(res.body.status).toBe('funding_received_confirmed');
+});
+
+test('POST /api/farmer/deals/:dealId/confirm-funding rejects non-farmer', async () => {
+  const res = await request(app)
+    .post('/api/farmer/deals/3/confirm-funding')
+    .set('Authorization', `Bearer ${investorToken}`)
+    .send({ cycleId: 1 });
+
+  expect(res.status).toBe(403);
+  expect(dealService.confirmFarmerFunding).not.toHaveBeenCalled();
+});
+
+test('POST /api/farmer/deals/:dealId/confirm-funding cannot confirm twice', async () => {
+  dealService.getFarmerDealCycles.mockResolvedValue([{ ...cycle, fundingReceived: true }]);
+
+  const res = await request(app)
+    .post('/api/farmer/deals/3/confirm-funding')
+    .set('Authorization', `Bearer ${farmerToken}`)
+    .send({ cycleId: 1 });
+
+  expect(res.status).toBe(409);
+  expect(res.body.error).toBe('Funding already confirmed');
+  expect(dealService.confirmFarmerFunding).not.toHaveBeenCalled();
+});
+
+test('POST /api/farmer/deals/:dealId/confirm-funding rejects before funding sent', async () => {
+  dealService.getFarmerDealCycles.mockResolvedValue([{ ...cycle, status: 'pending' }]);
+
+  const res = await request(app)
+    .post('/api/farmer/deals/3/confirm-funding')
+    .set('Authorization', `Bearer ${farmerToken}`)
+    .send({ cycleId: 1 });
+
+  expect(res.status).toBe(409);
+  expect(res.body.error).toBe('Funding has not been sent for this cycle');
+});
+
+test('POST /api/farmer/deals/:dealId/cycles/:cycleId/report submits own report', async () => {
+  const payload = {
+    title: 'Cycle 1 sheep purchase report',
+    description: 'Purchased initial livestock and feed.',
+    amountUsed: '1.32',
+    evidenceUrl: 'https://example.com/evidence',
+  };
+
+  const res = await request(app)
+    .post('/api/farmer/deals/3/cycles/1/report')
+    .set('Authorization', `Bearer ${farmerToken}`)
+    .send(payload);
+
+  expect(res.status).toBe(200);
+  expect(dealService.submitFarmerCycleReport).toHaveBeenCalledWith(3, 1, payload);
+  expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({
+    deal_id: 3,
+    event_type: 'farmer_cycle_report_submitted',
+    cycle_num: 1,
+  }));
+  expect(res.body.report).toMatchObject({ status: 'submitted', title: payload.title });
+});
+
+test('POST /api/farmer/deals/:dealId/cycles/:cycleId/report rejects non-farmer', async () => {
+  const res = await request(app)
+    .post('/api/farmer/deals/3/cycles/1/report')
+    .set('Authorization', `Bearer ${investorToken}`)
+    .send({ title: 'Report', description: 'Body' });
+
+  expect(res.status).toBe(403);
+  expect(dealService.submitFarmerCycleReport).not.toHaveBeenCalled();
+});
+
+test('POST /api/farmer/deals/:dealId/cycles/:cycleId/report rejects missing cycle', async () => {
+  dealService.getFarmerDealCycles.mockResolvedValue([]);
+
+  const res = await request(app)
+    .post('/api/farmer/deals/3/cycles/99/report')
+    .set('Authorization', `Bearer ${farmerToken}`)
+    .send({ title: 'Report', description: 'Body' });
+
+  expect(res.status).toBe(404);
+  expect(res.body.error).toBe('Cycle not found');
+});
+
+test('POST /api/farmer/deals/:dealId/cycles/:cycleId/report requires title and description', async () => {
+  const res = await request(app)
+    .post('/api/farmer/deals/3/cycles/1/report')
+    .set('Authorization', `Bearer ${farmerToken}`)
+    .send({ title: 'Report' });
+
+  expect(res.status).toBe(400);
+  expect(res.body.error).toBe('title and description are required');
+});

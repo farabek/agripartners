@@ -117,6 +117,27 @@
   overflow-wrap: anywhere;
 }
 
+.farmer-cycle-row {
+  align-items: flex-start;
+  border-bottom: 1px solid #334155;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 16px 0;
+}
+
+.farmer-cycle-row:last-child {
+  border-bottom: 0;
+}
+
+.farmer-cycle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  min-width: 220px;
+}
+
 .wallet-panel {
   background-color: #0f172a;
   border: 1px solid #334155;
@@ -227,6 +248,20 @@
 }
 
 @media (max-width: 640px) {
+  .farmer-cycle-row {
+    flex-direction: column;
+  }
+
+  .farmer-cycle-actions {
+    justify-content: stretch;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .farmer-cycle-actions .admin-action-btn {
+    width: 100%;
+  }
+
   .wallet-header,
   .wallet-body {
     align-items: stretch;

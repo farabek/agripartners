@@ -31,6 +31,22 @@ async function getInvestorDealById(accountId, dealId) {
   return rows[0] || null;
 }
 
+async function getFarmerDeals(accountId) {
+  const { rows } = await pool.query(
+    'SELECT * FROM deals WHERE farmer = $1 ORDER BY created_at DESC',
+    [accountId]
+  );
+  return rows;
+}
+
+async function getFarmerDealById(accountId, dealId) {
+  const { rows } = await pool.query(
+    'SELECT * FROM deals WHERE id = $1 AND farmer = $2',
+    [dealId, accountId]
+  );
+  return rows[0] || null;
+}
+
 async function createDeal(deal) {
   const { rows } = await pool.query(
     `INSERT INTO deals (
@@ -70,6 +86,97 @@ async function getDealEvents(dealId) {
   return rows;
 }
 
+async function getFarmerCycleUpdates(dealId) {
+  const { rows } = await pool.query(
+    'SELECT * FROM farmer_cycle_updates WHERE deal_id = $1 ORDER BY cycle_num ASC',
+    [dealId]
+  );
+  return rows;
+}
+
+function eventCycleNumbers(events) {
+  return events
+    .filter((event) => ['cycle_started', 'cycle_reported'].includes(event.event_type))
+    .map((event) => Number(event.cycle_num))
+    .filter((cycleNum) => Number.isInteger(cycleNum) && cycleNum > 0);
+}
+
+async function getFarmerDealCycles(dealId) {
+  const [events, updates] = await Promise.all([
+    getDealEvents(dealId),
+    getFarmerCycleUpdates(dealId),
+  ]);
+
+  const cycleNums = new Set([
+    ...eventCycleNumbers(events),
+    ...updates.map((update) => Number(update.cycle_num)),
+  ]);
+
+  return [...cycleNums].sort((a, b) => a - b).map((cycleNum) => {
+    const update = updates.find((item) => Number(item.cycle_num) === cycleNum);
+    const hasCycleStarted = events.some(
+      (event) => event.event_type === 'cycle_started' && Number(event.cycle_num) === cycleNum
+    );
+    const hasAdminReport = events.some(
+      (event) => event.event_type === 'cycle_reported' && Number(event.cycle_num) === cycleNum
+    );
+
+    return {
+      id: cycleNum,
+      status: hasAdminReport ? 'reported' : (hasCycleStarted ? 'funding_sent' : 'pending'),
+      fundingReceived: Boolean(update?.funding_received_at),
+      reportStatus: update?.report_submitted_at ? 'submitted' : 'not_submitted',
+      report: update?.report_submitted_at ? {
+        title: update.report_title,
+        description: update.report_description,
+        amountUsed: update.report_amount_used,
+        evidenceUrl: update.report_evidence_url,
+        submittedAt: update.report_submitted_at,
+      } : null,
+    };
+  });
+}
+
+async function confirmFarmerFunding(dealId, cycleNum) {
+  const { rows } = await pool.query(
+    `INSERT INTO farmer_cycle_updates (deal_id, cycle_num, funding_received_at, created_at, updated_at)
+     VALUES ($1, $2, NOW(), NOW(), NOW())
+     ON CONFLICT (deal_id, cycle_num)
+     DO UPDATE SET funding_received_at = COALESCE(farmer_cycle_updates.funding_received_at, NOW()),
+                   updated_at = NOW()
+     RETURNING *`,
+    [dealId, cycleNum]
+  );
+  return rows[0];
+}
+
+async function submitFarmerCycleReport(dealId, cycleNum, report) {
+  const { rows } = await pool.query(
+    `INSERT INTO farmer_cycle_updates (
+       deal_id, cycle_num, report_title, report_description, report_amount_used,
+       report_evidence_url, report_submitted_at, created_at, updated_at
+     )
+     VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW(), NOW())
+     ON CONFLICT (deal_id, cycle_num)
+     DO UPDATE SET report_title = $3,
+                   report_description = $4,
+                   report_amount_used = $5,
+                   report_evidence_url = $6,
+                   report_submitted_at = COALESCE(farmer_cycle_updates.report_submitted_at, NOW()),
+                   updated_at = NOW()
+     RETURNING *`,
+    [
+      dealId,
+      cycleNum,
+      report.title,
+      report.description,
+      report.amountUsed ?? null,
+      report.evidenceUrl ?? null,
+    ]
+  );
+  return rows[0];
+}
+
 async function getDealsByUser(near_account, role) {
   if (near_account && role === 'farmer') {
     const { rows } = await pool.query(
@@ -94,8 +201,13 @@ module.exports = {
   getDealById,
   getInvestorDeals,
   getInvestorDealById,
+  getFarmerDeals,
+  getFarmerDealById,
   createDeal,
   addEvent,
   getDealEvents,
+  getFarmerDealCycles,
+  confirmFarmerFunding,
+  submitFarmerCycleReport,
   getDealsByUser,
 };
