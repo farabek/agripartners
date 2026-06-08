@@ -15,17 +15,28 @@ const API_BASE = ['localhost', '127.0.0.1'].includes(window.location.hostname)
   : 'https://agripartners.onrender.com';
 const NEAR_WALLET_NETWORK = 'testnet';
 const WALLET_AUTH_CHALLENGE_KEY = 'ap_wallet_auth_challenge';
+const AUTH_STORAGE_KEY = 'ap_auth';
 
 let walletSelector;
 
 // --- Auth state ---
 
 function getAuth() {
-  try { return JSON.parse(localStorage.getItem('ap_auth') || 'null'); } catch { return null; }
+  for (const storage of [localStorage, sessionStorage]) {
+    try {
+      const raw = storage.getItem(AUTH_STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {
+      // Try the next storage backend.
+    }
+  }
+  return null;
 }
 
 function setAuth(token, user) {
-  localStorage.setItem('ap_auth', JSON.stringify({ token, user }));
+  const value = JSON.stringify({ token, user });
+  try { localStorage.setItem(AUTH_STORAGE_KEY, value); } catch {}
+  try { sessionStorage.setItem(AUTH_STORAGE_KEY, value); } catch {}
 }
 
 function updateAuthUser(updates) {
@@ -35,7 +46,8 @@ function updateAuthUser(updates) {
 }
 
 function clearAuth() {
-  localStorage.removeItem('ap_auth');
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+  sessionStorage.removeItem(AUTH_STORAGE_KEY);
   localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
 }
 
