@@ -117,6 +117,44 @@
   overflow-wrap: anywhere;
 }
 
+.onboarding-role-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.onboarding-role-btn {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 94px;
+  padding: 14px;
+  text-align: left;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.onboarding-role-btn:hover,
+.onboarding-role-btn.is-selected {
+  background-color: #12241b;
+  border-color: #22c55e;
+}
+
+.onboarding-role-title {
+  color: #f8fafc;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.onboarding-role-note {
+  color: #94a3b8;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
 .farmer-cycle-row {
   align-items: flex-start;
   border-bottom: 1px solid #334155;
@@ -248,6 +286,10 @@
 }
 
 @media (max-width: 640px) {
+  .onboarding-role-grid {
+    grid-template-columns: 1fr;
+  }
+
   .farmer-cycle-row {
     flex-direction: column;
   }

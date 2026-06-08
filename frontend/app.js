@@ -28,6 +28,12 @@ function setAuth(token, user) {
   localStorage.setItem('ap_auth', JSON.stringify({ token, user }));
 }
 
+function updateAuthUser(updates) {
+  const auth = getAuth();
+  if (!auth) return;
+  setAuth(auth.token, { ...auth.user, ...updates });
+}
+
 function clearAuth() {
   localStorage.removeItem('ap_auth');
   localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
@@ -58,6 +64,12 @@ function getConnectedWalletAccount() {
 
 function getNearWalletAccount() {
   return getConnectedWalletAccount();
+}
+
+function portalHashForRole(role) {
+  if (role === 'farmer') return '#farmer';
+  if (role === 'investor') return '#investor';
+  return '#deals';
 }
 
 async function postJson(path, body) {
@@ -112,18 +124,18 @@ function readWalletCallbackParams() {
   return Object.fromEntries(params.entries());
 }
 
-function cleanWalletAuthCallbackUrl() {
+function cleanWalletAuthCallbackUrl(targetHash = '#investor') {
   const url = new URL(window.location.href);
   ['accountId', 'account_id', 'publicKey', 'public_key', 'signature', 'callbackUrl', 'state'].forEach(key => {
     url.searchParams.delete(key);
   });
-  url.hash = '#investor';
+  url.hash = targetHash;
   window.history.replaceState({}, document.title, url.toString());
 }
 
 function buildWalletUser(verified) {
   return {
-    role: 'investor',
+    role: 'wallet',
     username: verified.account_id,
     auth_type: 'wallet',
     account_id: verified.account_id,
@@ -131,6 +143,34 @@ function buildWalletUser(verified) {
     public_key: verified.public_key,
     network: verified.network,
   };
+}
+
+async function fetchMyProfile() {
+  const res = await fetch(`${API_BASE}/api/profile/me`, { headers: authHeaders() });
+  const data = await readJsonResponse(res);
+  if (res.status === 401) {
+    clearAuth();
+    location.hash = '#login';
+    throw new Error('Wallet session expired');
+  }
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+function applyProfileToAuth(profile) {
+  if (!profile) return;
+  updateAuthUser({
+    role: profile.role,
+    display_name: profile.displayName,
+    profile,
+  });
+}
+
+async function resolveWalletLandingHash() {
+  const data = await fetchMyProfile();
+  if (data.needsOnboarding || !data.profile) return '#/onboarding';
+  applyProfileToAuth(data.profile);
+  return portalHashForRole(data.profile.role);
 }
 
 async function loginWithNearWallet() {
@@ -172,7 +212,8 @@ async function verifyWalletCallbackIfPresent() {
     if (!verified.token) throw new Error('Wallet verification did not return a token');
     setAuth(verified.token, buildWalletUser(verified));
     localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
-    cleanWalletAuthCallbackUrl();
+    const targetHash = await resolveWalletLandingHash();
+    cleanWalletAuthCallbackUrl(targetHash);
     return true;
   } catch (err) {
     localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
@@ -243,10 +284,29 @@ function statusBadge(status) {
 // --- Router ---
 
 function showView(viewId) {
-  ['view-login', 'view-list', 'view-detail', 'view-investor', 'view-farmer'].forEach(id => {
+  ['view-login', 'view-list', 'view-detail', 'view-investor', 'view-farmer', 'view-onboarding'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   document.getElementById(viewId).classList.remove('hidden');
+}
+
+async function redirectAuthenticatedUser() {
+  const auth = getAuth();
+  if (!auth) {
+    location.hash = '#login';
+    return;
+  }
+  if (auth.user?.auth_type === 'wallet') {
+    try {
+      location.hash = await resolveWalletLandingHash();
+    } catch (err) {
+      sessionStorage.setItem('ap_login_error', err.message || 'Unable to load wallet profile');
+      clearAuth();
+      location.hash = '#login';
+    }
+    return;
+  }
+  location.hash = auth.user.role === 'investor' ? '#investor' : '#deals';
 }
 
 function route() {
@@ -254,13 +314,18 @@ function route() {
   const hash = location.hash;
 
   if (hash === '#login') {
-    if (auth) { location.hash = '#deals'; return; }
+    if (auth) { redirectAuthenticatedUser(); return; }
     showLogin();
     return;
   }
 
   if (!auth) {
     location.hash = '#login';
+    return;
+  }
+
+  if (hash === '#/onboarding' || hash === '#onboarding') {
+    showOnboarding();
     return;
   }
 
@@ -302,7 +367,11 @@ async function initializeApp() {
   await verifyWalletCallbackIfPresent();
   if (!location.hash || location.hash === '#') {
     const auth = getAuth();
-    location.hash = auth ? (auth.user.role === 'investor' ? '#investor' : '#deals') : '#login';
+    if (auth) {
+      await redirectAuthenticatedUser();
+    } else {
+      location.hash = '#login';
+    }
   } else {
     route();
   }
@@ -511,6 +580,138 @@ function renderDealCard(d) {
       <a href="#deals/${d.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open →</a>
     </div>
   `;
+}
+
+// --- Onboarding ---
+
+async function showOnboarding() {
+  showView('view-onboarding');
+  const el = document.getElementById('view-onboarding');
+  const wallet = getNearWalletAccount();
+
+  if (!isWalletAuth() || !wallet) {
+    el.innerHTML = `
+      <div class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-200">
+        Wallet login is required to create a profile.
+      </div>
+    `;
+    return;
+  }
+
+  try {
+    const data = await fetchMyProfile();
+    if (data.profile) {
+      applyProfileToAuth(data.profile);
+      location.hash = portalHashForRole(data.profile.role);
+      return;
+    }
+  } catch (err) {
+    el.innerHTML = `<div class="bg-red-900 text-red-200 px-4 py-3 rounded">Unable to load profile: ${escapeHtml(err.message)}</div>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-green-400 mb-1">Welcome to AgriPartners</h1>
+      <p class="text-slate-400">Create a wallet-linked profile for <span class="text-slate-200 font-mono">${escapeHtml(wallet)}</span></p>
+    </div>
+
+    <form id="onboarding-form" class="bg-slate-800 rounded-xl p-6 space-y-5">
+      <div>
+        <label class="block text-sm text-slate-400 mb-2">Choose your role</label>
+        <div class="onboarding-role-grid">
+          <button type="button" class="onboarding-role-btn is-selected" data-role="farmer">
+            <span class="onboarding-role-title">Farmer</span>
+            <span class="onboarding-role-note">Manage farm deals and submit cycle reports.</span>
+          </button>
+          <button type="button" class="onboarding-role-btn" data-role="investor">
+            <span class="onboarding-role-title">Investor</span>
+            <span class="onboarding-role-note">Track investments, balances, and withdrawals.</span>
+          </button>
+        </div>
+      </div>
+
+      <input type="hidden" id="onboarding-role" value="farmer" />
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Display Name</label>
+          <input id="onboarding-display-name" type="text" maxlength="120" required
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Country</label>
+          <input id="onboarding-country" type="text" maxlength="80"
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Phone</label>
+          <input id="onboarding-phone" type="tel" maxlength="40"
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">Organization / Farm Name</label>
+          <input id="onboarding-organization" type="text" maxlength="160"
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-slate-400 mb-1">Bio</label>
+        <textarea id="onboarding-bio" rows="4" maxlength="1000"
+          class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500"></textarea>
+      </div>
+
+      <div id="onboarding-error" class="hidden bg-red-900 text-red-200 px-3 py-2 rounded text-sm"></div>
+      <button type="submit" id="btn-create-profile" class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-medium transition">
+        Create Profile
+      </button>
+    </form>
+  `;
+
+  document.querySelectorAll('.onboarding-role-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.onboarding-role-btn').forEach(item => item.classList.remove('is-selected'));
+      btn.classList.add('is-selected');
+      document.getElementById('onboarding-role').value = btn.dataset.role;
+    });
+  });
+  document.getElementById('onboarding-form').addEventListener('submit', submitOnboarding);
+}
+
+async function submitOnboarding(event) {
+  event.preventDefault();
+  const errEl = document.getElementById('onboarding-error');
+  const btn = document.getElementById('btn-create-profile');
+  errEl.classList.add('hidden');
+  btn.disabled = true;
+  btn.textContent = 'Creating profile...';
+
+  const payload = {
+    role: document.getElementById('onboarding-role').value,
+    displayName: document.getElementById('onboarding-display-name').value.trim(),
+    country: document.getElementById('onboarding-country').value.trim(),
+    phone: document.getElementById('onboarding-phone').value.trim(),
+    organizationName: document.getElementById('onboarding-organization').value.trim(),
+    bio: document.getElementById('onboarding-bio').value.trim(),
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/api/profile/onboarding`, {
+      method: 'POST',
+      headers: jsonAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+    const data = await readJsonResponse(res);
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    applyProfileToAuth(data.profile);
+    location.hash = portalHashForRole(data.profile.role);
+  } catch (err) {
+    errEl.textContent = err.message || 'Profile creation failed';
+    errEl.classList.remove('hidden');
+    btn.disabled = false;
+    btn.textContent = 'Create Profile';
+  }
 }
 
 // --- Farmer Portal ---

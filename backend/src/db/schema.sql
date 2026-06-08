@@ -54,3 +54,15 @@ CREATE TABLE IF NOT EXISTS farmer_cycle_updates (
   updated_at            TEXT NOT NULL,
   UNIQUE (deal_id, cycle_num)
 );
+
+CREATE TABLE IF NOT EXISTS user_profiles (
+  wallet_account_id  TEXT PRIMARY KEY,
+  role               TEXT NOT NULL CHECK (role IN ('farmer', 'investor')),
+  display_name       TEXT NOT NULL,
+  country            TEXT,
+  phone              TEXT,
+  organization_name  TEXT,
+  bio                TEXT,
+  created_at         TEXT NOT NULL,
+  updated_at         TEXT NOT NULL
+);
