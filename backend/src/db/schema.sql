@@ -66,3 +66,17 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   created_at         TEXT NOT NULL,
   updated_at         TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS reports (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  deal_id        INTEGER NOT NULL REFERENCES deals(id),
+  cycle_id       INTEGER NOT NULL,
+  farmer_wallet  TEXT NOT NULL,
+  title          TEXT NOT NULL,
+  description    TEXT NOT NULL,
+  amount_used    TEXT,
+  evidence_url   TEXT,
+  submitted_at   TEXT NOT NULL,
+  created_at     TEXT NOT NULL,
+  UNIQUE (deal_id, cycle_id)
+);

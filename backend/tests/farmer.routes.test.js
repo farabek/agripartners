@@ -61,10 +61,13 @@ beforeEach(() => {
   dealService.getFarmerDealCycles.mockResolvedValue([cycle]);
   dealService.confirmFarmerFunding.mockResolvedValue({ deal_id: 3, cycle_num: 1 });
   dealService.submitFarmerCycleReport.mockResolvedValue({
-    report_title: 'Cycle 1 sheep purchase report',
-    report_description: 'Purchased initial livestock and feed.',
-    report_amount_used: '1.32',
-    report_evidence_url: 'https://example.com/evidence',
+    id: 9,
+    title: 'Cycle 1 sheep purchase report',
+    description: 'Purchased initial livestock and feed.',
+    amount_used: '1.32',
+    evidence_url: 'https://example.com/evidence',
+    farmer_wallet: 'farmer.testnet',
+    submitted_at: '2026-06-08T10:00:00Z',
   });
   dealService.addEvent.mockResolvedValue();
   nearService.getContractStatus.mockResolvedValue({ status: 'Funded', current_cycle: 1 });
@@ -175,6 +178,7 @@ test('POST /api/farmer/deals/:dealId/confirm-funding rejects before funding sent
 });
 
 test('POST /api/farmer/deals/:dealId/cycles/:cycleId/report submits own report', async () => {
+  dealService.getFarmerDealCycles.mockResolvedValue([{ ...cycle, fundingReceived: true }]);
   const payload = {
     title: 'Cycle 1 sheep purchase report',
     description: 'Purchased initial livestock and feed.',
@@ -188,13 +192,42 @@ test('POST /api/farmer/deals/:dealId/cycles/:cycleId/report submits own report',
     .send(payload);
 
   expect(res.status).toBe(200);
-  expect(dealService.submitFarmerCycleReport).toHaveBeenCalledWith(3, 1, payload);
+  expect(dealService.submitFarmerCycleReport).toHaveBeenCalledWith(3, 1, 'farmer.testnet', payload);
   expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({
     deal_id: 3,
     event_type: 'farmer_cycle_report_submitted',
     cycle_num: 1,
   }));
   expect(res.body.report).toMatchObject({ status: 'submitted', title: payload.title });
+});
+
+test('POST /api/farmer/deals/:dealId/cycles/:cycleId/report rejects before funding confirmation', async () => {
+  const res = await request(app)
+    .post('/api/farmer/deals/3/cycles/1/report')
+    .set('Authorization', `Bearer ${farmerToken}`)
+    .send({ title: 'Report', description: 'Body' });
+
+  expect(res.status).toBe(409);
+  expect(res.body.error).toBe('Funding must be confirmed before submitting report');
+  expect(dealService.submitFarmerCycleReport).not.toHaveBeenCalled();
+});
+
+test('POST /api/farmer/deals/:dealId/cycles/:cycleId/report rejects duplicate report', async () => {
+  dealService.getFarmerDealCycles.mockResolvedValue([{
+    ...cycle,
+    fundingReceived: true,
+    reportStatus: 'submitted',
+    report: { title: 'Existing report' },
+  }]);
+
+  const res = await request(app)
+    .post('/api/farmer/deals/3/cycles/1/report')
+    .set('Authorization', `Bearer ${farmerToken}`)
+    .send({ title: 'Report', description: 'Body' });
+
+  expect(res.status).toBe(409);
+  expect(res.body.error).toBe('Report already submitted for this cycle');
+  expect(dealService.submitFarmerCycleReport).not.toHaveBeenCalled();
 });
 
 test('POST /api/farmer/deals/:dealId/cycles/:cycleId/report rejects non-farmer', async () => {

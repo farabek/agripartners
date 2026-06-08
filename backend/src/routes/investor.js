@@ -96,6 +96,20 @@ router.get('/deals/:id/events', async (req, res) => {
   }
 });
 
+router.get('/deals/:id/reports', async (req, res) => {
+  try {
+    const deal = await getInvestorDeal(req, res);
+    if (!deal) return;
+    res.json({
+      ok: true,
+      dealId: deal.id,
+      reports: await dealService.getFarmerReports(deal.id),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/deals/:id/withdraw', async (req, res) => {
   try {
     const deal = await getInvestorDeal(req, res);

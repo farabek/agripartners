@@ -138,8 +138,14 @@ router.post('/deals/:dealId/cycles/:cycleId/report', async (req, res) => {
     const cycles = await dealService.getFarmerDealCycles(deal.id);
     const cycle = cycles.find((item) => item.id === cycleId);
     if (!cycle) return res.status(404).json({ error: 'Cycle not found' });
+    if (!cycle.fundingReceived) {
+      return res.status(409).json({ error: 'Funding must be confirmed before submitting report' });
+    }
+    if (cycle.reportStatus === 'submitted') {
+      return res.status(409).json({ error: 'Report already submitted for this cycle' });
+    }
 
-    const update = await dealService.submitFarmerCycleReport(deal.id, cycleId, {
+    const report = await dealService.submitFarmerCycleReport(deal.id, cycleId, accountId(req), {
       title,
       description,
       amountUsed: req.body.amountUsed,
@@ -157,14 +163,18 @@ router.post('/deals/:dealId/cycles/:cycleId/report', async (req, res) => {
       cycleId,
       report: {
         status: 'submitted',
-        title: update.report_title,
-        description: update.report_description,
-        amountUsed: update.report_amount_used,
-        evidenceUrl: update.report_evidence_url,
+        id: report.id,
+        title: report.title,
+        description: report.description,
+        amountUsed: report.amount_used,
+        evidenceUrl: report.evidence_url,
+        farmerWallet: report.farmer_wallet,
+        submittedAt: report.submitted_at,
       },
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const status = err.code === '23505' ? 409 : 500;
+    res.status(status).json({ error: status === 409 ? 'Report already submitted for this cycle' : err.message });
   }
 });
 

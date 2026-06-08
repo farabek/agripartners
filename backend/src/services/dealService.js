@@ -94,6 +94,14 @@ async function getFarmerCycleUpdates(dealId) {
   return rows;
 }
 
+async function getFarmerReports(dealId) {
+  const { rows } = await pool.query(
+    'SELECT * FROM reports WHERE deal_id = $1 ORDER BY cycle_id ASC, created_at ASC',
+    [dealId]
+  );
+  return rows;
+}
+
 function eventCycleNumbers(events) {
   return events
     .filter((event) => ['cycle_started', 'cycle_reported'].includes(event.event_type))
@@ -102,18 +110,21 @@ function eventCycleNumbers(events) {
 }
 
 async function getFarmerDealCycles(dealId) {
-  const [events, updates] = await Promise.all([
+  const [events, updates, reports] = await Promise.all([
     getDealEvents(dealId),
     getFarmerCycleUpdates(dealId),
+    getFarmerReports(dealId),
   ]);
 
   const cycleNums = new Set([
     ...eventCycleNumbers(events),
     ...updates.map((update) => Number(update.cycle_num)),
+    ...reports.map((report) => Number(report.cycle_id)),
   ]);
 
   return [...cycleNums].sort((a, b) => a - b).map((cycleNum) => {
     const update = updates.find((item) => Number(item.cycle_num) === cycleNum);
+    const report = reports.find((item) => Number(item.cycle_id) === cycleNum);
     const hasCycleStarted = events.some(
       (event) => event.event_type === 'cycle_started' && Number(event.cycle_num) === cycleNum
     );
@@ -125,13 +136,15 @@ async function getFarmerDealCycles(dealId) {
       id: cycleNum,
       status: hasAdminReport ? 'reported' : (hasCycleStarted ? 'funding_sent' : 'pending'),
       fundingReceived: Boolean(update?.funding_received_at),
-      reportStatus: update?.report_submitted_at ? 'submitted' : 'not_submitted',
-      report: update?.report_submitted_at ? {
-        title: update.report_title,
-        description: update.report_description,
-        amountUsed: update.report_amount_used,
-        evidenceUrl: update.report_evidence_url,
-        submittedAt: update.report_submitted_at,
+      reportStatus: report ? 'submitted' : 'not_submitted',
+      report: report ? {
+        id: report.id,
+        title: report.title,
+        description: report.description,
+        amountUsed: report.amount_used,
+        evidenceUrl: report.evidence_url,
+        submittedAt: report.submitted_at,
+        farmerWallet: report.farmer_wallet,
       } : null,
     };
   });
@@ -150,7 +163,27 @@ async function confirmFarmerFunding(dealId, cycleNum) {
   return rows[0];
 }
 
-async function submitFarmerCycleReport(dealId, cycleNum, report) {
+async function createFarmerReport(dealId, cycleNum, farmerWallet, report) {
+  const { rows } = await pool.query(
+    `INSERT INTO reports (
+       deal_id, cycle_id, farmer_wallet, title, description, amount_used, evidence_url
+     )
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING *`,
+    [
+      dealId,
+      cycleNum,
+      farmerWallet,
+      report.title,
+      report.description,
+      report.amountUsed ?? null,
+      report.evidenceUrl ?? null,
+    ]
+  );
+  return rows[0];
+}
+
+async function syncFarmerCycleReportStatus(dealId, cycleNum, report) {
   const { rows } = await pool.query(
     `INSERT INTO farmer_cycle_updates (
        deal_id, cycle_num, report_title, report_description, report_amount_used,
@@ -175,6 +208,12 @@ async function submitFarmerCycleReport(dealId, cycleNum, report) {
     ]
   );
   return rows[0];
+}
+
+async function submitFarmerCycleReport(dealId, cycleNum, farmerWallet, report) {
+  const created = await createFarmerReport(dealId, cycleNum, farmerWallet, report);
+  await syncFarmerCycleReportStatus(dealId, cycleNum, report);
+  return created;
 }
 
 async function getDealsByUser(near_account, role) {
@@ -207,6 +246,8 @@ module.exports = {
   addEvent,
   getDealEvents,
   getFarmerDealCycles,
+  getFarmerReports,
+  createFarmerReport,
   confirmFarmerFunding,
   submitFarmerCycleReport,
   getDealsByUser,

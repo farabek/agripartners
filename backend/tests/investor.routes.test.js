@@ -54,6 +54,16 @@ beforeEach(() => {
   dealService.getInvestorDeals.mockResolvedValue([investorDeal]);
   dealService.getInvestorDealById.mockResolvedValue(investorDeal);
   dealService.getDealEvents.mockResolvedValue([]);
+  dealService.getFarmerReports.mockResolvedValue([{
+    id: 1,
+    deal_id: 1,
+    cycle_id: 1,
+    farmer_wallet: 'farmer.testnet',
+    title: 'Cycle 1 report',
+    description: 'Purchased livestock',
+    amount_used: '1.32',
+    evidence_url: 'https://example.com',
+  }]);
   dealService.addEvent.mockResolvedValue();
   investorProfileService.getOrCreateInvestorProfile.mockResolvedValue(investorProfile);
   investorProfileService.updateInvestorProfile.mockResolvedValue({
@@ -195,6 +205,28 @@ test('GET /api/investor/deals/:id/events returns 404 for non-owned deal', async 
 
   expect(res.status).toBe(404);
   expect(dealService.getDealEvents).not.toHaveBeenCalled();
+});
+
+test('GET /api/investor/deals/:id/reports returns farmer reports for owned deal', async () => {
+  const res = await request(app)
+    .get('/api/investor/deals/1/reports')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(200);
+  expect(dealService.getFarmerReports).toHaveBeenCalledWith(1);
+  expect(res.body.reports).toHaveLength(1);
+  expect(res.body.reports[0].title).toBe('Cycle 1 report');
+});
+
+test('GET /api/investor/deals/:id/reports returns 404 for non-owned deal', async () => {
+  dealService.getInvestorDealById.mockResolvedValue(null);
+
+  const res = await request(app)
+    .get('/api/investor/deals/1/reports')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(404);
+  expect(dealService.getFarmerReports).not.toHaveBeenCalled();
 });
 
 test('POST /api/investor/deals/:id/withdraw uses configured backend investor signer', async () => {

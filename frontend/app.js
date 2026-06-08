@@ -794,25 +794,146 @@ async function showFarmerPortal() {
   }
 
   try {
-    const data = await fetchFarmerJson('/api/farmer/deals');
-    renderFarmerDashboard(contentEl, data.deals || [], data.farmer);
+    const [profileData, dealsData] = await Promise.all([
+      fetchMyProfile(),
+      fetchFarmerJson('/api/farmer/deals'),
+    ]);
+    renderFarmerDashboard(contentEl, dealsData.deals || [], dealsData.farmer, profileData.profile);
   } catch (err) {
     contentEl.querySelector('.spinner')?.remove();
     contentEl.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Farmer Portal unavailable: ${escapeHtml(err.message)}</div>`;
   }
 }
 
-function renderFarmerDashboard(el, deals, farmer) {
+function farmerProfileValue(profile, field, fallback = 'Not set') {
+  const value = profile?.[field];
+  return value ? escapeHtml(value) : fallback;
+}
+
+function farmerDashboardMetrics(deals) {
+  const totalFunding = deals.reduce(
+    (sum, deal) => addYocto(sum, deal.amount || deal.investment_amount || '0'),
+    '0'
+  );
+  const activeCycles = deals.filter((deal) => deal.activeCycleId != null).length;
+  return {
+    activeDeals: deals.length,
+    totalFunding,
+    activeCycles,
+    pendingReports: 'N/A',
+  };
+}
+
+function renderFarmerProfilePanel(profile, farmer) {
+  return `
+    <div class="bg-slate-800 rounded-xl p-5 mb-4">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-100">${farmerProfileValue(profile, 'displayName', escapeHtml(farmer || 'Farmer'))}</h2>
+          <p class="text-sm text-slate-400 mt-1">${farmerProfileValue(profile, 'organizationName')}</p>
+        </div>
+        <span class="text-xs font-semibold bg-slate-700 px-2 py-1 rounded text-slate-300">${escapeHtml(profile?.role || 'farmer')}</span>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3 mt-4 text-sm">
+        <div>
+          <span class="block text-slate-500">Display Name</span>
+          <span class="text-slate-200">${farmerProfileValue(profile, 'displayName', escapeHtml(farmer || 'Farmer'))}</span>
+        </div>
+        <div>
+          <span class="block text-slate-500">Organization / Farm Name</span>
+          <span class="text-slate-200">${farmerProfileValue(profile, 'organizationName')}</span>
+        </div>
+        <div>
+          <span class="block text-slate-500">Country</span>
+          <span class="text-slate-200">${farmerProfileValue(profile, 'country')}</span>
+        </div>
+        <div>
+          <span class="block text-slate-500">Wallet account</span>
+          <span class="text-slate-200 font-mono break-all">${escapeHtml(farmer || profile?.walletAccountId || 'Not connected')}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFarmerSummaryCards(metrics) {
+  return `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <div class="metric-box">
+        <span class="metric-label">Active Deals</span>
+        <span class="metric-value">${metrics.activeDeals}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Total Funding</span>
+        <span class="metric-value">${yoctoToNear(metrics.totalFunding)}</span>
+        <span class="metric-raw">${formatYoctoRaw(metrics.totalFunding)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Active Cycles</span>
+        <span class="metric-value">${metrics.activeCycles}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Pending Reports</span>
+        <span class="metric-value">${metrics.pendingReports}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderFarmerEmptyState(farmer) {
+  return `
+    <div class="bg-slate-800 border border-slate-700 rounded-xl p-6">
+      <h2 class="text-xl font-semibold text-slate-100 mb-2">No active deals yet</h2>
+      <p class="text-slate-400 mb-4">
+        Your farmer profile is ready. Once an admin creates or assigns a farming deal to your wallet, it will appear here.
+      </p>
+      <div class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 mb-4">
+        <span class="block text-xs uppercase text-slate-500 font-semibold">Wallet</span>
+        <span id="farmer-wallet-copy-value" class="text-slate-100 font-mono break-all">${escapeHtml(farmer || 'Not connected')}</span>
+      </div>
+      <div class="mb-4">
+        <h3 class="text-sm font-semibold text-slate-300 mb-2">Next steps</h3>
+        <ul class="list-disc list-inside text-sm text-slate-400 space-y-1">
+          <li>Share your wallet account with AgriPartners admin</li>
+          <li>Prepare your farm information</li>
+          <li>Wait for your first deal to be assigned</li>
+        </ul>
+      </div>
+      <button id="btn-copy-farmer-wallet" type="button" class="admin-action-btn">Copy Wallet Account</button>
+      <span id="farmer-wallet-copy-state" class="ml-3 text-sm text-green-300 hidden">Copied</span>
+    </div>
+  `;
+}
+
+function bindFarmerDashboardActions(farmer) {
+  document.getElementById('btn-copy-farmer-wallet')?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(farmer || '');
+      document.getElementById('farmer-wallet-copy-state')?.classList.remove('hidden');
+    } catch {
+      document.getElementById('farmer-wallet-copy-state')?.classList.remove('hidden');
+      document.getElementById('farmer-wallet-copy-state').textContent = 'Copy unavailable';
+    }
+  });
+}
+
+function renderFarmerDashboard(el, deals, farmer, profile = null) {
   el.querySelector('.spinner')?.remove();
+  const metrics = farmerDashboardMetrics(deals);
+
   if (deals.length === 0) {
     el.innerHTML = `
-      <h2 class="text-xl font-semibold mb-4">Active Deals</h2>
-      <p class="text-slate-400">No farmer deals found for wallet: <span class="font-mono text-slate-200">${escapeHtml(farmer)}</span></p>
+      ${renderFarmerProfilePanel(profile, farmer)}
+      ${renderFarmerSummaryCards(metrics)}
+      ${renderFarmerEmptyState(farmer)}
     `;
+    bindFarmerDashboardActions(farmer);
     return;
   }
 
   el.innerHTML = `
+    ${renderFarmerProfilePanel(profile, farmer)}
+    ${renderFarmerSummaryCards(metrics)}
     <h2 class="text-xl font-semibold mb-4">Active Deals</h2>
     <div class="grid gap-4">
       ${deals.map(renderFarmerDealCard).join('')}
@@ -827,12 +948,12 @@ function renderFarmerDealCard(deal) {
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">Deal #${deal.id}</span>
           ${statusBadge(deal.status)}
-          <span class="text-xs text-slate-500">Cycle ${deal.activeCycleId ?? 'none'}</span>
+          <span class="text-xs text-slate-500">Active Cycle: ${deal.activeCycleId ?? 'none'}</span>
         </div>
         <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${escapeHtml(formatAddress(deal.investor))}</span></p>
         <p class="text-sm text-slate-400">Amount: <span class="text-slate-100 font-mono">${yoctoToNear(deal.amount || deal.investment_amount)}</span></p>
       </div>
-      <a href="#farmer/deals/${deal.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open deal</a>
+      <a href="#farmer/deals/${deal.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
     </div>
   `;
 }
@@ -909,23 +1030,49 @@ function renderFarmerDealParams(deal) {
 
 function renderFarmerCycles(dealId, cycles) {
   if (!cycles.length) return '<p class="text-slate-500 text-sm">No cycles found yet</p>';
-  return cycles.map((cycle) => `
-    <div class="farmer-cycle-row">
-      <div class="min-w-0">
-        <div class="flex flex-wrap items-center gap-2 mb-2">
-          <span class="font-semibold text-slate-100">Cycle #${cycle.id}</span>
-          <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(cycle.status)}</span>
+  return cycles.map((cycle) => {
+    const reportSubmitted = cycle.reportStatus === 'submitted' && cycle.report;
+    const cycleLabel = reportSubmitted
+      ? 'Report submitted'
+      : (cycle.fundingReceived ? 'Funding confirmed' : (cycle.status === 'pending' ? 'Pending' : 'Funding sent'));
+    return `
+      <div class="farmer-cycle-row">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <span class="font-semibold text-slate-100">Cycle #${cycle.id}</span>
+            <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(cycleLabel)}</span>
+          </div>
+          <p class="text-sm text-slate-400">Funding received: <span class="text-slate-200">${cycle.fundingReceived ? 'Confirmed' : 'Not confirmed'}</span></p>
+          <p class="text-sm text-slate-400">Report: <span class="text-slate-200">${reportSubmitted ? 'Submitted' : 'Not submitted'}</span></p>
+          ${reportSubmitted ? renderFarmerReportSummary(cycle.report) : ''}
         </div>
-        <p class="text-sm text-slate-400">Funding received: <span class="text-slate-200">${cycle.fundingReceived ? 'Confirmed' : 'Not confirmed'}</span></p>
-        <p class="text-sm text-slate-400">Report: <span class="text-slate-200">${cycle.reportStatus === 'submitted' ? 'Submitted' : 'Not submitted'}</span></p>
-        ${cycle.report ? `<p class="text-xs text-slate-500 mt-1">${escapeHtml(cycle.report.title || '')}</p>` : ''}
+        <div class="farmer-cycle-actions">
+          <button type="button" class="admin-action-btn farmer-confirm-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${cycle.fundingReceived ? 'disabled' : ''}>Confirm funding received</button>
+          <button type="button" class="admin-action-btn farmer-report-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${reportSubmitted || !cycle.fundingReceived ? 'disabled' : ''}>${reportSubmitted ? 'Report submitted' : (cycle.fundingReceived ? 'Create report' : 'Confirm funding first')}</button>
+        </div>
       </div>
-      <div class="farmer-cycle-actions">
-        <button type="button" class="admin-action-btn farmer-confirm-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${cycle.fundingReceived ? 'disabled' : ''}>Confirm funding received</button>
-        <button type="button" class="admin-action-btn farmer-report-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}">Create report</button>
+    `;
+  }).join('');
+}
+
+function renderFarmerReportSummary(report) {
+  return `
+    <div class="farmer-report-summary">
+      <div class="font-semibold text-slate-100">${escapeHtml(report.title || 'Farmer report')}</div>
+      <p class="text-sm text-slate-400 mt-1">${escapeHtml(report.description || '')}</p>
+      <div class="grid sm:grid-cols-2 gap-2 mt-3 text-xs">
+        <div>
+          <span class="block text-slate-500">Amount used</span>
+          <span class="text-slate-200">${escapeHtml(report.amountUsed || 'Not provided')}</span>
+        </div>
+        <div>
+          <span class="block text-slate-500">Submitted</span>
+          <span class="text-slate-200">${report.submittedAt ? escapeHtml(new Date(report.submittedAt).toLocaleDateString('en-US')) : 'Submitted'}</span>
+        </div>
       </div>
+      ${report.evidenceUrl ? `<a href="${escapeHtml(report.evidenceUrl)}" target="_blank" rel="noopener noreferrer" class="inline-block text-blue-400 hover:underline text-xs mt-2">Evidence link</a>` : ''}
     </div>
-  `).join('');
+  `;
 }
 
 function bindFarmerCycleActions(dealId) {
@@ -1384,8 +1531,8 @@ async function showInvestorDeal(id) {
   `;
 
   try {
-    const { deal, status, balances, events } = await fetchInvestorDealBundle(id);
-    renderInvestorDealDetail(el, deal, status, balances, events);
+    const { deal, status, balances, events, reports } = await fetchInvestorDealBundle(id);
+    renderInvestorDealDetail(el, deal, status, balances, events, reports);
   } catch (e) {
     el.querySelector('.spinner')?.remove();
     el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Deal unavailable: ${escapeHtml(e.message)}</div>`;
@@ -1394,11 +1541,12 @@ async function showInvestorDeal(id) {
 
 async function fetchInvestorDealBundle(id) {
   const headers = authHeaders();
-  const [dealRes, statusRes, balancesRes, eventsRes] = await Promise.allSettled([
+  const [dealRes, statusRes, balancesRes, eventsRes, reportsRes] = await Promise.allSettled([
     fetch(`${API_BASE}/api/investor/deals/${id}`, { headers }),
     fetch(`${API_BASE}/api/investor/deals/${id}/status`, { headers }),
     fetch(`${API_BASE}/api/investor/deals/${id}/balances`, { headers }),
-    fetch(`${API_BASE}/api/investor/deals/${id}/events`, { headers })
+    fetch(`${API_BASE}/api/investor/deals/${id}/events`, { headers }),
+    fetch(`${API_BASE}/api/investor/deals/${id}/reports`, { headers })
   ]);
 
   if (dealRes.status === 'rejected' || !dealRes.value.ok) {
@@ -1416,7 +1564,8 @@ async function fetchInvestorDealBundle(id) {
     deal: await dealRes.value.json(),
     status: statusRes.status === 'fulfilled' && statusRes.value.ok ? await statusRes.value.json() : null,
     balances: balancesRes.status === 'fulfilled' && balancesRes.value.ok ? await balancesRes.value.json() : null,
-    events: eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : []
+    events: eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : [],
+    reports: reportsRes.status === 'fulfilled' && reportsRes.value.ok ? (await reportsRes.value.json()).reports || [] : []
   };
 }
 
@@ -1431,7 +1580,7 @@ function renderInvestorDealAccessMessage(el) {
   `;
 }
 
-function renderInvestorDealDetail(el, deal, status, balances, events) {
+function renderInvestorDealDetail(el, deal, status, balances, events, reports = []) {
   const investorBalance = balances?.investor || '0';
   el.innerHTML = `
     ${renderNav()}
@@ -1456,6 +1605,11 @@ function renderInvestorDealDetail(el, deal, status, balances, events) {
       </div>
     </div>
 
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Reports</h3>
+      <div id="investor-reports-list">${renderInvestorReports(reports)}</div>
+    </div>
+
     <div class="bg-slate-800 rounded-xl p-5">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
       <div id="investor-events-list">${renderEvents(events)}</div>
@@ -1464,6 +1618,37 @@ function renderInvestorDealDetail(el, deal, status, balances, events) {
 
   document.getElementById('btn-investor-refresh').addEventListener('click', () => refreshInvestorDeal(deal.id));
   document.getElementById('btn-investor-withdraw').addEventListener('click', () => withdrawInvestorFromPortal(deal));
+}
+
+function renderInvestorReports(reports) {
+  if (!reports.length) return '<p class="text-slate-500 text-sm">No farmer reports submitted yet</p>';
+  return reports.map((report) => `
+    <div class="farmer-report-summary">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <span class="text-xs text-slate-500">Cycle #${escapeHtml(report.cycle_id)}</span>
+          <h4 class="font-semibold text-slate-100">${escapeHtml(report.title)}</h4>
+        </div>
+        <span class="text-xs bg-green-900 text-green-200 px-2 py-1 rounded">Submitted</span>
+      </div>
+      <p class="text-sm text-slate-400 mt-2">${escapeHtml(report.description)}</p>
+      <div class="grid sm:grid-cols-3 gap-3 mt-3 text-xs">
+        <div>
+          <span class="block text-slate-500">Farmer</span>
+          <span class="text-slate-200 font-mono break-all">${escapeHtml(report.farmer_wallet)}</span>
+        </div>
+        <div>
+          <span class="block text-slate-500">Amount used</span>
+          <span class="text-slate-200">${escapeHtml(report.amount_used || 'Not provided')}</span>
+        </div>
+        <div>
+          <span class="block text-slate-500">Submitted</span>
+          <span class="text-slate-200">${report.submitted_at ? escapeHtml(new Date(report.submitted_at).toLocaleDateString('en-US')) : 'Submitted'}</span>
+        </div>
+      </div>
+      ${report.evidence_url ? `<a href="${escapeHtml(report.evidence_url)}" target="_blank" rel="noopener noreferrer" class="inline-block text-blue-400 hover:underline text-xs mt-2">Evidence link</a>` : ''}
+    </div>
+  `).join('');
 }
 
 function renderInvestorDealParams(deal, status, investorBalance) {
@@ -1525,13 +1710,15 @@ async function refreshInvestorDeal(id) {
   if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
 
   try {
-    const { status, balances, events } = await fetchInvestorDealBundle(id);
+    const { status, balances, events, reports } = await fetchInvestorDealBundle(id);
     const badgeEl = document.getElementById('investor-status-badge');
     const cycleEl = document.getElementById('investor-cycle-text');
     const eventsEl = document.getElementById('investor-events-list');
+    const reportsEl = document.getElementById('investor-reports-list');
     if (badgeEl) badgeEl.innerHTML = statusBadge(status?.status);
     if (cycleEl) cycleEl.textContent = `Cycle ${status?.current_cycle ?? '—'}`;
     if (eventsEl) eventsEl.innerHTML = renderEvents(events);
+    if (reportsEl) reportsEl.innerHTML = renderInvestorReports(reports);
 
     const investorBalanceEl = document.getElementById('investor-available-balance');
     if (investorBalanceEl) {
