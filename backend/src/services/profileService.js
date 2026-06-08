@@ -110,6 +110,17 @@ async function getProfile(accountId) {
   return toCamel(rows[0]);
 }
 
+async function getProfilesByRole(role) {
+  const normalizedRole = normalizeRole(role);
+  const { rows } = await pool.query(
+    `SELECT * FROM user_profiles
+     WHERE role = $1
+     ORDER BY display_name ASC, wallet_account_id ASC`,
+    [normalizedRole]
+  );
+  return rows.map(toCamel);
+}
+
 async function createOnboardingProfile(accountId, payload) {
   const existing = await getProfile(accountId);
   if (existing) {
@@ -164,6 +175,7 @@ async function updateProfile(accountId, payload) {
 
 module.exports = {
   getProfile,
+  getProfilesByRole,
   createOnboardingProfile,
   updateProfile,
   validateUpdatePayload,

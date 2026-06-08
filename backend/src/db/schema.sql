@@ -2,6 +2,8 @@ CREATE TABLE IF NOT EXISTS deals (
   id                  INTEGER PRIMARY KEY AUTOINCREMENT,
   contract_address    TEXT NOT NULL UNIQUE,
   deal_type           TEXT NOT NULL,
+  title               TEXT,
+  description         TEXT,
   farmer              TEXT NOT NULL,
   investor            TEXT NOT NULL,
   admin               TEXT NOT NULL,

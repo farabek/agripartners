@@ -1,6 +1,9 @@
 const router = require('express').Router();
 const dealService = require('../services/dealService');
 const nearService = require('../services/nearService');
+const profileService = require('../services/profileService');
+
+const YOCTO_PER_NEAR = BigInt('1000000000000000000000000');
 
 function requireNonProduction(req, res) {
   if (process.env.NODE_ENV === 'production') {
@@ -27,16 +30,104 @@ function getInvestorWithdrawSignerAccountId() {
   return accountId;
 }
 
-router.post('/deals', async (req, res) => {
-  const { deal_type, farmer, investor, investment_amount, farmer_split_pct,
-    investor_split_pct, escrow_pct, performance_fee_pct,
-    total_cycles, cycle_duration_days, capital_return_near } = req.body;
+function normalizeNearAmount(value) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return null;
+  if (!/^\d+(\.\d{1,24})?$/.test(raw)) {
+    throw new Error('amount must be a valid NEAR amount');
+  }
+  if (!raw.includes('.') && raw.length > 18) return raw;
 
-  if (!deal_type || !farmer || !investor || !investment_amount) {
-    return res.status(400).json({ error: 'Missing required fields: deal_type, farmer, investor, investment_amount' });
+  const [whole, fraction = ''] = raw.split('.');
+  return (BigInt(whole) * YOCTO_PER_NEAR + BigInt(fraction.padEnd(24, '0'))).toString();
+}
+
+function normalizeRequiredString(value, fieldName, maxLength) {
+  const normalized = String(value ?? '').trim();
+  if (!normalized) throw new Error(`${fieldName} is required`);
+  if (normalized.length > maxLength) throw new Error(`${fieldName} must be ${maxLength} characters or fewer`);
+  return normalized;
+}
+
+function normalizeDealPayload(body) {
+  const isPortalPayload = Boolean(body.farmer_wallet || body.investor_wallet || body.amount || body.title);
+  if (!isPortalPayload) {
+    return {
+      deal: {
+        deal_type: body.deal_type,
+        title: body.title,
+        description: body.description,
+        farmer: body.farmer,
+        investor: body.investor,
+        investment_amount: body.investment_amount,
+        farmer_split_pct: body.farmer_split_pct,
+        investor_split_pct: body.investor_split_pct,
+        escrow_pct: body.escrow_pct,
+        performance_fee_pct: body.performance_fee_pct,
+        total_cycles: body.total_cycles,
+        cycle_duration_days: body.cycle_duration_days,
+        capital_return_near: body.capital_return_near,
+      },
+      portalPayload: false,
+    };
   }
 
+  const title = normalizeRequiredString(body.title, 'title', 120);
+  const description = normalizeRequiredString(body.description, 'description', 1000);
+  const farmer = normalizeRequiredString(body.farmer_wallet, 'farmer_wallet', 120);
+  const investor = normalizeRequiredString(body.investor_wallet, 'investor_wallet', 120);
+  const investmentAmount = normalizeNearAmount(body.amount);
+  if (!investmentAmount) throw new Error('amount is required');
+
+  return {
+    deal: {
+      deal_type: title,
+      title,
+      description,
+      farmer,
+      investor,
+      investment_amount: investmentAmount,
+      farmer_split_pct: 60,
+      investor_split_pct: 40,
+      escrow_pct: 44,
+      performance_fee_pct: 20,
+      total_cycles: body.total_cycles ?? 1,
+      cycle_duration_days: body.cycle_duration_days ?? 150,
+      capital_return_near: investmentAmount,
+    },
+    portalPayload: true,
+  };
+}
+
+router.get('/farmers', async (req, res) => {
   try {
+    const farmers = await profileService.getProfilesByRole('farmer');
+    res.json({ ok: true, farmers });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/investors', async (req, res) => {
+  try {
+    const investors = await profileService.getProfilesByRole('investor');
+    res.json({ ok: true, investors });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/deals', async (req, res) => {
+  try {
+    const { deal: normalized, portalPayload } = normalizeDealPayload(req.body);
+    const { deal_type, farmer, investor, investment_amount, farmer_split_pct,
+      investor_split_pct, escrow_pct, performance_fee_pct,
+      total_cycles, cycle_duration_days, capital_return_near } = normalized;
+
+    if (!deal_type || !farmer || !investor || !investment_amount) {
+      return res.status(400).json({ error: 'Missing required fields: deal_type, farmer, investor, investment_amount' });
+    }
+
     const investorWithdrawSigner = getInvestorWithdrawSignerAccountId();
     const { contractId, txHash } = await nearService.deployContract({
       deal_type, farmer, investor, investment_amount,
@@ -50,7 +141,11 @@ router.post('/deals', async (req, res) => {
 
     const deal = await dealService.createDeal({
       contract_address: contractId,
-      deal_type, farmer, investor,
+      deal_type,
+      title: normalized.title,
+      description: normalized.description,
+      farmer,
+      investor,
       admin: process.env.NEAR_ADMIN_ACCOUNT,
       platform: process.env.NEAR_ADMIN_ACCOUNT,
       investment_amount,
@@ -62,9 +157,19 @@ router.post('/deals', async (req, res) => {
     });
 
     await dealService.addEvent({ deal_id: deal.id, event_type: 'deployed', tx_hash: txHash });
-    res.status(201).json(deal);
+    res.status(201).json({
+      ...deal,
+      ok: true,
+      deal_id: deal.id,
+      contract_address: deal.contract_address,
+      status: 'deployed',
+      deployment_status: 'deployed',
+      tx_hash: txHash,
+      portal_payload: portalPayload,
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    const status = /^(amount|title|description|farmer_wallet|investor_wallet) /.test(err.message) ? 400 : 500;
+    res.status(status).json({ error: err.message });
   }
 });
 

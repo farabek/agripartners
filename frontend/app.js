@@ -81,6 +81,7 @@ function getNearWalletAccount() {
 function portalHashForRole(role) {
   if (role === 'farmer') return '#farmer';
   if (role === 'investor') return '#investor';
+  if (role === 'admin') return '#admin';
   return '#deals';
 }
 
@@ -296,7 +297,7 @@ function statusBadge(status) {
 // --- Router ---
 
 function showView(viewId) {
-  ['view-login', 'view-list', 'view-detail', 'view-investor', 'view-farmer', 'view-onboarding'].forEach(id => {
+  ['view-login', 'view-list', 'view-detail', 'view-investor', 'view-farmer', 'view-admin', 'view-onboarding'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   document.getElementById(viewId).classList.remove('hidden');
@@ -318,7 +319,7 @@ async function redirectAuthenticatedUser() {
     }
     return;
   }
-  location.hash = auth.user.role === 'investor' ? '#investor' : '#deals';
+  location.hash = portalHashForRole(auth.user.role);
 }
 
 function route() {
@@ -360,6 +361,15 @@ function route() {
 
   if (hash === '#investor') {
     showInvestorPortal();
+    return;
+  }
+
+  if (hash === '#admin' || hash === '#/admin') {
+    if (auth.user.role !== 'admin') {
+      location.hash = portalHashForRole(auth.user.role);
+      return;
+    }
+    showAdminPortal();
     return;
   }
 
@@ -507,7 +517,7 @@ async function handleLogin(username, password) {
       return;
     }
     setAuth(data.token, data.user);
-    location.hash = data.user.role === 'investor' ? '#investor' : '#deals';
+    location.hash = portalHashForRole(data.user.role);
   } catch {
     errEl.textContent = 'Server unavailable';
     errEl.classList.remove('hidden');
@@ -554,11 +564,170 @@ function renderNav() {
       <div class="flex items-center gap-3">
         <a href="#investor" class="text-sm text-slate-400 hover:text-green-400 transition">Investor Portal</a>
         <a href="#farmer" class="text-sm text-slate-400 hover:text-green-400 transition">Farmer Portal</a>
+        ${auth.user.role === 'admin' ? '<a href="#admin" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Portal</a>' : ''}
         ${auth.user.role === 'admin' ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Dashboard</a>' : ''}
         <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
       </div>
     </div>
   `;
+}
+
+// --- Admin Portal ---
+
+async function fetchAdminJson(path, options = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      ...(options.body ? jsonAuthHeaders() : authHeaders()),
+      ...(options.headers || {}),
+    },
+  });
+  const data = await readJsonResponse(res);
+  if (res.status === 401) {
+    clearAuth();
+    location.hash = '#login';
+    throw new Error('Session expired');
+  }
+  if (res.status === 403) throw new Error('Admin access required');
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+function profileOptionLabel(profile) {
+  const name = profile.displayName || profile.organizationName || profile.walletAccountId;
+  return `${name} (${profile.walletAccountId})`;
+}
+
+function renderProfileOptions(profiles) {
+  return profiles.map(profile => `
+    <option value="${escapeHtml(profile.walletAccountId)}">${escapeHtml(profileOptionLabel(profile))}</option>
+  `).join('');
+}
+
+async function showAdminPortal() {
+  showView('view-admin');
+  const el = document.getElementById('view-admin');
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Portal</h1>
+        <p class="text-slate-400">Create a new deal for existing wallet profiles.</p>
+      </div>
+      <a href="#deals" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open Dashboard</a>
+    </div>
+    <div id="admin-create-content" class="bg-slate-800 rounded-xl p-5">
+      <div class="spinner"></div>
+    </div>
+  `;
+
+  const contentEl = document.getElementById('admin-create-content');
+  try {
+    const [farmersData, investorsData] = await Promise.all([
+      fetchAdminJson('/api/admin/farmers'),
+      fetchAdminJson('/api/admin/investors'),
+    ]);
+    renderAdminCreateForm(contentEl, farmersData.farmers || [], investorsData.investors || []);
+  } catch (err) {
+    contentEl.innerHTML = `<div class="bg-red-900 text-red-200 px-4 py-3 rounded">Admin Portal unavailable: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function renderAdminCreateForm(el, farmers, investors) {
+  const hasProfiles = farmers.length > 0 && investors.length > 0;
+  el.innerHTML = `
+    <form id="admin-create-deal-form" class="space-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1" for="admin-investor">Investor</label>
+          <select id="admin-investor" required
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500">
+            ${renderProfileOptions(investors)}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1" for="admin-farmer">Farmer</label>
+          <select id="admin-farmer" required
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500">
+            ${renderProfileOptions(farmers)}
+          </select>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1" for="admin-amount">Amount</label>
+          <input id="admin-amount" type="number" min="0" step="0.000001" required placeholder="132"
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1" for="admin-title">Title</label>
+          <input id="admin-title" type="text" maxlength="120" required placeholder="Greenhouse expansion"
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm text-slate-400 mb-1" for="admin-description">Description</label>
+        <textarea id="admin-description" rows="4" required placeholder="Short deal summary"
+          class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500"></textarea>
+      </div>
+      <div id="admin-create-result" class="hidden rounded-lg px-4 py-3 text-sm"></div>
+      <button type="submit" ${hasProfiles ? '' : 'disabled'}
+        class="bg-green-600 hover:bg-green-500 disabled:bg-slate-700 disabled:text-slate-400 text-white px-4 py-2 rounded-lg font-medium transition">
+        Create Deal
+      </button>
+      ${hasProfiles ? '' : '<p class="text-sm text-slate-400">Add at least one farmer and one investor profile before creating a deal.</p>'}
+    </form>
+  `;
+
+  document.getElementById('admin-create-deal-form').addEventListener('submit', createAdminDeal);
+}
+
+function showAdminCreateResult(type, html) {
+  const el = document.getElementById('admin-create-result');
+  if (!el) return;
+  el.className = `${type === 'success' ? 'bg-green-900 text-green-100' : 'bg-red-900 text-red-100'} rounded-lg px-4 py-3 text-sm`;
+  el.innerHTML = html;
+  el.classList.remove('hidden');
+}
+
+async function createAdminDeal(event) {
+  event.preventDefault();
+  const btn = event.currentTarget.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'Creating...';
+  showAdminCreateResult('success', 'Creating deal and deploying contract...');
+
+  const payload = {
+    investor_wallet: document.getElementById('admin-investor').value,
+    farmer_wallet: document.getElementById('admin-farmer').value,
+    amount: document.getElementById('admin-amount').value,
+    title: document.getElementById('admin-title').value.trim(),
+    description: document.getElementById('admin-description').value.trim(),
+  };
+
+  try {
+    const created = await fetchAdminJson('/api/admin/deals', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    const dealId = created.deal_id || created.id;
+    showAdminCreateResult('success', `
+      <div class="font-semibold">Deal created successfully</div>
+      <div class="mt-2">Deal #${escapeHtml(dealId)}</div>
+      <div class="font-mono break-all text-xs mt-1">Contract address: ${escapeHtml(created.contract_address || 'Pending deployment')}</div>
+      <div class="flex flex-wrap gap-2 mt-3">
+        <a href="#deals/${escapeHtml(dealId)}" class="underline">Open Admin Deal</a>
+        <a href="#farmer" class="underline">View in Farmer Portal</a>
+        <a href="#investor" class="underline">View in Investor Portal</a>
+      </div>
+    `);
+    event.currentTarget.reset();
+  } catch (err) {
+    showAdminCreateResult('error', `Create deal failed: ${escapeHtml(err.message)}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Create Deal';
+  }
 }
 
 // --- Deals list ---
@@ -597,12 +766,14 @@ async function showDeals() {
 }
 
 function renderDealCard(d) {
+  const dealTitle = d.title || d.deal_type;
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex justify-between items-center gap-4">
       <div class="space-y-1 min-w-0">
         <div class="flex items-center gap-2 mb-1">
-          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">${d.deal_type}</span>
+          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">${escapeHtml(dealTitle)}</span>
         </div>
+        ${d.description ? `<p class="text-sm text-slate-300">${escapeHtml(d.description)}</p>` : ''}
         <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${formatAddress(d.farmer)}</span></p>
         <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${formatAddress(d.investor)}</span></p>
         <p class="text-sm text-slate-500">${d.total_cycles} cycle(s) × ${d.cycle_duration_days} days  ·  ${yoctoToNear(d.investment_amount)}</p>
@@ -990,6 +1161,7 @@ function renderFarmerDealDetail(el, deal, cycles) {
       <button id="btn-farmer-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
+    ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
         ${renderFarmerDealParams(deal)}
@@ -1773,17 +1945,19 @@ async function showDeal(id) {
 }
 
 function renderDealDetail(el, deal, status, balances, events) {
+  const dealTitle = deal.title || deal.deal_type;
   const cycleText = status ? `· Cycle ${status.current_cycle}` : '';
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <a href="#deals" class="text-slate-400 hover:text-white text-sm">← Back</a>
       <span class="text-slate-600">|</span>
-      <span class="font-semibold">${deal.deal_type}</span>
+      <span class="font-semibold">${escapeHtml(dealTitle)}</span>
       <span id="status-badge">${statusBadge(status?.status)}</span>
       <span id="cycle-text" class="text-slate-400 text-sm">${cycleText}</span>
       <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
+    ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
         ${renderParams(deal)}

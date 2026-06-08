@@ -23,6 +23,8 @@ const {
 const sampleDeal = {
   contract_address: 'ap123.agripartners.testnet',
   deal_type: 'fidlot',
+  title: 'Fidlot cycle',
+  description: 'Demo livestock financing deal',
   farmer: 'farmer.testnet',
   investor: 'investor.testnet',
   admin: 'agripartners.testnet',

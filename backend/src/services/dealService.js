@@ -50,13 +50,14 @@ async function getFarmerDealById(accountId, dealId) {
 async function createDeal(deal) {
   const { rows } = await pool.query(
     `INSERT INTO deals (
-      contract_address, deal_type, farmer, investor, admin, platform,
+      contract_address, deal_type, title, description, farmer, investor, admin, platform,
       investment_amount, farmer_split_pct, investor_split_pct, escrow_pct,
       performance_fee_pct, cycle_duration_days, total_cycles, capital_return_near
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
     RETURNING *`,
     [
-      deal.contract_address, deal.deal_type, deal.farmer, deal.investor,
+      deal.contract_address, deal.deal_type, deal.title ?? null, deal.description ?? null,
+      deal.farmer, deal.investor,
       deal.admin, deal.platform, deal.investment_amount,
       deal.farmer_split_pct, deal.investor_split_pct, deal.escrow_pct,
       deal.performance_fee_pct, deal.cycle_duration_days, deal.total_cycles,

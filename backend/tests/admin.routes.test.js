@@ -6,6 +6,7 @@ process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID = 'investor-ap.testnet';
 
 jest.mock('../src/services/dealService');
 jest.mock('../src/services/nearService');
+jest.mock('../src/services/profileService');
 
 const request = require('supertest');
 const express = require('express');
@@ -14,6 +15,7 @@ const { requireJWT, requireRole } = require('../src/middleware/jwtAuth');
 const adminRouter = require('../src/routes/admin');
 const dealService = require('../src/services/dealService');
 const nearService = require('../src/services/nearService');
+const profileService = require('../src/services/profileService');
 
 const app = express();
 app.use(express.json());
@@ -26,6 +28,8 @@ const mockDeal = {
   id: 1,
   contract_address: 'ap1.agripartners.testnet',
   deal_type: 'fidlot',
+  title: 'Fidlot cycle',
+  description: 'Demo livestock financing deal',
   farmer: 'farmer-ap.testnet',
   investor: 'investor-ap.testnet',
   platform: 'platform-ap.testnet',
@@ -47,6 +51,13 @@ beforeEach(() => {
   nearService.withdrawContract = jest.fn().mockResolvedValue({ txHash: 'tx5' });
   nearService.fundContractAs = jest.fn().mockResolvedValue({ txHash: 'tx6' });
   nearService.withdrawContractAs = jest.fn().mockResolvedValue({ txHash: 'tx7' });
+  profileService.getProfilesByRole.mockImplementation((role) => Promise.resolve([
+    {
+      walletAccountId: `${role}.testnet`,
+      role,
+      displayName: `${role} profile`,
+    },
+  ]));
 });
 
 test('POST /api/admin/deals without token returns 401', async () => {
@@ -82,6 +93,70 @@ test('POST /api/admin/deals with admin token deploys contract and saves to DB', 
   }));
   expect(dealService.createDeal).toHaveBeenCalled();
   expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'deployed' }));
+  expect(res.body.deal_id).toBe(1);
+  expect(res.body.status).toBe('deployed');
+});
+
+test('GET /api/admin/farmers returns farmer profiles', async () => {
+  const res = await request(app)
+    .get('/api/admin/farmers')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(200);
+  expect(profileService.getProfilesByRole).toHaveBeenCalledWith('farmer');
+  expect(res.body.farmers).toEqual([
+    expect.objectContaining({ walletAccountId: 'farmer.testnet', role: 'farmer' }),
+  ]);
+});
+
+test('GET /api/admin/investors returns investor profiles', async () => {
+  const res = await request(app)
+    .get('/api/admin/investors')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(200);
+  expect(profileService.getProfilesByRole).toHaveBeenCalledWith('investor');
+  expect(res.body.investors).toEqual([
+    expect.objectContaining({ walletAccountId: 'investor.testnet', role: 'investor' }),
+  ]);
+});
+
+test('POST /api/admin/deals accepts admin portal payload', async () => {
+  const res = await request(app)
+    .post('/api/admin/deals')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({
+      investor_wallet: 'investor.testnet',
+      farmer_wallet: 'farmer.testnet',
+      amount: '132',
+      title: 'Greenhouse expansion',
+      description: 'Seed capital for new greenhouse cycle',
+    });
+
+  expect(res.status).toBe(201);
+  expect(nearService.deployContract).toHaveBeenCalledWith(expect.objectContaining({
+    deal_type: 'Greenhouse expansion',
+    farmer: 'farmer.testnet',
+    investor: 'investor.testnet',
+    investment_amount: '132000000000000000000000000',
+    total_cycles: 1,
+    cycle_duration_days: 150,
+    investor_withdraw_signer: 'investor-ap.testnet',
+  }));
+  expect(dealService.createDeal).toHaveBeenCalledWith(expect.objectContaining({
+    deal_type: 'Greenhouse expansion',
+    title: 'Greenhouse expansion',
+    description: 'Seed capital for new greenhouse cycle',
+    farmer: 'farmer.testnet',
+    investor: 'investor.testnet',
+    investment_amount: '132000000000000000000000000',
+  }));
+  expect(res.body).toEqual(expect.objectContaining({
+    ok: true,
+    deal_id: 1,
+    contract_address: 'ap1.agripartners.testnet',
+    status: 'deployed',
+  }));
 });
 
 test('POST /api/admin/deals returns configuration error when investor withdraw signer is missing', async () => {
