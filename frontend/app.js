@@ -16,6 +16,7 @@ const API_BASE = ['localhost', '127.0.0.1'].includes(window.location.hostname)
 const NEAR_WALLET_NETWORK = 'testnet';
 const WALLET_AUTH_CHALLENGE_KEY = 'ap_wallet_auth_challenge';
 const AUTH_STORAGE_KEY = 'ap_auth';
+const LOCAL_MVP_ADMIN_WALLETS = ['farab.testnet'];
 
 let walletSelector;
 
@@ -61,7 +62,8 @@ function jsonAuthHeaders() {
 }
 
 function isAdmin() {
-  return getAuth()?.user?.role === 'admin';
+  const user = getAuth()?.user;
+  return user?.role === 'admin' || isAdminWalletUser(user);
 }
 
 function isWalletAuth() {
@@ -76,6 +78,15 @@ function getConnectedWalletAccount() {
 
 function getNearWalletAccount() {
   return getConnectedWalletAccount();
+}
+
+function isLocalMvpHost() {
+  return ['localhost', '127.0.0.1'].includes(window.location.hostname);
+}
+
+function isAdminWalletUser(user) {
+  const accountId = user?.account_id || user?.near_account || user?.username;
+  return isLocalMvpHost() && LOCAL_MVP_ADMIN_WALLETS.includes(accountId);
 }
 
 function portalHashForRole(role) {
@@ -365,7 +376,7 @@ function route() {
   }
 
   if (hash === '#admin' || hash === '#/admin') {
-    if (auth.user.role !== 'admin') {
+    if (!isAdmin()) {
       location.hash = portalHashForRole(auth.user.role);
       return;
     }
@@ -377,7 +388,7 @@ function route() {
   if (m) {
     showDeal(m[1]);
   } else {
-    if (auth.user.role === 'investor') {
+    if (auth.user.role === 'investor' && !isAdmin()) {
       location.hash = '#investor';
     } else {
       showDeals();
@@ -564,8 +575,8 @@ function renderNav() {
       <div class="flex items-center gap-3">
         <a href="#investor" class="text-sm text-slate-400 hover:text-green-400 transition">Investor Portal</a>
         <a href="#farmer" class="text-sm text-slate-400 hover:text-green-400 transition">Farmer Portal</a>
-        ${auth.user.role === 'admin' ? '<a href="#admin" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Portal</a>' : ''}
-        ${auth.user.role === 'admin' ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Dashboard</a>' : ''}
+        ${isAdmin() ? '<a href="#admin" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Portal</a>' : ''}
+        ${isAdmin() ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Dashboard</a>' : ''}
         <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
       </div>
     </div>

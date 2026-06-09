@@ -11,7 +11,7 @@ jest.mock('../src/services/profileService');
 const request = require('supertest');
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { requireJWT, requireRole } = require('../src/middleware/jwtAuth');
+const { requireAdminAccess } = require('../src/middleware/adminAuth');
 const adminRouter = require('../src/routes/admin');
 const dealService = require('../src/services/dealService');
 const nearService = require('../src/services/nearService');
@@ -19,10 +19,22 @@ const profileService = require('../src/services/profileService');
 
 const app = express();
 app.use(express.json());
-app.use('/api/admin', requireJWT, requireRole('admin'), adminRouter);
+app.use('/api/admin', requireAdminAccess, adminRouter);
 
 const adminToken = jwt.sign({ id: 1, username: 'admin', role: 'admin' }, 'test-jwt-secret');
 const farmerToken = jwt.sign({ id: 2, username: 'farmer1', role: 'farmer' }, 'test-jwt-secret');
+const adminWalletToken = jwt.sign({
+  type: 'wallet-auth-poc',
+  network: 'testnet',
+  account_id: 'farab.testnet',
+  public_key: 'ed25519:test',
+}, 'test-jwt-secret');
+const investorWalletToken = jwt.sign({
+  type: 'wallet-auth-poc',
+  network: 'testnet',
+  account_id: 'investor.testnet',
+  public_key: 'ed25519:test',
+}, 'test-jwt-secret');
 
 const mockDeal = {
   id: 1,
@@ -107,6 +119,24 @@ test('GET /api/admin/farmers returns farmer profiles', async () => {
   expect(res.body.farmers).toEqual([
     expect.objectContaining({ walletAccountId: 'farmer.testnet', role: 'farmer' }),
   ]);
+});
+
+test('GET /api/admin/farmers allows configured admin wallet outside production', async () => {
+  const res = await request(app)
+    .get('/api/admin/farmers')
+    .set('Authorization', `Bearer ${adminWalletToken}`);
+
+  expect(res.status).toBe(200);
+  expect(profileService.getProfilesByRole).toHaveBeenCalledWith('farmer');
+});
+
+test('GET /api/admin/farmers rejects non-admin wallet token', async () => {
+  const res = await request(app)
+    .get('/api/admin/farmers')
+    .set('Authorization', `Bearer ${investorWalletToken}`);
+
+  expect(res.status).toBe(403);
+  expect(profileService.getProfilesByRole).not.toHaveBeenCalled();
 });
 
 test('GET /api/admin/investors returns investor profiles', async () => {

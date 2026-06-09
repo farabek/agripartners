@@ -2,7 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const pool = require('./db/index');
-const { requireJWT, requireRole } = require('./middleware/jwtAuth');
+const { requireJWT } = require('./middleware/jwtAuth');
+const { requireAdminAccess } = require('./middleware/adminAuth');
 const authRouter = require('./routes/auth');
 const dealsRouter = require('./routes/deals');
 const adminRouter = require('./routes/admin');
@@ -36,7 +37,7 @@ app.use('/api/wallet-auth', walletAuthRouter);
 app.use('/api/profile', requireWalletAuth, profileRouter);
 app.use('/api/investor', requireWalletAuth, investorRouter);
 app.use('/api/farmer', requireWalletAuth, farmerRouter);
-app.use('/api/admin', requireJWT, requireRole('admin'), adminRouter);
+app.use('/api/admin', requireAdminAccess, adminRouter);
 app.use('/api/me', requireJWT, meRouter);
 
 module.exports = app;
