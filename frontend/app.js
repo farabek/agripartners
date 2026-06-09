@@ -136,6 +136,29 @@ async function getWalletSelector() {
   return walletSelector;
 }
 
+async function getMyNearWallet() {
+  const selector = await getWalletSelector();
+  return selector.wallet('my-near-wallet');
+}
+
+async function signAndSendWalletFunctionCall({ contractId, methodName, args = {}, gas = '100000000000000', deposit = '0' }) {
+  const wallet = await getMyNearWallet();
+  return wallet.signAndSendTransaction({
+    receiverId: contractId,
+    actions: [
+      {
+        type: 'FunctionCall',
+        params: {
+          methodName,
+          args,
+          gas,
+          deposit,
+        },
+      },
+    ],
+  });
+}
+
 function readWalletCallbackParams() {
   const params = new URLSearchParams(window.location.search);
   const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : window.location.hash;
@@ -198,8 +221,7 @@ async function resolveWalletLandingHash() {
 }
 
 async function loginWithNearWallet() {
-  const selector = await getWalletSelector();
-  const wallet = await selector.wallet('my-near-wallet');
+  const wallet = await getMyNearWallet();
   const challenge = await postJson('/api/wallet-auth/challenge');
   challenge.callbackUrl = walletCallbackUrl();
   localStorage.setItem(WALLET_AUTH_CHALLENGE_KEY, JSON.stringify(challenge));
@@ -273,6 +295,10 @@ function formatYoctoRaw(yocto) {
 
 function addYocto(a, b) {
   return (BigInt(a || '0') + BigInt(b || '0')).toString();
+}
+
+function hasPositiveYocto(value) {
+  return BigInt(value || '0') > 0n;
 }
 
 function nearToYocto(near) {
@@ -1149,18 +1175,21 @@ async function showFarmerDeal(id) {
   `;
 
   try {
-    const [dealData, cyclesData] = await Promise.all([
+    const [dealData, cyclesData, balancesData] = await Promise.all([
       fetchFarmerJson(`/api/farmer/deals/${id}`),
       fetchFarmerJson(`/api/farmer/deals/${id}/cycles`),
+      fetchFarmerJson(`/api/deals/${id}/balances`),
     ]);
-    renderFarmerDealDetail(el, dealData.deal, cyclesData.cycles || []);
+    renderFarmerDealDetail(el, dealData.deal, cyclesData.cycles || [], balancesData);
   } catch (err) {
     el.querySelector('.spinner')?.remove();
     el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Deal unavailable: ${escapeHtml(err.message)}</div>`;
   }
 }
 
-function renderFarmerDealDetail(el, deal, cycles) {
+function renderFarmerDealDetail(el, deal, cycles, balances = null) {
+  const farmerBalance = balances?.farmer || '0';
+  const canWithdrawFarmer = hasPositiveYocto(farmerBalance);
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
@@ -1178,6 +1207,11 @@ function renderFarmerDealDetail(el, deal, cycles) {
       </div>
       <div class="bg-slate-800 rounded-xl p-5">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Actions</h3>
+        <div class="mb-4 text-sm">
+          <span class="block text-slate-500">Farmer Available</span>
+          <span id="farmer-available-balance" class="text-slate-100 font-mono">${escapeHtml(`${yoctoToNear(farmerBalance)} · ${formatYoctoRaw(farmerBalance)}`)}</span>
+        </div>
+        <button id="btn-farmer-withdraw" class="admin-action-btn action-fund w-full mb-4" ${canWithdrawFarmer ? '' : 'disabled'}>${canWithdrawFarmer ? 'Withdraw Farmer Balance' : 'No Farmer Balance'}</button>
         <p class="text-xs text-slate-400 mb-4">Confirm received funding and submit text reports for active cycles.</p>
         <div id="farmer-action-result" class="hidden rounded-lg px-4 py-3 text-sm"></div>
       </div>
@@ -1190,6 +1224,7 @@ function renderFarmerDealDetail(el, deal, cycles) {
   `;
 
   document.getElementById('btn-farmer-refresh').addEventListener('click', () => showFarmerDeal(deal.id));
+  document.getElementById('btn-farmer-withdraw')?.addEventListener('click', () => withdrawFarmerWithWallet(deal));
   bindFarmerCycleActions(deal.id);
 }
 
@@ -1272,6 +1307,48 @@ function showFarmerActionResult(type, message) {
   el.className = `${type === 'success' ? 'bg-green-900 text-green-100' : 'bg-red-900 text-red-100'} rounded-lg px-4 py-3 text-sm`;
   el.textContent = message;
   el.classList.remove('hidden');
+}
+
+function getWalletTransactionHash(result) {
+  return result?.transaction?.hash
+    || result?.transaction_outcome?.id
+    || result?.receipts_outcome?.[0]?.id
+    || '';
+}
+
+async function withdrawFarmerWithWallet(deal) {
+  const connectedWallet = getNearWalletAccount();
+  if (connectedWallet !== deal.farmer) {
+    showFarmerActionResult('error', `Connected wallet must be ${deal.farmer}`);
+    return;
+  }
+  if (!confirm(`Withdraw farmer balance to ${deal.farmer}?`)) return;
+
+  const btn = document.getElementById('btn-farmer-withdraw');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Opening wallet...';
+  }
+  showFarmerActionResult('success', 'Farmer withdrawal submitted to wallet...');
+
+  try {
+    const result = await signAndSendWalletFunctionCall({
+      contractId: deal.contract_address,
+      methodName: 'withdraw',
+    });
+    const txHash = getWalletTransactionHash(result);
+    showFarmerActionResult('success', txHash
+      ? `Farmer withdrawal completed. Tx: ${txHash}`
+      : 'Farmer withdrawal completed.');
+    await showFarmerDeal(deal.id);
+  } catch (err) {
+    showFarmerActionResult('error', `Farmer withdrawal failed: ${err.message}`);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Withdraw Farmer Balance';
+    }
+  }
 }
 
 async function confirmFarmerFunding(dealId, cycleId) {

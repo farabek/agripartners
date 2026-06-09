@@ -25,3 +25,16 @@ test('onboarding profile creation sends wallet authorization header', () => {
   expect(submitOnboardingBody).toContain("fetch(`${API_BASE}/api/profile/onboarding`");
   expect(submitOnboardingBody).toContain('headers: jsonAuthHeaders()');
 });
+
+test('wallet contract helper signs function call transactions through MyNearWallet', () => {
+  const helperStart = appJs.indexOf('async function signAndSendWalletFunctionCall');
+  expect(helperStart).toBeGreaterThan(-1);
+  const helperBody = appJs.slice(helperStart, helperStart + 1000);
+
+  expect(helperBody).toContain('getMyNearWallet()');
+  expect(helperBody).toContain('wallet.signAndSendTransaction');
+  expect(helperBody).toContain('receiverId: contractId');
+  expect(helperBody).toContain("type: 'FunctionCall'");
+  expect(helperBody).toContain('methodName');
+  expect(helperBody).toContain('deposit');
+});
