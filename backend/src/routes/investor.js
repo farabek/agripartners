@@ -13,14 +13,6 @@ async function getInvestorDeal(req, res) {
   return deal;
 }
 
-function getInvestorWithdrawSignerAccountId() {
-  const accountId = process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID;
-  if (!accountId) {
-    throw new Error('NEAR_INVESTOR_SIGNER_ACCOUNT_ID is required for backend investor withdraw signer');
-  }
-  return accountId;
-}
-
 router.get('/me', (req, res) => {
   res.json({
     account_id: req.wallet.account_id,
@@ -114,8 +106,7 @@ router.post('/deals/:id/withdraw', async (req, res) => {
   try {
     const deal = await getInvestorDeal(req, res);
     if (!deal) return;
-    const signerAccountId = getInvestorWithdrawSignerAccountId();
-    const result = await nearService.withdrawContractAs(signerAccountId, deal.contract_address);
+    const result = await nearService.withdrawContractAs(deal.investor, deal.contract_address);
     await dealService.addEvent({
       deal_id: deal.id,
       event_type: 'InvestorWithdraw',

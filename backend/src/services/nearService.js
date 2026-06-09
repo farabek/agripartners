@@ -105,13 +105,12 @@ async function fundContractWithAccount(account, contractAddress, investmentAmoun
 }
 
 async function withdrawContract(contractAddress) {
-  const platformSignerAccountId = process.env.NEAR_PLATFORM_SIGNER_ACCOUNT_ID || process.env.NEAR_ADMIN_ACCOUNT;
-  const account = await getAccountFromConfiguredCredentials(platformSignerAccountId);
+  const account = await getAdminAccount();
   return withdrawContractWithAccount(account, contractAddress);
 }
 
 async function withdrawContractAs(accountId, contractAddress) {
-  const account = await getAccountFromConfiguredCredentials(accountId);
+  const account = await getAdminAccount();
   return withdrawContractWithAccount(account, contractAddress);
 }
 

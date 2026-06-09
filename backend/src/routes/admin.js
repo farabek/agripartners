@@ -23,9 +23,9 @@ function validateDealAccount(deal, accountId, allowedFields) {
 }
 
 function getInvestorWithdrawSignerAccountId() {
-  const accountId = process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID;
+  const accountId = process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID || process.env.NEAR_ADMIN_ACCOUNT;
   if (!accountId) {
-    throw new Error('NEAR_INVESTOR_SIGNER_ACCOUNT_ID is required for contract investor withdraw signer');
+    throw new Error('NEAR_ADMIN_ACCOUNT is required for contract investor withdraw signer');
   }
   return accountId;
 }

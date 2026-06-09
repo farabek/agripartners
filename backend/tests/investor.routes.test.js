@@ -1,6 +1,4 @@
 process.env.JWT_SECRET = 'test-jwt-secret';
-process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID = 'investor-ap.testnet';
-
 jest.mock('../src/services/dealService');
 jest.mock('../src/services/investorProfileService');
 jest.mock('../src/services/nearService');
@@ -50,7 +48,6 @@ const investorProfile = {
 
 beforeEach(() => {
   jest.clearAllMocks();
-  process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID = 'investor-ap.testnet';
   dealService.getInvestorDeals.mockResolvedValue([investorDeal]);
   dealService.getInvestorDealById.mockResolvedValue(investorDeal);
   dealService.getDealEvents.mockResolvedValue([]);
@@ -229,14 +226,14 @@ test('GET /api/investor/deals/:id/reports returns 404 for non-owned deal', async
   expect(dealService.getFarmerReports).not.toHaveBeenCalled();
 });
 
-test('POST /api/investor/deals/:id/withdraw uses configured backend investor signer', async () => {
+test('POST /api/investor/deals/:id/withdraw submits investor recipient intent with server admin signing', async () => {
   const res = await request(app)
     .post('/api/investor/deals/1/withdraw')
     .set('Authorization', `Bearer ${walletToken}`);
 
   expect(res.status).toBe(200);
   expect(nearService.withdrawContractAs).toHaveBeenCalledWith(
-    'investor-ap.testnet',
+    'investor.testnet',
     'ap1.agripartners.testnet'
   );
   expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({
@@ -247,17 +244,16 @@ test('POST /api/investor/deals/:id/withdraw uses configured backend investor sig
   expect(res.body.tx_hash).toBe('tx_withdraw123');
 });
 
-test('POST /api/investor/deals/:id/withdraw returns configuration error when signer env is missing', async () => {
-  delete process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID;
-
+test('POST /api/investor/deals/:id/withdraw does not require investor signer env', async () => {
   const res = await request(app)
     .post('/api/investor/deals/1/withdraw')
     .set('Authorization', `Bearer ${walletToken}`);
 
-  expect(res.status).toBe(500);
-  expect(res.body.error).toBe('NEAR_INVESTOR_SIGNER_ACCOUNT_ID is required for backend investor withdraw signer');
-  expect(nearService.withdrawContractAs).not.toHaveBeenCalled();
-  expect(dealService.addEvent).not.toHaveBeenCalled();
+  expect(res.status).toBe(200);
+  expect(nearService.withdrawContractAs).toHaveBeenCalledWith(
+    'investor.testnet',
+    'ap1.agripartners.testnet'
+  );
 });
 
 test('POST /api/investor/deals/:id/withdraw returns 404 for non-owned deal without contract call', async () => {
