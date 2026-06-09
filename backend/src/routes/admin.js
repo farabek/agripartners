@@ -22,6 +22,23 @@ function validateDealAccount(deal, accountId, allowedFields) {
   return null;
 }
 
+function getWithdrawTarget(deal, accountId) {
+  if (accountId === deal.farmer) return { role: 'farmer', receiver: deal.farmer };
+  if (accountId === deal.investor) return { role: 'investor', receiver: deal.investor };
+  if (accountId === deal.platform) return { role: 'platform', receiver: deal.platform };
+  return { role: 'unknown', receiver: accountId };
+}
+
+function logWithdrawAttempt({ deal, targetRole, receiverAccount }) {
+  console.info('[admin.withdraw]', {
+    deal_id: deal.id,
+    contract_address: deal.contract_address,
+    withdraw_target_role: targetRole,
+    receiver_account: receiverAccount,
+    signer_account: process.env.NEAR_ADMIN_ACCOUNT,
+  });
+}
+
 function getInvestorWithdrawSignerAccountId() {
   const accountId = process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID || process.env.NEAR_ADMIN_ACCOUNT;
   if (!accountId) {
@@ -256,6 +273,11 @@ router.post('/deals/:id/withdraw', async (req, res) => {
   const deal = await dealService.getDealById(req.params.id);
   if (!deal) return res.status(404).json({ error: 'Deal not found' });
   try {
+    logWithdrawAttempt({
+      deal,
+      targetRole: 'platform',
+      receiverAccount: deal.platform,
+    });
     const { txHash } = await nearService.withdrawContract(deal.contract_address);
     await dealService.addEvent({ deal_id: deal.id, event_type: 'withdrawn', tx_hash: txHash });
     res.json({ success: true, tx_hash: txHash });
@@ -275,6 +297,12 @@ router.post('/deals/:id/withdraw-as', async (req, res) => {
   if (validationError) return res.status(400).json({ error: validationError });
 
   try {
+    const target = getWithdrawTarget(deal, account_id);
+    logWithdrawAttempt({
+      deal,
+      targetRole: target.role,
+      receiverAccount: target.receiver,
+    });
     const { txHash } = await nearService.withdrawContractAs(account_id, deal.contract_address);
     await dealService.addEvent({ deal_id: deal.id, event_type: 'withdrawn', tx_hash: txHash });
     res.json({ success: true, tx_hash: txHash });

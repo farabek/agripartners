@@ -20,6 +20,8 @@ const app = express();
 app.use(express.json());
 app.use('/api/admin', requireAdminAccess, adminRouter);
 
+let consoleInfoSpy;
+
 const adminToken = jwt.sign({ id: 1, username: 'admin', role: 'admin' }, 'test-jwt-secret');
 const farmerToken = jwt.sign({ id: 2, username: 'farmer1', role: 'farmer' }, 'test-jwt-secret');
 const adminWalletToken = jwt.sign({
@@ -49,6 +51,7 @@ const mockDeal = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
   process.env.NODE_ENV = 'test';
   delete process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID;
   dealService.getDealById.mockResolvedValue(mockDeal);
@@ -69,6 +72,10 @@ beforeEach(() => {
       displayName: `${role} profile`,
     },
   ]));
+});
+
+afterEach(() => {
+  consoleInfoSpy.mockRestore();
 });
 
 test('POST /api/admin/deals without token returns 401', async () => {
@@ -326,6 +333,13 @@ test('POST /api/admin/deals/:id/withdraw calls withdrawContract and records even
   expect(res.status).toBe(200);
   expect(res.body).toEqual({ success: true, tx_hash: 'tx5' });
   expect(nearService.withdrawContract).toHaveBeenCalledWith('ap1.agripartners.testnet');
+  expect(consoleInfoSpy).toHaveBeenCalledWith('[admin.withdraw]', {
+    deal_id: 1,
+    contract_address: 'ap1.agripartners.testnet',
+    withdraw_target_role: 'platform',
+    receiver_account: 'platform-ap.testnet',
+    signer_account: 'agripartners.testnet',
+  });
   expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'withdrawn', tx_hash: 'tx5' }));
 });
 
@@ -348,7 +362,49 @@ test('POST /api/admin/deals/:id/withdraw-as calls withdrawContractAs for deal pa
     'farmer-ap.testnet',
     'ap1.agripartners.testnet'
   );
+  expect(consoleInfoSpy).toHaveBeenCalledWith('[admin.withdraw]', {
+    deal_id: 1,
+    contract_address: 'ap1.agripartners.testnet',
+    withdraw_target_role: 'farmer',
+    receiver_account: 'farmer-ap.testnet',
+    signer_account: 'agripartners.testnet',
+  });
   expect(dealService.addEvent).toHaveBeenCalledWith(expect.objectContaining({ event_type: 'withdrawn', tx_hash: 'tx7' }));
+});
+
+test('POST /api/admin/deals/:id/withdraw-as uses Deal 7 DB contract address for farmer withdraw', async () => {
+  dealService.getDealById.mockResolvedValueOnce({
+    ...mockDeal,
+    id: 7,
+    contract_address: 'ap1780985012692.farab.testnet',
+    farmer: 'abdua.testnet',
+    investor: 'farab.testnet',
+    admin: 'farab.testnet',
+    platform: 'farab.testnet',
+  });
+
+  const res = await request(app)
+    .post('/api/admin/deals/7/withdraw-as')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ account_id: 'abdua.testnet' });
+
+  expect(res.status).toBe(200);
+  expect(dealService.getDealById).toHaveBeenCalledWith('7');
+  expect(nearService.withdrawContractAs).toHaveBeenCalledWith(
+    'abdua.testnet',
+    'ap1780985012692.farab.testnet'
+  );
+  expect(nearService.withdrawContractAs).not.toHaveBeenCalledWith(
+    'abdua.testnet',
+    'ap1780861007018.farab.testnet'
+  );
+  expect(consoleInfoSpy).toHaveBeenCalledWith('[admin.withdraw]', {
+    deal_id: 7,
+    contract_address: 'ap1780985012692.farab.testnet',
+    withdraw_target_role: 'farmer',
+    receiver_account: 'abdua.testnet',
+    signer_account: 'agripartners.testnet',
+  });
 });
 
 test('POST /api/admin/deals/:id/withdraw-as rejects account outside deal parties', async () => {
