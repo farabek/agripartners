@@ -82,3 +82,11 @@ CREATE TABLE IF NOT EXISTS reports (
   created_at     TEXT NOT NULL,
   UNIQUE (deal_id, cycle_id)
 );
+
+CREATE TABLE IF NOT EXISTS deal_returns (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  deal_id INTEGER NOT NULL,
+  amount_near TEXT NOT NULL,
+  note TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);

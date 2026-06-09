@@ -1879,8 +1879,8 @@ async function showInvestorDeal(id) {
   `;
 
   try {
-    const { deal, status, balances, events, reports, cycles } = await fetchInvestorDealBundle(id);
-    renderInvestorDealDetail(el, deal, status, balances, events, reports, cycles);
+    const { deal, status, balances, events, reports, cycles, returns } = await fetchInvestorDealBundle(id);
+    renderInvestorDealDetail(el, deal, status, balances, events, reports, cycles, returns);
   } catch (e) {
     el.querySelector('.spinner')?.remove();
     el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Deal unavailable: ${escapeHtml(e.message)}</div>`;
@@ -1889,13 +1889,14 @@ async function showInvestorDeal(id) {
 
 async function fetchInvestorDealBundle(id) {
   const headers = authHeaders();
-  const [dealRes, statusRes, balancesRes, eventsRes, cyclesRes, reportsRes] = await Promise.allSettled([
+  const [dealRes, statusRes, balancesRes, eventsRes, cyclesRes, reportsRes, returnsRes] = await Promise.allSettled([
     fetch(`${API_BASE}/api/investor/deals/${id}`, { headers }),
     fetch(`${API_BASE}/api/investor/deals/${id}/status`, { headers }),
     fetch(`${API_BASE}/api/investor/deals/${id}/balances`, { headers }),
     fetch(`${API_BASE}/api/investor/deals/${id}/events`, { headers }),
     fetch(`${API_BASE}/api/investor/deals/${id}/cycles`, { headers }),
-    fetch(`${API_BASE}/api/investor/deals/${id}/reports`, { headers })
+    fetch(`${API_BASE}/api/investor/deals/${id}/reports`, { headers }),
+    fetch(`${API_BASE}/api/investor/deals/${id}/returns`, { headers })
   ]);
 
   if (dealRes.status === 'rejected' || !dealRes.value.ok) {
@@ -1915,7 +1916,8 @@ async function fetchInvestorDealBundle(id) {
     balances: balancesRes.status === 'fulfilled' && balancesRes.value.ok ? await balancesRes.value.json() : null,
     events: eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : [],
     cycles: cyclesRes.status === 'fulfilled' && cyclesRes.value.ok ? normalizeCyclesResponse(await cyclesRes.value.json()) : [],
-    reports: reportsRes.status === 'fulfilled' && reportsRes.value.ok ? (await reportsRes.value.json()).reports || [] : []
+    reports: reportsRes.status === 'fulfilled' && reportsRes.value.ok ? (await reportsRes.value.json()).reports || [] : [],
+    returns: returnsRes.status === 'fulfilled' && returnsRes.value.ok ? await returnsRes.value.json() : []
   };
 }
 
@@ -1930,7 +1932,7 @@ function renderInvestorDealAccessMessage(el) {
   `;
 }
 
-function renderInvestorDealDetail(el, deal, status, balances, events, reports = [], cycles = []) {
+function renderInvestorDealDetail(el, deal, status, balances, events, reports = [], cycles = [], returns = []) {
   const investorBalance = balances?.investor || '0';
   el.innerHTML = `
     ${renderNav()}
@@ -1956,6 +1958,16 @@ function renderInvestorDealDetail(el, deal, status, balances, events, reports = 
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Investment Summary</h3>
+      <div id="investor-investment-summary">${renderInvestmentSummary(deal)}</div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns</h3>
+      <div id="investor-returns-list">${renderRepaymentHistory(returns)}</div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
       <div id="investor-cycles-list">${renderCycleStatusCards(cycles)}</div>
     </div>
@@ -1973,6 +1985,43 @@ function renderInvestorDealDetail(el, deal, status, balances, events, reports = 
 
   document.getElementById('btn-investor-refresh').addEventListener('click', () => refreshInvestorDeal(deal.id));
   document.getElementById('btn-investor-withdraw').addEventListener('click', () => withdrawInvestorFromPortal(deal));
+}
+
+function formatNearDisplay(value) {
+  return `${escapeHtml(value ?? '0.00')} NEAR`;
+}
+
+function renderInvestmentSummary(deal) {
+  const rows = [
+    ['Invested', formatNearDisplay(deal.amount)],
+    ['Expected Return', formatNearDisplay(deal.expected_return)],
+    ['Returned', formatNearDisplay(deal.returned_amount)],
+    ['Outstanding', formatNearDisplay(deal.outstanding_amount)],
+    ['ROI', `${escapeHtml(deal.roi_percent ?? 20)}%`],
+  ];
+  return `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      ${rows.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${label}</span>
+          <span class="metric-value">${value}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderRepaymentHistory(returns) {
+  if (!returns.length) return '<p class="text-slate-500 text-sm">No repayments recorded yet</p>';
+  return returns.map((repayment) => `
+    <div class="farmer-report-summary">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="text-slate-200 font-medium">${repayment.created_at ? escapeHtml(new Date(repayment.created_at).toLocaleDateString('en-US')) : 'Recorded'}</span>
+        <span class="text-green-300 font-mono">${formatNearDisplay(repayment.amount_near)}</span>
+      </div>
+      ${repayment.note ? `<p class="text-sm text-slate-400 mt-2">${escapeHtml(repayment.note)}</p>` : ''}
+    </div>
+  `).join('');
 }
 
 function renderInvestorReports(reports) {
@@ -2111,17 +2160,21 @@ async function refreshInvestorDeal(id) {
   if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
 
   try {
-    const { status, balances, events, reports, cycles } = await fetchInvestorDealBundle(id);
+    const { deal, status, balances, events, reports, cycles, returns } = await fetchInvestorDealBundle(id);
     const badgeEl = document.getElementById('investor-status-badge');
     const cycleEl = document.getElementById('investor-cycle-text');
     const eventsEl = document.getElementById('investor-events-list');
     const reportsEl = document.getElementById('investor-reports-list');
     const cyclesEl = document.getElementById('investor-cycles-list');
+    const summaryEl = document.getElementById('investor-investment-summary');
+    const returnsEl = document.getElementById('investor-returns-list');
     if (badgeEl) badgeEl.innerHTML = statusBadge(status?.status);
     if (cycleEl) cycleEl.textContent = `Cycle ${status?.current_cycle ?? '—'}`;
     if (eventsEl) eventsEl.innerHTML = renderEvents(events);
     if (reportsEl) reportsEl.innerHTML = renderInvestorReports(reports);
     if (cyclesEl) cyclesEl.innerHTML = renderCycleStatusCards(cycles);
+    if (summaryEl) summaryEl.innerHTML = renderInvestmentSummary(deal);
+    if (returnsEl) returnsEl.innerHTML = renderRepaymentHistory(returns);
 
     const investorBalanceEl = document.getElementById('investor-available-balance');
     if (investorBalanceEl) {
@@ -2299,6 +2352,16 @@ function renderAdminActions(deal, status) {
         ${renderAdminActionButton('withdraw-investor', 'Withdraw Investor', status)}
         ${renderAdminActionButton('withdraw-platform', 'Withdraw Platform', status)}
       </div>
+      <form id="admin-return-form" class="mt-5 border-t border-slate-700 pt-4 space-y-3">
+        <h4 class="text-sm font-semibold text-slate-300">Record Return</h4>
+        <div class="grid sm:grid-cols-[160px_1fr_auto] gap-2">
+          <input id="admin-return-amount" name="amount_near" type="text" inputmode="decimal" placeholder="Amount (NEAR)"
+            class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-green-500" />
+          <input id="admin-return-note" name="note" type="text" placeholder="Note"
+            class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-green-500" />
+          <button id="btn-admin-record-return" type="submit" class="admin-action-btn">Record Return</button>
+        </div>
+      </form>
       <div id="admin-action-result" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></div>
     </div>
   `;
@@ -2306,8 +2369,10 @@ function renderAdminActions(deal, status) {
 
 function bindAdminActions(deal) {
   document.querySelectorAll('.admin-action-btn').forEach(btn => {
+    if (btn.type === 'submit') return;
     btn.addEventListener('click', () => runAdminAction(deal, btn.dataset.action));
   });
+  document.getElementById('admin-return-form')?.addEventListener('submit', (event) => recordAdminReturn(event, deal));
 }
 
 function setAdminActionBusy(isBusy) {
@@ -2340,6 +2405,34 @@ function showAdminActionResult(type, message, txHash) {
     ${txHash ? `<div class="mt-1 text-xs">Tx: <a href="https://testnet.nearblocks.io/txns/${escapeHtml(txHash)}" target="_blank" class="font-mono underline">${escapeHtml(txHash)}</a></div>` : ''}
   `;
   el.classList.remove('hidden');
+}
+
+async function recordAdminReturn(event, deal) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const btn = document.getElementById('btn-admin-record-return');
+  const amountNear = document.getElementById('admin-return-amount')?.value.trim();
+  const note = document.getElementById('admin-return-note')?.value.trim();
+  if (btn) { btn.disabled = true; btn.textContent = 'Recording...'; }
+  showAdminActionResult('success', 'Recording return...');
+
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/deals/${deal.id}/returns`, {
+      method: 'POST',
+      headers: jsonAuthHeaders(),
+      body: JSON.stringify({ amount_near: amountNear, note }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    form.reset();
+    showAdminActionResult('success', 'Return recorded successfully');
+    await refreshDeal(deal.id);
+  } catch (err) {
+    showAdminActionResult('error', `Record return failed: ${err.message}`);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Record Return'; }
+  }
 }
 
 function adminActionConfig(deal, action) {

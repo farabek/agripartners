@@ -66,7 +66,7 @@ router.get('/deals', async (req, res) => {
 router.get('/deals/:id', async (req, res) => {
   try {
     const deal = await getInvestorDeal(req, res);
-    if (deal) res.json(deal);
+    if (deal) res.json(await dealService.enrichDealWithReturnSummary(deal));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -122,6 +122,16 @@ router.get('/deals/:id/reports', async (req, res) => {
       dealId: deal.id,
       reports: await dealService.getFarmerReports(deal.id),
     });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/deals/:id/returns', async (req, res) => {
+  try {
+    const deal = await getInvestorDeal(req, res);
+    if (!deal) return;
+    res.json(await dealService.getDealReturns(deal.id));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

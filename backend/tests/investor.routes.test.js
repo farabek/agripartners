@@ -35,6 +35,7 @@ const investorDeal = {
   id: 1,
   investor: 'investor.testnet',
   contract_address: 'ap1.agripartners.testnet',
+  investment_amount: '100000000000000000000000',
 };
 const investorProfile = {
   id: 1,
@@ -50,6 +51,21 @@ beforeEach(() => {
   jest.clearAllMocks();
   dealService.getInvestorDeals.mockResolvedValue([investorDeal]);
   dealService.getInvestorDealById.mockResolvedValue(investorDeal);
+  dealService.enrichDealWithReturnSummary.mockResolvedValue({
+    ...investorDeal,
+    amount: '0.10',
+    expected_return: '0.12',
+    returned_amount: '0.05',
+    outstanding_amount: '0.07',
+    roi_percent: 20,
+  });
+  dealService.getDealReturns.mockResolvedValue([{
+    id: 1,
+    deal_id: 1,
+    amount_near: '0.05',
+    note: 'First repayment',
+    created_at: '2026-06-10T00:00:00Z',
+  }]);
   dealService.getDealEvents.mockResolvedValue([]);
   dealService.getFarmerDealCycles.mockResolvedValue([{
     id: 1,
@@ -161,7 +177,23 @@ test('GET /api/investor/deals/:id returns owned deal', async () => {
 
   expect(res.status).toBe(200);
   expect(dealService.getInvestorDealById).toHaveBeenCalledWith('investor.testnet', '1');
+  expect(dealService.enrichDealWithReturnSummary).toHaveBeenCalledWith(investorDeal);
   expect(res.body.id).toBe(1);
+});
+
+test('GET /api/investor/deals/:id returns ROI summary fields', async () => {
+  const res = await request(app)
+    .get('/api/investor/deals/1')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(200);
+  expect(res.body).toEqual(expect.objectContaining({
+    amount: '0.10',
+    expected_return: '0.12',
+    returned_amount: '0.05',
+    outstanding_amount: '0.07',
+    roi_percent: 20,
+  }));
 });
 
 test('GET /api/investor/deals/:id returns 404 for missing or non-owned deal', async () => {
@@ -294,6 +326,33 @@ test('GET /api/investor/deals/:id/reports returns 404 for non-owned deal', async
 
   expect(res.status).toBe(404);
   expect(dealService.getFarmerReports).not.toHaveBeenCalled();
+});
+
+test('GET /api/investor/deals/:id/returns returns repayment history for owned deal', async () => {
+  const res = await request(app)
+    .get('/api/investor/deals/1/returns')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(200);
+  expect(dealService.getDealReturns).toHaveBeenCalledWith(1);
+  expect(res.body).toEqual([
+    expect.objectContaining({
+      amount_near: '0.05',
+      note: 'First repayment',
+      created_at: '2026-06-10T00:00:00Z',
+    }),
+  ]);
+});
+
+test('GET /api/investor/deals/:id/returns returns 404 for non-owned deal', async () => {
+  dealService.getInvestorDealById.mockResolvedValue(null);
+
+  const res = await request(app)
+    .get('/api/investor/deals/1/returns')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(404);
+  expect(dealService.getDealReturns).not.toHaveBeenCalled();
 });
 
 test('POST /api/investor/deals/:id/withdraw submits investor recipient intent with server admin signing', async () => {

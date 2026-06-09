@@ -46,3 +46,12 @@ test('admin deal detail fetches and renders farmer cycle status', () => {
   expect(appJs).toContain('Farmer Cycle Status');
   expect(appJs).toContain('renderCycleStatusCards(cycles)');
 });
+
+test('admin deal detail renders repayment recording form', () => {
+  expect(appJs).toContain('Record Return');
+  expect(appJs).toContain('id="admin-return-form"');
+  expect(appJs).toContain('id="admin-return-amount"');
+  expect(appJs).toContain('id="admin-return-note"');
+  expect(appJs).toContain('async function recordAdminReturn');
+  expect(appJs).toContain("fetch(`${API_BASE}/api/admin/deals/${deal.id}/returns`");
+});

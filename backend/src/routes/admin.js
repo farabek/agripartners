@@ -246,6 +246,23 @@ router.get('/deals/:id/cycles', async (req, res) => {
   }
 });
 
+router.post('/deals/:id/returns', async (req, res) => {
+  const deal = await dealService.getDealById(req.params.id);
+  if (!deal) return res.status(404).json({ error: 'Deal not found' });
+
+  try {
+    const repayment = await dealService.createDealReturn(deal.id, {
+      amount_near: req.body.amount_near,
+      note: req.body.note,
+    });
+    const summary = await dealService.getDealReturnSummary(deal);
+    res.status(201).json({ ok: true, repayment, summary });
+  } catch (err) {
+    const status = /amount_near/.test(err.message) ? 400 : 500;
+    res.status(status).json({ error: err.message });
+  }
+});
+
 router.post('/deals/:id/fund', async (req, res) => {
   const deal = await dealService.getDealById(req.params.id);
   if (!deal) return res.status(404).json({ error: 'Deal not found' });

@@ -27,3 +27,20 @@ test('investor cycle cards render farmer report fields', () => {
   expect(appJs).toContain('cycle.report_created_at');
   expect(appJs).toContain('renderFarmerReportSummary(card.report)');
 });
+
+test('investor detail renders investment summary', () => {
+  expect(appJs).toContain('Investment Summary');
+  expect(appJs).toContain('id="investor-investment-summary"');
+  expect(appJs).toContain('function renderInvestmentSummary');
+  expect(appJs).toContain('Expected Return');
+  expect(appJs).toContain('Outstanding');
+  expect(appJs).toContain('ROI');
+});
+
+test('investor detail fetches and renders repayment history', () => {
+  expect(appJs).toContain("fetch(`${API_BASE}/api/investor/deals/${id}/returns`, { headers })");
+  expect(appJs).toContain('id="investor-returns-list"');
+  expect(appJs).toContain('function renderRepaymentHistory');
+  expect(appJs).toContain('amount_near');
+  expect(appJs).toContain('repayment.note');
+});

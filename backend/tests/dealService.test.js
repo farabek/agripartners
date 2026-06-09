@@ -13,6 +13,9 @@ const {
   getDealEvents,
   getFarmerDealCycles,
   getFarmerReports,
+  getDealReturns,
+  createDealReturn,
+  getDealReturnSummary,
   createFarmerReport,
   confirmFarmerFunding,
   submitFarmerCycleReport,
@@ -199,6 +202,51 @@ test('getFarmerReports returns reports for deal ordered by cycle', async () => {
     [1]
   );
   expect(result).toBe(reports);
+});
+
+test('getDealReturns returns repayment history ordered by creation time', async () => {
+  const returns = [{ id: 1, deal_id: 1, amount_near: '0.05', note: 'First repayment' }];
+  pool.query.mockResolvedValue({ rows: returns });
+
+  const result = await getDealReturns(1);
+
+  expect(pool.query).toHaveBeenCalledWith(
+    'SELECT * FROM deal_returns WHERE deal_id = $1 ORDER BY created_at ASC',
+    [1]
+  );
+  expect(result).toBe(returns);
+});
+
+test('createDealReturn inserts normalized repayment amount', async () => {
+  pool.query.mockResolvedValue({
+    rows: [{ id: 1, deal_id: 1, amount_near: '0.05', note: 'First repayment' }],
+  });
+
+  const result = await createDealReturn(1, { amount_near: '0.050', note: 'First repayment' });
+
+  const [sql, params] = pool.query.mock.calls[0];
+  expect(sql).toContain('INSERT INTO deal_returns');
+  expect(params).toEqual([1, '0.05', 'First repayment']);
+  expect(result.amount_near).toBe('0.05');
+});
+
+test('getDealReturnSummary calculates ROI and outstanding balance', async () => {
+  pool.query.mockResolvedValue({
+    rows: [{ id: 1, deal_id: 1, amount_near: '0.05' }],
+  });
+
+  const summary = await getDealReturnSummary({
+    id: 1,
+    investment_amount: '100000000000000000000000',
+  });
+
+  expect(summary).toEqual({
+    amount: '0.10',
+    expected_return: '0.12',
+    returned_amount: '0.05',
+    outstanding_amount: '0.07',
+    roi_percent: 20,
+  });
 });
 
 test('confirmFarmerFunding upserts confirmation timestamp', async () => {

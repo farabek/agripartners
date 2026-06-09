@@ -57,6 +57,20 @@ beforeEach(() => {
   dealService.getDealById.mockResolvedValue(mockDeal);
   dealService.createDeal.mockResolvedValue(mockDeal);
   dealService.addEvent.mockResolvedValue(undefined);
+  dealService.createDealReturn.mockResolvedValue({
+    id: 1,
+    deal_id: 1,
+    amount_near: '0.05',
+    note: 'First repayment',
+    created_at: '2026-06-10T00:00:00Z',
+  });
+  dealService.getDealReturnSummary.mockResolvedValue({
+    amount: '0.10',
+    expected_return: '0.12',
+    returned_amount: '0.05',
+    outstanding_amount: '0.07',
+    roi_percent: 20,
+  });
   dealService.getFarmerDealCycles.mockResolvedValue([{
     id: 1,
     status: 'reported',
@@ -313,6 +327,45 @@ test('GET /api/admin/deals/:id/cycles returns 404 when deal not found', async ()
 
   expect(res.status).toBe(404);
   expect(dealService.getFarmerDealCycles).not.toHaveBeenCalled();
+});
+
+test('POST /api/admin/deals/:id/returns creates repayment and returns updated summary', async () => {
+  const res = await request(app)
+    .post('/api/admin/deals/1/returns')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ amount_near: '0.05', note: 'First repayment' });
+
+  expect(res.status).toBe(201);
+  expect(dealService.getDealById).toHaveBeenCalledWith('1');
+  expect(dealService.createDealReturn).toHaveBeenCalledWith(1, {
+    amount_near: '0.05',
+    note: 'First repayment',
+  });
+  expect(dealService.getDealReturnSummary).toHaveBeenCalledWith(mockDeal);
+  expect(res.body).toEqual(expect.objectContaining({
+    ok: true,
+    repayment: expect.objectContaining({
+      amount_near: '0.05',
+      note: 'First repayment',
+    }),
+    summary: expect.objectContaining({
+      returned_amount: '0.05',
+      outstanding_amount: '0.07',
+      roi_percent: 20,
+    }),
+  }));
+});
+
+test('POST /api/admin/deals/:id/returns returns 404 when deal not found', async () => {
+  dealService.getDealById.mockResolvedValueOnce(null);
+
+  const res = await request(app)
+    .post('/api/admin/deals/999/returns')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ amount_near: '0.05' });
+
+  expect(res.status).toBe(404);
+  expect(dealService.createDealReturn).not.toHaveBeenCalled();
 });
 
 test('POST /api/admin/deals/:id/fund calls fundContract and records event', async () => {
