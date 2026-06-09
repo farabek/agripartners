@@ -4,12 +4,13 @@ let nearInstance = null;
 let accountInstance = null;
 let keyStoreInstance = null;
 const accountInstancesById = new Map();
+const DEFAULT_TESTNET_RPC_URL = 'https://test.rpc.fastnear.com';
 
 function getNetworkConfig() {
   const networkId = process.env.NEAR_NETWORK || 'testnet';
   const nodeUrl = process.env.NEAR_RPC_URL || (networkId === 'mainnet'
     ? 'https://rpc.mainnet.near.org'
-    : 'https://rpc.testnet.fastnear.com');
+    : DEFAULT_TESTNET_RPC_URL);
   return { networkId, nodeUrl };
 }
 

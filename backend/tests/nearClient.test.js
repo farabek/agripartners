@@ -59,7 +59,19 @@ test('getAdminAccount uses FastNear as the default testnet RPC', async () => {
   const { connect } = require('near-api-js');
   expect(connect).toHaveBeenCalledWith(expect.objectContaining({
     networkId: 'testnet',
-    nodeUrl: 'https://rpc.testnet.fastnear.com'
+    nodeUrl: 'https://test.rpc.fastnear.com'
+  }));
+});
+
+test('getAdminAccount uses configured NEAR_RPC_URL when present', async () => {
+  process.env.NEAR_RPC_URL = 'https://rpc.example.test';
+
+  await getAdminAccount();
+
+  const { connect } = require('near-api-js');
+  expect(connect).toHaveBeenCalledWith(expect.objectContaining({
+    networkId: 'testnet',
+    nodeUrl: 'https://rpc.example.test'
   }));
 });
 

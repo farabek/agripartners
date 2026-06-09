@@ -5,7 +5,7 @@ const { utils } = require('near-api-js');
 const NETWORK_ID = 'testnet';
 const DEFAULT_RPC_URLS = {
   mainnet: 'https://rpc.mainnet.fastnear.com',
-  testnet: 'https://rpc.testnet.fastnear.com',
+  testnet: 'https://test.rpc.fastnear.com',
 };
 const RECIPIENT = 'farab.testnet';
 const MESSAGE = 'Authenticate with AgriPartners Wallet Phase 3 POC';

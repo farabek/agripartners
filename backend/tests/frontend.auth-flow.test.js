@@ -48,6 +48,14 @@ test('wallet selector debug helpers are exposed in local development', () => {
   expect(appJs).toContain('getWalletSelector');
 });
 
+test('frontend wallet selector uses configurable FastNEAR testnet RPC', () => {
+  expect(appJs).toContain("const NEAR_RPC_URL = import.meta.env.VITE_NEAR_RPC_URL || 'https://test.rpc.fastnear.com'");
+  expect(appJs).toContain('const NEAR_WALLET_NETWORK_CONFIG = {');
+  expect(appJs).toContain('nodeUrl: NEAR_RPC_URL');
+  expect(appJs).toContain('network: NEAR_WALLET_NETWORK_CONFIG');
+  expect(appJs).not.toContain(`https://rpc.${'testnet'}.near.org`);
+});
+
 test('wallet selector session is inspected and restored before signing', () => {
   const snapshotStart = appJs.indexOf('function getWalletSelectorSnapshot');
   expect(snapshotStart).toBeGreaterThan(-1);

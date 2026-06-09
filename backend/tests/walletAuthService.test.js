@@ -73,7 +73,7 @@ test('assertFullAccessKey uses FastNear testnet RPC by default', async () => {
   await walletAuthService.assertFullAccessKey('owner.testnet', 'ed25519:PUBLIC');
 
   expect(global.fetch).toHaveBeenCalledWith(
-    'https://rpc.testnet.fastnear.com',
+    'https://test.rpc.fastnear.com',
     expect.objectContaining({
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -123,7 +123,7 @@ test('verifyWalletSignature issues JWT without skip flag after real full-access 
   expect(verified.token).toBeDefined();
   expect(verified.account_id).toBe(accountId);
   expect(global.fetch).toHaveBeenCalledWith(
-    'https://rpc.testnet.fastnear.com',
+    'https://test.rpc.fastnear.com',
     expect.objectContaining({ method: 'POST' })
   );
 

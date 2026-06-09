@@ -14,6 +14,14 @@ const API_BASE = ['localhost', '127.0.0.1'].includes(window.location.hostname)
   ? 'http://localhost:3000'
   : 'https://agripartners.onrender.com';
 const NEAR_WALLET_NETWORK = 'testnet';
+const NEAR_RPC_URL = import.meta.env.VITE_NEAR_RPC_URL || 'https://test.rpc.fastnear.com';
+const NEAR_WALLET_NETWORK_CONFIG = {
+  networkId: NEAR_WALLET_NETWORK,
+  nodeUrl: NEAR_RPC_URL,
+  helperUrl: 'https://helper.testnet.near.org',
+  explorerUrl: 'https://testnet.nearblocks.io',
+  indexerUrl: 'https://testnet-api.kitwallet.app',
+};
 const WALLET_AUTH_CHALLENGE_KEY = 'ap_wallet_auth_challenge';
 const AUTH_STORAGE_KEY = 'ap_auth';
 const LOCAL_MVP_ADMIN_WALLETS = ['farab.testnet'];
@@ -130,7 +138,7 @@ function walletCallbackUrl() {
 async function getWalletSelector() {
   if (walletSelector) return walletSelector;
   walletSelector = await setupWalletSelector({
-    network: NEAR_WALLET_NETWORK,
+    network: NEAR_WALLET_NETWORK_CONFIG,
     modules: [setupMyNearWallet()],
   });
   exposeWalletDebugHelpers();
