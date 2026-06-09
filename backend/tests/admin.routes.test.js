@@ -57,6 +57,18 @@ beforeEach(() => {
   dealService.getDealById.mockResolvedValue(mockDeal);
   dealService.createDeal.mockResolvedValue(mockDeal);
   dealService.addEvent.mockResolvedValue(undefined);
+  dealService.getFarmerDealCycles.mockResolvedValue([{
+    id: 1,
+    status: 'reported',
+    fundingReceived: true,
+    reportStatus: 'submitted',
+    report: {
+      title: 'Cycle 1 report',
+      description: 'Purchased livestock',
+      farmerWallet: 'farmer-ap.testnet',
+      submittedAt: '2026-06-09T10:00:00Z',
+    },
+  }]);
   nearService.deployContract.mockResolvedValue({ contractId: 'ap1.agripartners.testnet', txHash: 'tx1' });
   nearService.startCycle.mockResolvedValue({ txHash: 'tx2' });
   nearService.reportCycle.mockResolvedValue({ txHash: 'tx3' });
@@ -272,6 +284,35 @@ test('POST /api/admin/deals/:id/report-cycle without profit_near returns 400', a
     .set('Authorization', `Bearer ${adminToken}`)
     .send({});
   expect(res.status).toBe(400);
+});
+
+test('GET /api/admin/deals/:id/cycles shows farmer confirmation and report status', async () => {
+  const res = await request(app)
+    .get('/api/admin/deals/1/cycles')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(200);
+  expect(dealService.getDealById).toHaveBeenCalledWith('1');
+  expect(dealService.getFarmerDealCycles).toHaveBeenCalledWith(1);
+  expect(res.body.cycles).toEqual([
+    expect.objectContaining({
+      id: 1,
+      fundingReceived: true,
+      reportStatus: 'submitted',
+      report: expect.objectContaining({ description: 'Purchased livestock' }),
+    }),
+  ]);
+});
+
+test('GET /api/admin/deals/:id/cycles returns 404 when deal not found', async () => {
+  dealService.getDealById.mockResolvedValueOnce(null);
+
+  const res = await request(app)
+    .get('/api/admin/deals/999/cycles')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(404);
+  expect(dealService.getFarmerDealCycles).not.toHaveBeenCalled();
 });
 
 test('POST /api/admin/deals/:id/fund calls fundContract and records event', async () => {

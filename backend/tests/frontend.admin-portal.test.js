@@ -39,3 +39,10 @@ test('deal list cards show visible deal number with title', () => {
   expect(renderDealCardBody).toContain('${d.description ?');
   expect(renderDealCardBody).toContain('href="#deals/${d.id}"');
 });
+
+test('admin deal detail fetches and renders farmer cycle status', () => {
+  expect(appJs).toContain("fetch(`${API_BASE}/api/admin/deals/${id}/cycles`, { headers })");
+  expect(appJs).toContain('id="admin-cycles-list"');
+  expect(appJs).toContain('Farmer Cycle Status');
+  expect(appJs).toContain('renderCycleStatusCards(cycles)');
+});

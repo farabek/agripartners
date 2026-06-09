@@ -51,6 +51,18 @@ beforeEach(() => {
   dealService.getInvestorDeals.mockResolvedValue([investorDeal]);
   dealService.getInvestorDealById.mockResolvedValue(investorDeal);
   dealService.getDealEvents.mockResolvedValue([]);
+  dealService.getFarmerDealCycles.mockResolvedValue([{
+    id: 1,
+    status: 'reported',
+    fundingReceived: true,
+    reportStatus: 'submitted',
+    report: {
+      title: 'Cycle 1 report',
+      description: 'Purchased livestock',
+      farmerWallet: 'farmer.testnet',
+      submittedAt: '2026-06-09T10:00:00Z',
+    },
+  }]);
   dealService.getFarmerReports.mockResolvedValue([{
     id: 1,
     deal_id: 1,
@@ -202,6 +214,34 @@ test('GET /api/investor/deals/:id/events returns 404 for non-owned deal', async 
 
   expect(res.status).toBe(404);
   expect(dealService.getDealEvents).not.toHaveBeenCalled();
+});
+
+test('GET /api/investor/deals/:id/cycles returns farmer confirmation and report status', async () => {
+  const res = await request(app)
+    .get('/api/investor/deals/1/cycles')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(200);
+  expect(dealService.getFarmerDealCycles).toHaveBeenCalledWith(1);
+  expect(res.body.cycles).toEqual([
+    expect.objectContaining({
+      id: 1,
+      fundingReceived: true,
+      reportStatus: 'submitted',
+      report: expect.objectContaining({ description: 'Purchased livestock' }),
+    }),
+  ]);
+});
+
+test('GET /api/investor/deals/:id/cycles returns 404 for non-owned deal', async () => {
+  dealService.getInvestorDealById.mockResolvedValue(null);
+
+  const res = await request(app)
+    .get('/api/investor/deals/1/cycles')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(404);
+  expect(dealService.getFarmerDealCycles).not.toHaveBeenCalled();
 });
 
 test('GET /api/investor/deals/:id/reports returns farmer reports for owned deal', async () => {

@@ -1336,6 +1336,9 @@ function renderFarmerCycles(dealId, cycles) {
   if (!cycles.length) return '<p class="text-slate-500 text-sm">No cycles found yet</p>';
   return cycles.map((cycle) => {
     const reportSubmitted = cycle.reportStatus === 'submitted' && cycle.report;
+    const fundingSent = ['funding_sent', 'reported'].includes(cycle.status);
+    const canConfirmFunding = fundingSent && !cycle.fundingReceived;
+    const canSubmitReport = cycle.fundingReceived && !reportSubmitted;
     const cycleLabel = reportSubmitted
       ? 'Report submitted'
       : (cycle.fundingReceived ? 'Funding confirmed' : (cycle.status === 'pending' ? 'Pending' : 'Funding sent'));
@@ -1351,8 +1354,8 @@ function renderFarmerCycles(dealId, cycles) {
           ${reportSubmitted ? renderFarmerReportSummary(cycle.report) : ''}
         </div>
         <div class="farmer-cycle-actions">
-          <button type="button" class="admin-action-btn farmer-confirm-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${cycle.fundingReceived ? 'disabled' : ''}>Confirm funding received</button>
-          <button type="button" class="admin-action-btn farmer-report-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${reportSubmitted || !cycle.fundingReceived ? 'disabled' : ''}>${reportSubmitted ? 'Report submitted' : (cycle.fundingReceived ? 'Create report' : 'Confirm funding first')}</button>
+          <button type="button" class="admin-action-btn farmer-confirm-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${canConfirmFunding ? '' : 'disabled'}>Confirm funding received</button>
+          <button type="button" class="admin-action-btn farmer-report-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${canSubmitReport ? '' : 'disabled'}>${reportSubmitted ? 'Report submitted' : (cycle.fundingReceived ? 'Submit report' : 'Confirm funding first')}</button>
         </div>
       </div>
     `;
@@ -1360,10 +1363,12 @@ function renderFarmerCycles(dealId, cycles) {
 }
 
 function renderFarmerReportSummary(report) {
+  const title = report.report_title || report.title || 'Farmer report';
+  const body = report.report_body || report.description || '';
   return `
     <div class="farmer-report-summary">
-      <div class="font-semibold text-slate-100">${escapeHtml(report.title || 'Farmer report')}</div>
-      <p class="text-sm text-slate-400 mt-1">${escapeHtml(report.description || '')}</p>
+      <div class="font-semibold text-slate-100">${escapeHtml(title)}</div>
+      <p class="text-sm text-slate-400 mt-1">${escapeHtml(body)}</p>
       <div class="grid sm:grid-cols-2 gap-2 mt-3 text-xs">
         <div>
           <span class="block text-slate-500">Amount used</span>
@@ -1441,9 +1446,9 @@ async function withdrawFarmerWithWallet(deal) {
 
 async function confirmFarmerFunding(dealId, cycleId) {
   try {
-    await fetchFarmerJson(`/api/farmer/deals/${dealId}/confirm-funding`, {
+    await fetchFarmerJson(`/api/farmer/deals/${dealId}/cycles/${cycleId}/confirm-funding`, {
       method: 'POST',
-      body: JSON.stringify({ cycleId: Number(cycleId) }),
+      body: JSON.stringify({}),
     });
     showFarmerActionResult('success', 'Funding receipt confirmed');
     await showFarmerDeal(dealId);
@@ -1459,10 +1464,8 @@ function showFarmerReportForm(dealId, cycleId) {
   el.innerHTML = `
     <form id="farmer-report-form" class="space-y-3">
       <div class="font-semibold text-slate-100">Cycle #${escapeHtml(cycleId)} report</div>
-      <input id="farmer-report-title" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" placeholder="Report title" />
-      <textarea id="farmer-report-description" rows="4" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" placeholder="Description"></textarea>
-      <input id="farmer-report-amount" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" placeholder="Amount used" />
-      <input id="farmer-report-evidence" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" placeholder="Evidence URL" />
+      <input id="farmer-report-title" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" placeholder="Report title (optional)" />
+      <textarea id="farmer-report-body" rows="5" class="w-full bg-slate-800 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" placeholder="Report body"></textarea>
       <button type="submit" class="admin-action-btn action-fund w-full">Submit report</button>
     </form>
   `;
@@ -1475,10 +1478,8 @@ function showFarmerReportForm(dealId, cycleId) {
 
 async function submitFarmerReport(dealId, cycleId) {
   const payload = {
-    title: document.getElementById('farmer-report-title').value.trim(),
-    description: document.getElementById('farmer-report-description').value.trim(),
-    amountUsed: document.getElementById('farmer-report-amount').value.trim(),
-    evidenceUrl: document.getElementById('farmer-report-evidence').value.trim(),
+    report_title: document.getElementById('farmer-report-title').value.trim(),
+    report_body: document.getElementById('farmer-report-body').value.trim(),
   };
   try {
     await fetchFarmerJson(`/api/farmer/deals/${dealId}/cycles/${cycleId}/report`, {
@@ -1878,8 +1879,8 @@ async function showInvestorDeal(id) {
   `;
 
   try {
-    const { deal, status, balances, events, reports } = await fetchInvestorDealBundle(id);
-    renderInvestorDealDetail(el, deal, status, balances, events, reports);
+    const { deal, status, balances, events, reports, cycles } = await fetchInvestorDealBundle(id);
+    renderInvestorDealDetail(el, deal, status, balances, events, reports, cycles);
   } catch (e) {
     el.querySelector('.spinner')?.remove();
     el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Deal unavailable: ${escapeHtml(e.message)}</div>`;
@@ -1888,11 +1889,12 @@ async function showInvestorDeal(id) {
 
 async function fetchInvestorDealBundle(id) {
   const headers = authHeaders();
-  const [dealRes, statusRes, balancesRes, eventsRes, reportsRes] = await Promise.allSettled([
+  const [dealRes, statusRes, balancesRes, eventsRes, cyclesRes, reportsRes] = await Promise.allSettled([
     fetch(`${API_BASE}/api/investor/deals/${id}`, { headers }),
     fetch(`${API_BASE}/api/investor/deals/${id}/status`, { headers }),
     fetch(`${API_BASE}/api/investor/deals/${id}/balances`, { headers }),
     fetch(`${API_BASE}/api/investor/deals/${id}/events`, { headers }),
+    fetch(`${API_BASE}/api/investor/deals/${id}/cycles`, { headers }),
     fetch(`${API_BASE}/api/investor/deals/${id}/reports`, { headers })
   ]);
 
@@ -1912,6 +1914,7 @@ async function fetchInvestorDealBundle(id) {
     status: statusRes.status === 'fulfilled' && statusRes.value.ok ? await statusRes.value.json() : null,
     balances: balancesRes.status === 'fulfilled' && balancesRes.value.ok ? await balancesRes.value.json() : null,
     events: eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : [],
+    cycles: cyclesRes.status === 'fulfilled' && cyclesRes.value.ok ? (await cyclesRes.value.json()).cycles || [] : [],
     reports: reportsRes.status === 'fulfilled' && reportsRes.value.ok ? (await reportsRes.value.json()).reports || [] : []
   };
 }
@@ -1927,7 +1930,7 @@ function renderInvestorDealAccessMessage(el) {
   `;
 }
 
-function renderInvestorDealDetail(el, deal, status, balances, events, reports = []) {
+function renderInvestorDealDetail(el, deal, status, balances, events, reports = [], cycles = []) {
   const investorBalance = balances?.investor || '0';
   el.innerHTML = `
     ${renderNav()}
@@ -1950,6 +1953,11 @@ function renderInvestorDealDetail(el, deal, status, balances, events, reports = 
         <button id="btn-investor-withdraw" class="admin-action-btn w-full">Withdraw Investor</button>
         <div id="investor-action-result" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></div>
       </div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
+      <div id="investor-cycles-list">${renderCycleStatusCards(cycles)}</div>
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
@@ -1996,6 +2004,26 @@ function renderInvestorReports(reports) {
       ${report.evidence_url ? `<a href="${escapeHtml(report.evidence_url)}" target="_blank" rel="noopener noreferrer" class="inline-block text-blue-400 hover:underline text-xs mt-2">Evidence link</a>` : ''}
     </div>
   `).join('');
+}
+
+function renderCycleStatusCards(cycles) {
+  if (!cycles.length) return '<p class="text-slate-500 text-sm">No cycle updates yet</p>';
+  return cycles.map((cycle) => {
+    const reportSubmitted = cycle.reportStatus === 'submitted' && cycle.report;
+    return `
+      <div class="farmer-cycle-row">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <span class="font-semibold text-slate-100">Cycle #${escapeHtml(cycle.id)}</span>
+            <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(cycle.status || 'pending')}</span>
+          </div>
+          <p class="text-sm text-slate-400">Funding received: <span class="text-slate-200">${cycle.fundingReceived ? 'confirmed' : 'not confirmed'}</span></p>
+          <p class="text-sm text-slate-400">Report: <span class="text-slate-200">${reportSubmitted ? 'submitted' : 'not submitted'}</span></p>
+          ${reportSubmitted ? renderFarmerReportSummary(cycle.report) : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderInvestorDealParams(deal, status, investorBalance) {
@@ -2057,15 +2085,17 @@ async function refreshInvestorDeal(id) {
   if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
 
   try {
-    const { status, balances, events, reports } = await fetchInvestorDealBundle(id);
+    const { status, balances, events, reports, cycles } = await fetchInvestorDealBundle(id);
     const badgeEl = document.getElementById('investor-status-badge');
     const cycleEl = document.getElementById('investor-cycle-text');
     const eventsEl = document.getElementById('investor-events-list');
     const reportsEl = document.getElementById('investor-reports-list');
+    const cyclesEl = document.getElementById('investor-cycles-list');
     if (badgeEl) badgeEl.innerHTML = statusBadge(status?.status);
     if (cycleEl) cycleEl.textContent = `Cycle ${status?.current_cycle ?? '—'}`;
     if (eventsEl) eventsEl.innerHTML = renderEvents(events);
     if (reportsEl) reportsEl.innerHTML = renderInvestorReports(reports);
+    if (cyclesEl) cyclesEl.innerHTML = renderCycleStatusCards(cycles);
 
     const investorBalanceEl = document.getElementById('investor-available-balance');
     if (investorBalanceEl) {
@@ -2091,11 +2121,14 @@ async function showDeal(id) {
   `;
 
   const headers = authHeaders();
-  const [dealRes, statusRes, balancesRes, eventsRes] = await Promise.allSettled([
+  const [dealRes, statusRes, balancesRes, eventsRes, cyclesRes] = await Promise.allSettled([
     fetch(`${API_BASE}/api/deals/${id}`, { headers }),
     fetch(`${API_BASE}/api/deals/${id}/status`, { headers }),
     fetch(`${API_BASE}/api/deals/${id}/balances`, { headers }),
-    fetch(`${API_BASE}/api/deals/${id}/events`, { headers })
+    fetch(`${API_BASE}/api/deals/${id}/events`, { headers }),
+    isAdmin()
+      ? fetch(`${API_BASE}/api/admin/deals/${id}/cycles`, { headers })
+      : Promise.resolve(new Response(JSON.stringify({ cycles: [] }), { status: 200, headers: { 'content-type': 'application/json' } }))
   ]);
 
   el.querySelector('.spinner')?.remove();
@@ -2115,11 +2148,13 @@ async function showDeal(id) {
     ? await balancesRes.value.json() : null;
   const events = eventsRes.status === 'fulfilled' && eventsRes.value.ok
     ? await eventsRes.value.json() : [];
+  const cycles = cyclesRes.status === 'fulfilled' && cyclesRes.value.ok
+    ? (await cyclesRes.value.json()).cycles || [] : [];
 
-  renderDealDetail(el, deal, status, balances, events);
+  renderDealDetail(el, deal, status, balances, events, cycles);
 }
 
-function renderDealDetail(el, deal, status, balances, events) {
+function renderDealDetail(el, deal, status, balances, events, cycles = []) {
   const dealTitle = deal.title || deal.deal_type;
   const cycleText = status ? `· Cycle ${status.current_cycle}` : '';
   el.innerHTML = `
@@ -2147,6 +2182,12 @@ function renderDealDetail(el, deal, status, balances, events) {
       </div>
     </div>
     ${isAdmin() ? renderAdminActions(deal, status?.status) : ''}
+    ${isAdmin() ? `
+      <div class="bg-slate-800 rounded-xl p-5 mb-6">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Cycle Status</h3>
+        <div id="admin-cycles-list">${renderCycleStatusCards(cycles)}</div>
+      </div>
+    ` : ''}
     <div class="bg-slate-800 rounded-xl p-5">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
       <div id="events-list">${renderEvents(events)}</div>
@@ -2437,10 +2478,13 @@ async function refreshDeal(id) {
   if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
 
   const headers = authHeaders();
-  const [statusRes, balancesRes, eventsRes] = await Promise.allSettled([
+  const [statusRes, balancesRes, eventsRes, cyclesRes] = await Promise.allSettled([
     fetch(`${API_BASE}/api/deals/${id}/status`, { headers }),
     fetch(`${API_BASE}/api/deals/${id}/balances`, { headers }),
-    fetch(`${API_BASE}/api/deals/${id}/events`, { headers })
+    fetch(`${API_BASE}/api/deals/${id}/events`, { headers }),
+    isAdmin()
+      ? fetch(`${API_BASE}/api/admin/deals/${id}/cycles`, { headers })
+      : Promise.resolve(new Response(JSON.stringify({ cycles: [] }), { status: 200, headers: { 'content-type': 'application/json' } }))
   ]);
 
   const status = statusRes.status === 'fulfilled' && statusRes.value.ok
@@ -2449,6 +2493,8 @@ async function refreshDeal(id) {
     ? await balancesRes.value.json() : null;
   const events = eventsRes.status === 'fulfilled' && eventsRes.value.ok
     ? await eventsRes.value.json() : null;
+  const cycles = cyclesRes.status === 'fulfilled' && cyclesRes.value.ok
+    ? (await cyclesRes.value.json()).cycles || [] : null;
 
   if (status) {
     const badgeEl = document.getElementById('status-badge');
@@ -2467,6 +2513,11 @@ async function refreshDeal(id) {
   if (events) {
     const eventsEl = document.getElementById('events-list');
     if (eventsEl) eventsEl.innerHTML = renderEvents(events);
+  }
+
+  if (cycles) {
+    const cyclesEl = document.getElementById('admin-cycles-list');
+    if (cyclesEl) cyclesEl.innerHTML = renderCycleStatusCards(cycles);
   }
 
   if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }

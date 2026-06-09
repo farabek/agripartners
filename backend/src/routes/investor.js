@@ -88,6 +88,20 @@ router.get('/deals/:id/events', async (req, res) => {
   }
 });
 
+router.get('/deals/:id/cycles', async (req, res) => {
+  try {
+    const deal = await getInvestorDeal(req, res);
+    if (!deal) return;
+    res.json({
+      ok: true,
+      dealId: deal.id,
+      cycles: await dealService.getFarmerDealCycles(deal.id),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/deals/:id/reports', async (req, res) => {
   try {
     const deal = await getInvestorDeal(req, res);

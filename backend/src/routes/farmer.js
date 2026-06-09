@@ -7,7 +7,8 @@ function accountId(req) {
 }
 
 async function getOwnedFarmerDeal(req, res) {
-  const deal = await dealService.getDealById(req.params.dealId);
+  const dealId = req.params.dealId || req.params.id;
+  const deal = await dealService.getDealById(dealId);
   if (!deal) {
     res.status(404).json({ error: 'Deal not found' });
     return null;
@@ -87,13 +88,20 @@ router.get('/deals/:dealId/cycles', async (req, res) => {
 });
 
 router.post('/deals/:dealId/confirm-funding', async (req, res) => {
+  req.params.cycleId = req.body.cycleId;
+  return confirmFarmerCycleFunding(req, res);
+});
+
+router.post('/deals/:id/cycles/:cycleId/confirm-funding', confirmFarmerCycleFunding);
+
+async function confirmFarmerCycleFunding(req, res) {
   try {
     const deal = await getOwnedFarmerDeal(req, res);
     if (!deal) return;
 
-    const cycleId = Number(req.body.cycleId);
+    const cycleId = Number(req.params.cycleId);
     if (!Number.isInteger(cycleId) || cycleId < 1) {
-      return res.status(400).json({ error: 'cycleId is required' });
+      return res.status(400).json({ error: 'Invalid cycle id' });
     }
 
     const cycles = await dealService.getFarmerDealCycles(deal.id);
@@ -117,7 +125,7 @@ router.post('/deals/:dealId/confirm-funding', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
+}
 
 router.post('/deals/:dealId/cycles/:cycleId/report', async (req, res) => {
   try {
@@ -129,10 +137,10 @@ router.post('/deals/:dealId/cycles/:cycleId/report', async (req, res) => {
       return res.status(400).json({ error: 'Invalid cycle id' });
     }
 
-    const title = String(req.body.title || '').trim();
-    const description = String(req.body.description || '').trim();
-    if (!title || !description) {
-      return res.status(400).json({ error: 'title and description are required' });
+    const title = String(req.body.report_title || req.body.title || `Cycle ${cycleId} report`).trim();
+    const description = String(req.body.report_body || req.body.description || '').trim();
+    if (!description) {
+      return res.status(400).json({ error: 'report_body is required' });
     }
 
     const cycles = await dealService.getFarmerDealCycles(deal.id);
@@ -165,11 +173,17 @@ router.post('/deals/:dealId/cycles/:cycleId/report', async (req, res) => {
         status: 'submitted',
         id: report.id,
         title: report.title,
+        report_title: report.title,
         description: report.description,
+        report_body: report.description,
         amountUsed: report.amount_used,
         evidenceUrl: report.evidence_url,
         farmerWallet: report.farmer_wallet,
+        farmer_account: report.farmer_wallet,
+        deal_id: deal.id,
+        cycle_number: cycleId,
         submittedAt: report.submitted_at,
+        created_at: report.created_at || report.submitted_at,
       },
     });
   } catch (err) {

@@ -231,6 +231,21 @@ router.post('/deals/:id/report-cycle', async (req, res) => {
   }
 });
 
+router.get('/deals/:id/cycles', async (req, res) => {
+  const deal = await dealService.getDealById(req.params.id);
+  if (!deal) return res.status(404).json({ error: 'Deal not found' });
+
+  try {
+    res.json({
+      ok: true,
+      dealId: deal.id,
+      cycles: await dealService.getFarmerDealCycles(deal.id),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/deals/:id/fund', async (req, res) => {
   const deal = await dealService.getDealById(req.params.id);
   if (!deal) return res.status(404).json({ error: 'Deal not found' });
