@@ -1,6 +1,3 @@
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
 const { connect, keyStores, KeyPair } = require('near-api-js');
 
 let nearInstance = null;
@@ -18,6 +15,10 @@ function getNetworkConfig() {
 
 async function getNear() {
   if (nearInstance) return nearInstance;
+  if (!process.env.NEAR_ADMIN_ACCOUNT || !process.env.NEAR_ADMIN_PRIVATE_KEY) {
+    throw new Error('NEAR_ADMIN_ACCOUNT and NEAR_ADMIN_PRIVATE_KEY are required for NEAR signing');
+  }
+
   const { networkId, nodeUrl } = getNetworkConfig();
   keyStoreInstance = new keyStores.InMemoryKeyStore();
   await keyStoreInstance.setKey(
@@ -36,28 +37,63 @@ async function getAdminAccount() {
   return accountInstance;
 }
 
-function getLocalCredentialsPath(accountId, networkId) {
-  return path.join(os.homedir(), '.near-credentials', networkId, `${accountId}.json`);
+function getConfiguredSigner(accountId) {
+  const configuredSigners = [
+    {
+      label: 'admin',
+      accountEnv: 'NEAR_ADMIN_ACCOUNT',
+      keyEnv: 'NEAR_ADMIN_PRIVATE_KEY',
+      accountId: process.env.NEAR_ADMIN_ACCOUNT,
+      privateKey: process.env.NEAR_ADMIN_PRIVATE_KEY
+    },
+    {
+      label: 'farmer',
+      accountEnv: 'NEAR_FARMER_SIGNER_ACCOUNT_ID',
+      keyEnv: 'NEAR_FARMER_SIGNER_PRIVATE_KEY',
+      accountId: process.env.NEAR_FARMER_SIGNER_ACCOUNT_ID,
+      privateKey: process.env.NEAR_FARMER_SIGNER_PRIVATE_KEY
+    },
+    {
+      label: 'investor',
+      accountEnv: 'NEAR_INVESTOR_SIGNER_ACCOUNT_ID',
+      keyEnv: 'NEAR_INVESTOR_SIGNER_PRIVATE_KEY',
+      accountId: process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID,
+      privateKey: process.env.NEAR_INVESTOR_SIGNER_PRIVATE_KEY
+    },
+    {
+      label: 'platform',
+      accountEnv: 'NEAR_PLATFORM_SIGNER_ACCOUNT_ID',
+      keyEnv: 'NEAR_PLATFORM_SIGNER_PRIVATE_KEY',
+      accountId: process.env.NEAR_PLATFORM_SIGNER_ACCOUNT_ID,
+      privateKey: process.env.NEAR_PLATFORM_SIGNER_PRIVATE_KEY
+    }
+  ];
+
+  return configuredSigners.find((signer) => signer.accountId === accountId);
 }
 
-async function getAccountFromLocalCredentials(accountId) {
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('Local NEAR credentials are disabled in production');
+async function getAccountFromConfiguredCredentials(accountId) {
+  const signer = getConfiguredSigner(accountId);
+
+  if (!signer) {
+    throw new Error(
+      `No configured NEAR signer account for ${accountId}. Set NEAR_ADMIN_ACCOUNT or one of NEAR_FARMER_SIGNER_ACCOUNT_ID, NEAR_INVESTOR_SIGNER_ACCOUNT_ID, NEAR_PLATFORM_SIGNER_ACCOUNT_ID.`
+    );
+  }
+
+  if (!signer.privateKey) {
+    throw new Error(`${signer.keyEnv} is required for configured NEAR ${signer.label} signer ${accountId}`);
+  }
+
+  if (signer.accountEnv === 'NEAR_ADMIN_ACCOUNT') {
+    return getAdminAccount();
   }
 
   if (accountInstancesById.has(accountId)) return accountInstancesById.get(accountId);
 
   const near = await getNear();
   const { networkId } = getNetworkConfig();
-  const credentialsPath = getLocalCredentialsPath(accountId, networkId);
-  const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
-  const privateKey = credentials.private_key || credentials.privateKey;
-
-  if (!privateKey) {
-    throw new Error(`Missing private key in local NEAR credentials for ${accountId}`);
-  }
-
-  await keyStoreInstance.setKey(networkId, accountId, KeyPair.fromString(privateKey));
+  await keyStoreInstance.setKey(networkId, accountId, KeyPair.fromString(signer.privateKey));
   const account = await near.account(accountId);
   accountInstancesById.set(accountId, account);
   return account;
@@ -70,4 +106,9 @@ function resetInstances() {
   accountInstancesById.clear();
 }
 
-module.exports = { getNear, getAdminAccount, getAccountFromLocalCredentials, resetInstances };
+module.exports = {
+  getNear,
+  getAdminAccount,
+  getAccountFromConfiguredCredentials,
+  resetInstances
+};

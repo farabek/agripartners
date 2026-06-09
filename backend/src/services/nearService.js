@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const nearApi = require('near-api-js');
 const BN = require('bn.js');
-const { getAdminAccount, getAccountFromLocalCredentials } = require('../near/client');
+const { getAdminAccount, getAccountFromConfiguredCredentials } = require('../near/client');
 
 async function getContractStatus(contractAddress) {
   const account = await getAdminAccount();
@@ -89,7 +89,7 @@ async function fundContract(contractAddress, investmentAmount) {
 }
 
 async function fundContractAs(accountId, contractAddress, investmentAmount) {
-  const account = await getAccountFromLocalCredentials(accountId);
+  const account = await getAccountFromConfiguredCredentials(accountId);
   return fundContractWithAccount(account, contractAddress, investmentAmount);
 }
 
@@ -105,12 +105,13 @@ async function fundContractWithAccount(account, contractAddress, investmentAmoun
 }
 
 async function withdrawContract(contractAddress) {
-  const account = await getAdminAccount();
+  const platformSignerAccountId = process.env.NEAR_PLATFORM_SIGNER_ACCOUNT_ID || process.env.NEAR_ADMIN_ACCOUNT;
+  const account = await getAccountFromConfiguredCredentials(platformSignerAccountId);
   return withdrawContractWithAccount(account, contractAddress);
 }
 
 async function withdrawContractAs(accountId, contractAddress) {
-  const account = await getAccountFromLocalCredentials(accountId);
+  const account = await getAccountFromConfiguredCredentials(accountId);
   return withdrawContractWithAccount(account, contractAddress);
 }
 

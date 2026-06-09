@@ -703,7 +703,8 @@ function showAdminCreateResult(type, html) {
 
 async function createAdminDeal(event) {
   event.preventDefault();
-  const btn = event.currentTarget.querySelector('button[type="submit"]');
+  const form = event.currentTarget;
+  const btn = form.querySelector('button[type="submit"]');
   btn.disabled = true;
   btn.textContent = 'Creating...';
   showAdminCreateResult('success', 'Creating deal and deploying contract...');
@@ -732,7 +733,7 @@ async function createAdminDeal(event) {
         <a href="#investor" class="underline">View in Investor Portal</a>
       </div>
     `);
-    event.currentTarget.reset();
+    form.reset();
   } catch (err) {
     showAdminCreateResult('error', `Create deal failed: ${escapeHtml(err.message)}`);
   } finally {
@@ -781,9 +782,7 @@ function renderDealCard(d) {
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex justify-between items-center gap-4">
       <div class="space-y-1 min-w-0">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">${escapeHtml(dealTitle)}</span>
-        </div>
+        <h2 class="text-lg font-semibold text-slate-100 truncate">Deal #${escapeHtml(d.id)} &mdash; ${escapeHtml(dealTitle)}</h2>
         ${d.description ? `<p class="text-sm text-slate-300">${escapeHtml(d.description)}</p>` : ''}
         <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${formatAddress(d.farmer)}</span></p>
         <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${formatAddress(d.investor)}</span></p>
@@ -1982,7 +1981,7 @@ function renderDealDetail(el, deal, status, balances, events) {
           : '<p class="text-slate-500 text-sm">Balances unavailable</p>'}
       </div>
     </div>
-    ${isAdmin() ? renderAdminActions(deal) : ''}
+    ${isAdmin() ? renderAdminActions(deal, status?.status) : ''}
     <div class="bg-slate-800 rounded-xl p-5">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
       <div id="events-list">${renderEvents(events)}</div>
@@ -2036,20 +2035,37 @@ function renderBalancesSummary(balances) {
   `).join('');
 }
 
-function renderAdminActions(deal) {
+function isAdminActionEnabled(action, status) {
+  const normalizedStatus = status || 'Initialized';
+  if (action === 'fund') return normalizedStatus === 'Initialized';
+  if (action === 'start-cycle') return normalizedStatus === 'Funded';
+  if (action === 'report-profit') return normalizedStatus === 'CycleActive';
+  return true;
+}
+
+function renderAdminActionButton(action, label, status, className = '') {
+  const enabled = isAdminActionEnabled(action, status);
   return `
-    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+    <button type="button" class="admin-action-btn ${className}" data-action="${action}" ${enabled ? '' : 'disabled'}>
+      ${label}
+    </button>
+  `;
+}
+
+function renderAdminActions(deal, status) {
+  return `
+    <div id="admin-actions" data-status="${escapeHtml(status || 'Initialized')}" class="bg-slate-800 rounded-xl p-5 mb-6">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Admin Actions</h3>
         <span class="text-xs text-slate-500">Blockchain transactions require confirmation</span>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-        <button type="button" class="admin-action-btn action-fund" data-action="fund">Fund</button>
-        <button type="button" class="admin-action-btn" data-action="start-cycle">Start Cycle</button>
-        <button type="button" class="admin-action-btn" data-action="report-profit">Report Profit</button>
-        <button type="button" class="admin-action-btn" data-action="withdraw-farmer">Withdraw Farmer</button>
-        <button type="button" class="admin-action-btn" data-action="withdraw-investor">Withdraw Investor</button>
-        <button type="button" class="admin-action-btn" data-action="withdraw-platform">Withdraw Platform</button>
+        ${renderAdminActionButton('fund', 'Fund', status, 'action-fund')}
+        ${renderAdminActionButton('start-cycle', 'Start Cycle', status)}
+        ${renderAdminActionButton('report-profit', 'Report Profit', status)}
+        ${renderAdminActionButton('withdraw-farmer', 'Withdraw Farmer', status)}
+        ${renderAdminActionButton('withdraw-investor', 'Withdraw Investor', status)}
+        ${renderAdminActionButton('withdraw-platform', 'Withdraw Platform', status)}
       </div>
       <div id="admin-action-result" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></div>
     </div>
@@ -2063,8 +2079,22 @@ function bindAdminActions(deal) {
 }
 
 function setAdminActionBusy(isBusy) {
-  document.querySelectorAll('.admin-action-btn').forEach(btn => {
-    btn.disabled = isBusy;
+  if (isBusy) {
+    document.querySelectorAll('.admin-action-btn').forEach(btn => {
+      btn.disabled = true;
+    });
+    return;
+  }
+  updateAdminActionState(document.getElementById('admin-actions')?.dataset.status);
+}
+
+function updateAdminActionState(status) {
+  const actionsEl = document.getElementById('admin-actions');
+  if (!actionsEl) return;
+  const normalizedStatus = status || 'Initialized';
+  actionsEl.dataset.status = normalizedStatus;
+  actionsEl.querySelectorAll('.admin-action-btn').forEach(btn => {
+    btn.disabled = !isAdminActionEnabled(btn.dataset.action, normalizedStatus);
   });
 }
 
@@ -2133,6 +2163,12 @@ function adminActionConfig(deal, action) {
 }
 
 async function runAdminAction(deal, action) {
+  const currentStatus = document.getElementById('admin-actions')?.dataset.status;
+  if (!isAdminActionEnabled(action, currentStatus)) {
+    showAdminActionResult('success', `${action} is not available while deal status is ${currentStatus || 'Initialized'}.`);
+    return;
+  }
+
   let config;
   try {
     config = adminActionConfig(deal, action);
@@ -2253,6 +2289,7 @@ async function refreshDeal(id) {
     const badgeEl = document.getElementById('status-badge');
     const cycleEl = document.getElementById('cycle-text');
     if (badgeEl) badgeEl.innerHTML = statusBadge(status.status);
+    updateAdminActionState(status.status);
     if (cycleEl) cycleEl.textContent = `· Cycle ${status.current_cycle}`;
   }
   if (balances) renderBalancesChart(balances);

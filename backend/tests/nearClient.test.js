@@ -21,10 +21,20 @@ process.env.NEAR_NETWORK = 'testnet';
 
 const fs = require('fs');
 const { KeyPair } = require('near-api-js');
-const { getAdminAccount, getAccountFromLocalCredentials, resetInstances } = require('../src/near/client');
+const {
+  getAdminAccount,
+  getAccountFromConfiguredCredentials,
+  resetInstances
+} = require('../src/near/client');
 
 beforeEach(() => {
   delete process.env.NEAR_RPC_URL;
+  delete process.env.NEAR_FARMER_SIGNER_ACCOUNT_ID;
+  delete process.env.NEAR_FARMER_SIGNER_PRIVATE_KEY;
+  delete process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID;
+  delete process.env.NEAR_INVESTOR_SIGNER_PRIVATE_KEY;
+  delete process.env.NEAR_PLATFORM_SIGNER_ACCOUNT_ID;
+  delete process.env.NEAR_PLATFORM_SIGNER_PRIVATE_KEY;
   process.env.NODE_ENV = 'test';
   mockNearAccount.mockClear();
   mockSetKey.mockClear();
@@ -53,27 +63,65 @@ test('getAdminAccount uses FastNear as the default testnet RPC', async () => {
   }));
 });
 
-test('getAccountFromLocalCredentials loads and caches non-production signer account', async () => {
-  fs.readFileSync.mockReturnValue(JSON.stringify({
-    account_id: 'investor-ap.testnet',
-    private_key: 'ed25519:LOCAL_PRIVATE_KEY'
-  }));
+test('getAccountFromConfiguredCredentials reuses admin env key for admin account', async () => {
+  const account = await getAccountFromConfiguredCredentials('agripartners.testnet');
 
-  const a1 = await getAccountFromLocalCredentials('investor-ap.testnet');
-  const a2 = await getAccountFromLocalCredentials('investor-ap.testnet');
+  expect(account).toHaveProperty('id', 'agripartners.testnet');
+  expect(fs.readFileSync).not.toHaveBeenCalled();
+  expect(KeyPair.fromString).toHaveBeenCalledWith('ed25519:FAKE');
+  expect(mockNearAccount).toHaveBeenCalledWith('agripartners.testnet');
+});
 
-  expect(a1).toBe(a2);
-  expect(a1).toHaveProperty('id', 'investor-ap.testnet');
-  expect(fs.readFileSync).toHaveBeenCalledTimes(1);
-  expect(KeyPair.fromString).toHaveBeenCalledWith('ed25519:LOCAL_PRIVATE_KEY');
+test('getAccountFromConfiguredCredentials loads configured investor signer without local credentials', async () => {
+  process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID = 'investor-ap.testnet';
+  process.env.NEAR_INVESTOR_SIGNER_PRIVATE_KEY = 'ed25519:INVESTOR_ENV_KEY';
+
+  const account = await getAccountFromConfiguredCredentials('investor-ap.testnet');
+
+  expect(account).toHaveProperty('id', 'investor-ap.testnet');
+  expect(fs.readFileSync).not.toHaveBeenCalled();
+  expect(KeyPair.fromString).toHaveBeenCalledWith('ed25519:INVESTOR_ENV_KEY');
   expect(mockSetKey).toHaveBeenCalledWith('testnet', 'investor-ap.testnet', {});
   expect(mockNearAccount).toHaveBeenCalledWith('investor-ap.testnet');
 });
 
-test('getAccountFromLocalCredentials is disabled in production', async () => {
-  process.env.NODE_ENV = 'production';
+test('getAccountFromConfiguredCredentials loads configured farmer signer without local credentials', async () => {
+  process.env.NEAR_FARMER_SIGNER_ACCOUNT_ID = 'farmer-ap.testnet';
+  process.env.NEAR_FARMER_SIGNER_PRIVATE_KEY = 'ed25519:FARMER_ENV_KEY';
 
-  await expect(getAccountFromLocalCredentials('investor-ap.testnet'))
-    .rejects.toThrow('Local NEAR credentials are disabled in production');
+  const account = await getAccountFromConfiguredCredentials('farmer-ap.testnet');
+
+  expect(account).toHaveProperty('id', 'farmer-ap.testnet');
+  expect(fs.readFileSync).not.toHaveBeenCalled();
+  expect(KeyPair.fromString).toHaveBeenCalledWith('ed25519:FARMER_ENV_KEY');
+  expect(mockSetKey).toHaveBeenCalledWith('testnet', 'farmer-ap.testnet', {});
+  expect(mockNearAccount).toHaveBeenCalledWith('farmer-ap.testnet');
+});
+
+test('getAccountFromConfiguredCredentials loads configured platform signer without local credentials', async () => {
+  process.env.NEAR_PLATFORM_SIGNER_ACCOUNT_ID = 'platform-ap.testnet';
+  process.env.NEAR_PLATFORM_SIGNER_PRIVATE_KEY = 'ed25519:PLATFORM_ENV_KEY';
+
+  const account = await getAccountFromConfiguredCredentials('platform-ap.testnet');
+
+  expect(account).toHaveProperty('id', 'platform-ap.testnet');
+  expect(fs.readFileSync).not.toHaveBeenCalled();
+  expect(KeyPair.fromString).toHaveBeenCalledWith('ed25519:PLATFORM_ENV_KEY');
+  expect(mockSetKey).toHaveBeenCalledWith('testnet', 'platform-ap.testnet', {});
+  expect(mockNearAccount).toHaveBeenCalledWith('platform-ap.testnet');
+});
+
+test('getAccountFromConfiguredCredentials rejects accounts without configured signer account', async () => {
+  await expect(getAccountFromConfiguredCredentials('missing-investor.testnet'))
+    .rejects.toThrow('No configured NEAR signer account for missing-investor.testnet');
+  expect(fs.readFileSync).not.toHaveBeenCalled();
+});
+
+test('getAccountFromConfiguredCredentials rejects configured signer account without env private key', async () => {
+  process.env.NEAR_INVESTOR_SIGNER_ACCOUNT_ID = 'investor-ap.testnet';
+  delete process.env.NEAR_INVESTOR_SIGNER_PRIVATE_KEY;
+
+  await expect(getAccountFromConfiguredCredentials('investor-ap.testnet'))
+    .rejects.toThrow('NEAR_INVESTOR_SIGNER_PRIVATE_KEY is required for configured NEAR investor signer investor-ap.testnet');
   expect(fs.readFileSync).not.toHaveBeenCalled();
 });
