@@ -69,6 +69,7 @@ test('farmer withdraw uses wallet signed contract call, not backend private keys
   expect(withdrawBody).toContain('signAndSendWalletFunctionCall');
   expect(withdrawBody).toContain('contractId: deal.contract_address');
   expect(withdrawBody).toContain("methodName: 'withdraw'");
+  expect(withdrawBody).toContain('expectedAccountId: deal.farmer');
   expect(withdrawBody).toContain('connectedWallet !== deal.farmer');
   expect(withdrawBody).toContain('await showFarmerDeal(deal.id)');
   expect(withdrawBody).not.toContain('/api/admin/deals');

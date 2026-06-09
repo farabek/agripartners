@@ -133,18 +133,89 @@ async function getWalletSelector() {
     network: NEAR_WALLET_NETWORK,
     modules: [setupMyNearWallet()],
   });
+  exposeWalletDebugHelpers();
   return walletSelector;
 }
 
 async function getMyNearWallet() {
   const selector = await getWalletSelector();
-  return selector.wallet('my-near-wallet');
+  const wallet = await selector.wallet('my-near-wallet');
+  logWalletSelectorDebug('getMyNearWallet', selector, wallet);
+  return wallet;
 }
 
-async function signAndSendWalletFunctionCall({ contractId, methodName, args = {}, gas = '100000000000000', deposit = '0' }) {
+function getWalletSelectorSnapshot(selector) {
+  const state = selector.store.getState();
+  const activeAccount = state.accounts.find((account) => account.active) || state.accounts[0] || null;
+  return {
+    state,
+    selectedWalletId: state.selectedWalletId,
+    accounts: state.accounts,
+    activeAccount,
+  };
+}
+
+function logWalletSelectorDebug(label, selector, wallet = null) {
+  if (!isLocalMvpHost()) return;
+  const snapshot = getWalletSelectorSnapshot(selector);
+  console.debug(`[wallet-selector:${label}]`, {
+    selectedWalletId: snapshot.selectedWalletId,
+    state: snapshot.state,
+    accounts: snapshot.accounts,
+    activeAccount: snapshot.activeAccount,
+    wallet,
+  });
+}
+
+function exposeWalletDebugHelpers() {
+  if (!isLocalMvpHost() || typeof window === 'undefined') return;
+  window.__apDebug = {
+    get selector() { return walletSelector; },
+    getMyNearWallet,
+    getWalletSelector,
+  };
+}
+
+async function ensureWalletSelectorSession({ contractId, methodName, expectedAccountId }) {
+  const selector = await getWalletSelector();
   const wallet = await getMyNearWallet();
+  const snapshot = getWalletSelectorSnapshot(selector);
+  const matchingAccount = snapshot.accounts.find((account) => account.accountId === expectedAccountId);
+
+  logWalletSelectorDebug('before-sign', selector, wallet);
+
+  if (matchingAccount) {
+    selector.setActiveAccount(expectedAccountId);
+    logWalletSelectorDebug('active-account-restored', selector, wallet);
+    return { selector, wallet, accountId: expectedAccountId };
+  }
+
+  if (selector.isSignedIn() || snapshot.accounts.length > 0) {
+    const activeAccount = snapshot.activeAccount?.accountId || 'unknown';
+    throw new Error(`Wallet Selector is signed in as ${activeAccount}. Sign out and log in as ${expectedAccountId}.`);
+  }
+
+  const accounts = await wallet.signIn({
+    contractId,
+    methodNames: [methodName],
+    successUrl: window.location.href,
+    failureUrl: window.location.href,
+  });
+  if (accounts?.some((account) => account.accountId === expectedAccountId)) {
+    selector.setActiveAccount(expectedAccountId);
+    logWalletSelectorDebug('signed-in-before-sign', selector, wallet);
+    return { selector, wallet, accountId: expectedAccountId };
+  }
+  throw new Error('Wallet connection approval is required. Approve MyNearWallet, then retry withdrawal.');
+}
+
+async function signAndSendWalletFunctionCall({ contractId, methodName, args = {}, gas = '100000000000000', deposit = '0', expectedAccountId = null }) {
+  const { wallet } = expectedAccountId
+    ? await ensureWalletSelectorSession({ contractId, methodName, expectedAccountId })
+    : { wallet: await getMyNearWallet() };
   return wallet.signAndSendTransaction({
     receiverId: contractId,
+    callbackUrl: window.location.href,
     actions: [
       {
         type: 'FunctionCall',
@@ -580,7 +651,15 @@ async function handleWalletLogin() {
   }
 }
 
-function logout() {
+async function logout() {
+  try {
+    if (walletSelector?.isSignedIn()) {
+      const wallet = await getMyNearWallet();
+      await wallet.signOut();
+    }
+  } catch (err) {
+    console.warn('Wallet sign out failed', err);
+  }
   clearAuth();
   location.hash = '#login';
 }
@@ -1335,6 +1414,7 @@ async function withdrawFarmerWithWallet(deal) {
     const result = await signAndSendWalletFunctionCall({
       contractId: deal.contract_address,
       methodName: 'withdraw',
+      expectedAccountId: deal.farmer,
     });
     const txHash = getWalletTransactionHash(result);
     showFarmerActionResult('success', txHash
