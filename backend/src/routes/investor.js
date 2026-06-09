@@ -13,6 +13,20 @@ async function getInvestorDeal(req, res) {
   return deal;
 }
 
+function toInvestorCycleDto(cycle) {
+  const report = cycle.report || {};
+  const reportSubmitted = cycle.reportStatus === 'submitted' && Boolean(cycle.report);
+  return {
+    cycle_number: cycle.id,
+    funding_sent: ['funding_sent', 'reported'].includes(cycle.status),
+    funding_confirmed: Boolean(cycle.fundingReceived),
+    report_submitted: reportSubmitted,
+    report_title: reportSubmitted ? (report.title || '') : '',
+    report_body: reportSubmitted ? (report.description || '') : '',
+    report_created_at: reportSubmitted ? (report.submittedAt || '') : '',
+  };
+}
+
 router.get('/me', (req, res) => {
   res.json({
     account_id: req.wallet.account_id,
@@ -92,11 +106,8 @@ router.get('/deals/:id/cycles', async (req, res) => {
   try {
     const deal = await getInvestorDeal(req, res);
     if (!deal) return;
-    res.json({
-      ok: true,
-      dealId: deal.id,
-      cycles: await dealService.getFarmerDealCycles(deal.id),
-    });
+    const cycles = await dealService.getFarmerDealCycles(deal.id);
+    res.json(cycles.map(toInvestorCycleDto));
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

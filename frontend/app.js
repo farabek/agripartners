@@ -1914,7 +1914,7 @@ async function fetchInvestorDealBundle(id) {
     status: statusRes.status === 'fulfilled' && statusRes.value.ok ? await statusRes.value.json() : null,
     balances: balancesRes.status === 'fulfilled' && balancesRes.value.ok ? await balancesRes.value.json() : null,
     events: eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : [],
-    cycles: cyclesRes.status === 'fulfilled' && cyclesRes.value.ok ? (await cyclesRes.value.json()).cycles || [] : [],
+    cycles: cyclesRes.status === 'fulfilled' && cyclesRes.value.ok ? normalizeCyclesResponse(await cyclesRes.value.json()) : [],
     reports: reportsRes.status === 'fulfilled' && reportsRes.value.ok ? (await reportsRes.value.json()).reports || [] : []
   };
 }
@@ -2006,20 +2006,46 @@ function renderInvestorReports(reports) {
   `).join('');
 }
 
+function normalizeCyclesResponse(data) {
+  return Array.isArray(data) ? data : (data?.cycles || []);
+}
+
+function normalizeCycleCard(cycle) {
+  const report = cycle.report || {};
+  const reportSubmitted = cycle.report_submitted ?? (cycle.reportStatus === 'submitted' && Boolean(cycle.report));
+  const fundingSent = cycle.funding_sent ?? ['funding_sent', 'reported'].includes(cycle.status);
+  const fundingConfirmed = cycle.funding_confirmed ?? Boolean(cycle.fundingReceived);
+  const reportCreatedAt = cycle.report_created_at || report.submittedAt || report.created_at || '';
+  return {
+    cycleNumber: cycle.cycle_number ?? cycle.id,
+    status: cycle.status || (fundingSent ? (reportSubmitted ? 'reported' : 'funding_sent') : 'pending'),
+    fundingSent,
+    fundingConfirmed,
+    reportSubmitted,
+    report: reportSubmitted ? {
+      ...report,
+      title: cycle.report_title || report.title || 'Farmer report',
+      description: cycle.report_body || report.description || '',
+      submittedAt: reportCreatedAt,
+    } : null,
+  };
+}
+
 function renderCycleStatusCards(cycles) {
   if (!cycles.length) return '<p class="text-slate-500 text-sm">No cycle updates yet</p>';
   return cycles.map((cycle) => {
-    const reportSubmitted = cycle.reportStatus === 'submitted' && cycle.report;
+    const card = normalizeCycleCard(cycle);
     return `
       <div class="farmer-cycle-row">
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2 mb-2">
-            <span class="font-semibold text-slate-100">Cycle #${escapeHtml(cycle.id)}</span>
-            <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(cycle.status || 'pending')}</span>
+            <span class="font-semibold text-slate-100">Cycle #${escapeHtml(card.cycleNumber)}</span>
+            <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(card.status)}</span>
           </div>
-          <p class="text-sm text-slate-400">Funding received: <span class="text-slate-200">${cycle.fundingReceived ? 'confirmed' : 'not confirmed'}</span></p>
-          <p class="text-sm text-slate-400">Report: <span class="text-slate-200">${reportSubmitted ? 'submitted' : 'not submitted'}</span></p>
-          ${reportSubmitted ? renderFarmerReportSummary(cycle.report) : ''}
+          <p class="text-sm text-slate-400">Funding sent: <span class="text-slate-200">${card.fundingSent ? 'Yes' : 'No'}</span></p>
+          <p class="text-sm text-slate-400">Funding confirmed: <span class="text-slate-200">${card.fundingConfirmed ? 'Yes' : 'No'}</span></p>
+          <p class="text-sm text-slate-400">Report status: <span class="text-slate-200">${card.reportSubmitted ? 'Submitted' : 'Waiting for farmer report'}</span></p>
+          ${card.reportSubmitted ? renderFarmerReportSummary(card.report) : ''}
         </div>
       </div>
     `;

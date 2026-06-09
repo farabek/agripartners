@@ -223,13 +223,43 @@ test('GET /api/investor/deals/:id/cycles returns farmer confirmation and report 
 
   expect(res.status).toBe(200);
   expect(dealService.getFarmerDealCycles).toHaveBeenCalledWith(1);
-  expect(res.body.cycles).toEqual([
-    expect.objectContaining({
-      id: 1,
-      fundingReceived: true,
-      reportStatus: 'submitted',
-      report: expect.objectContaining({ description: 'Purchased livestock' }),
-    }),
+  expect(res.body).toEqual([
+    {
+      cycle_number: 1,
+      funding_sent: true,
+      funding_confirmed: true,
+      report_submitted: true,
+      report_title: 'Cycle 1 report',
+      report_body: 'Purchased livestock',
+      report_created_at: '2026-06-09T10:00:00Z',
+    },
+  ]);
+});
+
+test('GET /api/investor/deals/:id/cycles returns empty report fields when report is missing', async () => {
+  dealService.getFarmerDealCycles.mockResolvedValueOnce([{
+    id: 2,
+    status: 'funding_sent',
+    fundingReceived: false,
+    reportStatus: 'not_submitted',
+    report: null,
+  }]);
+
+  const res = await request(app)
+    .get('/api/investor/deals/1/cycles')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(200);
+  expect(res.body).toEqual([
+    {
+      cycle_number: 2,
+      funding_sent: true,
+      funding_confirmed: false,
+      report_submitted: false,
+      report_title: '',
+      report_body: '',
+      report_created_at: '',
+    },
   ]);
 });
 
