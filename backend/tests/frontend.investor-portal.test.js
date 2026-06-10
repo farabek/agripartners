@@ -51,8 +51,10 @@ test('investor detail renders project profile before technical deal data', () =>
   expect(appJs).toContain('Sheep breeding operation based on a real pilot agricultural agreement');
   expect(appJs).toContain('Technical Deal Data');
   expect(appJs).toContain('Deal #${escapeHtml(deal.id)}');
-  expect(appJs).toContain('[1, 7].includes');
-  expect(appJs).toContain('[2, 8].includes');
+  expect(appJs).toContain('function getPilotForDeal');
+  expect(appJs).toContain('function pilotKeyFromText');
+  expect(appJs).not.toContain('[1, 7].includes');
+  expect(appJs).not.toContain('[2, 8].includes');
 });
 
 test('investor home dashboard renders MVP metrics and pilot deals', () => {
@@ -65,17 +67,16 @@ test('investor home dashboard renders MVP metrics and pilot deals', () => {
   expect(appJs).toContain('Completed Deals');
   expect(appJs).toContain('Investment Summary');
   expect(appJs).toContain('Featured Pilot Deals');
-  expect(appJs).toContain('Pilot Deal #1 (Fidlot)');
-  expect(appJs).toContain('Pilot Deal #2 (Hissar Sheep)');
   expect(appJs).toContain('Fidlot Livestock Project');
   expect(appJs).toContain('Hissar Sheep Breeding Project');
   expect(appJs).toContain('21.9%');
   expect(appJs).toContain('21.1%');
-  expect(appJs).toContain('Greenhouse Project');
-  expect(appJs).toContain('Poultry Farm');
-  expect(appJs).toContain('Cotton Farm');
-  expect(appJs).toContain('Demo Portfolio');
-  expect(appJs).toContain("fetch(`${API_BASE}/api/investor/deals/${deal.id}`, { headers })");
+  expect(appJs).not.toContain('Greenhouse Project');
+  expect(appJs).not.toContain('Poultry Farm');
+  expect(appJs).not.toContain('Cotton Farm');
+  expect(appJs).not.toContain('Demo Portfolio');
+  expect(appJs).toContain('INVESTOR_DEMO_DATASET_ENABLED');
+  expect(appJs).toContain('buildInvestorDemoDataset(deals, connectedWalletAccount)');
 });
 
 test('investor detail fetches and renders repayment history', () => {
@@ -84,4 +85,22 @@ test('investor detail fetches and renders repayment history', () => {
   expect(appJs).toContain('function renderRepaymentHistory');
   expect(appJs).toContain('amount_near');
   expect(appJs).toContain('repayment.note');
+});
+
+test('investor demo dataset hides test records and renders clean pilot routes', () => {
+  expect(appJs).toContain('const INVESTOR_DEMO_PILOTS');
+  expect(appJs).toContain("key: 'fidlot'");
+  expect(appJs).toContain("key: 'hissar'");
+  expect(appJs).toContain("status: 'Completed'");
+  expect(appJs).toContain("status: 'Active'");
+  expect(appJs).toContain('activeDeals: deals.filter');
+  expect(appJs).toContain('completedDeals: deals.filter');
+  expect(appJs).toContain('showInvestorPilotProfile(investorPilot[1])');
+  expect(appJs).toContain('#investor/pilots/${deal.pilot_key}');
+  expect(appJs).toContain('renderInvestorDemoDealDetail');
+  expect(appJs).toContain('Investor demo profile: this screen is prepared for presentation and screenshot readiness.');
+  expect(appJs).not.toContain('QA Admin Deal');
+  expect(appJs).not.toContain('Deal #4 Unknown');
+  expect(appJs).not.toContain('withdraw_signer_test');
+  expect(appJs).not.toContain('test_farmer_dashboard');
 });

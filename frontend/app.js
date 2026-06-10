@@ -475,6 +475,12 @@ function route() {
     return;
   }
 
+  const investorPilot = hash.match(/^#investor\/pilots\/([a-z0-9-]+)$/);
+  if (investorPilot) {
+    showInvestorPilotProfile(investorPilot[1]);
+    return;
+  }
+
   if (hash === '#investor') {
     showInvestorPortal();
     return;
@@ -1240,7 +1246,7 @@ function renderFarmerDealCard(deal) {
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="space-y-1 min-w-0">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">Deal #${deal.id}</span>
+          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">${escapeHtml(dealBadge)}</span>
           ${statusBadge(deal.status)}
           <span class="text-xs text-slate-500">Active Cycle: ${deal.activeCycleId ?? 'none'}</span>
         </div>
@@ -1540,7 +1546,9 @@ async function showInvestorPortal() {
     }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const deals = await res.json();
-    const enrichedDeals = await enrichDealsForInvestor(deals);
+    const enrichedDeals = INVESTOR_DEMO_DATASET_ENABLED
+      ? buildInvestorDemoDataset(deals, connectedWalletAccount)
+      : await enrichDealsForInvestor(deals);
     renderInvestorDashboard(dashboardEl, enrichedDeals, connectedWalletAccount);
   } catch (e) {
     dashboardEl.querySelector('.spinner')?.remove();
@@ -1796,34 +1804,96 @@ function sumNearFields(deals, field) {
   return deals.reduce((sum, deal) => sum + parseNearAmount(deal[field]), 0);
 }
 
-const FEATURED_PILOT_DEALS = [
+const INVESTOR_DEMO_DATASET_ENABLED = true;
+
+const INVESTOR_DEMO_PILOTS = [
   {
     number: 1,
+    key: 'fidlot',
     title: 'Fidlot Livestock Project',
     type: 'Fidlot',
     investment: '$50,000',
     roi: '64%',
+    roiPercent: 64,
     apr: '21.9%',
     cycles: '7',
+    status: 'Completed',
+    currentCycle: 7,
+    amount: '50000.00',
+    expectedReturn: '82000.00',
+    returnedAmount: '82000.00',
+    outstandingAmount: '0.00',
     description: 'Livestock fattening operation based on a real pilot agricultural agreement. Demonstrated through the AgriPartners workflow on NEAR Testnet.',
+    reportTitle: 'Cycle completion report',
+    reportDescription: 'Pilot livestock cycle completed for investor demonstration. Operational reporting is shown as part of the AgriPartners workflow.',
+    returnNote: 'Demo return record for completed Fidlot pilot profile.',
   },
   {
     number: 2,
+    key: 'hissar',
     title: 'Hissar Sheep Breeding Project',
     type: 'Hissar Sheep',
     investment: '$50,000',
     roi: '63.3%',
+    roiPercent: 63.3,
     apr: '21.1%',
     cycles: '6',
+    status: 'Active',
+    currentCycle: 1,
+    amount: '50000.00',
+    expectedReturn: '81650.00',
+    returnedAmount: '0.00',
+    outstandingAmount: '81650.00',
     description: 'Sheep breeding operation based on a real pilot agricultural agreement. Demonstrated through the AgriPartners workflow on NEAR Testnet.',
+    reportTitle: 'Initial breeding cycle update',
+    reportDescription: 'Demo cycle update for the active Hissar pilot profile. This profile is presented for investor demo readiness and is not a new smart contract deployment.',
+    returnNote: '',
   },
 ];
 
-const DEMO_PORTFOLIO_PROJECTS = [
-  'Greenhouse Project',
-  'Poultry Farm',
-  'Cotton Farm',
-];
+const FEATURED_PILOT_DEALS = INVESTOR_DEMO_PILOTS;
+
+function pilotKeyFromText(value) {
+  const text = String(value || '').toLowerCase();
+  if (text.includes('fidlot')) return 'fidlot';
+  if (text.includes('hissar')) return 'hissar';
+  return null;
+}
+
+function getPilotByKey(key) {
+  return INVESTOR_DEMO_PILOTS.find(pilot => pilot.key === key) || null;
+}
+
+function getPilotForDeal(deal) {
+  return getPilotByKey(deal?.pilot_key || pilotKeyFromText(`${deal?.title || ''} ${deal?.deal_type || ''}`));
+}
+
+function investorDemoDealFromPilot(pilot, connectedWalletAccount) {
+  return {
+    id: `demo-${pilot.key}`,
+    pilot_key: pilot.key,
+    isDemoPilot: true,
+    title: pilot.title,
+    deal_type: pilot.type,
+    description: pilot.description,
+    farmer: `${pilot.key}-operator.demo.testnet`,
+    investor: connectedWalletAccount || 'investor.demo.testnet',
+    contract_address: `${pilot.key}-pilot-profile.near-testnet-demo`,
+    total_cycles: Number(pilot.cycles),
+    cycle_duration_days: 150,
+    amount: pilot.amount,
+    expected_return: pilot.expectedReturn,
+    returned_amount: pilot.returnedAmount,
+    outstanding_amount: pilot.outstandingAmount,
+    roi_percent: pilot.roiPercent,
+    status: { status: pilot.status, current_cycle: pilot.currentCycle },
+    balances: null,
+  };
+}
+
+function buildInvestorDemoDataset(_deals, connectedWalletAccount) {
+  return INVESTOR_DEMO_PILOTS.map(pilot => investorDemoDealFromPilot(pilot, connectedWalletAccount));
+}
 
 function investorMetrics(deals) {
   const roiDeals = deals.filter(deal => deal.roi_percent != null);
@@ -1853,7 +1923,6 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
       ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDeals())}
       ${renderDashboardSection('Active Deals', `<p class="text-slate-400">No active investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>`)}
       ${renderDashboardSection('Completed Deals', renderEmptyDashboardSection('No completed deals yet'))}
-      ${renderDashboardSection('Demo Portfolio', renderDemoPortfolioCards())}
     `;
     el.appendChild(dashboard);
     return;
@@ -1864,7 +1933,6 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
     ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDeals())}
     ${renderDashboardSection('Active Deals', renderDealSection(activeDeals, 'No active deals'))}
     ${renderDashboardSection('Completed Deals', renderDealSection(completedDeals, 'No completed deals yet'))}
-    ${renderDashboardSection('Demo Portfolio', renderDemoPortfolioCards())}
   `;
   el.appendChild(dashboard);
 }
@@ -1960,34 +2028,14 @@ function renderFeaturedPilotDealCard(deal) {
   `;
 }
 
-function renderDemoPortfolioCards() {
-  return `
-    <div class="grid md:grid-cols-3 gap-4">
-      ${DEMO_PORTFOLIO_PROJECTS.map(project => `
-        <article class="bg-slate-800 border border-slate-700 rounded-lg p-5">
-          <span class="text-xs font-semibold bg-slate-700 text-slate-300 px-2 py-1 rounded">Demo Portfolio</span>
-          <h3 class="text-lg font-semibold text-slate-100 mt-3">${escapeHtml(project)}</h3>
-        </article>
-      `).join('')}
-    </div>
-  `;
-}
-
 function investorPilotLabel(deal) {
-  const type = String(deal.deal_type || deal.title || '').toLowerCase();
-  if ([1, 7].includes(Number(deal.id)) || type.includes('fidlot')) return 'Pilot Deal #1 (Fidlot)';
-  if ([2, 8].includes(Number(deal.id)) || type.includes('hissar')) return 'Pilot Deal #2 (Hissar Sheep)';
+  const pilot = getPilotForDeal(deal);
+  if (pilot) return pilot.title;
   return deal.title || `Deal #${deal.id}`;
 }
 
 function investorProjectProfile(deal, status) {
-  const type = String(deal.deal_type || deal.title || '').toLowerCase();
-  const id = Number(deal.id);
-  const pilot = ([1, 7].includes(id) || type.includes('fidlot'))
-    ? FEATURED_PILOT_DEALS[0]
-    : ([2, 8].includes(id) || type.includes('hissar'))
-      ? FEATURED_PILOT_DEALS[1]
-      : null;
+  const pilot = getPilotForDeal(deal);
 
   return {
     title: pilot?.title || deal.title || `Deal #${deal.id}`,
@@ -2002,6 +2050,7 @@ function investorProjectProfile(deal, status) {
 
 function renderProjectProfile(deal, status) {
   const profile = investorProjectProfile(deal, status);
+  const profileBadge = deal.isDemoPilot ? 'Demo Pilot Profile' : `Deal #${deal.id}`;
   const metrics = [
     ['Investment', profile.investment],
     ['ROI', profile.roi],
@@ -2018,7 +2067,7 @@ function renderProjectProfile(deal, status) {
           <h1 class="text-2xl md:text-3xl font-bold text-slate-50 mt-1">${escapeHtml(profile.title)}</h1>
           <p class="text-sm text-slate-400 mt-2 max-w-3xl">${escapeHtml(profile.description)}</p>
         </div>
-        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">Deal #${escapeHtml(deal.id)}</span>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">${escapeHtml(profileBadge)}</span>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
         ${metrics.map(([label, value]) => `
@@ -2035,12 +2084,14 @@ function renderProjectProfile(deal, status) {
 function renderInvestorDealCard(deal) {
   const status = deal.status?.status || 'Unknown';
   const pilotLabel = investorPilotLabel(deal);
+  const dealBadge = deal.isDemoPilot ? 'Demo Pilot' : `Deal #${deal.id}`;
+  const dealHref = deal.isDemoPilot ? `#investor/pilots/${deal.pilot_key}` : `#investor/deals/${deal.id}`;
   const currentCycle = deal.status?.current_cycle ?? '—';
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="space-y-1 min-w-0">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">Deal #${deal.id}</span>
+          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">${escapeHtml(dealBadge)}</span>
           ${statusBadge(status)}
           <span class="text-xs text-slate-500">Cycle ${currentCycle}</span>
         </div>
@@ -2066,7 +2117,134 @@ function renderInvestorDealCard(deal) {
           </div>
         </div>
       </div>
-      <a href="#investor/deals/${deal.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
+      <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
+    </div>
+  `;
+}
+
+function investorDemoCycles(pilot) {
+  return [{
+    cycle_number: pilot.key === 'fidlot' ? 7 : 1,
+    status: pilot.key === 'fidlot' ? 'reported' : 'funding_sent',
+    funding_sent: true,
+    funding_confirmed: true,
+    report_submitted: true,
+    report_title: pilot.reportTitle,
+    report_body: pilot.reportDescription,
+    report_created_at: new Date().toISOString(),
+  }];
+}
+
+function investorDemoReports(pilot, deal) {
+  return [{
+    id: `demo-report-${pilot.key}`,
+    cycle_id: pilot.key === 'fidlot' ? 7 : 1,
+    farmer_wallet: deal.farmer,
+    title: pilot.reportTitle,
+    description: pilot.reportDescription,
+    amount_used: 'Demo pilot operations',
+    evidence_url: '',
+    submitted_at: new Date().toISOString(),
+  }];
+}
+
+function investorDemoReturns(pilot) {
+  if (pilot.key !== 'fidlot') return [];
+  return [{
+    id: 'demo-return-fidlot',
+    amount_near: pilot.returnedAmount,
+    note: pilot.returnNote,
+    created_at: new Date().toISOString(),
+  }];
+}
+
+function investorDemoEvents(pilot) {
+  const now = new Date().toISOString();
+  const base = [
+    { event_type: 'demo_profile_created', cycle_num: null, tx_hash: null, created_at: now },
+    { event_type: 'pilot_terms_reviewed', cycle_num: null, tx_hash: null, created_at: now },
+  ];
+  if (pilot.key === 'fidlot') {
+    return [
+      ...base,
+      { event_type: 'cycle_reported', cycle_num: 7, tx_hash: null, created_at: now },
+      { event_type: 'completed', cycle_num: null, tx_hash: null, created_at: now },
+    ];
+  }
+  return [
+    ...base,
+    { event_type: 'cycle_started', cycle_num: 1, tx_hash: null, created_at: now },
+  ];
+}
+
+function showInvestorPilotProfile(key) {
+  showView('view-investor');
+  const el = document.getElementById('view-investor');
+  const pilot = getPilotByKey(key);
+
+  if (!pilot) {
+    el.innerHTML = `
+      ${renderNav()}
+      <a href="#investor" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Investor Portal</a>
+      <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot profile unavailable</div>
+    `;
+    return;
+  }
+
+  const deal = investorDemoDealFromPilot(pilot, getNearWalletAccount());
+  renderInvestorDemoDealDetail(
+    el,
+    deal,
+    deal.status,
+    investorDemoEvents(pilot),
+    investorDemoReports(pilot, deal),
+    investorDemoCycles(pilot),
+    investorDemoReturns(pilot)
+  );
+}
+
+function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles, returns) {
+  const profile = investorProjectProfile(deal, status);
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <a href="#investor" class="text-slate-400 hover:text-white text-sm">Back to Investor Portal</a>
+      <span class="text-slate-600">|</span>
+      <span class="font-semibold">${escapeHtml(profile.title)}</span>
+      <span class="text-xs text-slate-500">Demo Pilot Profile</span>
+      ${statusBadge(status?.status)}
+      <span class="text-slate-400 text-sm">Cycle ${status?.current_cycle ?? '-'}</span>
+    </div>
+
+    ${renderProjectProfile(deal, status)}
+
+    <div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 mb-6 text-sm text-amber-100">
+      Investor demo profile: this screen is prepared for presentation and screenshot readiness. It does not deploy or modify a smart contract.
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Investment Summary</h3>
+      <div id="investor-investment-summary">${renderInvestmentSummary(deal)}</div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
+      <div id="investor-cycles-list">${renderCycleStatusCards(cycles)}</div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Reports</h3>
+      <div id="investor-reports-list">${renderInvestorReports(reports)}</div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns</h3>
+      <div id="investor-returns-list">${renderRepaymentHistory(returns)}</div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
+      <div id="investor-events-list">${renderEvents(events)}</div>
     </div>
   `;
 }
@@ -2175,7 +2353,7 @@ function renderInvestorDealDetail(el, deal, status, balances, events, reports = 
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Reports</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Reports</h3>
       <div id="investor-reports-list">${renderInvestorReports(reports)}</div>
     </div>
 
