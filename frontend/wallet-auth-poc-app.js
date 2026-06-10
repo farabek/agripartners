@@ -6,6 +6,15 @@ const API_BASE =
   window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:3000'
     : 'https://agripartners.onrender.com';
+const NEAR_WALLET_NETWORK = 'testnet';
+const NEAR_RPC_URL = import.meta.env.VITE_NEAR_RPC_URL || 'https://test.rpc.fastnear.com';
+const NEAR_WALLET_NETWORK_CONFIG = {
+  networkId: NEAR_WALLET_NETWORK,
+  nodeUrl: NEAR_RPC_URL,
+  helperUrl: 'https://helper.testnet.near.org',
+  explorerUrl: 'https://testnet.nearblocks.io',
+  indexerUrl: 'https://testnet-api.kitwallet.app',
+};
 
 const POC_TOKEN_KEY = 'ap_wallet_auth_poc_token';
 const POC_CHALLENGE_KEY = 'ap_wallet_auth_poc_challenge';
@@ -67,7 +76,7 @@ async function readJsonResponse(response) {
 
 async function initSelector() {
   selector = await setupWalletSelector({
-    network: 'testnet',
+    network: NEAR_WALLET_NETWORK_CONFIG,
     modules: [setupMyNearWallet()],
   });
 
@@ -76,6 +85,8 @@ async function initSelector() {
   els.walletStatus.textContent = account ? account.accountId : 'Ready to connect';
   els.sign.disabled = false;
   log('Wallet Selector initialized', {
+    networkId: NEAR_WALLET_NETWORK,
+    nodeUrl: NEAR_RPC_URL,
     selectedWalletId: state.selectedWalletId,
     accounts: state.accounts.map(item => item.accountId),
   });
