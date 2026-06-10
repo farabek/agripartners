@@ -20,6 +20,19 @@ The result is a financing gap: viable agricultural projects may exist, but the i
 
 Agriculture is a large, recurring, asset-backed sector with constant working capital demand across livestock, crops, greenhouses, poultry, and related food supply chains.
 
+The global agricultural financing market is broad and structurally important. Food production requires capital before revenue is realized, and financing needs repeat across planting, feeding, breeding, harvesting, logistics, and working capital cycles.
+
+SME farmers and agricultural operators remain underserved by traditional finance. Many operators have productive capacity, but limited access to collateral-based lending, formal credit history, or investor-ready reporting. This creates a financing gap between real operating demand and capital that can evaluate the risk clearly.
+
+Central Asia is a practical entry point because the region has established agricultural production, strong livestock traditions, and a growing need for modern investment channels. It is also a region where cross-border capital requires higher trust, better documentation, and clearer reporting.
+
+Why now:
+
+- Investors are looking for real-economy opportunities beyond purely speculative digital assets.
+- Agricultural operators need faster access to working capital.
+- Blockchain infrastructure is mature enough to support transparent workflow validation.
+- Digital dashboards can make local agricultural projects understandable for international investors.
+
 The near-term opportunity is not to replace banks. It is to create a clearer investment workflow for pilot-scale agricultural deals, where project economics, reporting, and return history can be reviewed in one place.
 
 AgriPartners starts with focused pilot models and can expand into additional agricultural categories after operational validation.
@@ -126,7 +139,23 @@ For AgriPartners, the relevant value is:
 
 The product should not lead with blockchain complexity. NEAR supports trust, traceability, and future settlement readiness behind an investor-friendly interface.
 
-## 12. Business Model
+## 12. Traction
+
+AgriPartners has completed Alpha v1 as a working demonstration of the investor journey and operational workflow.
+
+Current traction:
+
+- Alpha v1 completed for external investor demonstrations.
+- Investor Dashboard MVP with portfolio-level metrics.
+- ROI & Returns MVP with projected returns, returned amount, and outstanding amount visibility.
+- Featured Pilot Deals section for investor-friendly project discovery.
+- Fidlot Livestock Project configured as the lead pilot model.
+- Hissar Sheep Breeding Project configured as the second pilot model.
+- NEAR Testnet deployment used to demonstrate workflow transparency and future settlement readiness.
+
+The current product is not positioned as a finished production investment platform. It is a focused alpha that shows the core workflow: project presentation, investor review, agricultural reporting, return tracking, event history, and controlled admin operations.
+
+## 13. Business Model
 
 The platform can support several revenue lines as the pilot program matures:
 
@@ -137,7 +166,7 @@ The platform can support several revenue lines as the pilot program matures:
 
 Near-term focus should remain on validating pilot execution, investor confidence, and repeatable reporting before optimizing revenue.
 
-## 13. Roadmap
+## 14. Roadmap
 
 Current stage: Alpha v1 investor demonstration.
 
@@ -150,21 +179,39 @@ Next milestones:
 - Prepare mainnet readiness plan, including security review and operational controls.
 - Expand the demo portfolio only after the first pilot workflows are credible and understandable.
 
-## 14. Ask
+## 15. Team
+
+Founder: Farhod Bekmuratov.
+
+Farhod is leading AgriPartners with a focus on turning agricultural investment from a manual, relationship-heavy process into a clearer digital workflow for investors, farmers, and ecosystem partners.
+
+The founder's execution focus is practical:
+
+- Build a working alpha before fundraising at scale.
+- Start with concrete pilot models instead of a generic marketplace.
+- Keep the investor experience understandable before introducing technical detail.
+- Use NEAR infrastructure where it improves transparency, validation, and future settlement readiness.
+- Develop AgriPartners as an agriculture-first platform, not a blockchain product searching for a use case.
+
+The immediate team priority is disciplined execution: pilot validation, investor documentation, security readiness, partner conversations, and product refinement based on real feedback.
+
+## 16. Investment Ask
 
 AgriPartners is seeking strategic support for pilot validation and investor readiness.
 
 Priority asks:
 
-- NEAR ecosystem feedback and grant consideration.
-- Strategic investors for agricultural finance pilots.
-- Regional partners for farmer/operator sourcing and verification.
+- Strategic investors who understand agriculture, emerging markets, and infrastructure-stage opportunities.
+- Pilot capital partners who can support structured Fidlot and Hissar validation.
+- Accelerator programs that can help with fundraising discipline, market access, legal readiness, and investor packaging.
+- NEAR ecosystem support, including feedback, grant consideration, technical review, and ecosystem introductions.
+- Regional partners for farmer/operator sourcing, verification, and operational oversight.
 - Legal and compliance guidance for cross-border investment structure.
 - Support for security audit and mainnet readiness.
 
 The immediate objective is not broad public launch. It is to move from Alpha v1 demonstration to a credible, reviewable pilot investment package.
 
-## 15. Closing
+## 17. Closing
 
 AgriPartners is building a clearer investment workflow for agriculture: structured projects, visible economics, operational reporting, return tracking, and blockchain-supported validation.
 
