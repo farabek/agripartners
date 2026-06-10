@@ -45,8 +45,18 @@ test('investor home dashboard renders MVP metrics and pilot deals', () => {
   expect(appJs).toContain('Average ROI');
   expect(appJs).toContain('Active Deals');
   expect(appJs).toContain('Completed Deals');
+  expect(appJs).toContain('Investment Summary');
+  expect(appJs).toContain('Featured Pilot Deals');
   expect(appJs).toContain('Pilot Deal #1 (Fidlot)');
   expect(appJs).toContain('Pilot Deal #2 (Hissar Sheep)');
+  expect(appJs).toContain('Fidlot Livestock Project');
+  expect(appJs).toContain('Hissar Sheep Breeding Project');
+  expect(appJs).toContain('21.9%');
+  expect(appJs).toContain('21.1%');
+  expect(appJs).toContain('Greenhouse Project');
+  expect(appJs).toContain('Poultry Farm');
+  expect(appJs).toContain('Cotton Farm');
+  expect(appJs).toContain('Demo Portfolio');
   expect(appJs).toContain("fetch(`${API_BASE}/api/investor/deals/${deal.id}`, { headers })");
 });
 

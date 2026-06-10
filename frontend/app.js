@@ -1796,6 +1796,33 @@ function sumNearFields(deals, field) {
   return deals.reduce((sum, deal) => sum + parseNearAmount(deal[field]), 0);
 }
 
+const FEATURED_PILOT_DEALS = [
+  {
+    number: 1,
+    title: 'Fidlot Livestock Project',
+    type: 'Fidlot',
+    investment: '$50,000',
+    roi: '64%',
+    apr: '21.9%',
+    cycles: '7',
+  },
+  {
+    number: 2,
+    title: 'Hissar Sheep Breeding Project',
+    type: 'Hissar Sheep',
+    investment: '$50,000',
+    roi: '63.3%',
+    apr: '21.1%',
+    cycles: '6',
+  },
+];
+
+const DEMO_PORTFOLIO_PROJECTS = [
+  'Greenhouse Project',
+  'Poultry Farm',
+  'Cotton Farm',
+];
+
 function investorMetrics(deals) {
   const roiDeals = deals.filter(deal => deal.roi_percent != null);
   return {
@@ -1815,27 +1842,49 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
   el.querySelector('.spinner')?.remove();
   const metrics = investorMetrics(deals);
   const dashboard = document.createElement('div');
+  const activeDeals = deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status));
+  const completedDeals = deals.filter(deal => deal.status?.status === 'Completed');
 
   if (deals.length === 0) {
     dashboard.innerHTML = `
-      ${renderInvestorMetrics(metrics)}
-      <p class="text-slate-400 mt-6">No investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>
+      ${renderDashboardSection('Investment Summary', renderInvestorMetrics(metrics))}
+      ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDeals())}
+      ${renderDashboardSection('Active Deals', `<p class="text-slate-400">No active investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>`)}
+      ${renderDashboardSection('Completed Deals', renderEmptyDashboardSection('No completed deals yet'))}
+      ${renderDashboardSection('Demo Portfolio', renderDemoPortfolioCards())}
     `;
     el.appendChild(dashboard);
     return;
   }
 
   dashboard.innerHTML = `
-    ${renderInvestorMetrics(metrics)}
-    <div class="flex flex-wrap items-center justify-between gap-3 mt-8 mb-4">
-      <h2 class="text-xl font-semibold">Pilot Deals</h2>
-      <span class="text-xs text-slate-500 uppercase tracking-wide">Fidlot + Hissar Sheep</span>
-    </div>
-    <div class="grid gap-4">
-      ${deals.map(renderInvestorDealCard).join('')}
-    </div>
+    ${renderDashboardSection('Investment Summary', renderInvestorMetrics(metrics))}
+    ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDeals())}
+    ${renderDashboardSection('Active Deals', renderDealSection(activeDeals, 'No active deals'))}
+    ${renderDashboardSection('Completed Deals', renderDealSection(completedDeals, 'No completed deals yet'))}
+    ${renderDashboardSection('Demo Portfolio', renderDemoPortfolioCards())}
   `;
   el.appendChild(dashboard);
+}
+
+function renderDashboardSection(title, content) {
+  return `
+    <section class="mt-8 first:mt-0">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-slate-100">${escapeHtml(title)}</h2>
+      </div>
+      ${content}
+    </section>
+  `;
+}
+
+function renderEmptyDashboardSection(message) {
+  return `<div class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-400">${escapeHtml(message)}</div>`;
+}
+
+function renderDealSection(deals, emptyMessage) {
+  if (!deals.length) return renderEmptyDashboardSection(emptyMessage);
+  return `<div class="grid gap-4">${deals.map(renderInvestorDealCard).join('')}</div>`;
 }
 
 function renderInvestorMetrics(metrics) {
@@ -1869,6 +1918,55 @@ function renderInvestorMetrics(metrics) {
         <span class="metric-label">Completed Deals</span>
         <span class="metric-value">${metrics.completedDeals}</span>
       </div>
+    </div>
+  `;
+}
+
+function renderFeaturedPilotDeals() {
+  return `
+    <div class="grid lg:grid-cols-2 gap-4">
+      ${FEATURED_PILOT_DEALS.map(renderFeaturedPilotDealCard).join('')}
+    </div>
+  `;
+}
+
+function renderFeaturedPilotDealCard(deal) {
+  const metrics = [
+    ['Investment', deal.investment],
+    ['ROI', deal.roi],
+    ['APR', deal.apr],
+    ['Cycles', deal.cycles],
+  ];
+  return `
+    <article class="bg-slate-800 border border-green-900 rounded-lg p-5">
+      <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <div>
+          <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Pilot Deal #${deal.number}</span>
+          <h3 class="text-xl font-bold text-slate-50 mt-1">${escapeHtml(deal.title)}</h3>
+        </div>
+        <span class="text-xs font-semibold bg-green-950 text-green-200 border border-green-800 px-2 py-1 rounded">${escapeHtml(deal.type)}</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        ${metrics.map(([label, value]) => `
+          <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
+            <span class="block text-xs text-slate-500">${label}</span>
+            <span class="block text-lg font-bold text-slate-100">${escapeHtml(value)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </article>
+  `;
+}
+
+function renderDemoPortfolioCards() {
+  return `
+    <div class="grid md:grid-cols-3 gap-4">
+      ${DEMO_PORTFOLIO_PROJECTS.map(project => `
+        <article class="bg-slate-800 border border-slate-700 rounded-lg p-5">
+          <span class="text-xs font-semibold bg-slate-700 text-slate-300 px-2 py-1 rounded">Demo Portfolio</span>
+          <h3 class="text-lg font-semibold text-slate-100 mt-3">${escapeHtml(project)}</h3>
+        </article>
+      `).join('')}
     </div>
   `;
 }
