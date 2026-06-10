@@ -8,6 +8,12 @@ frontend/dist/
 
 # Local screenshots
 screenshots/
+!docs/investor-package/screenshots/
+docs/investor-package/screenshots/*.png
+docs/investor-package/screenshots/*.jpg
+docs/investor-package/screenshots/*.jpeg
+docs/investor-package/screenshots/*.webp
+!docs/investor-package/screenshots/README.md
 
 # Rust build artifacts
 contract/target/
