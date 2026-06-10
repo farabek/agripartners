@@ -1768,33 +1768,47 @@ function renderInvestorPortalMessage(el, message, type = 'info') {
 async function enrichDealsForInvestor(deals) {
   const headers = authHeaders();
   return Promise.all(deals.map(async deal => {
-    const [statusRes, balancesRes] = await Promise.allSettled([
+    const [detailRes, statusRes, balancesRes] = await Promise.allSettled([
+      fetch(`${API_BASE}/api/investor/deals/${deal.id}`, { headers }),
       fetch(`${API_BASE}/api/investor/deals/${deal.id}/status`, { headers }),
       fetch(`${API_BASE}/api/investor/deals/${deal.id}/balances`, { headers })
     ]);
+    const detail = detailRes.status === 'fulfilled' && detailRes.value.ok
+      ? await detailRes.value.json() : {};
     const status = statusRes.status === 'fulfilled' && statusRes.value.ok
       ? await statusRes.value.json() : null;
     const balances = balancesRes.status === 'fulfilled' && balancesRes.value.ok
       ? await balancesRes.value.json() : null;
-    return { ...deal, status, balances };
+    return { ...deal, ...detail, status, balances };
   }));
 }
 
+function parseNearAmount(value) {
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function formatNearAmount(value) {
+  return `${value.toFixed(2)} NEAR`;
+}
+
+function sumNearFields(deals, field) {
+  return deals.reduce((sum, deal) => sum + parseNearAmount(deal[field]), 0);
+}
+
 function investorMetrics(deals) {
-  return deals.reduce((acc, deal) => {
-    acc.totalInvested = addYocto(acc.totalInvested, deal.investment_amount);
-    acc.totalInvestorAvailable = addYocto(acc.totalInvestorAvailable, deal.balances?.investor);
-    if (deal.status?.status === 'Completed') acc.completedDeals += 1;
-    if (deal.status?.status && !['Completed', 'Terminated'].includes(deal.status.status)) {
-      acc.activeDeals += 1;
-    }
-    return acc;
-  }, {
-    totalInvested: '0',
-    activeDeals: 0,
-    completedDeals: 0,
-    totalInvestorAvailable: '0'
-  });
+  const roiDeals = deals.filter(deal => deal.roi_percent != null);
+  return {
+    totalInvested: sumNearFields(deals, 'amount'),
+    expectedReturns: sumNearFields(deals, 'expected_return'),
+    returned: sumNearFields(deals, 'returned_amount'),
+    outstanding: sumNearFields(deals, 'outstanding_amount'),
+    averageRoi: roiDeals.length
+      ? roiDeals.reduce((sum, deal) => sum + Number(deal.roi_percent), 0) / roiDeals.length
+      : 0,
+    activeDeals: deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status)).length,
+    completedDeals: deals.filter(deal => deal.status?.status === 'Completed').length,
+  };
 }
 
 function renderInvestorDashboard(el, deals, connectedWalletAccount) {
@@ -1813,7 +1827,11 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
 
   dashboard.innerHTML = `
     ${renderInvestorMetrics(metrics)}
-    <div class="grid gap-4 mt-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mt-8 mb-4">
+      <h2 class="text-xl font-semibold">Pilot Deals</h2>
+      <span class="text-xs text-slate-500 uppercase tracking-wide">Fidlot + Hissar Sheep</span>
+    </div>
+    <div class="grid gap-4">
       ${deals.map(renderInvestorDealCard).join('')}
     </div>
   `;
@@ -1825,8 +1843,23 @@ function renderInvestorMetrics(metrics) {
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
       <div class="metric-box">
         <span class="metric-label">Total Invested</span>
-        <span class="metric-value">${yoctoToNear(metrics.totalInvested)}</span>
-        <span class="metric-raw">${formatYoctoRaw(metrics.totalInvested)}</span>
+        <span class="metric-value">${formatNearAmount(metrics.totalInvested)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Expected Returns</span>
+        <span class="metric-value">${formatNearAmount(metrics.expectedReturns)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Returned</span>
+        <span class="metric-value">${formatNearAmount(metrics.returned)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Outstanding</span>
+        <span class="metric-value">${formatNearAmount(metrics.outstanding)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Average ROI</span>
+        <span class="metric-value">${metrics.averageRoi.toFixed(1)}%</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Active Deals</span>
@@ -1836,17 +1869,20 @@ function renderInvestorMetrics(metrics) {
         <span class="metric-label">Completed Deals</span>
         <span class="metric-value">${metrics.completedDeals}</span>
       </div>
-      <div class="metric-box">
-        <span class="metric-label">Investor Available</span>
-        <span class="metric-value">${yoctoToNear(metrics.totalInvestorAvailable)}</span>
-        <span class="metric-raw">${formatYoctoRaw(metrics.totalInvestorAvailable)}</span>
-      </div>
     </div>
   `;
 }
 
+function investorPilotLabel(deal) {
+  const type = String(deal.deal_type || deal.title || '').toLowerCase();
+  if (deal.id === 1 || type.includes('fidlot')) return 'Pilot Deal #1 (Fidlot)';
+  if (deal.id === 2 || type.includes('hissar')) return 'Pilot Deal #2 (Hissar Sheep)';
+  return deal.title || `Deal #${deal.id}`;
+}
+
 function renderInvestorDealCard(deal) {
   const status = deal.status?.status || 'Unknown';
+  const pilotLabel = investorPilotLabel(deal);
   const currentCycle = deal.status?.current_cycle ?? '—';
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -1856,13 +1892,27 @@ function renderInvestorDealCard(deal) {
           ${statusBadge(status)}
           <span class="text-xs text-slate-500">Cycle ${currentCycle}</span>
         </div>
+        <h3 class="text-lg font-semibold text-slate-100">${escapeHtml(pilotLabel)}</h3>
         <p class="text-sm text-slate-400">Contract: <span class="text-slate-200 font-mono">${escapeHtml(formatAddress(deal.contract_address))}</span></p>
         <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${escapeHtml(formatAddress(deal.farmer))}</span></p>
-        <p class="text-sm text-slate-400">
-          Investment:
-          <span class="text-slate-100 font-mono">${yoctoToNear(deal.investment_amount)}</span>
-          <span class="block text-xs text-slate-500 font-mono">${formatYoctoRaw(deal.investment_amount)}</span>
-        </p>
+        <div class="grid sm:grid-cols-4 gap-3 pt-2">
+          <div>
+            <span class="block text-xs text-slate-500">Invested</span>
+            <span class="text-sm text-slate-100 font-mono">${formatNearDisplay(deal.amount)}</span>
+          </div>
+          <div>
+            <span class="block text-xs text-slate-500">Expected</span>
+            <span class="text-sm text-slate-100 font-mono">${formatNearDisplay(deal.expected_return)}</span>
+          </div>
+          <div>
+            <span class="block text-xs text-slate-500">Returned</span>
+            <span class="text-sm text-green-300 font-mono">${formatNearDisplay(deal.returned_amount)}</span>
+          </div>
+          <div>
+            <span class="block text-xs text-slate-500">ROI</span>
+            <span class="text-sm text-slate-100 font-mono">${escapeHtml(deal.roi_percent ?? 20)}%</span>
+          </div>
+        </div>
       </div>
       <a href="#investor/deals/${deal.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
     </div>

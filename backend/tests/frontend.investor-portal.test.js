@@ -37,6 +37,19 @@ test('investor detail renders investment summary', () => {
   expect(appJs).toContain('ROI');
 });
 
+test('investor home dashboard renders MVP metrics and pilot deals', () => {
+  expect(appJs).toContain('function investorMetrics');
+  expect(appJs).toContain('Expected Returns');
+  expect(appJs).toContain('Returned');
+  expect(appJs).toContain('Outstanding');
+  expect(appJs).toContain('Average ROI');
+  expect(appJs).toContain('Active Deals');
+  expect(appJs).toContain('Completed Deals');
+  expect(appJs).toContain('Pilot Deal #1 (Fidlot)');
+  expect(appJs).toContain('Pilot Deal #2 (Hissar Sheep)');
+  expect(appJs).toContain("fetch(`${API_BASE}/api/investor/deals/${deal.id}`, { headers })");
+});
+
 test('investor detail fetches and renders repayment history', () => {
   expect(appJs).toContain("fetch(`${API_BASE}/api/investor/deals/${id}/returns`, { headers })");
   expect(appJs).toContain('id="investor-returns-list"');

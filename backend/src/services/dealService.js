@@ -1,5 +1,30 @@
 const pool = require('../db/index');
 
+const YOCTO_PER_NEAR = BigInt('1000000000000000000000000');
+const ROI_PERCENT = 20;
+
+function parseNearToYocto(value) {
+  const raw = String(value ?? '').trim();
+  if (!/^\d+(\.\d{1,24})?$/.test(raw)) {
+    throw new Error('amount_near must be a valid NEAR amount');
+  }
+  const [whole, fraction = ''] = raw.split('.');
+  return (BigInt(whole) * YOCTO_PER_NEAR + BigInt(fraction.padEnd(24, '0'))).toString();
+}
+
+function formatYoctoToNear(yocto) {
+  const value = BigInt(yocto || '0');
+  const whole = value / YOCTO_PER_NEAR;
+  const fraction = value % YOCTO_PER_NEAR;
+  const fractionText = fraction.toString().padStart(24, '0').replace(/0+$/, '');
+  const decimals = (fractionText || '').padEnd(2, '0');
+  return `${whole}.${decimals}`;
+}
+
+function normalizeReturnAmount(value) {
+  return formatYoctoToNear(parseNearToYocto(value));
+}
+
 async function getAllDeals() {
   const { rows } = await pool.query(
     'SELECT * FROM deals ORDER BY created_at DESC'
@@ -101,6 +126,53 @@ async function getFarmerReports(dealId) {
     [dealId]
   );
   return rows;
+}
+
+async function getDealReturns(dealId) {
+  const { rows } = await pool.query(
+    'SELECT * FROM deal_returns WHERE deal_id = $1 ORDER BY created_at ASC',
+    [dealId]
+  );
+  return rows;
+}
+
+async function createDealReturn(dealId, repayment) {
+  const amountNear = normalizeReturnAmount(repayment.amount_near);
+  const note = String(repayment.note ?? '').trim() || null;
+  const { rows } = await pool.query(
+    `INSERT INTO deal_returns (deal_id, amount_near, note)
+     VALUES ($1, $2, $3)
+     RETURNING *`,
+    [dealId, amountNear, note]
+  );
+  return rows[0];
+}
+
+async function getDealReturnSummary(deal) {
+  const returns = await getDealReturns(deal.id);
+  const investedYocto = BigInt(deal.investment_amount || '0');
+  const expectedYocto = investedYocto * BigInt(100 + ROI_PERCENT) / 100n;
+  const returnedYocto = returns.reduce(
+    (sum, repayment) => sum + BigInt(parseNearToYocto(repayment.amount_near)),
+    0n
+  );
+  const outstandingYocto = expectedYocto > returnedYocto ? expectedYocto - returnedYocto : 0n;
+
+  return {
+    amount: formatYoctoToNear(investedYocto.toString()),
+    expected_return: formatYoctoToNear(expectedYocto.toString()),
+    returned_amount: formatYoctoToNear(returnedYocto.toString()),
+    outstanding_amount: formatYoctoToNear(outstandingYocto.toString()),
+    roi_percent: ROI_PERCENT,
+  };
+}
+
+async function enrichDealWithReturnSummary(deal) {
+  if (!deal) return null;
+  return {
+    ...deal,
+    ...(await getDealReturnSummary(deal)),
+  };
 }
 
 function eventCycleNumbers(events) {
@@ -248,6 +320,10 @@ module.exports = {
   getDealEvents,
   getFarmerDealCycles,
   getFarmerReports,
+  getDealReturns,
+  createDealReturn,
+  getDealReturnSummary,
+  enrichDealWithReturnSummary,
   createFarmerReport,
   confirmFarmerFunding,
   submitFarmerCycleReport,
