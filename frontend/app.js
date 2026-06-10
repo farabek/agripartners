@@ -1800,6 +1800,12 @@ function formatNearAmount(value) {
   return `${value.toFixed(2)} NEAR`;
 }
 
+function formatUsdAmount(value) {
+  const amount = Number.parseFloat(value);
+  if (!Number.isFinite(amount)) return '$0';
+  return `$${amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+}
+
 function sumNearFields(deals, field) {
   return deals.reduce((sum, deal) => sum + parseNearAmount(deal[field]), 0);
 }
@@ -1823,6 +1829,10 @@ const INVESTOR_DEMO_PILOTS = [
     expectedReturn: '82000.00',
     returnedAmount: '82000.00',
     outstandingAmount: '0.00',
+    displayAmount: '$50,000',
+    displayExpectedReturn: '$82,000',
+    displayReturnedAmount: '$82,000',
+    displayOutstandingAmount: '$0',
     description: 'Livestock fattening operation based on a real pilot agricultural agreement. Demonstrated through the AgriPartners workflow on NEAR Testnet.',
     reportTitle: 'Cycle completion report',
     reportDescription: 'Pilot livestock cycle completed for investor demonstration. Operational reporting is shown as part of the AgriPartners workflow.',
@@ -1844,6 +1854,10 @@ const INVESTOR_DEMO_PILOTS = [
     expectedReturn: '81650.00',
     returnedAmount: '0.00',
     outstandingAmount: '81650.00',
+    displayAmount: '$50,000',
+    displayExpectedReturn: '$81,650',
+    displayReturnedAmount: '$0',
+    displayOutstandingAmount: '$81,650',
     description: 'Sheep breeding operation based on a real pilot agricultural agreement. Demonstrated through the AgriPartners workflow on NEAR Testnet.',
     reportTitle: 'Initial breeding cycle update',
     reportDescription: 'Demo cycle update for the active Hissar pilot profile. This profile is presented for investor demo readiness and is not a new smart contract deployment.',
@@ -1885,6 +1899,11 @@ function investorDemoDealFromPilot(pilot, connectedWalletAccount) {
     expected_return: pilot.expectedReturn,
     returned_amount: pilot.returnedAmount,
     outstanding_amount: pilot.outstandingAmount,
+    display_amount: pilot.displayAmount,
+    display_expected_return: pilot.displayExpectedReturn,
+    display_returned_amount: pilot.displayReturnedAmount,
+    display_outstanding_amount: pilot.displayOutstandingAmount,
+    display_currency: 'USD',
     roi_percent: pilot.roiPercent,
     status: { status: pilot.status, current_cycle: pilot.currentCycle },
     balances: null,
@@ -1897,11 +1916,20 @@ function buildInvestorDemoDataset(_deals, connectedWalletAccount) {
 
 function investorMetrics(deals) {
   const roiDeals = deals.filter(deal => deal.roi_percent != null);
-  return {
+  const allUsd = deals.length > 0 && deals.every(deal => deal.display_currency === 'USD');
+  const totals = {
     totalInvested: sumNearFields(deals, 'amount'),
     expectedReturns: sumNearFields(deals, 'expected_return'),
     returned: sumNearFields(deals, 'returned_amount'),
     outstanding: sumNearFields(deals, 'outstanding_amount'),
+  };
+  return {
+    ...totals,
+    displayCurrency: allUsd ? 'USD' : 'NEAR',
+    displayTotalInvested: allUsd ? formatUsdAmount(totals.totalInvested) : null,
+    displayExpectedReturns: allUsd ? formatUsdAmount(totals.expectedReturns) : null,
+    displayReturned: allUsd ? formatUsdAmount(totals.returned) : null,
+    displayOutstanding: allUsd ? formatUsdAmount(totals.outstanding) : null,
     averageRoi: roiDeals.length
       ? roiDeals.reduce((sum, deal) => sum + Number(deal.roi_percent), 0) / roiDeals.length
       : 0,
@@ -1958,23 +1986,30 @@ function renderDealSection(deals, emptyMessage) {
 }
 
 function renderInvestorMetrics(metrics) {
+  const invested = metrics.displayTotalInvested || formatNearAmount(metrics.totalInvested);
+  const expected = metrics.displayExpectedReturns || formatNearAmount(metrics.expectedReturns);
+  const returned = metrics.displayReturned || formatNearAmount(metrics.returned);
+  const outstanding = metrics.displayOutstanding || formatNearAmount(metrics.outstanding);
+  const currencyNote = metrics.displayCurrency === 'USD'
+    ? '<p class="text-xs text-slate-500 mt-2">Demo financial view in USD</p>'
+    : '';
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
       <div class="metric-box">
         <span class="metric-label">Total Invested</span>
-        <span class="metric-value">${formatNearAmount(metrics.totalInvested)}</span>
+        <span class="metric-value">${escapeHtml(invested)}</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Expected Returns</span>
-        <span class="metric-value">${formatNearAmount(metrics.expectedReturns)}</span>
+        <span class="metric-value">${escapeHtml(expected)}</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Returned</span>
-        <span class="metric-value">${formatNearAmount(metrics.returned)}</span>
+        <span class="metric-value">${escapeHtml(returned)}</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Outstanding</span>
-        <span class="metric-value">${formatNearAmount(metrics.outstanding)}</span>
+        <span class="metric-value">${escapeHtml(outstanding)}</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Average ROI</span>
@@ -1989,6 +2024,7 @@ function renderInvestorMetrics(metrics) {
         <span class="metric-value">${metrics.completedDeals}</span>
       </div>
     </div>
+    ${currencyNote}
   `;
 }
 
@@ -2086,6 +2122,9 @@ function renderInvestorDealCard(deal) {
   const pilotLabel = investorPilotLabel(deal);
   const dealBadge = deal.isDemoPilot ? 'Demo Pilot' : `Deal #${deal.id}`;
   const dealHref = deal.isDemoPilot ? `#investor/pilots/${deal.pilot_key}` : `#investor/deals/${deal.id}`;
+  const invested = deal.display_amount || formatNearDisplay(deal.amount);
+  const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return);
+  const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount);
   const currentCycle = deal.status?.current_cycle ?? '—';
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -2101,15 +2140,15 @@ function renderInvestorDealCard(deal) {
         <div class="grid sm:grid-cols-4 gap-3 pt-2">
           <div>
             <span class="block text-xs text-slate-500">Invested</span>
-            <span class="text-sm text-slate-100 font-mono">${formatNearDisplay(deal.amount)}</span>
+            <span class="text-sm text-slate-100 font-mono">${escapeHtml(invested)}</span>
           </div>
           <div>
             <span class="block text-xs text-slate-500">Expected</span>
-            <span class="text-sm text-slate-100 font-mono">${formatNearDisplay(deal.expected_return)}</span>
+            <span class="text-sm text-slate-100 font-mono">${escapeHtml(expected)}</span>
           </div>
           <div>
             <span class="block text-xs text-slate-500">Returned</span>
-            <span class="text-sm text-green-300 font-mono">${formatNearDisplay(deal.returned_amount)}</span>
+            <span class="text-sm text-green-300 font-mono">${escapeHtml(returned)}</span>
           </div>
           <div>
             <span class="block text-xs text-slate-500">ROI</span>
@@ -2378,10 +2417,10 @@ function formatNearDisplay(value) {
 
 function renderInvestmentSummary(deal) {
   const rows = [
-    ['Invested', formatNearDisplay(deal.amount)],
-    ['Expected Return', formatNearDisplay(deal.expected_return)],
-    ['Returned', formatNearDisplay(deal.returned_amount)],
-    ['Outstanding', formatNearDisplay(deal.outstanding_amount)],
+    ['Invested', deal.display_amount || formatNearDisplay(deal.amount)],
+    ['Expected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)],
+    ['Returned', deal.display_returned_amount || formatNearDisplay(deal.returned_amount)],
+    ['Outstanding', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)],
     ['ROI', `${escapeHtml(deal.roi_percent ?? 20)}%`],
   ];
   return `

@@ -77,6 +77,9 @@ test('investor home dashboard renders MVP metrics and pilot deals', () => {
   expect(appJs).not.toContain('Demo Portfolio');
   expect(appJs).toContain('INVESTOR_DEMO_DATASET_ENABLED');
   expect(appJs).toContain('buildInvestorDemoDataset(deals, connectedWalletAccount)');
+  expect(appJs).toContain('Demo financial view in USD');
+  expect(appJs).toContain('displayTotalInvested');
+  expect(appJs).toContain('displayExpectedReturns');
 });
 
 test('investor detail fetches and renders repayment history', () => {
@@ -103,4 +106,23 @@ test('investor demo dataset hides test records and renders clean pilot routes', 
   expect(appJs).not.toContain('Deal #4 Unknown');
   expect(appJs).not.toContain('withdraw_signer_test');
   expect(appJs).not.toContain('test_farmer_dashboard');
+});
+
+test('investor demo financial metrics render in USD instead of NEAR', () => {
+  expect(appJs).toContain("displayAmount: '$50,000'");
+  expect(appJs).toContain("displayExpectedReturn: '$82,000'");
+  expect(appJs).toContain("displayReturnedAmount: '$82,000'");
+  expect(appJs).toContain("displayExpectedReturn: '$81,650'");
+  expect(appJs).toContain("displayReturnedAmount: '$0'");
+  expect(appJs).toContain("displayOutstandingAmount: '$81,650'");
+  expect(appJs).toContain('displayTotalInvested: allUsd ? formatUsdAmount(totals.totalInvested) : null');
+  expect(appJs).toContain('displayExpectedReturns: allUsd ? formatUsdAmount(totals.expectedReturns) : null');
+  expect(appJs).toContain('displayReturned: allUsd ? formatUsdAmount(totals.returned) : null');
+  expect(appJs).toContain('displayOutstanding: allUsd ? formatUsdAmount(totals.outstanding) : null');
+  expect(appJs).toContain('const invested = deal.display_amount || formatNearDisplay(deal.amount)');
+  expect(appJs).toContain('const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return)');
+  expect(appJs).toContain('const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount)');
+  expect(appJs).toContain("['Invested', deal.display_amount || formatNearDisplay(deal.amount)]");
+  expect(appJs).toContain("['Expected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)]");
+  expect(appJs).toContain("['Outstanding', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)]");
 });
