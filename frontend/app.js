@@ -1805,6 +1805,7 @@ const FEATURED_PILOT_DEALS = [
     roi: '64%',
     apr: '21.9%',
     cycles: '7',
+    description: 'Livestock fattening operation based on a real pilot agricultural agreement. Demonstrated through the AgriPartners workflow on NEAR Testnet.',
   },
   {
     number: 2,
@@ -1814,6 +1815,7 @@ const FEATURED_PILOT_DEALS = [
     roi: '63.3%',
     apr: '21.1%',
     cycles: '6',
+    description: 'Sheep breeding operation based on a real pilot agricultural agreement. Demonstrated through the AgriPartners workflow on NEAR Testnet.',
   },
 ];
 
@@ -1973,9 +1975,61 @@ function renderDemoPortfolioCards() {
 
 function investorPilotLabel(deal) {
   const type = String(deal.deal_type || deal.title || '').toLowerCase();
-  if (deal.id === 1 || type.includes('fidlot')) return 'Pilot Deal #1 (Fidlot)';
-  if (deal.id === 2 || type.includes('hissar')) return 'Pilot Deal #2 (Hissar Sheep)';
+  if ([1, 7].includes(Number(deal.id)) || type.includes('fidlot')) return 'Pilot Deal #1 (Fidlot)';
+  if ([2, 8].includes(Number(deal.id)) || type.includes('hissar')) return 'Pilot Deal #2 (Hissar Sheep)';
   return deal.title || `Deal #${deal.id}`;
+}
+
+function investorProjectProfile(deal, status) {
+  const type = String(deal.deal_type || deal.title || '').toLowerCase();
+  const id = Number(deal.id);
+  const pilot = ([1, 7].includes(id) || type.includes('fidlot'))
+    ? FEATURED_PILOT_DEALS[0]
+    : ([2, 8].includes(id) || type.includes('hissar'))
+      ? FEATURED_PILOT_DEALS[1]
+      : null;
+
+  return {
+    title: pilot?.title || deal.title || `Deal #${deal.id}`,
+    investment: pilot?.investment || formatNearDisplay(deal.amount),
+    roi: pilot?.roi || `${deal.roi_percent ?? 20}%`,
+    apr: pilot?.apr || 'Demo model',
+    cycles: pilot?.cycles || String(deal.total_cycles ?? '-'),
+    description: pilot?.description || deal.description || 'Agricultural investment project demonstrated through the AgriPartners workflow on NEAR Testnet.',
+    status: status?.status === 'Completed' ? 'Completed' : 'Active',
+  };
+}
+
+function renderProjectProfile(deal, status) {
+  const profile = investorProjectProfile(deal, status);
+  const metrics = [
+    ['Investment', profile.investment],
+    ['ROI', profile.roi],
+    ['APR', profile.apr],
+    ['Cycles', profile.cycles],
+    ['Status', profile.status],
+  ];
+
+  return `
+    <section class="bg-slate-800 border border-green-900 rounded-lg p-5 mb-6">
+      <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <div>
+          <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Project Profile</span>
+          <h1 class="text-2xl md:text-3xl font-bold text-slate-50 mt-1">${escapeHtml(profile.title)}</h1>
+          <p class="text-sm text-slate-400 mt-2 max-w-3xl">${escapeHtml(profile.description)}</p>
+        </div>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">Deal #${escapeHtml(deal.id)}</span>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        ${metrics.map(([label, value]) => `
+          <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
+            <span class="block text-xs text-slate-500">${label}</span>
+            <span class="block text-lg font-bold text-slate-100">${escapeHtml(value)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
 }
 
 function renderInvestorDealCard(deal) {
@@ -2082,19 +2136,24 @@ function renderInvestorDealAccessMessage(el) {
 
 function renderInvestorDealDetail(el, deal, status, balances, events, reports = [], cycles = [], returns = []) {
   const investorBalance = balances?.investor || '0';
+  const profile = investorProjectProfile(deal, status);
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <a href="#investor" class="text-slate-400 hover:text-white text-sm">Back to Investor Portal</a>
       <span class="text-slate-600">|</span>
-      <span class="font-semibold">Deal #${deal.id}</span>
+      <span class="font-semibold">${escapeHtml(profile.title)}</span>
+      <span class="text-xs text-slate-500">Deal #${escapeHtml(deal.id)}</span>
       <span id="investor-status-badge">${statusBadge(status?.status)}</span>
       <span id="investor-cycle-text" class="text-slate-400 text-sm">Cycle ${status?.current_cycle ?? '—'}</span>
       <button id="btn-investor-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
+    ${renderProjectProfile(deal, status)}
+
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Technical Deal Data</h3>
         ${renderInvestorDealParams(deal, status, investorBalance)}
       </div>
       <div class="bg-slate-800 rounded-xl p-5">
@@ -2111,18 +2170,18 @@ function renderInvestorDealDetail(el, deal, status, balances, events, reports = 
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns</h3>
-      <div id="investor-returns-list">${renderRepaymentHistory(returns)}</div>
-    </div>
-
-    <div class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
       <div id="investor-cycles-list">${renderCycleStatusCards(cycles)}</div>
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Reports</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Reports</h3>
       <div id="investor-reports-list">${renderInvestorReports(reports)}</div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns</h3>
+      <div id="investor-returns-list">${renderRepaymentHistory(returns)}</div>
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5">

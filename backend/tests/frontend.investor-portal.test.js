@@ -37,6 +37,24 @@ test('investor detail renders investment summary', () => {
   expect(appJs).toContain('ROI');
 });
 
+test('investor detail renders project profile before technical deal data', () => {
+  expect(appJs).toContain('function renderProjectProfile');
+  expect(appJs).toContain('Project Profile');
+  expect(appJs).toContain('Fidlot Livestock Project');
+  expect(appJs).toContain('Hissar Sheep Breeding Project');
+  expect(appJs).toContain('$50,000');
+  expect(appJs).toContain('64%');
+  expect(appJs).toContain('63.3%');
+  expect(appJs).toContain('21.9%');
+  expect(appJs).toContain('21.1%');
+  expect(appJs).toContain('Livestock fattening operation based on a real pilot agricultural agreement');
+  expect(appJs).toContain('Sheep breeding operation based on a real pilot agricultural agreement');
+  expect(appJs).toContain('Technical Deal Data');
+  expect(appJs).toContain('Deal #${escapeHtml(deal.id)}');
+  expect(appJs).toContain('[1, 7].includes');
+  expect(appJs).toContain('[2, 8].includes');
+});
+
 test('investor home dashboard renders MVP metrics and pilot deals', () => {
   expect(appJs).toContain('function investorMetrics');
   expect(appJs).toContain('Expected Returns');
