@@ -137,7 +137,7 @@ Source documents:
 - Required screenshot: none
 - Required diagram: none
 - Required icon: founder or user icon
-- Suggested visual layout: founder profile card for Farhod Bekmuratov on the left; execution focus bullets on the right. Use a professional headshot only if approved.
+- Suggested visual layout: founder profile card for Farhod Muhamadiev on the left; execution focus bullets on the right. Use a professional headshot only if approved.
 
 ### Slide 16 - Investment Ask
 

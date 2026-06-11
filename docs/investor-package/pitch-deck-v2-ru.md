@@ -181,7 +181,7 @@ AgriPartners завершил Alpha v1 как рабочую демонстра�
 
 ## 15. Team
 
-Founder: Farhod Bekmuratov.
+Founder: Farhod Muhamadiev.
 
 Farhod ведет AgriPartners с фокусом на превращение аграрных инвестиций из ручного, relationship-heavy процесса в более понятный digital workflow для инвесторов, фермеров и ecosystem partners.
 

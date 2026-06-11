@@ -181,7 +181,7 @@ Next milestones:
 
 ## 15. Team
 
-Founder: Farhod Bekmuratov.
+Founder: Farhod Muhamadiev.
 
 Farhod is leading AgriPartners with a focus on turning agricultural investment from a manual, relationship-heavy process into a clearer digital workflow for investors, farmers, and ecosystem partners.
 

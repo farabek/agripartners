@@ -156,7 +156,7 @@ Target audience: UAE investors, Saudi investors, accelerators, venture funds, an
 
 **Title:** Founder-Led Execution
 
-**Key message:** Founder Farhod Bekmuratov is building AgriPartners as an agriculture-first platform with practical pilot models, investor-readable workflows, and selective use of NEAR infrastructure.
+**Key message:** Founder Farhod Muhamadiev is building AgriPartners as an agriculture-first platform with practical pilot models, investor-readable workflows, and selective use of NEAR infrastructure.
 
 **Screenshot recommendation:** Founder photo or simple team slide; no product screenshot required.
 

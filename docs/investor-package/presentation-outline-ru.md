@@ -156,7 +156,7 @@
 
 **Название:** Founder-led execution
 
-**Ключевое сообщение:** Основатель Farhod Bekmuratov строит AgriPartners как agriculture-first platform с практичными пилотными моделями, investor-readable workflows и выборочным использованием NEAR infrastructure.
+**Ключевое сообщение:** Основатель Farhod Muhamadiev строит AgriPartners как agriculture-first platform с практичными пилотными моделями, investor-readable workflows и выборочным использованием NEAR infrastructure.
 
 **Рекомендация по скриншоту:** Фото основателя или лаконичный team slide; продуктовый скриншот не обязателен.
 
