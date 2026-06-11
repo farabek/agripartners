@@ -1119,6 +1119,15 @@ function farmerProfileValue(profile, field, fallback = 'Not set') {
   return value ? escapeHtml(value) : fallback;
 }
 
+function farmerDemoProfile(profile = {}) {
+  return {
+    ...profile,
+    displayName: 'AgriPartners Pilot Farm',
+    organizationName: 'Livestock pilot operator',
+    role: 'farmer',
+  };
+}
+
 function farmerDashboardMetrics(deals) {
   const allUsd = deals.length > 0 && deals.every((deal) => deal.display_currency === 'USD');
   const totalFunding = deals.reduce(
@@ -1142,31 +1151,32 @@ function farmerDashboardMetrics(deals) {
 }
 
 function renderFarmerProfilePanel(profile, farmer) {
+  const displayProfile = FARMER_DEMO_DATASET_ENABLED ? farmerDemoProfile(profile) : profile;
   return `
     <div class="bg-slate-800 rounded-xl p-5 mb-4">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 class="text-xl font-semibold text-slate-100">${farmerProfileValue(profile, 'displayName', escapeHtml(farmer || 'Farmer'))}</h2>
-          <p class="text-sm text-slate-400 mt-1">${farmerProfileValue(profile, 'organizationName')}</p>
+          <h2 class="text-xl font-semibold text-slate-100">${farmerProfileValue(displayProfile, 'displayName', escapeHtml(farmer || 'Farmer'))}</h2>
+          <p class="text-sm text-slate-400 mt-1">${farmerProfileValue(displayProfile, 'organizationName')}</p>
         </div>
-        <span class="text-xs font-semibold bg-slate-700 px-2 py-1 rounded text-slate-300">${escapeHtml(profile?.role || 'farmer')}</span>
+        <span class="text-xs font-semibold bg-slate-700 px-2 py-1 rounded text-slate-300">${escapeHtml(displayProfile?.role || 'farmer')}</span>
       </div>
       <div class="grid sm:grid-cols-2 gap-3 mt-4 text-sm">
         <div>
           <span class="block text-slate-500">Display Name</span>
-          <span class="text-slate-200">${farmerProfileValue(profile, 'displayName', escapeHtml(farmer || 'Farmer'))}</span>
+          <span class="text-slate-200">${farmerProfileValue(displayProfile, 'displayName', escapeHtml(farmer || 'Farmer'))}</span>
         </div>
         <div>
           <span class="block text-slate-500">Organization / Farm Name</span>
-          <span class="text-slate-200">${farmerProfileValue(profile, 'organizationName')}</span>
+          <span class="text-slate-200">${farmerProfileValue(displayProfile, 'organizationName')}</span>
         </div>
         <div>
           <span class="block text-slate-500">Country</span>
-          <span class="text-slate-200">${farmerProfileValue(profile, 'country')}</span>
+          <span class="text-slate-200">${farmerProfileValue(displayProfile, 'country')}</span>
         </div>
         <div>
           <span class="block text-slate-500">Wallet account</span>
-          <span class="text-slate-200 font-mono break-all">${escapeHtml(farmer || profile?.walletAccountId || 'Not connected')}</span>
+          <span class="text-slate-200 font-mono break-all">${escapeHtml(farmer || displayProfile?.walletAccountId || 'Not connected')}</span>
         </div>
       </div>
     </div>
@@ -1176,7 +1186,7 @@ function renderFarmerProfilePanel(profile, farmer) {
 function renderFarmerSummaryCards(metrics) {
   const totalFunding = metrics.displayTotalFunding || yoctoToNear(metrics.totalFunding);
   const rawFunding = metrics.displayTotalFunding
-    ? '<span class="metric-raw">Demo financial view in USD</span>'
+    ? '<span class="metric-raw">Financial view in USD</span>'
     : `<span class="metric-raw">${formatYoctoRaw(metrics.totalFunding)}</span>`;
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
@@ -1342,7 +1352,7 @@ function renderFarmerDemoDealDetail(el, deal, cycles, events) {
       <a href="#farmer" class="text-slate-400 hover:text-white text-sm">Back to Farmer Portal</a>
       <span class="text-slate-600">|</span>
       <span class="font-semibold">${escapeHtml(deal.title)}</span>
-      <span class="text-xs text-slate-500">Demo Pilot Profile</span>
+      <span class="text-xs text-slate-500">Pilot Profile</span>
       ${statusBadge(deal.status)}
     </div>
 
@@ -2178,7 +2188,7 @@ function renderInvestorMetrics(metrics) {
   const returned = metrics.displayReturned || formatNearAmount(metrics.returned);
   const outstanding = metrics.displayOutstanding || formatNearAmount(metrics.outstanding);
   const currencyNote = metrics.displayCurrency === 'USD'
-    ? '<p class="text-xs text-slate-500 mt-2">Demo financial view in USD</p>'
+    ? '<p class="text-xs text-slate-500 mt-2">Financial view in USD</p>'
     : '';
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -2224,9 +2234,10 @@ function renderFeaturedPilotDeals() {
 }
 
 function renderFeaturedPilotDealCard(deal) {
+  const roiLabel = deal.status === 'Completed' ? 'ROI' : 'Projected ROI';
   const metrics = [
     ['Investment', deal.investment],
-    ['ROI', deal.roi],
+    [roiLabel, deal.roi],
     ['APR', deal.apr],
     ['Cycles', deal.cycles],
   ];
@@ -2259,24 +2270,26 @@ function investorPilotLabel(deal) {
 
 function investorProjectProfile(deal, status) {
   const pilot = getPilotForDeal(deal);
+  const projectStatus = status?.status === 'Completed' ? 'Completed' : 'Active';
 
   return {
     title: pilot?.title || deal.title || `Deal #${deal.id}`,
     investment: pilot?.investment || formatNearDisplay(deal.amount),
     roi: pilot?.roi || `${deal.roi_percent ?? 20}%`,
+    roiLabel: projectStatus === 'Completed' ? 'ROI' : 'Projected ROI',
     apr: pilot?.apr || 'Demo model',
     cycles: pilot?.cycles || String(deal.total_cycles ?? '-'),
     description: pilot?.description || deal.description || 'Agricultural investment project demonstrated through the AgriPartners workflow on NEAR Testnet.',
-    status: status?.status === 'Completed' ? 'Completed' : 'Active',
+    status: projectStatus,
   };
 }
 
 function renderProjectProfile(deal, status) {
   const profile = investorProjectProfile(deal, status);
-  const profileBadge = deal.isDemoPilot ? 'Demo Pilot Profile' : `Deal #${deal.id}`;
+  const profileBadge = deal.isDemoPilot ? 'Pilot Profile' : `Deal #${deal.id}`;
   const metrics = [
     ['Investment', profile.investment],
-    ['ROI', profile.roi],
+    [profile.roiLabel, profile.roi],
     ['APR', profile.apr],
     ['Cycles', profile.cycles],
     ['Status', profile.status],
@@ -2307,11 +2320,12 @@ function renderProjectProfile(deal, status) {
 function renderInvestorDealCard(deal) {
   const status = deal.status?.status || 'Unknown';
   const pilotLabel = investorPilotLabel(deal);
-  const dealBadge = deal.isDemoPilot ? 'Demo Pilot' : `Deal #${deal.id}`;
+  const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`;
   const dealHref = deal.isDemoPilot ? `#investor/pilots/${deal.pilot_key}` : `#investor/deals/${deal.id}`;
   const invested = deal.display_amount || formatNearDisplay(deal.amount);
   const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return);
   const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount);
+  const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI';
   const currentCycle = deal.status?.current_cycle ?? '—';
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -2338,7 +2352,7 @@ function renderInvestorDealCard(deal) {
             <span class="text-sm text-green-300 font-mono">${escapeHtml(returned)}</span>
           </div>
           <div>
-            <span class="block text-xs text-slate-500">ROI</span>
+            <span class="block text-xs text-slate-500">${escapeHtml(roiLabel)}</span>
             <span class="text-sm text-slate-100 font-mono">${escapeHtml(deal.roi_percent ?? 20)}%</span>
           </div>
         </div>
@@ -2481,7 +2495,7 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
       <a href="#investor" class="text-slate-400 hover:text-white text-sm">Back to Investor Portal</a>
       <span class="text-slate-600">|</span>
       <span class="font-semibold">${escapeHtml(profile.title)}</span>
-      <span class="text-xs text-slate-500">Demo Pilot Profile</span>
+      <span class="text-xs text-slate-500">Pilot Profile</span>
       ${statusBadge(status?.status)}
       <span class="text-slate-400 text-sm">Cycle ${status?.current_cycle ?? '-'}</span>
     </div>
@@ -2647,12 +2661,14 @@ function formatNearDisplay(value) {
 }
 
 function renderInvestmentSummary(deal) {
+  const status = deal.status?.status || deal.status;
+  const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI';
   const rows = [
     ['Invested', deal.display_amount || formatNearDisplay(deal.amount)],
     ['Expected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)],
     ['Returned', deal.display_returned_amount || formatNearDisplay(deal.returned_amount)],
     ['Outstanding', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)],
-    ['ROI', `${escapeHtml(deal.roi_percent ?? 20)}%`],
+    [roiLabel, `${escapeHtml(deal.roi_percent ?? 20)}%`],
   ];
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">

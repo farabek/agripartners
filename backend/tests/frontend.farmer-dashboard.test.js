@@ -26,6 +26,9 @@ test('new farmer empty state is friendly and actionable', () => {
 
 test('farmer dashboard renders profile fields and summary cards', () => {
   expect(appJs).toContain('renderFarmerProfilePanel');
+  expect(appJs).toContain('AgriPartners Pilot Farm');
+  expect(appJs).toContain('Livestock pilot operator');
+  expect(appJs).toContain("role: 'farmer'");
   expect(appJs).toContain('Display Name');
   expect(appJs).toContain('Organization / Farm Name');
   expect(appJs).toContain('Active Deals');
@@ -33,11 +36,14 @@ test('farmer dashboard renders profile fields and summary cards', () => {
   expect(appJs).toContain('Total Funding');
   expect(appJs).toContain('Active Cycles');
   expect(appJs).toContain('Pending Reports');
+  expect(appJs).not.toContain('Farhod Investor');
 });
 
 test('farmer deal cards remain linked to the detail page', () => {
   expect(appJs).toContain('function renderFarmerDealCard');
   expect(appJs).toContain('const dealHref = deal.isDemoPilot ? `#farmer/pilots/${deal.pilot_key}` : `#farmer/deals/${deal.id}`');
+  expect(appJs).toContain("const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`");
+  expect(appJs).not.toContain("const dealBadge = deal.isDemoPilot ? 'Demo Pilot' : `Deal #${deal.id}`");
   expect(appJs).toContain('View Deal');
 });
 
@@ -61,7 +67,8 @@ test('farmer summary metrics show clean demo values', () => {
   expect(appJs).toContain('pendingReports = deals.filter((deal) => deal.reportStatus === \'pending\' || deal.reportStatus === \'due\').length');
   expect(appJs).toContain('displayTotalFunding');
   expect(appJs).toContain("displayAmount: '$50,000'");
-  expect(appJs).toContain('Demo financial view in USD');
+  expect(appJs).toContain('Financial view in USD');
+  expect(appJs).not.toContain('Demo financial view in USD');
   expect(appJs).toContain('Completed Deals');
 });
 

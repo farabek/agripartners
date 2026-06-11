@@ -35,6 +35,7 @@ test('investor detail renders investment summary', () => {
   expect(appJs).toContain('Expected Return');
   expect(appJs).toContain('Outstanding');
   expect(appJs).toContain('ROI');
+  expect(appJs).toContain('Projected ROI');
 });
 
 test('investor detail renders project profile before technical deal data', () => {
@@ -47,6 +48,7 @@ test('investor detail renders project profile before technical deal data', () =>
   expect(appJs).toContain('63.3%');
   expect(appJs).toContain('21.9%');
   expect(appJs).toContain('21.1%');
+  expect(appJs).toContain("roiLabel: projectStatus === 'Completed' ? 'ROI' : 'Projected ROI'");
   expect(appJs).toContain('Livestock fattening operation based on a real pilot agricultural agreement');
   expect(appJs).toContain('Sheep breeding operation based on a real pilot agricultural agreement');
   expect(appJs).toContain('Technical Deal Data');
@@ -71,13 +73,15 @@ test('investor home dashboard renders MVP metrics and pilot deals', () => {
   expect(appJs).toContain('Hissar Sheep Breeding Project');
   expect(appJs).toContain('21.9%');
   expect(appJs).toContain('21.1%');
+  expect(appJs).toContain("const roiLabel = deal.status === 'Completed' ? 'ROI' : 'Projected ROI'");
   expect(appJs).not.toContain('Greenhouse Project');
   expect(appJs).not.toContain('Poultry Farm');
   expect(appJs).not.toContain('Cotton Farm');
   expect(appJs).not.toContain('Demo Portfolio');
   expect(appJs).toContain('INVESTOR_DEMO_DATASET_ENABLED');
   expect(appJs).toContain('buildInvestorDemoDataset(deals, connectedWalletAccount)');
-  expect(appJs).toContain('Demo financial view in USD');
+  expect(appJs).toContain('Financial view in USD');
+  expect(appJs).not.toContain('Demo financial view in USD');
   expect(appJs).toContain('displayTotalInvested');
   expect(appJs).toContain('displayExpectedReturns');
 });
@@ -102,6 +106,9 @@ test('investor demo dataset hides test records and renders clean pilot routes', 
   expect(appJs).toContain('#investor/pilots/${deal.pilot_key}');
   expect(appJs).toContain('renderInvestorDemoDealDetail');
   expect(appJs).toContain('Investor demo profile: this screen is prepared for presentation and screenshot readiness.');
+  expect(appJs).toContain("const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`");
+  expect(appJs).not.toContain("const dealBadge = deal.isDemoPilot ? 'Demo Pilot' : `Deal #${deal.id}`");
+  expect(appJs).not.toContain('Demo Pilot');
   expect(appJs).not.toContain('QA Admin Deal');
   expect(appJs).not.toContain('Deal #4 Unknown');
   expect(appJs).not.toContain('withdraw_signer_test');
@@ -125,4 +132,5 @@ test('investor demo financial metrics render in USD instead of NEAR', () => {
   expect(appJs).toContain("['Invested', deal.display_amount || formatNearDisplay(deal.amount)]");
   expect(appJs).toContain("['Expected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)]");
   expect(appJs).toContain("['Outstanding', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)]");
+  expect(appJs).toContain('[roiLabel, `${escapeHtml(deal.roi_percent ?? 20)}%`]');
 });
