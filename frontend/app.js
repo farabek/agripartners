@@ -464,6 +464,12 @@ function route() {
     return;
   }
 
+  const farmerPilot = hash.match(/^#farmer\/pilots\/([a-z0-9-]+)$/);
+  if (farmerPilot) {
+    showFarmerPilotProfile(farmerPilot[1]);
+    return;
+  }
+
   if (hash === '#farmer') {
     showFarmerPortal();
     return;
@@ -1098,7 +1104,10 @@ async function showFarmerPortal() {
       fetchMyProfile(),
       fetchFarmerJson('/api/farmer/deals'),
     ]);
-    renderFarmerDashboard(contentEl, dealsData.deals || [], dealsData.farmer, profileData.profile);
+    const deals = FARMER_DEMO_DATASET_ENABLED
+      ? buildFarmerDemoDataset(dealsData.deals || [], dealsData.farmer)
+      : (dealsData.deals || []);
+    renderFarmerDashboard(contentEl, deals, dealsData.farmer, profileData.profile);
   } catch (err) {
     contentEl.querySelector('.spinner')?.remove();
     contentEl.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Farmer Portal unavailable: ${escapeHtml(err.message)}</div>`;
@@ -1111,16 +1120,24 @@ function farmerProfileValue(profile, field, fallback = 'Not set') {
 }
 
 function farmerDashboardMetrics(deals) {
+  const allUsd = deals.length > 0 && deals.every((deal) => deal.display_currency === 'USD');
   const totalFunding = deals.reduce(
-    (sum, deal) => addYocto(sum, deal.amount || deal.investment_amount || '0'),
+    (sum, deal) => allUsd ? sum : addYocto(sum, deal.amount || deal.investment_amount || '0'),
     '0'
   );
   const activeCycles = deals.filter((deal) => deal.activeCycleId != null).length;
+  const activeDeals = deals.filter((deal) => deal.status !== 'Completed').length;
+  const completedDeals = deals.filter((deal) => deal.status === 'Completed').length;
+  const pendingReports = deals.filter((deal) => deal.reportStatus === 'pending' || deal.reportStatus === 'due').length;
   return {
-    activeDeals: deals.length,
+    activeDeals,
+    completedDeals,
     totalFunding,
+    displayTotalFunding: allUsd
+      ? formatUsdAmount(deals.reduce((sum, deal) => sum + parseNearAmount(deal.amount), 0))
+      : null,
     activeCycles,
-    pendingReports: 'N/A',
+    pendingReports,
   };
 }
 
@@ -1157,16 +1174,24 @@ function renderFarmerProfilePanel(profile, farmer) {
 }
 
 function renderFarmerSummaryCards(metrics) {
+  const totalFunding = metrics.displayTotalFunding || yoctoToNear(metrics.totalFunding);
+  const rawFunding = metrics.displayTotalFunding
+    ? '<span class="metric-raw">Demo financial view in USD</span>'
+    : `<span class="metric-raw">${formatYoctoRaw(metrics.totalFunding)}</span>`;
   return `
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
       <div class="metric-box">
         <span class="metric-label">Active Deals</span>
         <span class="metric-value">${metrics.activeDeals}</span>
       </div>
       <div class="metric-box">
+        <span class="metric-label">Completed Deals</span>
+        <span class="metric-value">${metrics.completedDeals}</span>
+      </div>
+      <div class="metric-box">
         <span class="metric-label">Total Funding</span>
-        <span class="metric-value">${yoctoToNear(metrics.totalFunding)}</span>
-        <span class="metric-raw">${formatYoctoRaw(metrics.totalFunding)}</span>
+        <span class="metric-value">${escapeHtml(totalFunding)}</span>
+        ${rawFunding}
       </div>
       <div class="metric-box">
         <span class="metric-label">Active Cycles</span>
@@ -1234,7 +1259,7 @@ function renderFarmerDashboard(el, deals, farmer, profile = null) {
   el.innerHTML = `
     ${renderFarmerProfilePanel(profile, farmer)}
     ${renderFarmerSummaryCards(metrics)}
-    <h2 class="text-xl font-semibold mb-4">Active Deals</h2>
+    <h2 class="text-xl font-semibold mb-4">Pilot Deals</h2>
     <div class="grid gap-4">
       ${deals.map(renderFarmerDealCard).join('')}
     </div>
@@ -1242,18 +1267,25 @@ function renderFarmerDashboard(el, deals, farmer, profile = null) {
 }
 
 function renderFarmerDealCard(deal) {
+  const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`;
+  const dealHref = deal.isDemoPilot ? `#farmer/pilots/${deal.pilot_key}` : `#farmer/deals/${deal.id}`;
+  const amount = deal.display_amount || yoctoToNear(deal.amount || deal.investment_amount);
+  const activeCycle = deal.activeCycleId ?? 'none';
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="space-y-1 min-w-0">
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">${escapeHtml(dealBadge)}</span>
           ${statusBadge(deal.status)}
-          <span class="text-xs text-slate-500">Active Cycle: ${deal.activeCycleId ?? 'none'}</span>
+          <span class="text-xs text-slate-500">Active Cycle: ${escapeHtml(activeCycle)}</span>
         </div>
+        <h3 class="text-lg font-semibold text-slate-100">${escapeHtml(deal.title || `Deal #${deal.id}`)}</h3>
         <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${escapeHtml(formatAddress(deal.investor))}</span></p>
-        <p class="text-sm text-slate-400">Amount: <span class="text-slate-100 font-mono">${yoctoToNear(deal.amount || deal.investment_amount)}</span></p>
+        <p class="text-sm text-slate-400">Funding: <span class="text-slate-100 font-mono">${escapeHtml(amount)}</span></p>
+        <p class="text-sm text-slate-400">Funding Status: <span class="text-slate-200">${escapeHtml(deal.fundingStatus || 'Funding Confirmed')}</span></p>
+        <p class="text-sm text-slate-400">Report: <span class="text-slate-200">${escapeHtml(deal.reportLabel || 'Next Report Due')}</span></p>
       </div>
-      <a href="#farmer/deals/${deal.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
+      <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
     </div>
   `;
 }
@@ -1280,6 +1312,126 @@ async function showFarmerDeal(id) {
   }
 }
 
+function showFarmerPilotProfile(key) {
+  showView('view-farmer');
+  const el = document.getElementById('view-farmer');
+  const pilot = getPilotByKey(key);
+
+  if (!pilot) {
+    el.innerHTML = `
+      ${renderNav()}
+      <a href="#farmer" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Farmer Portal</a>
+      <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot profile unavailable</div>
+    `;
+    return;
+  }
+
+  const deal = farmerDemoDealFromPilot(pilot, getNearWalletAccount());
+  renderFarmerDemoDealDetail(
+    el,
+    deal,
+    farmerDemoCycles(pilot),
+    farmerDemoEvents(pilot)
+  );
+}
+
+function renderFarmerDemoDealDetail(el, deal, cycles, events) {
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <a href="#farmer" class="text-slate-400 hover:text-white text-sm">Back to Farmer Portal</a>
+      <span class="text-slate-600">|</span>
+      <span class="font-semibold">${escapeHtml(deal.title)}</span>
+      <span class="text-xs text-slate-500">Demo Pilot Profile</span>
+      ${statusBadge(deal.status)}
+    </div>
+
+    ${renderFarmerProjectProfile(deal)}
+
+    <div class="grid md:grid-cols-2 gap-6 mb-6">
+      <div class="bg-slate-800 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Funding Status</h3>
+        ${renderFarmerFundingStatus(deal)}
+      </div>
+      <div class="bg-slate-800 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
+        <div id="farmer-cycles-list">${renderFarmerCycles(deal.id, cycles)}</div>
+      </div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Report</h3>
+      ${renderFarmerDemoReportSection(deal, cycles)}
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
+      <div id="farmer-events-list">${renderEvents(events)}</div>
+    </div>
+  `;
+}
+
+function renderFarmerProjectProfile(deal) {
+  const metrics = [
+    ['Funding', deal.display_amount || yoctoToNear(deal.amount || deal.investment_amount)],
+    ['Status', deal.status],
+    ['Funding Status', deal.fundingStatus || 'Funding Confirmed'],
+    ['Cycle Status', deal.cycleStatus || 'Cycle Active'],
+    ['Report', deal.reportLabel || 'Next Report Due'],
+  ];
+  return `
+    <section class="bg-slate-800 border border-green-900 rounded-lg p-5 mb-6">
+      <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <div>
+          <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Project Profile</span>
+          <h1 class="text-2xl md:text-3xl font-bold text-slate-50 mt-1">${escapeHtml(deal.title || `Deal #${deal.id}`)}</h1>
+          <p class="text-sm text-slate-400 mt-2 max-w-3xl">${escapeHtml(deal.description || 'Agricultural project demonstrated through the AgriPartners farmer workflow.')}</p>
+        </div>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">${escapeHtml(deal.deal_type || 'Pilot')}</span>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        ${metrics.map(([label, value]) => `
+          <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
+            <span class="block text-xs text-slate-500">${label}</span>
+            <span class="block text-lg font-bold text-slate-100">${escapeHtml(value)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function renderFarmerFundingStatus(deal) {
+  const rows = [
+    ['Funding Status', deal.fundingStatus || 'Funding Confirmed'],
+    ['Funding Amount', deal.display_amount || yoctoToNear(deal.amount || deal.investment_amount)],
+    ['Investor', formatAddress(deal.investor)],
+    ['Return Status', deal.returnLabel || 'Cycle Active'],
+  ];
+  return rows.map(([k, v]) => `
+    <div class="flex justify-between text-sm gap-3 py-1">
+      <span class="text-slate-400 shrink-0">${k}</span>
+      <span class="text-slate-100 font-mono text-right break-all">${escapeHtml(v)}</span>
+    </div>
+  `).join('');
+}
+
+function renderFarmerDemoReportSection(deal, cycles) {
+  const cycle = cycles.find((item) => item.reportStatus === 'submitted') || cycles[0];
+  if (deal.reportStatus === 'submitted' && cycle?.report) {
+    return renderFarmerReportSummary(cycle.report);
+  }
+  return `
+    <div class="farmer-report-summary">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h4 class="font-semibold text-slate-100">Next Report Due</h4>
+        <span class="text-xs bg-amber-900 text-amber-100 px-2 py-1 rounded">Pending</span>
+      </div>
+      <p class="text-sm text-slate-400 mt-2">The active Hissar cycle is funded and operating. Farmer report is pending for the next cycle update.</p>
+    </div>
+  `;
+}
+
 function renderFarmerDealDetail(el, deal, cycles, balances = null) {
   const farmerBalance = balances?.farmer || '0';
   const canWithdrawFarmer = hasPositiveYocto(farmerBalance);
@@ -1294,6 +1446,7 @@ function renderFarmerDealDetail(el, deal, cycles, balances = null) {
     </div>
 
     ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
+    ${renderFarmerProjectProfile(deal)}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
         ${renderFarmerDealParams(deal)}
@@ -1311,7 +1464,7 @@ function renderFarmerDealDetail(el, deal, cycles, balances = null) {
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycles</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
       <div id="farmer-cycles-list">${renderFarmerCycles(deal.id, cycles)}</div>
     </div>
   `;
@@ -1340,14 +1493,15 @@ function renderFarmerDealParams(deal) {
 
 function renderFarmerCycles(dealId, cycles) {
   if (!cycles.length) return '<p class="text-slate-500 text-sm">No cycles found yet</p>';
+  const isDemoPilot = String(dealId).startsWith('demo-');
   return cycles.map((cycle) => {
     const reportSubmitted = cycle.reportStatus === 'submitted' && cycle.report;
     const fundingSent = ['funding_sent', 'reported'].includes(cycle.status);
     const canConfirmFunding = fundingSent && !cycle.fundingReceived;
     const canSubmitReport = cycle.fundingReceived && !reportSubmitted;
     const cycleLabel = reportSubmitted
-      ? 'Report submitted'
-      : (cycle.fundingReceived ? 'Funding confirmed' : (cycle.status === 'pending' ? 'Pending' : 'Funding sent'));
+      ? 'Report Submitted'
+      : (cycle.fundingReceived ? (cycle.reportStatus === 'due' ? 'Next Report Due' : 'Funding Confirmed') : (cycle.status === 'pending' ? 'Pending' : 'Funding sent'));
     return `
       <div class="farmer-cycle-row">
         <div class="min-w-0">
@@ -1355,14 +1509,15 @@ function renderFarmerCycles(dealId, cycles) {
             <span class="font-semibold text-slate-100">Cycle #${cycle.id}</span>
             <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(cycleLabel)}</span>
           </div>
-          <p class="text-sm text-slate-400">Funding received: <span class="text-slate-200">${cycle.fundingReceived ? 'Confirmed' : 'Not confirmed'}</span></p>
-          <p class="text-sm text-slate-400">Report: <span class="text-slate-200">${reportSubmitted ? 'Submitted' : 'Not submitted'}</span></p>
+          <p class="text-sm text-slate-400">Funding Status: <span class="text-slate-200">${cycle.fundingReceived ? 'Funding Confirmed' : 'Not confirmed'}</span></p>
+          <p class="text-sm text-slate-400">Cycle Status: <span class="text-slate-200">${escapeHtml(cycle.cycleStatus || (reportSubmitted ? 'Completed' : 'Cycle Active'))}</span></p>
+          <p class="text-sm text-slate-400">Farmer Report: <span class="text-slate-200">${reportSubmitted ? 'Report Submitted' : 'Next Report Due'}</span></p>
           ${reportSubmitted ? renderFarmerReportSummary(cycle.report) : ''}
         </div>
-        <div class="farmer-cycle-actions">
+        ${isDemoPilot ? '' : `<div class="farmer-cycle-actions">
           <button type="button" class="admin-action-btn farmer-confirm-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${canConfirmFunding ? '' : 'disabled'}>Confirm funding received</button>
           <button type="button" class="admin-action-btn farmer-report-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${canSubmitReport ? '' : 'disabled'}>${reportSubmitted ? 'Report submitted' : (cycle.fundingReceived ? 'Submit report' : 'Confirm funding first')}</button>
-        </div>
+        </div>`}
       </div>
     `;
   }).join('');
@@ -1866,6 +2021,7 @@ const INVESTOR_DEMO_PILOTS = [
 ];
 
 const FEATURED_PILOT_DEALS = INVESTOR_DEMO_PILOTS;
+const FARMER_DEMO_DATASET_ENABLED = true;
 
 function pilotKeyFromText(value) {
   const text = String(value || '').toLowerCase();
@@ -1912,6 +2068,37 @@ function investorDemoDealFromPilot(pilot, connectedWalletAccount) {
 
 function buildInvestorDemoDataset(_deals, connectedWalletAccount) {
   return INVESTOR_DEMO_PILOTS.map(pilot => investorDemoDealFromPilot(pilot, connectedWalletAccount));
+}
+
+function farmerDemoDealFromPilot(pilot, farmerAccount) {
+  const isFidlot = pilot.key === 'fidlot';
+  return {
+    id: `demo-${pilot.key}`,
+    pilot_key: pilot.key,
+    isDemoPilot: true,
+    title: pilot.title,
+    deal_type: pilot.type,
+    description: pilot.description,
+    farmer: farmerAccount || `${pilot.key}-operator.demo.testnet`,
+    investor: 'pilot-investor.demo.testnet',
+    contract_address: `${pilot.key}-pilot-profile.near-testnet-demo`,
+    total_cycles: Number(pilot.cycles),
+    cycle_duration_days: 150,
+    amount: pilot.amount,
+    display_amount: pilot.displayAmount,
+    display_currency: 'USD',
+    status: pilot.status,
+    activeCycleId: isFidlot ? null : 1,
+    fundingStatus: 'Funding Confirmed',
+    cycleStatus: isFidlot ? 'Completed' : 'Cycle Active',
+    reportStatus: isFidlot ? 'submitted' : 'due',
+    reportLabel: isFidlot ? 'Report Submitted' : 'Next Report Due',
+    returnLabel: isFidlot ? 'Return Recorded' : 'Cycle Active',
+  };
+}
+
+function buildFarmerDemoDataset(_deals, farmerAccount) {
+  return INVESTOR_DEMO_PILOTS.map(pilot => farmerDemoDealFromPilot(pilot, farmerAccount));
 }
 
 function investorMetrics(deals) {
@@ -2213,6 +2400,50 @@ function investorDemoEvents(pilot) {
   return [
     ...base,
     { event_type: 'cycle_started', cycle_num: 1, tx_hash: null, created_at: now },
+  ];
+}
+
+function farmerDemoCycles(pilot) {
+  const now = new Date().toISOString();
+  if (pilot.key === 'fidlot') {
+    return [{
+      id: 7,
+      status: 'reported',
+      cycleStatus: 'Completed',
+      fundingReceived: true,
+      reportStatus: 'submitted',
+      report: {
+        title: pilot.reportTitle,
+        description: pilot.reportDescription,
+        amountUsed: 'Pilot livestock operations',
+        submittedAt: now,
+      },
+    }];
+  }
+  return [{
+    id: 1,
+    status: 'funding_sent',
+    cycleStatus: 'Cycle Active',
+    fundingReceived: true,
+    reportStatus: 'due',
+    report: null,
+  }];
+}
+
+function farmerDemoEvents(pilot) {
+  const now = new Date().toISOString();
+  if (pilot.key === 'fidlot') {
+    return [
+      { event_type: 'Funding Confirmed', cycle_num: 7, tx_hash: null, created_at: now },
+      { event_type: 'Report Submitted', cycle_num: 7, tx_hash: null, created_at: now },
+      { event_type: 'Return Recorded', cycle_num: 7, tx_hash: null, created_at: now },
+      { event_type: 'Completed', cycle_num: null, tx_hash: null, created_at: now },
+    ];
+  }
+  return [
+    { event_type: 'Funding Confirmed', cycle_num: 1, tx_hash: null, created_at: now },
+    { event_type: 'Cycle Active', cycle_num: 1, tx_hash: null, created_at: now },
+    { event_type: 'Next Report Due', cycle_num: 1, tx_hash: null, created_at: now },
   ];
 }
 
