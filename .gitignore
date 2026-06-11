@@ -8,6 +8,8 @@ frontend/dist/
 
 # Local screenshots
 screenshots/
+!docs/screenshots/
+!docs/screenshots/**
 !docs/investor-package/screenshots/
 docs/investor-package/screenshots/*.png
 docs/investor-package/screenshots/*.jpg

@@ -56,26 +56,26 @@ If the local frontend is served on another port, keep the same hash routes and r
 Use two-digit ordering, lowercase words, and hyphens:
 
 ```text
-01-investor-dashboard.png
-02-featured-pilot-deals.png
-03-fidlot-project-profile.png
-04-hissar-project-profile.png
-05-farmer-report.png
-06-roi-and-returns.png
-07-admin-portal.png
-08-event-history.png
+../screenshots/investor/03-investment-summary.png
+../screenshots/investor/04-featured-pilot-deals.png
+../screenshots/admin/03-admin-fidlot-profile.png
+../screenshots/admin/06-admin-hissar-profile.png
+../screenshots/farmer/04-farmer-deals.png
+../screenshots/investor/03-investment-summary.png
+../screenshots/admin/01-admin-dashboard.png
+../screenshots/admin/05-admin-fidlot-event-history.png
 ```
 
 Optional variants may use a suffix:
 
 ```text
-03-fidlot-project-profile-fullpage.png
-06-roi-and-returns-zoomed.png
+../screenshots/admin/03-admin-fidlot-profile.png
+../screenshots/investor/03-investment-summary.png
 ```
 
 ## Capture Sequence
 
-### 01-investor-dashboard.png
+### ../screenshots/investor/03-investment-summary.png
 
 Open:
 
@@ -101,7 +101,7 @@ Recommended framing:
 - Keep the role/navigation bar visible.
 - Do not scroll past the Investment Summary before capture.
 
-### 02-featured-pilot-deals.png
+### ../screenshots/investor/04-featured-pilot-deals.png
 
 Open:
 
@@ -129,7 +129,7 @@ Recommended framing:
 - Include both cards in one screenshot.
 - Avoid cutting off the bottom row of deal metrics.
 
-### 03-fidlot-project-profile.png
+### ../screenshots/admin/03-admin-fidlot-profile.png
 
 Open:
 
@@ -160,7 +160,7 @@ Recommended framing:
 - Keep the project profile above the fold.
 - Avoid making Technical Deal Data the main visual focus.
 
-### 04-hissar-project-profile.png
+### ../screenshots/admin/06-admin-hissar-profile.png
 
 Open:
 
@@ -180,7 +180,7 @@ Capture:
 
 - Hissar Sheep Breeding Project title.
 - Investment: $50,000.
-- ROI: 63.3%.
+- Projected ROI: 63.3%.
 - APR: 21.1%.
 - Cycles: 6.
 - Deal ID only as secondary information.
@@ -190,7 +190,7 @@ Recommended framing:
 - Keep the same framing as the Fidlot profile for easy deck comparison.
 - Capture the project profile, not only the technical data table.
 
-### 05-farmer-report.png
+### ../screenshots/farmer/04-farmer-deals.png
 
 Open:
 
@@ -216,7 +216,7 @@ Recommended framing:
 - Scroll until the report content is visible.
 - Include enough surrounding UI to show this is part of the AgriPartners workflow.
 
-### 06-roi-and-returns.png
+### ../screenshots/investor/03-investment-summary.png
 
 Open:
 
@@ -243,7 +243,7 @@ Recommended framing:
 - Keep section headers visible.
 - Prefer Fidlot for the primary returns screenshot because it is the lead pilot model.
 
-### 07-admin-portal.png
+### ../screenshots/admin/01-admin-dashboard.png
 
 Open:
 
@@ -269,7 +269,7 @@ Recommended framing:
 - Do not expose private keys, secrets, or environment configuration.
 - Crop only if needed to remove browser autofill suggestions or unrelated desktop content.
 
-### 08-event-history.png
+### ../screenshots/admin/05-admin-fidlot-event-history.png
 
 Open:
 

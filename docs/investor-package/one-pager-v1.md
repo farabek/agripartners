@@ -21,7 +21,7 @@ AgriPartners is an agricultural investment platform that presents real pilot pro
 
 ### Hissar Sheep Breeding Project
 - Investment: $50,000
-- ROI: 63.3%
+- Projected ROI: 63.3%
 - APR: 21.1%
 - Cycles: 6
 - Origin: Real pilot agricultural agreement.

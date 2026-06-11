@@ -103,7 +103,7 @@ Hissar Sheep Breeding Project is the second pilot model.
 Current alpha economics:
 
 - Investment: $50,000.
-- ROI: 63.3%.
+- Projected ROI: 63.3%.
 - APR: 21.1%.
 - Cycles: 6.
 - Category: sheep breeding.

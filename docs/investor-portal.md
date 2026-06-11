@@ -23,7 +23,7 @@ Screenshot:
 The Investment Summary provides a portfolio-level view across the pilot projects:
 
 - Total invested capital.
-- Expected returns.
+- Expected Returns: $163,650.
 - Returned amount.
 - Outstanding amount.
 - Average ROI.
@@ -74,4 +74,3 @@ This keeps the financial language clear for investors reviewing the demo.
 ## Returns Tracking
 
 Returns tracking shows how completed projects can record returned capital and how active projects can show outstanding expected returns. In the demo, Fidlot shows recorded returns while Hissar remains outstanding.
-

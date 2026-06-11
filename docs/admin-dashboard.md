@@ -13,13 +13,14 @@ It is designed for investor demos, internal reviews, and screenshot capture.
 
 Screenshot:
 
-![Admin dashboard summary](screenshots/admin/01-admin-dashboard-summary.png)
+![Admin dashboard summary](screenshots/admin/01-admin-dashboard.png)
 
 ## Pilot Funding Metrics
 
 The summary cards show:
 
 - Total Pilot Funding: $100,000.
+- Expected Returns: $163,650.
 - Active Deals: 1.
 - Completed Deals: 1.
 - Reports Submitted: 1.
@@ -43,9 +44,9 @@ Each pilot has a project profile with funding, ROI or projected ROI, APR, cycle 
 
 Screenshots:
 
-![Fidlot project profile](screenshots/admin/03-fidlot-project-profile.png)
+![Fidlot project profile](screenshots/admin/03-admin-fidlot-profile.png)
 
-![Hissar project profile](screenshots/admin/06-hissar-project-profile.png)
+![Hissar project profile](screenshots/admin/06-admin-hissar-profile.png)
 
 ## Reporting
 
@@ -55,9 +56,9 @@ Fidlot is completed with Report Submitted. Hissar is active with Next Report Due
 
 Screenshots:
 
-![Fidlot funding and cycle status](screenshots/admin/04-fidlot-funding-cycle-status.png)
+![Fidlot funding and cycle status](screenshots/admin/04-admin-fidlot-reporting.png)
 
-![Hissar funding and cycle status](screenshots/admin/07-hissar-funding-cycle-status.png)
+![Hissar funding and cycle status](screenshots/admin/07-admin-hissar-reporting.png)
 
 ## Returns Monitoring
 
@@ -68,11 +69,10 @@ The admin view also tracks repayment state:
 
 Screenshots:
 
-![Fidlot report returns and history](screenshots/admin/05-fidlot-report-returns-history.png)
+![Fidlot report returns and history](screenshots/admin/05-admin-fidlot-event-history.png)
 
-![Hissar report returns and history](screenshots/admin/08-hissar-report-returns-history.png)
+![Hissar report returns and history](screenshots/admin/08-admin-hissar-event-history.png)
 
 ## Event History
 
 The event history section provides a timeline-style view of important operational milestones such as funding confirmation, cycle activity, report submission, return recording, and completion.
-

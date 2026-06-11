@@ -13,14 +13,14 @@ docs/investor-package/screenshots/
 Use these exact filenames:
 
 ```text
-01-investor-dashboard.png
-02-featured-pilot-deals.png
-03-fidlot-project-profile.png
-04-hissar-project-profile.png
-05-farmer-report.png
-06-roi-and-returns.png
-07-admin-portal.png
-08-event-history.png
+../../screenshots/investor/03-investment-summary.png
+../../screenshots/investor/04-featured-pilot-deals.png
+../../screenshots/admin/03-admin-fidlot-profile.png
+../../screenshots/admin/06-admin-hissar-profile.png
+../../screenshots/farmer/04-farmer-deals.png
+../../screenshots/investor/03-investment-summary.png
+../../screenshots/admin/01-admin-dashboard.png
+../../screenshots/admin/05-admin-fidlot-event-history.png
 ```
 
 ## Local Capture Setup
@@ -60,7 +60,7 @@ http://127.0.0.1:5173/#deals/7
 
 ## Capture Checklist
 
-### 01-investor-dashboard.png
+### ../../screenshots/investor/03-investment-summary.png
 
 Route:
 
@@ -70,7 +70,7 @@ http://127.0.0.1:5173/#investor
 
 Capture the investor dashboard with the Investment Summary visible.
 
-### 02-featured-pilot-deals.png
+### ../../screenshots/investor/04-featured-pilot-deals.png
 
 Route:
 
@@ -80,7 +80,7 @@ http://127.0.0.1:5173/#investor
 
 Scroll to Featured Pilot Deals and capture both pilot cards if possible.
 
-### 03-fidlot-project-profile.png
+### ../../screenshots/admin/03-admin-fidlot-profile.png
 
 Route:
 
@@ -90,7 +90,7 @@ http://127.0.0.1:5173/#investor/deals/7
 
 Capture the Fidlot Livestock Project profile section.
 
-### 04-hissar-project-profile.png
+### ../../screenshots/admin/06-admin-hissar-profile.png
 
 Route:
 
@@ -100,7 +100,7 @@ http://127.0.0.1:5173/#investor/deals/8
 
 Capture the Hissar Sheep Breeding Project profile section.
 
-### 05-farmer-report.png
+### ../../screenshots/farmer/04-farmer-deals.png
 
 Route options:
 
@@ -111,7 +111,7 @@ http://127.0.0.1:5173/#farmer/deals/7
 
 Capture farmer reporting or cycle status content.
 
-### 06-roi-and-returns.png
+### ../../screenshots/investor/03-investment-summary.png
 
 Route:
 
@@ -121,7 +121,7 @@ http://127.0.0.1:5173/#investor/deals/7
 
 Scroll to Investment Summary, ROI, Returns, or repayment history.
 
-### 07-admin-portal.png
+### ../../screenshots/admin/01-admin-dashboard.png
 
 Route:
 
@@ -131,7 +131,7 @@ http://127.0.0.1:5173/#admin
 
 Capture the Admin Portal without exposing secrets, credentials, or private environment data.
 
-### 08-event-history.png
+### ../../screenshots/admin/05-admin-fidlot-event-history.png
 
 Route options:
 

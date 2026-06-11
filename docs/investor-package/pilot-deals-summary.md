@@ -14,7 +14,7 @@ Livestock fattening operation based on a real pilot agricultural agreement. Demo
 Sheep breeding operation based on a real pilot agricultural agreement. Demonstrated through the AgriPartners workflow on NEAR Testnet.
 
 - Investment: $50,000
-- ROI: 63.3%
+- Projected ROI: 63.3%
 - APR: 21.1%
 - Cycles: 6
 - Model: Sheep breeding

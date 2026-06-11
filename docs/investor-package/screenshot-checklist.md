@@ -21,7 +21,7 @@
 ## Hissar Detail
 - Hissar Sheep Breeding Project title visible.
 - Investment: $50,000 visible.
-- ROI: 63.3% visible.
+- Projected ROI: 63.3% visible.
 - APR: 21.1% visible.
 - Cycles: 6 visible.
 - Deal ID visible only as secondary information.

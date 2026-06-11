@@ -117,7 +117,7 @@ Talking points:
 
 "The first pilot is Fidlot Livestock Project: a $50,000 livestock fattening model with 64% ROI, 21.9% APR, and 7 cycles."
 
-"The second pilot is Hissar Sheep Breeding Project: a $50,000 sheep breeding model with 63.3% ROI, 21.1% APR, and 6 cycles."
+"The second pilot is Hissar Sheep Breeding Project: a $50,000 sheep breeding model with 63.3% projected ROI, 21.1% APR, and 6 cycles."
 
 "These screens are designed for investors from different regions to compare the basic economics quickly, without needing to inspect contract data first."
 

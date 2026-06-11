@@ -62,7 +62,7 @@ Source documents:
 ### Slide 6 - Solution
 
 - Title: Solution
-- Required screenshot: `01-investor-dashboard.png`
+- Required screenshot: `../screenshots/investor/03-investment-summary.png`
 - Required diagram: optional workflow summary from investor dashboard to reporting and returns
 - Required icon: dashboard or connected nodes icon
 - Suggested visual layout: large investor dashboard screenshot on the right, solution bullets on the left. Screenshot should be large enough to show Investment Summary and platform UI.
@@ -78,7 +78,7 @@ Source documents:
 ### Slide 8 - Fidlot Pilot Model
 
 - Title: Fidlot Pilot Model
-- Required screenshot: `03-fidlot-project-profile.png`
+- Required screenshot: `../screenshots/admin/03-admin-fidlot-profile.png`
 - Required diagram: pilot economics card for investment, ROI, APR, cycles
 - Required icon: livestock or finance icon
 - Suggested visual layout: screenshot on the right; compact metrics panel on the left with $50,000, 64%, 21.9%, 7 cycles. Keep Fidlot Livestock Project name unchanged.
@@ -86,7 +86,7 @@ Source documents:
 ### Slide 9 - Hissar Pilot Model
 
 - Title: Hissar Pilot Model
-- Required screenshot: `04-hissar-project-profile.png`
+- Required screenshot: `../screenshots/admin/06-admin-hissar-profile.png`
 - Required diagram: pilot economics card for investment, ROI, APR, cycles
 - Required icon: livestock or breeding icon
 - Suggested visual layout: mirror Slide 8 for visual consistency. Use the same screenshot dimensions and metric panel style. Keep Hissar Sheep Breeding Project name unchanged.
@@ -94,7 +94,7 @@ Source documents:
 ### Slide 10 - Product Screens
 
 - Title: Product Screens
-- Required screenshot: `02-featured-pilot-deals.png`, plus optional thumbnails from `05-farmer-report.png`, `06-roi-and-returns.png`, `08-event-history.png`
+- Required screenshot: `../screenshots/investor/04-featured-pilot-deals.png`, plus optional thumbnails from `../screenshots/farmer/04-farmer-deals.png`, `../screenshots/investor/03-investment-summary.png`, `../screenshots/admin/05-admin-fidlot-event-history.png`
 - Required diagram: none
 - Required icon: screens or product grid icon
 - Suggested visual layout: 2x2 screenshot grid with short labels. Use one primary screenshot larger than the others if space is limited.
@@ -102,7 +102,7 @@ Source documents:
 ### Slide 11 - Why NEAR
 
 - Title: Why NEAR
-- Required screenshot: `08-event-history.png`
+- Required screenshot: `../screenshots/admin/05-admin-fidlot-event-history.png`
 - Required diagram: trust layer diagram showing product UI, workflow events, NEAR Testnet validation
 - Required icon: chain link, shield, or verification icon
 - Suggested visual layout: left side with NEAR value points; right side with event history screenshot or trust-layer diagram. Avoid making blockchain complexity the visual focus.
@@ -110,7 +110,7 @@ Source documents:
 ### Slide 12 - Traction
 
 - Title: Traction
-- Required screenshot: `01-investor-dashboard.png` or `02-featured-pilot-deals.png`
+- Required screenshot: `../screenshots/investor/03-investment-summary.png` or `../screenshots/investor/04-featured-pilot-deals.png`
 - Required diagram: milestone checklist or completed MVP timeline
 - Required icon: checkmark, milestone, or progress icon
 - Suggested visual layout: checklist of completed alpha components with a product screenshot strip at the bottom.
@@ -150,7 +150,7 @@ Source documents:
 ### Slide 17 - Closing
 
 - Title: Closing
-- Required screenshot: `01-investor-dashboard.png` or none
+- Required screenshot: `../screenshots/investor/03-investment-summary.png` or none
 - Required diagram: none
 - Required icon: agriculture or trust icon
 - Suggested visual layout: concise closing statement with optional faded product screenshot. End with contact details if approved for public investor use.
@@ -159,14 +159,14 @@ Source documents:
 
 | Screenshot | Primary slide | Secondary use | Notes |
 | --- | --- | --- | --- |
-| `01-investor-dashboard.png` | Slide 6 - Solution | Slide 12 - Traction, Slide 17 - Closing | Best screenshot for showing the investor-first product experience. |
-| `02-featured-pilot-deals.png` | Slide 10 - Product Screens | Slide 12 - Traction | Best screenshot for showing Fidlot and Hissar discovery together. |
-| `03-fidlot-project-profile.png` | Slide 8 - Fidlot Pilot Model | Slide 10 - Product Screens | Use as the main Fidlot project proof point. |
-| `04-hissar-project-profile.png` | Slide 9 - Hissar Pilot Model | Slide 10 - Product Screens | Match framing with Fidlot screenshot. |
-| `05-farmer-report.png` | Slide 10 - Product Screens | Slide 7 - How AgriPartners Works | Use to show the reporting side of the workflow. |
-| `06-roi-and-returns.png` | Slide 10 - Product Screens | Slide 13 - Business Model | Use to show financial tracking and repayment visibility. |
-| `07-admin-portal.png` | Slide 10 - Product Screens | Slide 16 - Investment Ask | Use sparingly; frame as controlled alpha operations. |
-| `08-event-history.png` | Slide 11 - Why NEAR | Slide 10 - Product Screens | Best screenshot for trust, traceability, and workflow validation. |
+| `../screenshots/investor/03-investment-summary.png` | Slide 6 - Solution | Slide 12 - Traction, Slide 17 - Closing | Best screenshot for showing the investor-first product experience. |
+| `../screenshots/investor/04-featured-pilot-deals.png` | Slide 10 - Product Screens | Slide 12 - Traction | Best screenshot for showing Fidlot and Hissar discovery together. |
+| `../screenshots/admin/03-admin-fidlot-profile.png` | Slide 8 - Fidlot Pilot Model | Slide 10 - Product Screens | Use as the main Fidlot project proof point. |
+| `../screenshots/admin/06-admin-hissar-profile.png` | Slide 9 - Hissar Pilot Model | Slide 10 - Product Screens | Match framing with Fidlot screenshot. |
+| `../screenshots/farmer/04-farmer-deals.png` | Slide 10 - Product Screens | Slide 7 - How AgriPartners Works | Use to show the reporting side of the workflow. |
+| `../screenshots/investor/03-investment-summary.png` | Slide 10 - Product Screens | Slide 13 - Business Model | Use to show financial tracking and repayment visibility. |
+| `../screenshots/admin/01-admin-dashboard.png` | Slide 10 - Product Screens | Slide 16 - Investment Ask | Use sparingly; frame as controlled alpha operations. |
+| `../screenshots/admin/05-admin-fidlot-event-history.png` | Slide 11 - Why NEAR | Slide 10 - Product Screens | Best screenshot for trust, traceability, and workflow validation. |
 
 ## 3. Presentation Design Standards
 
