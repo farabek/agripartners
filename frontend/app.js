@@ -501,6 +501,25 @@ function route() {
     return;
   }
 
+  if (hash === '#admin/create') {
+    if (!isAdmin()) {
+      location.hash = portalHashForRole(auth.user.role);
+      return;
+    }
+    showAdminCreatePortal();
+    return;
+  }
+
+  const adminPilot = hash.match(/^#deals\/pilots\/([a-z0-9-]+)$/);
+  if (adminPilot) {
+    if (!isAdmin()) {
+      location.hash = portalHashForRole(auth.user.role);
+      return;
+    }
+    showAdminPilotDetail(adminPilot[1]);
+    return;
+  }
+
   const m = hash.match(/^#deals\/(\d+)$/);
   if (m) {
     showDeal(m[1]);
@@ -741,6 +760,14 @@ function renderProfileOptions(profiles) {
 }
 
 async function showAdminPortal() {
+  if (ADMIN_DEMO_DATASET_ENABLED) {
+    showAdminDemoPortal();
+    return;
+  }
+  showAdminCreatePortal();
+}
+
+async function showAdminCreatePortal() {
   showView('view-admin');
   const el = document.getElementById('view-admin');
   el.innerHTML = `
@@ -767,6 +794,27 @@ async function showAdminPortal() {
   } catch (err) {
     contentEl.innerHTML = `<div class="bg-red-900 text-red-200 px-4 py-3 rounded">Admin Portal unavailable: ${escapeHtml(err.message)}</div>`;
   }
+}
+
+function showAdminDemoPortal() {
+  showView('view-admin');
+  const el = document.getElementById('view-admin');
+  const deals = buildAdminDemoDataset();
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Portal</h1>
+        <p class="text-slate-400">Pilot operations overview prepared for investor screenshots.</p>
+      </div>
+      <a href="#deals" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open Dashboard</a>
+    </div>
+    ${renderAdminDemoSummary(adminDemoMetrics(deals))}
+    <h2 class="text-xl font-semibold mb-4">Pilot Deals</h2>
+    <div class="grid gap-4">
+      ${deals.map(renderAdminDemoDealCard).join('')}
+    </div>
+  `;
 }
 
 function renderAdminCreateForm(el, farmers, investors) {
@@ -872,6 +920,10 @@ async function createAdminDeal(event) {
 async function showDeals() {
   showView('view-list');
   const el = document.getElementById('view-list');
+  if (isAdmin() && ADMIN_DEMO_DATASET_ENABLED) {
+    renderAdminDemoDashboard(el);
+    return;
+  }
   el.innerHTML = `
     ${renderNav()}
     <h1 class="text-3xl font-bold text-green-400 mb-1">AgriPartners</h1>
@@ -916,6 +968,229 @@ function renderDealCard(d) {
       <a href="#deals/${d.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open →</a>
     </div>
   `;
+}
+
+function renderAdminDemoDashboard(el) {
+  const deals = buildAdminDemoDataset();
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Dashboard</h1>
+        <p class="text-slate-400">Clean pilot operations view for investor-ready screenshots.</p>
+      </div>
+      <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Deal</a>
+    </div>
+    ${renderAdminDemoSummary(adminDemoMetrics(deals))}
+    <h2 class="text-xl font-semibold mb-4">Pilot Deals</h2>
+    <div class="grid gap-4">
+      ${deals.map(renderAdminDemoDealCard).join('')}
+    </div>
+  `;
+}
+
+function renderAdminDemoSummary(metrics) {
+  const cards = [
+    ['Total Pilot Funding', metrics.totalPilotFunding],
+    ['Active Deals', metrics.activeDeals],
+    ['Completed Deals', metrics.completedDeals],
+    ['Reports Submitted', metrics.reportsSubmitted],
+    ['Reports Pending', metrics.reportsPending],
+    ['Returns Recorded', metrics.returnsRecorded],
+    ['Outstanding', metrics.outstanding],
+  ];
+  return `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      ${cards.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${escapeHtml(label)}</span>
+          <span class="metric-value">${escapeHtml(value)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderAdminDemoDealCard(deal) {
+  return `
+    <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="space-y-2 min-w-0">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">Pilot Deal</span>
+          ${statusBadge(deal.status)}
+          <span class="text-xs text-slate-500">${escapeHtml(deal.cycles)} cycles</span>
+        </div>
+        <h2 class="text-xl font-semibold text-slate-100">${escapeHtml(deal.title)}</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-2 text-sm">
+          <p class="text-slate-400">Farmer: <span class="text-slate-200">${escapeHtml(deal.farmer)}</span></p>
+          <p class="text-slate-400">Investor: <span class="text-slate-200">${escapeHtml(deal.investor)}</span></p>
+          <p class="text-slate-400">Funding: <span class="text-slate-100 font-mono">${escapeHtml(deal.funding)}</span></p>
+          <p class="text-slate-400">${escapeHtml(deal.roiLabel)}: <span class="text-slate-100 font-mono">${escapeHtml(deal.roi)}</span></p>
+          <p class="text-slate-400">APR: <span class="text-slate-100 font-mono">${escapeHtml(deal.apr)}</span></p>
+          <p class="text-slate-400">Report: <span class="text-slate-200">${escapeHtml(deal.reportStatus)}</span></p>
+          <p class="text-slate-400">Funding Status: <span class="text-slate-200">${escapeHtml(deal.fundingStatus)}</span></p>
+          <p class="text-slate-400">Return Status: <span class="text-slate-200">${escapeHtml(deal.returnStatus)}</span></p>
+        </div>
+      </div>
+      <a href="#deals/pilots/${escapeHtml(deal.pilot_key)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open</a>
+    </div>
+  `;
+}
+
+function showAdminPilotDetail(key) {
+  showView('view-detail');
+  const el = document.getElementById('view-detail');
+  const pilot = getPilotByKey(key);
+  if (!pilot) {
+    el.innerHTML = `
+      ${renderNav()}
+      <a href="#deals" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Admin Dashboard</a>
+      <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot profile unavailable</div>
+    `;
+    return;
+  }
+  renderAdminDemoDealDetail(el, adminDemoDealFromPilot(pilot));
+}
+
+function renderAdminDemoDealDetail(el, deal) {
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <a href="#deals" class="text-slate-400 hover:text-white text-sm">Back to Admin Dashboard</a>
+      <span class="text-slate-600">|</span>
+      <span class="font-semibold">${escapeHtml(deal.title)}</span>
+      <span class="text-xs text-slate-500">Pilot Deal</span>
+      ${statusBadge(deal.status)}
+      ${deal.status === 'Active' ? `<span class="text-slate-400 text-sm">Current Cycle ${escapeHtml(deal.currentCycle)}</span>` : ''}
+    </div>
+    ${renderAdminDemoProjectProfile(deal)}
+    <div class="grid md:grid-cols-2 gap-6 mb-6">
+      <div class="bg-slate-800 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Funding Status</h3>
+        ${renderAdminDemoStatusRows([
+          ['Funding Status', deal.fundingStatus],
+          ['Funding', deal.funding],
+          ['Farmer', deal.farmer],
+          ['Investor', deal.investor],
+        ])}
+      </div>
+      <div class="bg-slate-800 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
+        ${renderAdminDemoStatusRows([
+          ['Cycle Status', deal.cycleStatus],
+          ['Cycles', deal.cycles],
+          ['Current Cycle', deal.status === 'Active' ? deal.currentCycle : 'Completed'],
+          ['Report', deal.reportStatus],
+        ])}
+      </div>
+    </div>
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Report</h3>
+      ${renderAdminDemoReport(deal)}
+    </div>
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns</h3>
+      ${renderAdminDemoReturns(deal)}
+    </div>
+    <div class="bg-slate-800 rounded-xl p-5">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
+      <div id="admin-demo-events-list">${renderEvents(adminDemoEvents(deal))}</div>
+    </div>
+  `;
+}
+
+function renderAdminDemoProjectProfile(deal) {
+  const metrics = [
+    ['Funding', deal.funding],
+    [deal.roiLabel, deal.roi],
+    ['APR', deal.apr],
+    ['Cycles', deal.cycles],
+    ['Status', deal.status],
+  ];
+  return `
+    <section class="bg-slate-800 border border-green-900 rounded-lg p-5 mb-6">
+      <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <div>
+          <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Project Profile</span>
+          <h1 class="text-2xl md:text-3xl font-bold text-slate-50 mt-1">${escapeHtml(deal.title)}</h1>
+          <p class="text-sm text-slate-400 mt-2 max-w-3xl">${escapeHtml(deal.description)}</p>
+        </div>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">${escapeHtml(deal.deal_type)}</span>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        ${metrics.map(([label, value]) => `
+          <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
+            <span class="block text-xs text-slate-500">${escapeHtml(label)}</span>
+            <span class="block text-lg font-bold text-slate-100">${escapeHtml(value)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function renderAdminDemoStatusRows(rows) {
+  return rows.map(([label, value]) => `
+    <div class="flex justify-between text-sm gap-3 py-1">
+      <span class="text-slate-400 shrink-0">${escapeHtml(label)}</span>
+      <span class="text-slate-100 font-mono text-right break-all">${escapeHtml(value)}</span>
+    </div>
+  `).join('');
+}
+
+function renderAdminDemoReport(deal) {
+  if (deal.reportStatus === 'Report Submitted') {
+    return renderFarmerReportSummary({
+      title: deal.reportTitle,
+      description: deal.reportDescription,
+      amountUsed: 'Pilot operations',
+      submittedAt: new Date().toISOString(),
+    });
+  }
+  return `
+    <div class="farmer-report-summary">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h4 class="font-semibold text-slate-100">Next Report Due</h4>
+        <span class="text-xs bg-amber-900 text-amber-100 px-2 py-1 rounded">Pending</span>
+      </div>
+      <p class="text-sm text-slate-400 mt-2">The active Hissar cycle is funded and operating. Farmer report is pending for the next update.</p>
+    </div>
+  `;
+}
+
+function renderAdminDemoReturns(deal) {
+  return `
+    <div class="grid sm:grid-cols-3 gap-3">
+      ${[
+        ['Return Status', deal.returnStatus],
+        ['Returns Recorded', deal.returnedAmount],
+        ['Outstanding', deal.outstandingAmount],
+      ].map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${escapeHtml(label)}</span>
+          <span class="metric-value">${escapeHtml(value)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function adminDemoEvents(deal) {
+  const now = new Date().toISOString();
+  if (deal.pilot_key === 'fidlot') {
+    return [
+      { event_type: 'Funding Confirmed', cycle_num: 7, tx_hash: null, created_at: now },
+      { event_type: 'Report Submitted', cycle_num: 7, tx_hash: null, created_at: now },
+      { event_type: 'Return Recorded', cycle_num: 7, tx_hash: null, created_at: now },
+      { event_type: 'Completed', cycle_num: null, tx_hash: null, created_at: now },
+    ];
+  }
+  return [
+    { event_type: 'Funding Confirmed', cycle_num: 1, tx_hash: null, created_at: now },
+    { event_type: 'Cycle Active', cycle_num: 1, tx_hash: null, created_at: now },
+    { event_type: 'Next Report Due', cycle_num: 1, tx_hash: null, created_at: now },
+    { event_type: 'Pending', cycle_num: null, tx_hash: null, created_at: now },
+  ];
 }
 
 // --- Onboarding ---
@@ -2032,6 +2307,7 @@ const INVESTOR_DEMO_PILOTS = [
 
 const FEATURED_PILOT_DEALS = INVESTOR_DEMO_PILOTS;
 const FARMER_DEMO_DATASET_ENABLED = true;
+const ADMIN_DEMO_DATASET_ENABLED = true;
 
 function pilotKeyFromText(value) {
   const text = String(value || '').toLowerCase();
@@ -2109,6 +2385,53 @@ function farmerDemoDealFromPilot(pilot, farmerAccount) {
 
 function buildFarmerDemoDataset(_deals, farmerAccount) {
   return INVESTOR_DEMO_PILOTS.map(pilot => farmerDemoDealFromPilot(pilot, farmerAccount));
+}
+
+function adminDemoDealFromPilot(pilot) {
+  const isFidlot = pilot.key === 'fidlot';
+  return {
+    id: `admin-demo-${pilot.key}`,
+    pilot_key: pilot.key,
+    isDemoPilot: true,
+    title: pilot.title,
+    deal_type: pilot.type,
+    description: pilot.description,
+    status: pilot.status,
+    farmer: 'AgriPartners Pilot Farm',
+    investor: 'Pilot Investor',
+    funding: pilot.displayAmount,
+    amount: pilot.amount,
+    roi: pilot.roi,
+    roiLabel: isFidlot ? 'ROI' : 'Projected ROI',
+    apr: pilot.apr,
+    cycles: pilot.cycles,
+    currentCycle: isFidlot ? 7 : 1,
+    reportStatus: isFidlot ? 'Report Submitted' : 'Next Report Due',
+    fundingStatus: 'Funding Confirmed',
+    cycleStatus: isFidlot ? 'Completed' : 'Cycle Active',
+    returnStatus: isFidlot ? 'Return Recorded' : 'Pending',
+    returnedAmount: isFidlot ? '$82,000' : '$0',
+    outstandingAmount: isFidlot ? '$0' : pilot.displayOutstandingAmount,
+    expectedReturn: pilot.displayExpectedReturn,
+    reportTitle: pilot.reportTitle,
+    reportDescription: pilot.reportDescription,
+  };
+}
+
+function buildAdminDemoDataset() {
+  return INVESTOR_DEMO_PILOTS.map(adminDemoDealFromPilot);
+}
+
+function adminDemoMetrics(deals) {
+  return {
+    totalPilotFunding: '$100,000',
+    activeDeals: deals.filter((deal) => deal.status === 'Active').length,
+    completedDeals: deals.filter((deal) => deal.status === 'Completed').length,
+    reportsSubmitted: deals.filter((deal) => deal.reportStatus === 'Report Submitted').length,
+    reportsPending: deals.filter((deal) => deal.reportStatus === 'Next Report Due').length,
+    returnsRecorded: '$82,000',
+    outstanding: '$81,650',
+  };
 }
 
 function investorMetrics(deals) {

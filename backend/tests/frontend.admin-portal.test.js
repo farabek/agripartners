@@ -40,6 +40,51 @@ test('deal list cards show visible deal number with title', () => {
   expect(renderDealCardBody).toContain('href="#deals/${d.id}"');
 });
 
+test('admin demo dashboard renders clean pilot projects and summary', () => {
+  expect(appJs).toContain('const ADMIN_DEMO_DATASET_ENABLED = true');
+  expect(appJs).toContain('function buildAdminDemoDataset');
+  expect(appJs).toContain('function renderAdminDemoDashboard');
+  expect(appJs).toContain('Fidlot Livestock Project');
+  expect(appJs).toContain('Hissar Sheep Breeding Project');
+  expect(appJs).toContain('Total Pilot Funding');
+  expect(appJs).toContain("totalPilotFunding: '$100,000'");
+  expect(appJs).toContain("activeDeals: deals.filter((deal) => deal.status === 'Active').length");
+  expect(appJs).toContain("completedDeals: deals.filter((deal) => deal.status === 'Completed').length");
+  expect(appJs).toContain("reportsSubmitted: deals.filter((deal) => deal.reportStatus === 'Report Submitted').length");
+  expect(appJs).toContain("reportsPending: deals.filter((deal) => deal.reportStatus === 'Next Report Due').length");
+  expect(appJs).toContain("returnsRecorded: '$82,000'");
+  expect(appJs).toContain("outstanding: '$81,650'");
+  expect(appJs).toContain('$100,000');
+  expect(appJs).toContain('AgriPartners Pilot Farm');
+  expect(appJs).toContain('Pilot Investor');
+  expect(appJs).toContain('Pilot Deal');
+});
+
+test('admin demo view hides raw test records and raw pilot titles', () => {
+  expect(appJs).not.toContain('QA Admin Deal');
+  expect(appJs).not.toContain('test_farmer_dashboard');
+  expect(appJs).not.toContain('withdraw_signer_test');
+  expect(appJs).not.toContain('fidlot_v5');
+  expect(appJs).not.toContain('fidlot_v5_pilot_v2');
+});
+
+test('admin demo detail renders investor-ready operational sections', () => {
+  expect(appJs).toContain('showAdminPilotDetail(adminPilot[1])');
+  expect(appJs).toContain('function renderAdminDemoDealDetail');
+  expect(appJs).toContain('Project Profile');
+  expect(appJs).toContain('Funding Status');
+  expect(appJs).toContain('Cycle Status');
+  expect(appJs).toContain('Farmer Report');
+  expect(appJs).toContain('Returns');
+  expect(appJs).toContain('Event History');
+  expect(appJs).toContain('Funding Confirmed');
+  expect(appJs).toContain('Cycle Active');
+  expect(appJs).toContain('Report Submitted');
+  expect(appJs).toContain('Next Report Due');
+  expect(appJs).toContain('Return Recorded');
+  expect(appJs).toContain('Pending');
+});
+
 test('admin deal detail fetches and renders farmer cycle status', () => {
   expect(appJs).toContain("fetch(`${API_BASE}/api/admin/deals/${id}/cycles`, { headers })");
   expect(appJs).toContain('id="admin-cycles-list"');
