@@ -8,8 +8,8 @@ This script is designed for:
 - European investors.
 - Japanese investors.
 - Chinese investors.
-- UAE investors.
-- Saudi investors.
+- Regional and international investors.
+- Investment funds, ecosystem partners, and accelerators.
 
 The tone should be professional, direct, and practical. Avoid hype. Emphasize investor understanding, agricultural use cases, and workflow transparency.
 
@@ -189,7 +189,7 @@ Talking points:
 
 "A key part of investor confidence is operational reporting. The farmer-side view supports project updates and cycle-level information."
 
-"For investors in Europe, Japan, China, the UAE, and Saudi Arabia, this reporting layer is important because it connects the investment screen to the real agricultural operation."
+"For regional and international investors, investment funds, ecosystem partners, and accelerators, this reporting layer is important because it connects the investment screen to the real agricultural operation."
 
 Transition:
 

@@ -36,8 +36,8 @@ AgriPartners is an agricultural investment platform that presents real pilot pro
 - European investors
 - Japanese investors
 - Chinese investors
-- UAE investors
-- Saudi investors
+- Regional and international investors
+- Investment funds, ecosystem partners, and accelerators
 
 ## Current Ask
 AgriPartners is preparing Alpha v1 for investor demos, ecosystem conversations, and pilot expansion discussions.

@@ -74,7 +74,7 @@ Current traction includes:
 Next milestones:
 
 - Complete investor demo package and screenshot assets.
-- Collect feedback from UAE, Saudi, venture, accelerator, agricultural investment, and NEAR ecosystem audiences.
+- Collect feedback from regional and international investors, investment funds, ecosystem partners, accelerators, agricultural investment groups, and NEAR ecosystem audiences.
 - Validate Fidlot and Hissar pilot presentation with strategic partners.
 - Improve risk disclosure, legal readiness, project evidence, and compliance materials.
 - Prepare security review and mainnet readiness plan.

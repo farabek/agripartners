@@ -53,7 +53,7 @@ This makes agriculture a suitable category for transparent, project-based invest
 
 Central Asia has strong agricultural capacity, established livestock traditions, and growing demand for modern financing channels.
 
-The region also has a practical need for cross-border investor confidence. European, Japanese, Chinese, UAE, and Saudi investors may be interested in agricultural exposure, but they need structured data, reporting discipline, and verifiable workflows before committing capital.
+The region also has a practical need for cross-border investor confidence. Regional and international investors, investment funds, ecosystem partners, and accelerators may be interested in agricultural exposure, but they need structured data, reporting discipline, and verifiable workflows before committing capital.
 
 AgriPartners is designed to make pilot projects easier to understand, review, and scale with partners.
 

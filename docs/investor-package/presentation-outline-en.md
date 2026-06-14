@@ -1,6 +1,6 @@
 # AgriPartners Investor Presentation Outline v1
 
-Target audience: UAE investors, Saudi investors, accelerators, venture funds, and agricultural investment groups.
+Target audience: regional and international investors, investment funds, ecosystem partners, accelerators, and agricultural investment groups.
 
 ## 1. Cover
 
@@ -30,7 +30,7 @@ Target audience: UAE investors, Saudi investors, accelerators, venture funds, an
 
 **Screenshot recommendation:** No product screenshot required; use a market map or regional agriculture image.
 
-**Speaker notes:** Emphasize that AgriPartners is not trying to replace banks immediately. The near-term opportunity is to package pilot-scale agricultural deals so UAE, Saudi, and institutional investors can evaluate them with better clarity.
+**Speaker notes:** Emphasize that AgriPartners is not trying to replace banks immediately. The near-term opportunity is to package pilot-scale agricultural deals so regional and international investors, investment funds, ecosystem partners, and accelerators can evaluate them with better clarity.
 
 ## 4. Solution
 

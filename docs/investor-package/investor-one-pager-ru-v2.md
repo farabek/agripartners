@@ -74,7 +74,7 @@ AgriPartners Alpha v1 готов к внешним investor demonstrations.
 Следующие milestones:
 
 - Завершить investor demo package и screenshot assets.
-- Собрать feedback от инвесторов из ОАЭ и Саудовской Аравии, venture funds, accelerators, agricultural investment groups и NEAR ecosystem.
+- Собрать feedback от инвесторов, venture funds, accelerators, agricultural investment groups и NEAR ecosystem.
 - Валидировать презентацию пилотов Fidlot и Hissar со стратегическими партнерами.
 - Усилить risk disclosure, legal readiness, project evidence и compliance materials.
 - Подготовить security review и mainnet readiness plan.
