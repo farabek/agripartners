@@ -43,6 +43,12 @@ function formatProjectedRoiPct(value) {
   return Number(`${whole}${fraction ? `.${fraction}` : ''}`);
 }
 
+function returnStatus(returnedYocto, expectedYocto) {
+  if (returnedYocto <= 0n) return 'no_returns';
+  if (returnedYocto < expectedYocto) return 'partial';
+  return 'completed';
+}
+
 async function getAllDeals() {
   const { rows } = await pool.query(
     'SELECT * FROM deals ORDER BY created_at DESC'
@@ -177,13 +183,18 @@ async function getDealReturnSummary(deal) {
     0n
   );
   const outstandingYocto = expectedYocto > returnedYocto ? expectedYocto - returnedYocto : 0n;
+  const investedAmount = formatYoctoToNear(investedYocto.toString());
+  const projectedRoiPercent = formatProjectedRoiPct(projectedRoiPct);
 
   return {
-    amount: formatYoctoToNear(investedYocto.toString()),
+    amount: investedAmount,
+    invested_amount: investedAmount,
+    projected_roi_pct: projectedRoiPercent,
     expected_return: formatYoctoToNear(expectedYocto.toString()),
     returned_amount: formatYoctoToNear(returnedYocto.toString()),
     outstanding_amount: formatYoctoToNear(outstandingYocto.toString()),
-    roi_percent: formatProjectedRoiPct(projectedRoiPct),
+    return_status: returnStatus(returnedYocto, expectedYocto),
+    roi_percent: projectedRoiPercent,
   };
 }
 

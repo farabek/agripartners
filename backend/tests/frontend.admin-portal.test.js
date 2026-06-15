@@ -97,6 +97,19 @@ test('admin deal detail renders repayment recording form', () => {
   expect(appJs).toContain('id="admin-return-form"');
   expect(appJs).toContain('id="admin-return-amount"');
   expect(appJs).toContain('id="admin-return-note"');
+  expect(appJs).toContain('Recording a return updates the admin ledger only. It does not execute a smart contract transfer.');
   expect(appJs).toContain('async function recordAdminReturn');
   expect(appJs).toContain("fetch(`${API_BASE}/api/admin/deals/${deal.id}/returns`");
+});
+
+test('admin deal detail fetches and renders return summary and ledger', () => {
+  expect(appJs).toContain("fetch(`${API_BASE}/api/admin/deals/${id}/return-summary`, { headers })");
+  expect(appJs).toContain("fetch(`${API_BASE}/api/admin/deals/${id}/returns`, { headers })");
+  expect(appJs).toContain('id="admin-return-summary"');
+  expect(appJs).toContain('id="admin-returns-ledger"');
+  expect(appJs).toContain('Return Summary');
+  expect(appJs).toContain('Returns Ledger');
+  expect(appJs).toContain('function renderAdminReturnSummary');
+  expect(appJs).toContain('function renderReturnsLedgerRows');
+  expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
 });

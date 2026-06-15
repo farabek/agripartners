@@ -66,11 +66,21 @@ beforeEach(() => {
   });
   dealService.getDealReturnSummary.mockResolvedValue({
     amount: '0.10',
+    invested_amount: '0.10',
+    projected_roi_pct: 20,
     expected_return: '0.12',
     returned_amount: '0.05',
     outstanding_amount: '0.07',
+    return_status: 'partial',
     roi_percent: 20,
   });
+  dealService.getDealReturns.mockResolvedValue([{
+    id: 1,
+    deal_id: 1,
+    amount_near: '0.05',
+    note: 'First repayment',
+    created_at: '2026-06-10T00:00:00Z',
+  }]);
   dealService.getFarmerDealCycles.mockResolvedValue([{
     id: 1,
     status: 'reported',
@@ -354,6 +364,65 @@ test('POST /api/admin/deals/:id/returns creates repayment and returns updated su
       roi_percent: 20,
     }),
   }));
+});
+
+test('GET /api/admin/deals/:id/return-summary returns admin ROI summary', async () => {
+  const res = await request(app)
+    .get('/api/admin/deals/1/return-summary')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(200);
+  expect(dealService.getDealById).toHaveBeenCalledWith('1');
+  expect(dealService.getDealReturnSummary).toHaveBeenCalledWith(mockDeal);
+  expect(res.body).toEqual(expect.objectContaining({
+    ok: true,
+    dealId: 1,
+    summary: expect.objectContaining({
+      projected_roi_pct: 20,
+      return_status: 'partial',
+      returned_amount: '0.05',
+    }),
+  }));
+});
+
+test('GET /api/admin/deals/:id/return-summary returns 404 when deal not found', async () => {
+  dealService.getDealById.mockResolvedValueOnce(null);
+
+  const res = await request(app)
+    .get('/api/admin/deals/999/return-summary')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(404);
+  expect(dealService.getDealReturnSummary).not.toHaveBeenCalled();
+});
+
+test('GET /api/admin/deals/:id/returns lists admin return ledger', async () => {
+  const res = await request(app)
+    .get('/api/admin/deals/1/returns')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(200);
+  expect(dealService.getDealById).toHaveBeenCalledWith('1');
+  expect(dealService.getDealReturns).toHaveBeenCalledWith(1);
+  expect(res.body).toEqual(expect.objectContaining({
+    ok: true,
+    dealId: 1,
+    returns: [expect.objectContaining({
+      amount_near: '0.05',
+      note: 'First repayment',
+    })],
+  }));
+});
+
+test('GET /api/admin/deals/:id/returns returns 404 when deal not found', async () => {
+  dealService.getDealById.mockResolvedValueOnce(null);
+
+  const res = await request(app)
+    .get('/api/admin/deals/999/returns')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(404);
+  expect(dealService.getDealReturns).not.toHaveBeenCalled();
 });
 
 test('POST /api/admin/deals/:id/returns returns 404 when deal not found', async () => {

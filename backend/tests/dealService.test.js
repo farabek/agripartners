@@ -230,7 +230,7 @@ test('createDealReturn inserts normalized repayment amount', async () => {
   expect(result.amount_near).toBe('0.05');
 });
 
-test('getDealReturnSummary calculates ROI and outstanding balance', async () => {
+test('getDealReturnSummary marks partial return when returned amount is below expected return', async () => {
   pool.query.mockResolvedValue({
     rows: [{ id: 1, deal_id: 1, amount_near: '0.05' }],
   });
@@ -242,9 +242,12 @@ test('getDealReturnSummary calculates ROI and outstanding balance', async () => 
 
   expect(summary).toEqual({
     amount: '0.10',
+    invested_amount: '0.10',
+    projected_roi_pct: 20,
     expected_return: '0.12',
     returned_amount: '0.05',
     outstanding_amount: '0.07',
+    return_status: 'partial',
     roi_percent: 20,
   });
 });
@@ -262,11 +265,61 @@ test('getDealReturnSummary uses deal-level projected ROI when present', async ()
 
   expect(summary).toEqual({
     amount: '0.10',
+    invested_amount: '0.10',
+    projected_roi_pct: 12.5,
     expected_return: '0.1125',
     returned_amount: '0.05',
     outstanding_amount: '0.0625',
+    return_status: 'partial',
     roi_percent: 12.5,
   });
+});
+
+test('getDealReturnSummary marks no_returns when returned amount is zero', async () => {
+  pool.query.mockResolvedValue({ rows: [] });
+
+  await expect(getDealReturnSummary({
+    id: 1,
+    investment_amount: '100000000000000000000000',
+    projected_roi_pct: '20',
+  })).resolves.toEqual(expect.objectContaining({
+    returned_amount: '0.00',
+    return_status: 'no_returns',
+  }));
+});
+
+test('getDealReturnSummary marks completed when returned amount equals expected return', async () => {
+  pool.query.mockResolvedValue({
+    rows: [{ id: 1, deal_id: 1, amount_near: '0.12' }],
+  });
+
+  await expect(getDealReturnSummary({
+    id: 1,
+    investment_amount: '100000000000000000000000',
+    projected_roi_pct: '20',
+  })).resolves.toEqual(expect.objectContaining({
+    expected_return: '0.12',
+    returned_amount: '0.12',
+    outstanding_amount: '0.00',
+    return_status: 'completed',
+  }));
+});
+
+test('getDealReturnSummary marks completed when returned amount exceeds expected return', async () => {
+  pool.query.mockResolvedValue({
+    rows: [{ id: 1, deal_id: 1, amount_near: '0.12' }],
+  });
+
+  await expect(getDealReturnSummary({
+    id: 1,
+    investment_amount: '10000000000000000000000',
+    projected_roi_pct: '20',
+  })).resolves.toEqual(expect.objectContaining({
+    expected_return: '0.012',
+    returned_amount: '0.12',
+    outstanding_amount: '0.00',
+    return_status: 'completed',
+  }));
 });
 
 test('confirmFarmerFunding upserts confirmation timestamp', async () => {

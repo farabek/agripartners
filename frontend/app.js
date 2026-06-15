@@ -1089,7 +1089,7 @@ function renderAdminDemoDealDetail(el, deal) {
       ${renderAdminDemoReport(deal)}
     </div>
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns History</h3>
       ${renderAdminDemoReturns(deal)}
     </div>
     <div class="bg-slate-800 rounded-xl p-5">
@@ -2435,7 +2435,7 @@ function adminDemoMetrics(deals) {
 }
 
 function investorMetrics(deals) {
-  const roiDeals = deals.filter(deal => deal.roi_percent != null);
+  const roiDeals = deals.filter(deal => (deal.projected_roi_pct ?? deal.roi_percent) != null);
   const allUsd = deals.length > 0 && deals.every(deal => deal.display_currency === 'USD');
   const totals = {
     totalInvested: sumNearFields(deals, 'amount'),
@@ -2451,7 +2451,7 @@ function investorMetrics(deals) {
     displayReturned: allUsd ? formatUsdAmount(totals.returned) : null,
     displayOutstanding: allUsd ? formatUsdAmount(totals.outstanding) : null,
     averageRoi: roiDeals.length
-      ? roiDeals.reduce((sum, deal) => sum + Number(deal.roi_percent), 0) / roiDeals.length
+      ? roiDeals.reduce((sum, deal) => sum + Number(deal.projected_roi_pct ?? deal.roi_percent), 0) / roiDeals.length
       : 0,
     activeDeals: deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status)).length,
     completedDeals: deals.filter(deal => deal.status?.status === 'Completed').length,
@@ -2520,7 +2520,7 @@ function renderInvestorMetrics(metrics) {
         <span class="metric-value">${escapeHtml(invested)}</span>
       </div>
       <div class="metric-box">
-        <span class="metric-label">Expected Returns</span>
+        <span class="metric-label">Projected Returns</span>
         <span class="metric-value">${escapeHtml(expected)}</span>
       </div>
       <div class="metric-box">
@@ -2594,11 +2594,12 @@ function investorPilotLabel(deal) {
 function investorProjectProfile(deal, status) {
   const pilot = getPilotForDeal(deal);
   const projectStatus = status?.status === 'Completed' ? 'Completed' : 'Active';
+  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent ?? 20;
 
   return {
     title: pilot?.title || deal.title || `Deal #${deal.id}`,
     investment: pilot?.investment || formatNearDisplay(deal.amount),
-    roi: pilot?.roi || `${deal.roi_percent ?? 20}%`,
+    roi: pilot?.roi || `${projectedRoi}%`,
     roiLabel: projectStatus === 'Completed' ? 'ROI' : 'Projected ROI',
     apr: pilot?.apr || 'Demo model',
     cycles: pilot?.cycles || String(deal.total_cycles ?? '-'),
@@ -2649,6 +2650,7 @@ function renderInvestorDealCard(deal) {
   const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return);
   const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount);
   const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI';
+  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent ?? 20;
   const currentCycle = deal.status?.current_cycle ?? '—';
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -2667,7 +2669,7 @@ function renderInvestorDealCard(deal) {
             <span class="text-sm text-slate-100 font-mono">${escapeHtml(invested)}</span>
           </div>
           <div>
-            <span class="block text-xs text-slate-500">Expected</span>
+            <span class="block text-xs text-slate-500">Projected Return</span>
             <span class="text-sm text-slate-100 font-mono">${escapeHtml(expected)}</span>
           </div>
           <div>
@@ -2676,7 +2678,7 @@ function renderInvestorDealCard(deal) {
           </div>
           <div>
             <span class="block text-xs text-slate-500">${escapeHtml(roiLabel)}</span>
-            <span class="text-sm text-slate-100 font-mono">${escapeHtml(deal.roi_percent ?? 20)}%</span>
+            <span class="text-sm text-slate-100 font-mono">${escapeHtml(projectedRoi)}%</span>
           </div>
         </div>
       </div>
@@ -2845,7 +2847,7 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns History</h3>
       <div id="investor-returns-list">${renderRepaymentHistory(returns)}</div>
     </div>
 
@@ -2965,7 +2967,7 @@ function renderInvestorDealDetail(el, deal, status, balances, events, reports = 
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns History</h3>
       <div id="investor-returns-list">${renderRepaymentHistory(returns)}</div>
     </div>
 
@@ -2983,18 +2985,48 @@ function formatNearDisplay(value) {
   return `${escapeHtml(value ?? '0.00')} NEAR`;
 }
 
+function returnStatusLabel(status) {
+  const labels = {
+    no_returns: 'No returns',
+    partial: 'Partial return',
+    completed: 'Completed',
+  };
+  return labels[status] || 'No returns';
+}
+
+function numericReturnAmount(value) {
+  const normalized = String(value ?? '0').replace(/[^0-9.-]/g, '');
+  const amount = Number(normalized);
+  return Number.isFinite(amount) ? amount : 0;
+}
+
+function deriveReturnStatus(deal) {
+  if (deal.return_status) return deal.return_status;
+  const returned = numericReturnAmount(deal.display_returned_amount ?? deal.returned_amount);
+  const expected = numericReturnAmount(deal.display_expected_return ?? deal.expected_return);
+  if (returned <= 0) return 'no_returns';
+  if (returned < expected) return 'partial';
+  return 'completed';
+}
+
+function returnDisclaimer() {
+  return '<p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2 mt-3">Projected returns are estimates and are not guaranteed.</p>';
+}
+
 function renderInvestmentSummary(deal) {
   const status = deal.status?.status || deal.status;
   const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI';
+  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent ?? 20;
   const rows = [
-    ['Invested', deal.display_amount || formatNearDisplay(deal.amount)],
-    ['Expected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)],
-    ['Returned', deal.display_returned_amount || formatNearDisplay(deal.returned_amount)],
-    ['Outstanding', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)],
-    [roiLabel, `${escapeHtml(deal.roi_percent ?? 20)}%`],
+    ['Invested', deal.display_amount || formatNearDisplay(deal.invested_amount || deal.amount)],
+    ['Projected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)],
+    ['Returned Amount', deal.display_returned_amount || formatNearDisplay(deal.returned_amount)],
+    ['Outstanding Return', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)],
+    ['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))],
+    [roiLabel, `${escapeHtml(projectedRoi)}%`],
   ];
   return `
-    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-6 gap-3">
       ${rows.map(([label, value]) => `
         <div class="metric-box">
           <span class="metric-label">${label}</span>
@@ -3002,6 +3034,7 @@ function renderInvestmentSummary(deal) {
         </div>
       `).join('')}
     </div>
+    ${returnDisclaimer()}
   `;
 }
 
@@ -3194,14 +3227,20 @@ async function showDeal(id) {
   `;
 
   const headers = authHeaders();
-  const [dealRes, statusRes, balancesRes, eventsRes, cyclesRes] = await Promise.allSettled([
+  const [dealRes, statusRes, balancesRes, eventsRes, cyclesRes, returnSummaryRes, adminReturnsRes] = await Promise.allSettled([
     fetch(`${API_BASE}/api/deals/${id}`, { headers }),
     fetch(`${API_BASE}/api/deals/${id}/status`, { headers }),
     fetch(`${API_BASE}/api/deals/${id}/balances`, { headers }),
     fetch(`${API_BASE}/api/deals/${id}/events`, { headers }),
     isAdmin()
       ? fetch(`${API_BASE}/api/admin/deals/${id}/cycles`, { headers })
-      : Promise.resolve(new Response(JSON.stringify({ cycles: [] }), { status: 200, headers: { 'content-type': 'application/json' } }))
+      : Promise.resolve(new Response(JSON.stringify({ cycles: [] }), { status: 200, headers: { 'content-type': 'application/json' } })),
+    isAdmin()
+      ? fetch(`${API_BASE}/api/admin/deals/${id}/return-summary`, { headers })
+      : Promise.resolve(new Response(JSON.stringify({ summary: null }), { status: 200, headers: { 'content-type': 'application/json' } })),
+    isAdmin()
+      ? fetch(`${API_BASE}/api/admin/deals/${id}/returns`, { headers })
+      : Promise.resolve(new Response(JSON.stringify({ returns: [] }), { status: 200, headers: { 'content-type': 'application/json' } }))
   ]);
 
   el.querySelector('.spinner')?.remove();
@@ -3223,11 +3262,15 @@ async function showDeal(id) {
     ? await eventsRes.value.json() : [];
   const cycles = cyclesRes.status === 'fulfilled' && cyclesRes.value.ok
     ? (await cyclesRes.value.json()).cycles || [] : [];
+  const returnSummary = returnSummaryRes.status === 'fulfilled' && returnSummaryRes.value.ok
+    ? (await returnSummaryRes.value.json()).summary || null : null;
+  const adminReturns = adminReturnsRes.status === 'fulfilled' && adminReturnsRes.value.ok
+    ? (await adminReturnsRes.value.json()).returns || [] : [];
 
-  renderDealDetail(el, deal, status, balances, events, cycles);
+  renderDealDetail(el, deal, status, balances, events, cycles, returnSummary, adminReturns);
 }
 
-function renderDealDetail(el, deal, status, balances, events, cycles = []) {
+function renderDealDetail(el, deal, status, balances, events, cycles = [], returnSummary = null, adminReturns = []) {
   const dealTitle = deal.title || deal.deal_type;
   const cycleText = status ? `· Cycle ${status.current_cycle}` : '';
   el.innerHTML = `
@@ -3255,6 +3298,8 @@ function renderDealDetail(el, deal, status, balances, events, cycles = []) {
       </div>
     </div>
     ${isAdmin() ? renderAdminActions(deal, status?.status) : ''}
+    ${isAdmin() ? renderAdminReturnSummaryPanel(returnSummary) : ''}
+    ${isAdmin() ? renderAdminReturnsLedger(adminReturns) : ''}
     ${isAdmin() ? `
       <div class="bg-slate-800 rounded-xl p-5 mb-6">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Cycle Status</h3>
@@ -3271,6 +3316,78 @@ function renderDealDetail(el, deal, status, balances, events, cycles = []) {
 
   document.getElementById('btn-refresh').addEventListener('click', () => refreshDeal(deal.id));
   if (isAdmin()) bindAdminActions(deal);
+}
+
+function renderAdminReturnSummaryPanel(summary) {
+  return `
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Return Summary</h3>
+      <div id="admin-return-summary">
+        ${renderAdminReturnSummary(summary)}
+      </div>
+      ${returnDisclaimer()}
+    </div>
+  `;
+}
+
+function renderAdminReturnSummary(summary) {
+  if (!summary) return '<p class="text-slate-500 text-sm">Return summary unavailable</p>';
+  const projectedRoi = summary.projected_roi_pct ?? summary.roi_percent ?? 20;
+  const rows = [
+    ['Invested', formatNearDisplay(summary.invested_amount || summary.amount)],
+    ['Projected ROI', `${escapeHtml(projectedRoi)}%`],
+    ['Projected Return', formatNearDisplay(summary.expected_return)],
+    ['Returned Amount', formatNearDisplay(summary.returned_amount)],
+    ['Outstanding Return', formatNearDisplay(summary.outstanding_amount)],
+    ['Return Status', escapeHtml(returnStatusLabel(summary.return_status))],
+  ];
+  return `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      ${rows.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${label}</span>
+          <span class="metric-value">${value}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderAdminReturnsLedger(returns) {
+  return `
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns Ledger</h3>
+      <div id="admin-returns-ledger">
+        ${renderReturnsLedgerRows(returns)}
+      </div>
+    </div>
+  `;
+}
+
+function renderReturnsLedgerRows(returns) {
+  if (!returns.length) return '<p class="text-slate-500 text-sm">No returns recorded yet</p>';
+  return `
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-slate-400">
+          <tr class="border-b border-slate-700">
+            <th class="text-left py-2 pr-3">Date</th>
+            <th class="text-left py-2 pr-3">Amount</th>
+            <th class="text-left py-2 pr-3">Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${returns.map((entry) => `
+            <tr class="border-b border-slate-700 last:border-0">
+              <td class="py-2 pr-3 text-slate-300">${entry.created_at ? escapeHtml(new Date(entry.created_at).toLocaleDateString('en-US')) : 'Recorded'}</td>
+              <td class="py-2 pr-3 text-green-300 font-mono">${formatNearDisplay(entry.amount_near)}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.note || '-')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 function renderParams(deal) {
@@ -3348,6 +3465,9 @@ function renderAdminActions(deal, status) {
       </div>
       <form id="admin-return-form" class="mt-5 border-t border-slate-700 pt-4 space-y-3">
         <h4 class="text-sm font-semibold text-slate-300">Record Return</h4>
+        <p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2">
+          Recording a return updates the admin ledger only. It does not execute a smart contract transfer.
+        </p>
         <div class="grid sm:grid-cols-[160px_1fr_auto] gap-2">
           <input id="admin-return-amount" name="amount_near" type="text" inputmode="decimal" placeholder="Amount (NEAR)"
             class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-green-500" />
@@ -3591,13 +3711,19 @@ async function refreshDeal(id) {
   if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
 
   const headers = authHeaders();
-  const [statusRes, balancesRes, eventsRes, cyclesRes] = await Promise.allSettled([
+  const [statusRes, balancesRes, eventsRes, cyclesRes, returnSummaryRes, adminReturnsRes] = await Promise.allSettled([
     fetch(`${API_BASE}/api/deals/${id}/status`, { headers }),
     fetch(`${API_BASE}/api/deals/${id}/balances`, { headers }),
     fetch(`${API_BASE}/api/deals/${id}/events`, { headers }),
     isAdmin()
       ? fetch(`${API_BASE}/api/admin/deals/${id}/cycles`, { headers })
-      : Promise.resolve(new Response(JSON.stringify({ cycles: [] }), { status: 200, headers: { 'content-type': 'application/json' } }))
+      : Promise.resolve(new Response(JSON.stringify({ cycles: [] }), { status: 200, headers: { 'content-type': 'application/json' } })),
+    isAdmin()
+      ? fetch(`${API_BASE}/api/admin/deals/${id}/return-summary`, { headers })
+      : Promise.resolve(new Response(JSON.stringify({ summary: null }), { status: 200, headers: { 'content-type': 'application/json' } })),
+    isAdmin()
+      ? fetch(`${API_BASE}/api/admin/deals/${id}/returns`, { headers })
+      : Promise.resolve(new Response(JSON.stringify({ returns: [] }), { status: 200, headers: { 'content-type': 'application/json' } }))
   ]);
 
   const status = statusRes.status === 'fulfilled' && statusRes.value.ok
@@ -3608,6 +3734,10 @@ async function refreshDeal(id) {
     ? await eventsRes.value.json() : null;
   const cycles = cyclesRes.status === 'fulfilled' && cyclesRes.value.ok
     ? (await cyclesRes.value.json()).cycles || [] : null;
+  const returnSummary = returnSummaryRes.status === 'fulfilled' && returnSummaryRes.value.ok
+    ? (await returnSummaryRes.value.json()).summary || null : null;
+  const adminReturns = adminReturnsRes.status === 'fulfilled' && adminReturnsRes.value.ok
+    ? (await adminReturnsRes.value.json()).returns || [] : null;
 
   if (status) {
     const badgeEl = document.getElementById('status-badge');
@@ -3631,6 +3761,16 @@ async function refreshDeal(id) {
   if (cycles) {
     const cyclesEl = document.getElementById('admin-cycles-list');
     if (cyclesEl) cyclesEl.innerHTML = renderCycleStatusCards(cycles);
+  }
+
+  if (returnSummary) {
+    const summaryEl = document.getElementById('admin-return-summary');
+    if (summaryEl) summaryEl.innerHTML = renderAdminReturnSummary(returnSummary);
+  }
+
+  if (adminReturns) {
+    const ledgerEl = document.getElementById('admin-returns-ledger');
+    if (ledgerEl) ledgerEl.innerHTML = renderReturnsLedgerRows(adminReturns);
   }
 
   if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }

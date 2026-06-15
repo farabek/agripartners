@@ -32,10 +32,19 @@ test('investor detail renders investment summary', () => {
   expect(appJs).toContain('Investment Summary');
   expect(appJs).toContain('id="investor-investment-summary"');
   expect(appJs).toContain('function renderInvestmentSummary');
-  expect(appJs).toContain('Expected Return');
-  expect(appJs).toContain('Outstanding');
+  expect(appJs).toContain('Projected Return');
+  expect(appJs).toContain('Returned Amount');
+  expect(appJs).toContain('Outstanding Return');
+  expect(appJs).toContain('Return Status');
+  expect(appJs).toContain('function deriveReturnStatus');
+  expect(appJs).toContain("if (returned <= 0) return 'no_returns'");
+  expect(appJs).toContain("if (returned < expected) return 'partial'");
+  expect(appJs).toContain("return 'completed'");
+  expect(appJs).toContain("partial: 'Partial return'");
+  expect(appJs).toContain("completed: 'Completed'");
   expect(appJs).toContain('ROI');
   expect(appJs).toContain('Projected ROI');
+  expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
 });
 
 test('investor detail renders project profile before technical deal data', () => {
@@ -61,7 +70,7 @@ test('investor detail renders project profile before technical deal data', () =>
 
 test('investor home dashboard renders MVP metrics and pilot deals', () => {
   expect(appJs).toContain('function investorMetrics');
-  expect(appJs).toContain('Expected Returns');
+  expect(appJs).toContain('Projected Returns');
   expect(appJs).toContain('Returned');
   expect(appJs).toContain('Outstanding');
   expect(appJs).toContain('Average ROI');
@@ -129,8 +138,10 @@ test('investor demo financial metrics render in USD instead of NEAR', () => {
   expect(appJs).toContain('const invested = deal.display_amount || formatNearDisplay(deal.amount)');
   expect(appJs).toContain('const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return)');
   expect(appJs).toContain('const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount)');
-  expect(appJs).toContain("['Invested', deal.display_amount || formatNearDisplay(deal.amount)]");
-  expect(appJs).toContain("['Expected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)]");
-  expect(appJs).toContain("['Outstanding', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)]");
-  expect(appJs).toContain('[roiLabel, `${escapeHtml(deal.roi_percent ?? 20)}%`]');
+  expect(appJs).toContain("['Invested', deal.display_amount || formatNearDisplay(deal.invested_amount || deal.amount)]");
+  expect(appJs).toContain("['Projected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)]");
+  expect(appJs).toContain("['Outstanding Return', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)]");
+  expect(appJs).toContain("['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))]");
+  expect(appJs).toContain('const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent ?? 20');
+  expect(appJs).toContain('[roiLabel, `${escapeHtml(projectedRoi)}%`]');
 });

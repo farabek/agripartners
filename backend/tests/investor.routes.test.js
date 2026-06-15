@@ -54,9 +54,12 @@ beforeEach(() => {
   dealService.enrichDealWithReturnSummary.mockResolvedValue({
     ...investorDeal,
     amount: '0.10',
+    invested_amount: '0.10',
+    projected_roi_pct: 20,
     expected_return: '0.12',
     returned_amount: '0.05',
     outstanding_amount: '0.07',
+    return_status: 'partial',
     roi_percent: 20,
   });
   dealService.getDealReturns.mockResolvedValue([{
@@ -189,9 +192,12 @@ test('GET /api/investor/deals/:id returns ROI summary fields', async () => {
   expect(res.status).toBe(200);
   expect(res.body).toEqual(expect.objectContaining({
     amount: '0.10',
+    invested_amount: '0.10',
+    projected_roi_pct: 20,
     expected_return: '0.12',
     returned_amount: '0.05',
     outstanding_amount: '0.07',
+    return_status: 'partial',
     roi_percent: 20,
   }));
 });
