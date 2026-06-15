@@ -4,14 +4,23 @@
 
 This folder documents the current information architecture of the AgriPartners documentation set and proposes a safer future reading order and numbering convention.
 
-This is an audit only. No files have been renamed, moved, deleted, or rewritten as part of this workstream.
+This folder is an audit workstream. The architecture files themselves use the AgriPartners documentation numbering standard, but no product, investor, NEAR outreach, screenshot, frontend, backend, contract, or test files are renamed by this workstream.
 
-## Files
+## English Reading Order
 
-- [Documentation Inventory](documentation-inventory.md)
-- [Reading Order Map](reading-order-map.md)
-- [Proposed Renaming Plan](proposed-renaming-plan.md)
-- [Link Impact Analysis](link-impact-analysis.md)
+- [Documentation Architecture Audit](01-readme.md)
+- [Documentation Inventory](02-documentation-inventory.md)
+- [Reading Order Map](03-reading-order-map.md)
+- [Proposed Renaming Plan](04-proposed-renaming-plan.md)
+- [Link Impact Analysis](05-link-impact-analysis.md)
+
+## Russian Reading Order
+
+- [Documentation Architecture Audit RU](11-readme-ru.md)
+- [Documentation Inventory RU](12-documentation-inventory-ru.md)
+- [Reading Order Map RU](13-reading-order-map-ru.md)
+- [Proposed Renaming Plan RU](14-proposed-renaming-plan-ru.md)
+- [Link Impact Analysis RU](15-link-impact-analysis-ru.md)
 
 ## Scope
 

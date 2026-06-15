@@ -1,5 +1,7 @@
 # AgriPartners NEAR Outreach Toolkit v1
 
+## Purpose
+
 This toolkit contains practical message templates for introducing AgriPartners to the NEAR ecosystem.
 
 Use these materials together with:
@@ -8,13 +10,16 @@ Use these materials together with:
 - `docs/near-ecosystem/`
 - `docs/investor-package/`
 
-## Files
+## English Reading Order
 
 - [Intro Message EN](02-intro-message-en.md)
 - [Project Introduction Email EN](03-project-introduction-email-en.md)
 - [Meeting Request EN](04-meeting-request-en.md)
 - [Feedback Request EN](05-feedback-request-en.md)
 - [Follow-up Message EN](06-followup-message-en.md)
+
+## Russian Reading Order
+
 - [Intro Message RU](12-intro-message-ru.md)
 - [Project Introduction Email RU](13-project-introduction-email-ru.md)
 - [Meeting Request RU](14-meeting-request-ru.md)

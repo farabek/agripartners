@@ -1,5 +1,7 @@
 # AgriPartners NEAR Ecosystem Workstream
 
+## Purpose
+
 This folder defines the NEAR ecosystem workstream for AgriPartners. The goal is to help the project engage the NEAR ecosystem in a structured way: first with clear materials, then with feedback requests, then with partner and grant conversations.
 
 ## What This Workstream Means

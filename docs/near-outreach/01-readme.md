@@ -1,14 +1,19 @@
 # AgriPartners NEAR Outreach Pack v1
 
+## Purpose
+
 This folder contains a concise outreach package for conversations with the NEAR ecosystem, grant reviewers, ecosystem partners, technical mentors, accelerators, and RWA-focused collaborators.
 
-## Files
+## English Reading Order
 
 - [Project Summary EN](02-project-summary-en.md)
 - [Founder Introduction EN](03-founder-introduction-en.md)
 - [Elevator Pitch EN](04-elevator-pitch-en.md)
 - [NEAR Use Case EN](05-near-use-case-en.md)
 - [Ecosystem One Pager EN](06-ecosystem-one-pager-en.md)
+
+## Russian Reading Order
+
 - [Project Summary RU](12-project-summary-ru.md)
 - [Founder Introduction RU](13-founder-introduction-ru.md)
 - [Elevator Pitch RU](14-elevator-pitch-ru.md)
