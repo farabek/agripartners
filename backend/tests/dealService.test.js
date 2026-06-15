@@ -249,6 +249,26 @@ test('getDealReturnSummary calculates ROI and outstanding balance', async () => 
   });
 });
 
+test('getDealReturnSummary uses deal-level projected ROI when present', async () => {
+  pool.query.mockResolvedValue({
+    rows: [{ id: 1, deal_id: 1, amount_near: '0.05' }],
+  });
+
+  const summary = await getDealReturnSummary({
+    id: 1,
+    investment_amount: '100000000000000000000000',
+    projected_roi_pct: '12.5',
+  });
+
+  expect(summary).toEqual({
+    amount: '0.10',
+    expected_return: '0.1125',
+    returned_amount: '0.05',
+    outstanding_amount: '0.0625',
+    roi_percent: 12.5,
+  });
+});
+
 test('confirmFarmerFunding upserts confirmation timestamp', async () => {
   pool.query.mockResolvedValue({ rows: [{ deal_id: 1, cycle_num: 1, funding_received_at: 'now' }] });
   const update = await confirmFarmerFunding(1, 1);
