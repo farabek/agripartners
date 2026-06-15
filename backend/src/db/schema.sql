@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS deals (
   cycle_duration_days INTEGER NOT NULL,
   total_cycles        INTEGER NOT NULL,
   capital_return_near TEXT NOT NULL,
+  projected_roi_pct   NUMERIC(8, 4) NOT NULL DEFAULT 20,
   created_at          TEXT NOT NULL
 );
 
