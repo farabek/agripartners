@@ -184,6 +184,55 @@
   padding: 12px;
 }
 
+.farmer-timeline {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.farmer-timeline-step {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 96px;
+  padding: 12px;
+}
+
+.farmer-timeline-step.is-complete {
+  border-color: #166534;
+}
+
+.farmer-timeline-step.is-pending {
+  opacity: 0.72;
+}
+
+.farmer-timeline-dot {
+  background-color: #64748b;
+  border-radius: 9999px;
+  display: block;
+  height: 10px;
+  width: 10px;
+}
+
+.farmer-timeline-step.is-complete .farmer-timeline-dot {
+  background-color: #22c55e;
+}
+
+.farmer-timeline-label {
+  color: #f8fafc;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.farmer-timeline-state {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
 .wallet-panel {
   background-color: #0f172a;
   border: 1px solid #334155;
@@ -310,6 +359,10 @@
 
   .farmer-cycle-actions .admin-action-btn {
     width: 100%;
+  }
+
+  .farmer-timeline {
+    grid-template-columns: 1fr;
   }
 
   .wallet-header,

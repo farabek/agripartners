@@ -27,15 +27,21 @@ test('new farmer empty state is friendly and actionable', () => {
 test('farmer dashboard renders profile fields and summary cards', () => {
   expect(appJs).toContain('renderFarmerProfilePanel');
   expect(appJs).toContain('AgriPartners Pilot Farm');
-  expect(appJs).toContain('Livestock pilot operator');
+  expect(appJs).toContain('Tashkent Region');
+  expect(appJs).toContain('Hissar Sheep Breeding');
   expect(appJs).toContain("role: 'farmer'");
-  expect(appJs).toContain('Display Name');
-  expect(appJs).toContain('Organization / Farm Name');
+  expect(appJs).toContain('Farmer Operations Dashboard');
+  expect(appJs).toContain('Operational view for active agricultural pilot deals.');
+  expect(appJs).toContain('Farm Profile');
+  expect(appJs).toContain('Farm Name');
+  expect(appJs).toContain('Region');
+  expect(appJs).toContain('Activity / Livestock Type');
+  expect(appJs).toContain('Farmer Account');
+  expect(appJs).toContain('Funding Received');
   expect(appJs).toContain('Active Deals');
-  expect(appJs).toContain('Completed Deals');
-  expect(appJs).toContain('Total Funding');
-  expect(appJs).toContain('Active Cycles');
-  expect(appJs).toContain('Pending Reports');
+  expect(appJs).toContain('Current Cycle');
+  expect(appJs).toContain('Reports Submitted');
+  expect(appJs).toContain('Next Report Due');
   expect(appJs).not.toContain('Farhod Investor');
 });
 
@@ -44,7 +50,11 @@ test('farmer deal cards remain linked to the detail page', () => {
   expect(appJs).toContain('const dealHref = deal.isDemoPilot ? `#farmer/pilots/${deal.pilot_key}` : `#farmer/deals/${deal.id}`');
   expect(appJs).toContain("const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`");
   expect(appJs).not.toContain("const dealBadge = deal.isDemoPilot ? 'Demo Pilot' : `Deal #${deal.id}`");
-  expect(appJs).toContain('View Deal');
+  expect(appJs).toContain('Open Deal');
+  expect(appJs).toContain('Funding Status');
+  expect(appJs).toContain('Report Status');
+  expect(appJs).toContain('Projected ROI');
+  expect(appJs).toContain('Next action:');
 });
 
 test('farmer demo dataset shows only clean pilot deals', () => {
@@ -63,27 +73,42 @@ test('farmer demo dataset shows only clean pilot deals', () => {
 
 test('farmer summary metrics show clean demo values', () => {
   expect(appJs).toContain('activeDeals = deals.filter((deal) => deal.status !== \'Completed\').length');
-  expect(appJs).toContain('completedDeals = deals.filter((deal) => deal.status === \'Completed\').length');
-  expect(appJs).toContain('pendingReports = deals.filter((deal) => deal.reportStatus === \'pending\' || deal.reportStatus === \'due\').length');
+  expect(appJs).toContain('reportsSubmitted = deals.filter((deal) => deal.reportStatus === \'submitted\').length');
+  expect(appJs).toContain('nextReportDue = deals.filter((deal) => deal.reportStatus === \'pending\' || deal.reportStatus === \'due\').length');
   expect(appJs).toContain('displayTotalFunding');
   expect(appJs).toContain("displayAmount: '$50,000'");
   expect(appJs).toContain('Financial view in USD');
   expect(appJs).not.toContain('Demo financial view in USD');
-  expect(appJs).toContain('Completed Deals');
+  expect(appJs).toContain('Funding Received');
 });
 
 test('farmer demo deal detail renders project profile and report cycle status', () => {
   expect(appJs).toContain('showFarmerPilotProfile(farmerPilot[1])');
   expect(appJs).toContain('function renderFarmerDemoDealDetail');
   expect(appJs).toContain('Project Profile');
+  expect(appJs).toContain('Deal Operations Summary');
+  expect(appJs).toContain('Deal Summary');
   expect(appJs).toContain('Funding Status');
-  expect(appJs).toContain('Cycle Status');
+  expect(appJs).toContain('Current Cycle Status');
+  expect(appJs).toContain('Report Status');
+  expect(appJs).toContain('Cycle Timeline');
+  expect(appJs).toContain('Reports History');
   expect(appJs).toContain('Farmer Report');
   expect(appJs).toContain('Event History');
   expect(appJs).toContain('Funding Confirmed');
   expect(appJs).toContain('Report Submitted');
   expect(appJs).toContain('Next Report Due');
   expect(appJs).toContain('Return Recorded');
+});
+
+test('farmer operations dashboard adds timeline and reports history helpers', () => {
+  expect(appJs).toContain('function renderFarmerCycleTimeline');
+  expect(appJs).toContain('Funding Sent');
+  expect(appJs).toContain('Cycle Started');
+  expect(appJs).toContain('Cycle Completed');
+  expect(appJs).toContain('function renderFarmerReportsHistory');
+  expect(appJs).toContain('No submitted reports yet');
+  expect(appJs).toContain('Submitted date');
 });
 
 test('farmer deal detail fetches balances for withdraw state', () => {

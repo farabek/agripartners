@@ -1355,8 +1355,9 @@ async function showFarmerPortal() {
   el.innerHTML = `
     ${renderNav()}
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-green-400 mb-1">Farmer Portal</h1>
-      <p class="text-slate-400">Wallet: <span class="text-slate-200 font-medium">${escapeHtml(connectedWalletAccount || 'Not connected')}</span></p>
+      <h1 class="text-3xl font-bold text-green-400 mb-1">Farmer Operations Dashboard</h1>
+      <p class="text-slate-400">Operational view for active agricultural pilot deals.</p>
+      <p class="text-slate-400 mt-2">Wallet / Account: <span class="text-slate-200 font-medium">${escapeHtml(connectedWalletAccount || 'Not connected')}</span></p>
     </div>
     <div id="farmer-dashboard-content">
       <h2 class="text-xl font-semibold mb-4">Active Deals</h2>
@@ -1398,7 +1399,10 @@ function farmerDemoProfile(profile = {}) {
   return {
     ...profile,
     displayName: 'AgriPartners Pilot Farm',
-    organizationName: 'Livestock pilot operator',
+    organizationName: 'AgriPartners Pilot Farm',
+    region: 'Tashkent Region',
+    activity: 'Hissar Sheep Breeding',
+    status: 'Active',
     role: 'farmer',
   };
 }
@@ -1411,47 +1415,68 @@ function farmerDashboardMetrics(deals) {
   );
   const activeCycles = deals.filter((deal) => deal.activeCycleId != null).length;
   const activeDeals = deals.filter((deal) => deal.status !== 'Completed').length;
-  const completedDeals = deals.filter((deal) => deal.status === 'Completed').length;
-  const pendingReports = deals.filter((deal) => deal.reportStatus === 'pending' || deal.reportStatus === 'due').length;
+  const reportsSubmitted = deals.filter((deal) => deal.reportStatus === 'submitted').length;
+  const nextReportDue = deals.filter((deal) => deal.reportStatus === 'pending' || deal.reportStatus === 'due').length;
+  const currentCycle = deals.find((deal) => deal.activeCycleId != null)?.activeCycleId
+    ?? deals.find((deal) => deal.status !== 'Completed')?.current_cycle
+    ?? 'No active cycle';
   return {
     activeDeals,
-    completedDeals,
     totalFunding,
     displayTotalFunding: allUsd
       ? formatUsdAmount(deals.reduce((sum, deal) => sum + parseNearAmount(deal.amount), 0))
       : null,
     activeCycles,
-    pendingReports,
+    currentCycle,
+    reportsSubmitted,
+    nextReportDue,
+  };
+}
+
+function farmerProfileDisplay(profile, farmer) {
+  const source = FARMER_DEMO_DATASET_ENABLED ? farmerDemoProfile(profile) : (profile || {});
+  return {
+    farmName: source.organizationName || source.displayName || 'AgriPartners Pilot Farm',
+    region: source.region || source.country || 'Tashkent Region',
+    activity: source.activity || source.bio || 'Hissar Sheep Breeding',
+    farmerAccount: farmer || source.walletAccountId || 'Not connected',
+    status: source.status || 'Active',
+    role: source.role || 'farmer',
   };
 }
 
 function renderFarmerProfilePanel(profile, farmer) {
-  const displayProfile = FARMER_DEMO_DATASET_ENABLED ? farmerDemoProfile(profile) : profile;
+  const displayProfile = farmerProfileDisplay(profile, farmer);
   return `
-    <div class="bg-slate-800 rounded-xl p-5 mb-4">
+    <div class="bg-slate-800 border border-green-900 rounded-xl p-5 mb-4">
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 class="text-xl font-semibold text-slate-100">${farmerProfileValue(displayProfile, 'displayName', escapeHtml(farmer || 'Farmer'))}</h2>
-          <p class="text-sm text-slate-400 mt-1">${farmerProfileValue(displayProfile, 'organizationName')}</p>
+          <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Farm Profile</span>
+          <h2 class="text-xl font-semibold text-slate-100 mt-1">${escapeHtml(displayProfile.farmName)}</h2>
+          <p class="text-sm text-slate-400 mt-1">${escapeHtml(displayProfile.activity)}</p>
         </div>
-        <span class="text-xs font-semibold bg-slate-700 px-2 py-1 rounded text-slate-300">${escapeHtml(displayProfile?.role || 'farmer')}</span>
+        <span class="text-xs font-semibold bg-green-950 border border-green-800 px-2 py-1 rounded text-green-200">${escapeHtml(displayProfile.status)}</span>
       </div>
-      <div class="grid sm:grid-cols-2 gap-3 mt-4 text-sm">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mt-4 text-sm">
         <div>
-          <span class="block text-slate-500">Display Name</span>
-          <span class="text-slate-200">${farmerProfileValue(displayProfile, 'displayName', escapeHtml(farmer || 'Farmer'))}</span>
+          <span class="block text-slate-500">Farm Name</span>
+          <span class="text-slate-200">${escapeHtml(displayProfile.farmName)}</span>
         </div>
         <div>
-          <span class="block text-slate-500">Organization / Farm Name</span>
-          <span class="text-slate-200">${farmerProfileValue(displayProfile, 'organizationName')}</span>
+          <span class="block text-slate-500">Region</span>
+          <span class="text-slate-200">${escapeHtml(displayProfile.region)}</span>
         </div>
         <div>
-          <span class="block text-slate-500">Country</span>
-          <span class="text-slate-200">${farmerProfileValue(displayProfile, 'country')}</span>
+          <span class="block text-slate-500">Activity / Livestock Type</span>
+          <span class="text-slate-200">${escapeHtml(displayProfile.activity)}</span>
         </div>
         <div>
-          <span class="block text-slate-500">Wallet account</span>
-          <span class="text-slate-200 font-mono break-all">${escapeHtml(farmer || displayProfile?.walletAccountId || 'Not connected')}</span>
+          <span class="block text-slate-500">Farmer Account</span>
+          <span class="text-slate-200 font-mono break-all">${escapeHtml(displayProfile.farmerAccount)}</span>
+        </div>
+        <div>
+          <span class="block text-slate-500">Status</span>
+          <span class="text-slate-200">${escapeHtml(displayProfile.status)}</span>
         </div>
       </div>
     </div>
@@ -1466,25 +1491,25 @@ function renderFarmerSummaryCards(metrics) {
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
       <div class="metric-box">
-        <span class="metric-label">Active Deals</span>
-        <span class="metric-value">${metrics.activeDeals}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Completed Deals</span>
-        <span class="metric-value">${metrics.completedDeals}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Total Funding</span>
+        <span class="metric-label">Funding Received</span>
         <span class="metric-value">${escapeHtml(totalFunding)}</span>
         ${rawFunding}
       </div>
       <div class="metric-box">
-        <span class="metric-label">Active Cycles</span>
-        <span class="metric-value">${metrics.activeCycles}</span>
+        <span class="metric-label">Active Deals</span>
+        <span class="metric-value">${metrics.activeDeals}</span>
       </div>
       <div class="metric-box">
-        <span class="metric-label">Pending Reports</span>
-        <span class="metric-value">${metrics.pendingReports}</span>
+        <span class="metric-label">Current Cycle</span>
+        <span class="metric-value">${escapeHtml(metrics.currentCycle)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Reports Submitted</span>
+        <span class="metric-value">${metrics.reportsSubmitted}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Next Report Due</span>
+        <span class="metric-value">${metrics.nextReportDue}</span>
       </div>
     </div>
   `;
@@ -1544,11 +1569,25 @@ function renderFarmerDashboard(el, deals, farmer, profile = null) {
   el.innerHTML = `
     ${renderFarmerProfilePanel(profile, farmer)}
     ${renderFarmerSummaryCards(metrics)}
-    <h2 class="text-xl font-semibold mb-4">Pilot Deals</h2>
+    <h2 class="text-xl font-semibold mb-4">Active Deals</h2>
     <div class="grid gap-4">
       ${deals.map(renderFarmerDealCard).join('')}
     </div>
   `;
+}
+
+function farmerDealNextAction(deal) {
+  if (deal.reportStatus === 'submitted') return 'Review submitted report and cycle status';
+  if (deal.reportStatus === 'due' || deal.reportStatus === 'pending') return 'Prepare next farmer report';
+  if (deal.fundingStatus && !String(deal.fundingStatus).toLowerCase().includes('confirmed')) return 'Confirm funding received';
+  if (deal.status === 'Completed') return 'Review completed deal summary';
+  return 'Open deal to review current cycle';
+}
+
+function farmerDealProjectedRoi(deal) {
+  const roi = deal.projected_roi_pct ?? deal.roi_percent ?? deal.roi;
+  if (roi == null || roi === '') return 'Not available';
+  return String(roi).includes('%') ? String(roi) : `${roi}%`;
 }
 
 function renderFarmerDealCard(deal) {
@@ -1567,10 +1606,13 @@ function renderFarmerDealCard(deal) {
         <h3 class="text-lg font-semibold text-slate-100">${escapeHtml(deal.title || `Deal #${deal.id}`)}</h3>
         <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${escapeHtml(formatAddress(deal.investor))}</span></p>
         <p class="text-sm text-slate-400">Funding: <span class="text-slate-100 font-mono">${escapeHtml(amount)}</span></p>
+        <p class="text-sm text-slate-400">Current Cycle: <span class="text-slate-200">${escapeHtml(activeCycle)}</span></p>
         <p class="text-sm text-slate-400">Funding Status: <span class="text-slate-200">${escapeHtml(deal.fundingStatus || 'Funding Confirmed')}</span></p>
-        <p class="text-sm text-slate-400">Report: <span class="text-slate-200">${escapeHtml(deal.reportLabel || 'Next Report Due')}</span></p>
+        <p class="text-sm text-slate-400">Report Status: <span class="text-slate-200">${escapeHtml(deal.reportLabel || 'Next Report Due')}</span></p>
+        <p class="text-sm text-slate-400">Projected ROI: <span class="text-slate-200">${escapeHtml(farmerDealProjectedRoi(deal))}</span></p>
+        <p class="text-sm text-green-300">Next action: ${escapeHtml(farmerDealNextAction(deal))}</p>
       </div>
-      <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
+      <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open Deal</a>
     </div>
   `;
 }
@@ -1632,6 +1674,7 @@ function renderFarmerDemoDealDetail(el, deal, cycles, events) {
     </div>
 
     ${renderFarmerProjectProfile(deal)}
+    ${renderFarmerDealOperationsSummary(deal, cycles)}
 
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5">
@@ -1642,6 +1685,16 @@ function renderFarmerDemoDealDetail(el, deal, cycles, events) {
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
         <div id="farmer-cycles-list">${renderFarmerCycles(deal.id, cycles)}</div>
       </div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Timeline</h3>
+      ${renderFarmerCycleTimeline(cycles)}
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Reports History</h3>
+      ${renderFarmerReportsHistory(cycles)}
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
@@ -1701,6 +1754,127 @@ function renderFarmerFundingStatus(deal) {
   `).join('');
 }
 
+function currentFarmerCycle(cycles) {
+  if (!cycles.length) return null;
+  return cycles.find((cycle) => cycle.status !== 'reported' && cycle.cycleStatus !== 'Completed') || cycles[cycles.length - 1];
+}
+
+function farmerReportSubmitted(cycle) {
+  return cycle?.reportStatus === 'submitted' || Boolean(cycle?.report);
+}
+
+function farmerCycleCompleted(cycle) {
+  return cycle?.cycleStatus === 'Completed' || ['completed', 'reported'].includes(cycle?.status);
+}
+
+function renderFarmerDealOperationsSummary(deal, cycles) {
+  const cycle = currentFarmerCycle(cycles);
+  const reportSubmitted = farmerReportSubmitted(cycle);
+  const summaryRows = [
+    ['Deal Summary', deal.description || 'Operational pilot deal for farmer-side reporting and cycle tracking.'],
+    ['Funding Status', deal.fundingStatus || (cycle?.fundingReceived ? 'Funding Confirmed' : 'Funding Pending')],
+    ['Current Cycle Status', cycle?.cycleStatus || deal.cycleStatus || 'No active cycle'],
+    ['Report Status', reportSubmitted ? 'Report Submitted' : (deal.reportLabel || 'Next Report Due')],
+  ];
+  return `
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-6">
+      <h2 class="text-lg font-semibold text-slate-100 mb-4">Deal Operations Summary</h2>
+      <div class="grid md:grid-cols-2 gap-3">
+        ${summaryRows.map(([label, value]) => `
+          <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
+            <span class="block text-xs text-slate-500">${label}</span>
+            <span class="block text-sm text-slate-100 mt-1">${escapeHtml(value)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function farmerTimelineSteps(cycle) {
+  const fundingSent = cycle?.status && cycle.status !== 'pending';
+  const fundingConfirmed = Boolean(cycle?.fundingReceived);
+  const cycleStarted = fundingConfirmed || ['cycle_active', 'funding_sent', 'reported', 'completed'].includes(cycle?.status);
+  const reportSubmitted = farmerReportSubmitted(cycle);
+  const cycleCompleted = farmerCycleCompleted(cycle);
+  return [
+    ['Funding Sent', fundingSent],
+    ['Funding Confirmed', fundingConfirmed],
+    ['Cycle Started', cycleStarted],
+    ['Report Submitted', reportSubmitted],
+    ['Cycle Completed', cycleCompleted],
+  ];
+}
+
+function renderFarmerCycleTimeline(cycles) {
+  if (!cycles.length) {
+    return '<p class="text-slate-500 text-sm">Cycle timeline will appear once a deal cycle is created.</p>';
+  }
+  return cycles.map((cycle) => `
+    <div class="mb-5 last:mb-0">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <h4 class="font-semibold text-slate-100">Cycle #${escapeHtml(cycle.id)}</h4>
+        <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(cycle.cycleStatus || cycle.status || 'Pending')}</span>
+      </div>
+      <div class="farmer-timeline">
+        ${farmerTimelineSteps(cycle).map(([label, done]) => `
+          <div class="farmer-timeline-step ${done ? 'is-complete' : 'is-pending'}">
+            <span class="farmer-timeline-dot"></span>
+            <span class="farmer-timeline-label">${label}</span>
+            <span class="farmer-timeline-state">${done ? 'Completed' : 'Pending'}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function normalizeFarmerReport(cycle) {
+  const report = cycle.report || {};
+  return {
+    cycleNumber: cycle.id ?? cycle.cycle_id ?? 'Cycle',
+    title: report.report_title || report.title || cycle.report_title || 'Farmer report',
+    summary: report.report_body || report.description || cycle.report_body || 'Report submitted for this cycle.',
+    amountUsed: report.amount_used || report.amountUsed || cycle.amount_used || 'Not provided',
+    submittedDate: report.report_created_at || report.submittedAt || report.created_at || cycle.report_created_at || '',
+    status: cycle.reportStatus === 'submitted' ? 'Submitted' : 'Pending',
+  };
+}
+
+function renderFarmerReportsHistory(cycles) {
+  const reports = cycles.filter(farmerReportSubmitted).map(normalizeFarmerReport);
+  if (!reports.length) {
+    return `
+      <div class="bg-slate-900 border border-slate-700 rounded-lg p-4 text-sm text-slate-400">
+        No submitted reports yet. Reports History will update after the farmer submits a cycle report.
+      </div>
+    `;
+  }
+  return `
+    <div class="grid gap-3">
+      ${reports.map((report) => `
+        <div class="bg-slate-900 border border-slate-700 rounded-lg p-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h4 class="font-semibold text-slate-100">Cycle ${escapeHtml(report.cycleNumber)} · ${escapeHtml(report.title)}</h4>
+            <span class="text-xs bg-green-950 text-green-200 border border-green-800 px-2 py-0.5 rounded">${escapeHtml(report.status)}</span>
+          </div>
+          <p class="text-sm text-slate-400 mt-2">${escapeHtml(report.summary)}</p>
+          <div class="grid sm:grid-cols-2 gap-2 mt-3 text-xs">
+            <div>
+              <span class="block text-slate-500">Amount used</span>
+              <span class="text-slate-200">${escapeHtml(report.amountUsed)}</span>
+            </div>
+            <div>
+              <span class="block text-slate-500">Submitted date</span>
+              <span class="text-slate-200">${report.submittedDate ? escapeHtml(new Date(report.submittedDate).toLocaleDateString('en-US')) : 'Submitted'}</span>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 function renderFarmerDemoReportSection(deal, cycles) {
   const cycle = cycles.find((item) => item.reportStatus === 'submitted') || cycles[0];
   if (deal.reportStatus === 'submitted' && cycle?.report) {
@@ -1732,8 +1906,10 @@ function renderFarmerDealDetail(el, deal, cycles, balances = null) {
 
     ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
     ${renderFarmerProjectProfile(deal)}
+    ${renderFarmerDealOperationsSummary(deal, cycles)}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Deal Summary</h3>
         ${renderFarmerDealParams(deal)}
       </div>
       <div class="bg-slate-800 rounded-xl p-5">
@@ -1751,6 +1927,16 @@ function renderFarmerDealDetail(el, deal, cycles, balances = null) {
     <div class="bg-slate-800 rounded-xl p-5">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
       <div id="farmer-cycles-list">${renderFarmerCycles(deal.id, cycles)}</div>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mt-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Timeline</h3>
+      ${renderFarmerCycleTimeline(cycles)}
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mt-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Reports History</h3>
+      ${renderFarmerReportsHistory(cycles)}
     </div>
   `;
 
