@@ -142,6 +142,41 @@
   transition: width 0.2s ease;
 }
 
+.marketplace-filter-btn {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.marketplace-filter-btn:hover,
+.marketplace-filter-btn.is-active {
+  background-color: #14532d;
+  border-color: #22c55e;
+  color: #f8fafc;
+}
+
+.marketplace-deal-stats {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.marketplace-deal-stat {
+  min-width: 0;
+}
+
+.marketplace-deal-stat-value {
+  line-height: 1.2;
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
 .onboarding-role-grid {
   display: grid;
   gap: 12px;

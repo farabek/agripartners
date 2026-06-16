@@ -5,6 +5,10 @@ const appJs = fs.readFileSync(
   path.join(__dirname, '..', '..', 'frontend', 'app.js'),
   'utf8'
 );
+const indexHtml = fs.readFileSync(
+  path.join(__dirname, '..', '..', 'frontend', 'index.html'),
+  'utf8'
+);
 
 function loadInvestorReturnMetricHelpers() {
   const start = appJs.indexOf('function numericReturnAmount');
@@ -18,6 +22,62 @@ function loadInvestorReturnMetricHelpers() {
   Function('module', helpers)(module);
   return module.exports;
 }
+
+function loadMarketplaceHelpers() {
+  const start = appJs.indexOf('const INVESTOR_DEMO_PILOTS');
+  const end = appJs.indexOf('function showMarketplace');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const helpers = `
+    function numericReturnAmount(value) {
+      const normalized = String(value ?? '0').replace(/[^0-9.-]/g, '');
+      const amount = Number(normalized);
+      return Number.isFinite(amount) ? amount : 0;
+    }
+    ${appJs.slice(start, end)}
+    module.exports = { INVESTOR_DEMO_PILOTS, marketplaceDeals, filterMarketplaceDeals, marketplaceMetrics };
+  `;
+  const module = { exports: {} };
+  Function('module', helpers)(module);
+  return module.exports;
+}
+
+test('marketplace route and navigation are rendered', () => {
+  expect(indexHtml).toContain('id="view-marketplace"');
+  expect(appJs).toContain("'view-marketplace'");
+  expect(appJs).toContain("hash === '#/marketplace'");
+  expect(appJs).toContain('showMarketplace();');
+  expect(appJs).toContain('href="#/marketplace"');
+  expect(appJs).toContain('Investor Portal');
+  expect(appJs).toContain('Marketplace');
+  expect(appJs).toContain('Farmer Portal');
+  expect(appJs).toContain('Admin Portal');
+});
+
+test('marketplace filters pilot deals on the frontend', () => {
+  const { marketplaceDeals, filterMarketplaceDeals, marketplaceMetrics } = loadMarketplaceHelpers();
+  const deals = marketplaceDeals();
+
+  expect(deals.map((deal) => deal.title)).toEqual([
+    'Fidlot Livestock Project',
+    'Hissar Sheep Breeding Project',
+  ]);
+  expect(filterMarketplaceDeals(deals, 'all')).toHaveLength(2);
+  expect(filterMarketplaceDeals(deals, 'active').map((deal) => deal.title)).toEqual(['Hissar Sheep Breeding Project']);
+  expect(filterMarketplaceDeals(deals, 'completed').map((deal) => deal.title)).toEqual(['Fidlot Livestock Project']);
+  expect(filterMarketplaceDeals(deals, 'pilot')).toHaveLength(2);
+  expect(marketplaceMetrics(deals)).toEqual(expect.objectContaining({
+    totalDeals: 2,
+    activeDeals: 1,
+    completedDeals: 1,
+  }));
+});
+
+test('marketplace deal cards navigate to investor pilot detail pages', () => {
+  expect(appJs).toContain('function renderMarketplaceDealCard');
+  expect(appJs).toContain('href="#/investor/pilots/${deal.key}"');
+  expect(appJs).toContain("hash.match(/^#\\/?investor\\/pilots\\/([a-z0-9-]+)$/)");
+});
 
 test('investor detail fetches farmer cycle reporting endpoint', () => {
   expect(appJs).toContain("fetch(`${API_BASE}/api/investor/deals/${id}/cycles`, { headers })");

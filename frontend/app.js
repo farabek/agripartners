@@ -413,7 +413,7 @@ function statusBadge(status) {
 // --- Router ---
 
 function showView(viewId) {
-  ['view-login', 'view-list', 'view-detail', 'view-investor', 'view-farmer', 'view-admin', 'view-onboarding'].forEach(id => {
+  ['view-login', 'view-list', 'view-detail', 'view-marketplace', 'view-investor', 'view-farmer', 'view-admin', 'view-onboarding'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   document.getElementById(viewId).classList.remove('hidden');
@@ -481,9 +481,14 @@ function route() {
     return;
   }
 
-  const investorPilot = hash.match(/^#investor\/pilots\/([a-z0-9-]+)$/);
+  const investorPilot = hash.match(/^#\/?investor\/pilots\/([a-z0-9-]+)$/);
   if (investorPilot) {
     showInvestorPilotProfile(investorPilot[1]);
+    return;
+  }
+
+  if (hash === '#/marketplace' || hash === '#marketplace') {
+    showMarketplace();
     return;
   }
 
@@ -718,6 +723,7 @@ function renderNav() {
       <span class="text-sm text-slate-400">${roleLabel}: <span class="text-slate-200 font-medium">${escapeHtml(displayName)}</span></span>
       <div class="flex items-center gap-3">
         <a href="#investor" class="text-sm text-slate-400 hover:text-green-400 transition">Investor Portal</a>
+        <a href="#/marketplace" class="text-sm text-slate-400 hover:text-green-400 transition">Marketplace</a>
         <a href="#farmer" class="text-sm text-slate-400 hover:text-green-400 transition">Farmer Portal</a>
         ${isAdmin() ? '<a href="#admin" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Portal</a>' : ''}
         ${isAdmin() ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Dashboard</a>' : ''}
@@ -2607,6 +2613,132 @@ function adminDemoDealFromPilot(pilot) {
 
 function buildAdminDemoDataset() {
   return INVESTOR_DEMO_PILOTS.map(adminDemoDealFromPilot);
+}
+
+function marketplaceDeals() {
+  return [...INVESTOR_DEMO_PILOTS].sort((a, b) => a.title.localeCompare(b.title));
+}
+
+function marketplaceMetrics(deals) {
+  const totalDeals = deals.length;
+  const activeDeals = deals.filter((deal) => deal.status === 'Active').length;
+  const completedDeals = deals.filter((deal) => deal.status === 'Completed').length;
+  const averageRoi = totalDeals
+    ? deals.reduce((sum, deal) => sum + Number(deal.roiPercent || 0), 0) / totalDeals
+    : 0;
+  const averageApr = totalDeals
+    ? deals.reduce((sum, deal) => sum + numericReturnAmount(deal.apr), 0) / totalDeals
+    : 0;
+
+  return { totalDeals, activeDeals, completedDeals, averageRoi, averageApr };
+}
+
+function filterMarketplaceDeals(deals, filter) {
+  if (filter === 'active') return deals.filter((deal) => deal.status === 'Active');
+  if (filter === 'completed') return deals.filter((deal) => deal.status === 'Completed');
+  if (filter === 'pilot') return deals;
+  return deals;
+}
+
+function showMarketplace(filter = 'all') {
+  showView('view-marketplace');
+  const el = document.getElementById('view-marketplace');
+  const deals = marketplaceDeals();
+  const filteredDeals = filterMarketplaceDeals(deals, filter);
+
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-green-400 mb-1">Marketplace</h1>
+        <p class="text-slate-400">Browse available AgriPartners pilot deals prepared for investor review.</p>
+      </div>
+    </div>
+    ${renderMarketplaceStats(marketplaceMetrics(deals))}
+    ${renderDashboardSection('Available Deals', `
+      ${renderMarketplaceFilters(filter)}
+      <div id="marketplace-deals" class="grid lg:grid-cols-2 gap-4 mt-4">
+        ${filteredDeals.map(renderMarketplaceDealCard).join('')}
+      </div>
+    `)}
+  `;
+
+  el.querySelectorAll('[data-marketplace-filter]').forEach((button) => {
+    button.addEventListener('click', () => showMarketplace(button.dataset.marketplaceFilter));
+  });
+}
+
+function renderMarketplaceStats(metrics) {
+  const rows = [
+    ['Total Deals', metrics.totalDeals],
+    ['Active Deals', metrics.activeDeals],
+    ['Completed Deals', metrics.completedDeals],
+    ['Average ROI', `${metrics.averageRoi.toFixed(1)}%`],
+    ['Average APR', `${metrics.averageApr.toFixed(1)}%`],
+  ];
+
+  return `
+    <section class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-8">
+      ${rows.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${label}</span>
+          <span class="metric-value">${escapeHtml(value)}</span>
+        </div>
+      `).join('')}
+    </section>
+  `;
+}
+
+function renderMarketplaceFilters(activeFilter) {
+  const filters = [
+    ['all', 'All'],
+    ['active', 'Active'],
+    ['completed', 'Completed'],
+    ['pilot', 'Pilot Deals'],
+  ];
+
+  return `
+    <div id="marketplace-filters" class="flex flex-wrap gap-2">
+      ${filters.map(([value, label]) => `
+        <button
+          type="button"
+          data-marketplace-filter="${value}"
+          class="marketplace-filter-btn ${activeFilter === value ? 'is-active' : ''}"
+        >${label}</button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderMarketplaceDealCard(deal) {
+  const metrics = [
+    ['Investment', deal.investment],
+    ['ROI', deal.roi],
+    ['APR', deal.apr],
+    ['Cycles', deal.cycles],
+    ['Status', deal.status],
+  ];
+
+  return `
+    <article class="bg-slate-800 border border-green-900 rounded-lg p-5">
+      <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <div>
+          <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Pilot Deal #${deal.number}</span>
+          <h3 class="text-xl font-bold text-slate-50 mt-1">${escapeHtml(deal.title)}</h3>
+        </div>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">${escapeHtml(deal.type)}</span>
+      </div>
+      <div class="marketplace-deal-stats">
+        ${metrics.map(([label, value]) => `
+          <div class="marketplace-deal-stat bg-slate-900 border border-slate-700 rounded-lg p-3">
+            <span class="block text-xs text-slate-500">${label}</span>
+            <span class="marketplace-deal-stat-value block text-lg font-bold text-slate-100">${escapeHtml(value)}</span>
+          </div>
+        `).join('')}
+      </div>
+      <a href="#/investor/pilots/${deal.key}" class="inline-flex bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition mt-4">View Deal</a>
+    </article>
+  `;
 }
 
 function adminDemoMetrics(deals) {
