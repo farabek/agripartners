@@ -117,6 +117,31 @@
   overflow-wrap: anywhere;
 }
 
+.roi-progress-card {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+}
+
+.roi-progress-track {
+  background-color: #1e293b;
+  border-radius: 9999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.roi-progress-fill {
+  background-color: #22c55e;
+  border-radius: inherit;
+  height: 100%;
+  min-width: 0;
+  transition: width 0.2s ease;
+}
+
 .onboarding-role-grid {
   display: grid;
   gap: 12px;

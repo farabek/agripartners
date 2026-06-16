@@ -3115,10 +3115,7 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
       Investor demo profile: this screen is prepared for presentation and screenshot readiness. It does not deploy or modify a smart contract.
     </div>
 
-    <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Investment Summary</h3>
-      <div id="investor-investment-summary">${renderInvestmentSummary(deal)}</div>
-    </div>
+    ${renderInvestorReturnsManagement(deal, returns)}
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
@@ -3131,7 +3128,7 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns History</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns Ledger</h3>
       <div id="investor-returns-list">${renderRepaymentHistory(returns)}</div>
     </div>
 
@@ -3235,10 +3232,7 @@ function renderInvestorDealDetail(el, deal, status, balances, events, reports = 
       </div>
     </div>
 
-    <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Investment Summary</h3>
-      <div id="investor-investment-summary">${renderInvestmentSummary(deal)}</div>
-    </div>
+    ${renderInvestorReturnsManagement(deal, returns)}
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
@@ -3251,7 +3245,7 @@ function renderInvestorDealDetail(el, deal, status, balances, events, reports = 
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns History</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns Ledger</h3>
       <div id="investor-returns-list">${renderRepaymentHistory(returns)}</div>
     </div>
 
@@ -3297,6 +3291,53 @@ function returnDisclaimer() {
   return '<p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2 mt-3">Projected returns are estimates and are not guaranteed.</p>';
 }
 
+function percentLabel(value) {
+  return `${Number(value || 0).toFixed(1)}%`;
+}
+
+function dealReturnMetrics(deal) {
+  const invested = numericReturnAmount(deal.display_amount ?? deal.invested_amount ?? deal.amount);
+  const expected = numericReturnAmount(deal.display_expected_return ?? deal.expected_return);
+  const returned = numericReturnAmount(deal.display_returned_amount ?? deal.returned_amount);
+  const projectedRoi = Number(deal.projected_roi_pct ?? deal.roi_percent ?? 20);
+  const profitReturned = Math.max(returned - invested, 0);
+  const completionPercent = expected > 0 ? Math.min(100, (returned / expected) * 100) : 0;
+  const actualRoi = invested > 0 ? (profitReturned / invested) * 100 : 0;
+  const remainingRoi = Math.max(0, projectedRoi - actualRoi);
+  return {
+    invested,
+    expected,
+    returned,
+    projectedRoi: Number.isFinite(projectedRoi) ? projectedRoi : 0,
+    completionPercent,
+    actualRoi,
+    remainingRoi,
+  };
+}
+
+function renderInvestorReturnsManagement(deal, returns = []) {
+  return `
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Investment Summary</h3>
+      <div id="investor-investment-summary">${renderInvestmentSummary(deal)}</div>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-6 mb-6">
+      <div class="bg-slate-800 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns Summary</h3>
+        <div id="investor-returns-summary">${renderReturnsSummary(deal)}</div>
+      </div>
+      <div class="bg-slate-800 rounded-xl p-5">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">ROI Progress</h3>
+        <div id="investor-roi-progress">${renderRoiProgressCard(deal)}</div>
+      </div>
+    </div>
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Actual vs Projected ROI</h3>
+      <div id="investor-actual-vs-projected-roi">${renderActualVsProjectedRoi(deal)}</div>
+    </div>
+  `;
+}
+
 function renderInvestmentSummary(deal) {
   const status = deal.status?.status || deal.status;
   const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI';
@@ -3322,17 +3363,74 @@ function renderInvestmentSummary(deal) {
   `;
 }
 
-function renderRepaymentHistory(returns) {
-  if (!returns.length) return '<p class="text-slate-500 text-sm">No repayments recorded yet</p>';
-  return returns.map((repayment) => `
-    <div class="farmer-report-summary">
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <span class="text-slate-200 font-medium">${repayment.created_at ? escapeHtml(new Date(repayment.created_at).toLocaleDateString('en-US')) : 'Recorded'}</span>
-        <span class="text-green-300 font-mono">${formatNearDisplay(repayment.amount_near)}</span>
-      </div>
-      ${repayment.note ? `<p class="text-sm text-slate-400 mt-2">${escapeHtml(repayment.note)}</p>` : ''}
+function renderReturnsSummary(deal) {
+  const rows = [
+    ['Invested', deal.display_amount || formatNearDisplay(deal.invested_amount || deal.amount)],
+    ['Projected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)],
+    ['Returned Amount', deal.display_returned_amount || formatNearDisplay(deal.returned_amount)],
+    ['Outstanding Return', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)],
+    ['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))],
+  ];
+  return `
+    <div class="grid sm:grid-cols-2 gap-3">
+      ${rows.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${label}</span>
+          <span class="metric-value">${value}</span>
+        </div>
+      `).join('')}
     </div>
-  `).join('');
+  `;
+}
+
+function renderRoiProgressCard(deal) {
+  const metrics = dealReturnMetrics(deal);
+  const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount);
+  const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return);
+  const completion = percentLabel(metrics.completionPercent);
+  return `
+    <div class="roi-progress-card">
+      <div class="flex flex-wrap items-baseline justify-between gap-3">
+        <div>
+          <span class="metric-label">Returned / Projected Return</span>
+          <p class="metric-value text-green-300">Returned: ${escapeHtml(returned)} / ${escapeHtml(expected)}</p>
+        </div>
+        <div class="text-right">
+          <span class="metric-label">Completion Percent</span>
+          <p class="metric-value">${completion}</p>
+        </div>
+      </div>
+      <div class="roi-progress-track" aria-label="Return completion progress">
+        <div class="roi-progress-fill" style="width: ${Math.max(0, Math.min(100, metrics.completionPercent)).toFixed(1)}%"></div>
+      </div>
+      <p class="text-sm text-slate-400">Completion: ${completion}</p>
+    </div>
+  `;
+}
+
+function renderActualVsProjectedRoi(deal) {
+  const metrics = dealReturnMetrics(deal);
+  const rows = [
+    ['Projected ROI', percentLabel(metrics.projectedRoi)],
+    ['Actual ROI Received', percentLabel(metrics.actualRoi)],
+    ['Remaining ROI', percentLabel(metrics.remainingRoi)],
+  ];
+  return `
+    <div class="grid sm:grid-cols-3 gap-3">
+      ${rows.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${label}</span>
+          <span class="metric-value">${escapeHtml(value)}</span>
+        </div>
+      `).join('')}
+    </div>
+    ${returnDisclaimer()}
+  `;
+}
+
+function renderRepaymentHistory(returns) {
+  if (!returns.length) return '<p class="text-slate-500 text-sm">No returns recorded yet.</p>';
+  return renderReturnsLedgerRows(returns);
 }
 
 function renderInvestorReports(reports) {
@@ -3478,6 +3576,9 @@ async function refreshInvestorDeal(id) {
     const reportsEl = document.getElementById('investor-reports-list');
     const cyclesEl = document.getElementById('investor-cycles-list');
     const summaryEl = document.getElementById('investor-investment-summary');
+    const returnsSummaryEl = document.getElementById('investor-returns-summary');
+    const roiProgressEl = document.getElementById('investor-roi-progress');
+    const actualRoiEl = document.getElementById('investor-actual-vs-projected-roi');
     const returnsEl = document.getElementById('investor-returns-list');
     if (badgeEl) badgeEl.innerHTML = statusBadge(status?.status);
     if (cycleEl) cycleEl.textContent = `Cycle ${status?.current_cycle ?? '—'}`;
@@ -3485,6 +3586,9 @@ async function refreshInvestorDeal(id) {
     if (reportsEl) reportsEl.innerHTML = renderInvestorReports(reports);
     if (cyclesEl) cyclesEl.innerHTML = renderCycleStatusCards(cycles);
     if (summaryEl) summaryEl.innerHTML = renderInvestmentSummary(deal);
+    if (returnsSummaryEl) returnsSummaryEl.innerHTML = renderReturnsSummary(deal);
+    if (roiProgressEl) roiProgressEl.innerHTML = renderRoiProgressCard(deal);
+    if (actualRoiEl) actualRoiEl.innerHTML = renderActualVsProjectedRoi(deal);
     if (returnsEl) returnsEl.innerHTML = renderRepaymentHistory(returns);
 
     const investorBalanceEl = document.getElementById('investor-available-balance');
@@ -3656,16 +3760,18 @@ function renderReturnsLedgerRows(returns) {
         <thead class="text-slate-400">
           <tr class="border-b border-slate-700">
             <th class="text-left py-2 pr-3">Date</th>
+            <th class="text-left py-2 pr-3">Cycle</th>
             <th class="text-left py-2 pr-3">Amount</th>
-            <th class="text-left py-2 pr-3">Note</th>
+            <th class="text-left py-2 pr-3">Status / Notes</th>
           </tr>
         </thead>
         <tbody>
           ${returns.map((entry) => `
             <tr class="border-b border-slate-700 last:border-0">
               <td class="py-2 pr-3 text-slate-300">${entry.created_at ? escapeHtml(new Date(entry.created_at).toLocaleDateString('en-US')) : 'Recorded'}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.cycle_num ?? entry.cycle_id ?? '-')}</td>
               <td class="py-2 pr-3 text-green-300 font-mono">${formatNearDisplay(entry.amount_near)}</td>
-              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.note || '-')}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.status || entry.note || 'Recorded')}</td>
             </tr>
           `).join('')}
         </tbody>

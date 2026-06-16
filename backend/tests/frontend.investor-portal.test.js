@@ -6,6 +6,19 @@ const appJs = fs.readFileSync(
   'utf8'
 );
 
+function loadInvestorReturnMetricHelpers() {
+  const start = appJs.indexOf('function numericReturnAmount');
+  const end = appJs.indexOf('function renderInvestorReturnsManagement');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const helpers = `${appJs.slice(start, end)}
+    module.exports = { dealReturnMetrics, percentLabel };
+  `;
+  const module = { exports: {} };
+  Function('module', helpers)(module);
+  return module.exports;
+}
+
 test('investor detail fetches farmer cycle reporting endpoint', () => {
   expect(appJs).toContain("fetch(`${API_BASE}/api/investor/deals/${id}/cycles`, { headers })");
   expect(appJs).toContain('normalizeCyclesResponse(await cyclesRes.value.json())');
@@ -45,6 +58,84 @@ test('investor detail renders investment summary', () => {
   expect(appJs).toContain('ROI');
   expect(appJs).toContain('Projected ROI');
   expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
+});
+
+test('investor detail renders ROI and returns management sections', () => {
+  expect(appJs).toContain('Returns Summary');
+  expect(appJs).toContain('id="investor-returns-summary"');
+  expect(appJs).toContain('function renderReturnsSummary');
+  expect(appJs).toContain('ROI Progress');
+  expect(appJs).toContain('id="investor-roi-progress"');
+  expect(appJs).toContain('Returned / Projected Return');
+  expect(appJs).toContain('Completion Percent');
+  expect(appJs).toContain('Actual vs Projected ROI');
+  expect(appJs).toContain('id="investor-actual-vs-projected-roi"');
+  expect(appJs).toContain('Actual ROI Received');
+  expect(appJs).toContain('Remaining ROI');
+  expect(appJs).toContain('Returns Ledger');
+  expect(appJs).toContain('Status / Notes');
+  expect(appJs).toContain('No returns recorded yet.');
+  expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
+});
+
+test('investor return metrics use profit-based actual ROI for completed Fidlot-like case', () => {
+  const { dealReturnMetrics, percentLabel } = loadInvestorReturnMetricHelpers();
+
+  const metrics = dealReturnMetrics({
+    display_amount: '$50,000',
+    display_expected_return: '$82,000',
+    display_returned_amount: '$82,000',
+    projected_roi_pct: 64,
+  });
+
+  expect(percentLabel(metrics.actualRoi)).toBe('64.0%');
+  expect(percentLabel(metrics.remainingRoi)).toBe('0.0%');
+  expect(percentLabel(metrics.completionPercent)).toBe('100.0%');
+});
+
+test('investor return metrics show zero actual ROI for no-return Hissar-like case', () => {
+  const { dealReturnMetrics, percentLabel } = loadInvestorReturnMetricHelpers();
+
+  const metrics = dealReturnMetrics({
+    display_amount: '$50,000',
+    display_expected_return: '$81,650',
+    display_returned_amount: '$0',
+    projected_roi_pct: 63.3,
+  });
+
+  expect(percentLabel(metrics.actualRoi)).toBe('0.0%');
+  expect(percentLabel(metrics.remainingRoi)).toBe('63.3%');
+  expect(percentLabel(metrics.completionPercent)).toBe('0.0%');
+});
+
+test('investor return metrics keep progress based on returned over projected return', () => {
+  const { dealReturnMetrics, percentLabel } = loadInvestorReturnMetricHelpers();
+
+  const metrics = dealReturnMetrics({
+    display_amount: '$50,000',
+    display_expected_return: '$82,000',
+    display_returned_amount: '$60,000',
+    projected_roi_pct: 64,
+  });
+
+  expect(percentLabel(metrics.actualRoi)).toBe('20.0%');
+  expect(percentLabel(metrics.remainingRoi)).toBe('44.0%');
+  expect(percentLabel(metrics.completionPercent)).toBe('73.2%');
+});
+
+test('investor return metrics floor remaining ROI at zero when actual reaches projected ROI', () => {
+  const { dealReturnMetrics, percentLabel } = loadInvestorReturnMetricHelpers();
+
+  const metrics = dealReturnMetrics({
+    display_amount: '$50,000',
+    display_expected_return: '$82,000',
+    display_returned_amount: '$90,000',
+    projected_roi_pct: 64,
+  });
+
+  expect(percentLabel(metrics.actualRoi)).toBe('80.0%');
+  expect(percentLabel(metrics.remainingRoi)).toBe('0.0%');
+  expect(percentLabel(metrics.completionPercent)).toBe('100.0%');
 });
 
 test('investor detail renders project profile before technical deal data', () => {
@@ -126,7 +217,7 @@ test('investor detail fetches and renders repayment history', () => {
   expect(appJs).toContain('id="investor-returns-list"');
   expect(appJs).toContain('function renderRepaymentHistory');
   expect(appJs).toContain('amount_near');
-  expect(appJs).toContain('repayment.note');
+  expect(appJs).toContain('renderReturnsLedgerRows(returns)');
 });
 
 test('investor demo dataset hides test records and renders clean pilot routes', () => {

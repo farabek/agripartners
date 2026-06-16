@@ -322,6 +322,36 @@ test('getDealReturnSummary marks completed when returned amount exceeds expected
   }));
 });
 
+test('getDealReturnSummary floors outstanding at zero for overpaid returns', async () => {
+  pool.query.mockResolvedValue({
+    rows: [{ id: 1, deal_id: 1, amount_near: '0.50' }],
+  });
+
+  const summary = await getDealReturnSummary({
+    id: 1,
+    investment_amount: '100000000000000000000000',
+    projected_roi_pct: '20',
+  });
+
+  expect(summary.outstanding_amount).toBe('0.00');
+  expect(summary.return_status).toBe('completed');
+});
+
+test('getDealReturnSummary handles zero or missing values safely', async () => {
+  pool.query.mockResolvedValue({ rows: [] });
+
+  await expect(getDealReturnSummary({ id: 1 })).resolves.toEqual(expect.objectContaining({
+    amount: '0.00',
+    invested_amount: '0.00',
+    expected_return: '0.00',
+    returned_amount: '0.00',
+    outstanding_amount: '0.00',
+    return_status: 'no_returns',
+    projected_roi_pct: 20,
+    roi_percent: 20,
+  }));
+});
+
 test('confirmFarmerFunding upserts confirmation timestamp', async () => {
   pool.query.mockResolvedValue({ rows: [{ deal_id: 1, cycle_num: 1, funding_received_at: 'now' }] });
   const update = await confirmFarmerFunding(1, 1);
