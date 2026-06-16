@@ -70,14 +70,18 @@ test('investor detail renders project profile before technical deal data', () =>
 
 test('investor home dashboard renders MVP metrics and pilot deals', () => {
   expect(appJs).toContain('function investorMetrics');
+  expect(appJs).toContain('Investor Analytics Dashboard');
+  expect(appJs).toContain('Portfolio performance, pilot deals, returns, and reporting visibility.');
+  expect(appJs).toContain('Portfolio Summary');
   expect(appJs).toContain('Projected Returns');
   expect(appJs).toContain('Returned');
   expect(appJs).toContain('Outstanding');
   expect(appJs).toContain('Average ROI');
   expect(appJs).toContain('Active Deals');
   expect(appJs).toContain('Completed Deals');
-  expect(appJs).toContain('Investment Summary');
   expect(appJs).toContain('Featured Pilot Deals');
+  expect(appJs).toContain('Active Investments');
+  expect(appJs).toContain('Completed Investments');
   expect(appJs).toContain('Fidlot Livestock Project');
   expect(appJs).toContain('Hissar Sheep Breeding Project');
   expect(appJs).toContain('21.9%');
@@ -93,6 +97,28 @@ test('investor home dashboard renders MVP metrics and pilot deals', () => {
   expect(appJs).not.toContain('Demo financial view in USD');
   expect(appJs).toContain('displayTotalInvested');
   expect(appJs).toContain('displayExpectedReturns');
+});
+
+test('investor analytics dashboard renders Phase 9 analytics sections', () => {
+  expect(appJs).toContain('ROI & Returns Overview');
+  expect(appJs).toContain('Projected Portfolio Return');
+  expect(appJs).toContain('Capital Returned');
+  expect(appJs).toContain('Outstanding Returns');
+  expect(appJs).toContain('Return Completion Rate');
+  expect(appJs).toContain('Average Projected ROI');
+  expect(appJs).toContain('Deal Performance');
+  expect(appJs).toContain('Return Status');
+  expect(appJs).toContain('Reporting Signals');
+  expect(appJs).toContain('Reports visible in deal detail');
+  expect(appJs).toContain('Cycle status visible');
+  expect(appJs).toContain('Event history available');
+  expect(appJs).toContain('Farmer reports available');
+  expect(appJs).toContain('Available in deal detail');
+  expect(appJs).toContain('Risk / Attention Panel');
+  expect(appJs).toContain('Active deals with outstanding returns');
+  expect(appJs).toContain('Deals with no returns yet');
+  expect(appJs).toContain('Projected returns are not guaranteed');
+  expect(appJs).toContain('View Deal');
 });
 
 test('investor detail fetches and renders repayment history', () => {

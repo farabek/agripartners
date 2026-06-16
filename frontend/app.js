@@ -2136,7 +2136,8 @@ async function showInvestorPortal() {
   el.innerHTML = `
     ${renderNav()}
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-green-400 mb-1">Investor Portal</h1>
+      <h1 class="text-3xl font-bold text-green-400 mb-1">Investor Analytics Dashboard</h1>
+      <p class="text-slate-400">Portfolio performance, pilot deals, returns, and reporting visibility.</p>
       <p class="text-slate-400">Signed in as <span class="text-slate-200 font-medium">${escapeHtml(signedInLabel)}</span></p>
     </div>
     <div id="near-wallet-section" class="mb-6"></div>
@@ -2641,6 +2642,11 @@ function investorMetrics(deals) {
       : 0,
     activeDeals: deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status)).length,
     completedDeals: deals.filter(deal => deal.status?.status === 'Completed').length,
+    dealsWithNoReturns: deals.filter(deal => deriveReturnStatus(deal) === 'no_returns').length,
+    activeDealsWithOutstandingReturns: deals.filter(deal =>
+      !['Completed', 'Terminated'].includes(deal.status?.status)
+      && numericReturnAmount(deal.display_outstanding_amount ?? deal.outstanding_amount) > 0
+    ).length,
   };
 }
 
@@ -2653,20 +2659,28 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
 
   if (deals.length === 0) {
     dashboard.innerHTML = `
-      ${renderDashboardSection('Investment Summary', renderInvestorMetrics(metrics))}
+      ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics))}
+      ${renderDashboardSection('ROI & Returns Overview', renderInvestorReturnsOverview(metrics))}
+      ${renderDashboardSection('Reporting Signals', renderInvestorReportingSignals())}
+      ${renderDashboardSection('Risk / Attention Panel', renderInvestorRiskPanel(metrics))}
       ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDeals())}
-      ${renderDashboardSection('Active Deals', `<p class="text-slate-400">No active investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>`)}
-      ${renderDashboardSection('Completed Deals', renderEmptyDashboardSection('No completed deals yet'))}
+      ${renderDashboardSection('Deal Performance', renderEmptyDashboardSection('Deal performance appears once investor deals are available'))}
+      ${renderDashboardSection('Active Investments', `<p class="text-slate-400">No active investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>`)}
+      ${renderDashboardSection('Completed Investments', renderEmptyDashboardSection('No completed deals yet'))}
     `;
     el.appendChild(dashboard);
     return;
   }
 
   dashboard.innerHTML = `
-    ${renderDashboardSection('Investment Summary', renderInvestorMetrics(metrics))}
+    ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics))}
+    ${renderDashboardSection('ROI & Returns Overview', renderInvestorReturnsOverview(metrics))}
+    ${renderDashboardSection('Deal Performance', renderDealSection(deals, 'No deal performance data'))}
+    ${renderDashboardSection('Reporting Signals', renderInvestorReportingSignals())}
+    ${renderDashboardSection('Risk / Attention Panel', renderInvestorRiskPanel(metrics))}
     ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDeals())}
-    ${renderDashboardSection('Active Deals', renderDealSection(activeDeals, 'No active deals'))}
-    ${renderDashboardSection('Completed Deals', renderDealSection(completedDeals, 'No completed deals yet'))}
+    ${renderDashboardSection('Active Investments', renderDealSection(activeDeals, 'No active deals'))}
+    ${renderDashboardSection('Completed Investments', renderDealSection(completedDeals, 'No completed deals yet'))}
   `;
   el.appendChild(dashboard);
 }
@@ -2731,6 +2745,81 @@ function renderInvestorMetrics(metrics) {
       </div>
     </div>
     ${currencyNote}
+  `;
+}
+
+function returnCompletionRate(metrics) {
+  const expected = Number(metrics.expectedReturns || 0);
+  if (expected <= 0) return 0;
+  return Math.min(100, (Number(metrics.returned || 0) / expected) * 100);
+}
+
+function renderInvestorReturnsOverview(metrics) {
+  const expected = metrics.displayExpectedReturns || formatNearAmount(metrics.expectedReturns);
+  const returned = metrics.displayReturned || formatNearAmount(metrics.returned);
+  const outstanding = metrics.displayOutstanding || formatNearAmount(metrics.outstanding);
+  return `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div class="metric-box">
+        <span class="metric-label">Projected Portfolio Return</span>
+        <span class="metric-value">${escapeHtml(expected)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Capital Returned</span>
+        <span class="metric-value">${escapeHtml(returned)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Outstanding Returns</span>
+        <span class="metric-value">${escapeHtml(outstanding)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Return Completion Rate</span>
+        <span class="metric-value">${returnCompletionRate(metrics).toFixed(1)}%</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Average Projected ROI</span>
+        <span class="metric-value">${metrics.averageRoi.toFixed(1)}%</span>
+      </div>
+    </div>
+    ${returnDisclaimer()}
+  `;
+}
+
+function renderInvestorReportingSignals() {
+  const signals = [
+    ['Reports visible in deal detail', 'Available in deal detail'],
+    ['Cycle status visible', 'Available in deal detail'],
+    ['Event history available', 'Available in deal detail'],
+    ['Farmer reports available', 'Available in deal detail'],
+  ];
+  return `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      ${signals.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${label}</span>
+          <span class="metric-value text-base">${value}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderInvestorRiskPanel(metrics) {
+  const items = [
+    ['Active deals with outstanding returns', metrics.activeDealsWithOutstandingReturns],
+    ['Deals with no returns yet', metrics.dealsWithNoReturns],
+    ['Completed deals', metrics.completedDeals],
+    ['Projected returns are not guaranteed', 'Disclosure active'],
+  ];
+  return `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      ${items.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${label}</span>
+          <span class="metric-value text-base">${escapeHtml(value)}</span>
+        </div>
+      `).join('')}
+    </div>
   `;
 }
 
@@ -2835,6 +2924,7 @@ function renderInvestorDealCard(deal) {
   const invested = deal.display_amount || formatNearDisplay(deal.amount);
   const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return);
   const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount);
+  const outstanding = deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount);
   const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI';
   const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent ?? 20;
   const currentCycle = deal.status?.current_cycle ?? '—';
@@ -2849,7 +2939,7 @@ function renderInvestorDealCard(deal) {
         <h3 class="text-lg font-semibold text-slate-100">${escapeHtml(pilotLabel)}</h3>
         <p class="text-sm text-slate-400">Contract: <span class="text-slate-200 font-mono">${escapeHtml(formatAddress(deal.contract_address))}</span></p>
         <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${escapeHtml(formatAddress(deal.farmer))}</span></p>
-        <div class="grid sm:grid-cols-4 gap-3 pt-2">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-6 gap-3 pt-2">
           <div>
             <span class="block text-xs text-slate-500">Invested</span>
             <span class="text-sm text-slate-100 font-mono">${escapeHtml(invested)}</span>
@@ -2863,8 +2953,16 @@ function renderInvestorDealCard(deal) {
             <span class="text-sm text-green-300 font-mono">${escapeHtml(returned)}</span>
           </div>
           <div>
+            <span class="block text-xs text-slate-500">Outstanding</span>
+            <span class="text-sm text-slate-100 font-mono">${escapeHtml(outstanding)}</span>
+          </div>
+          <div>
             <span class="block text-xs text-slate-500">${escapeHtml(roiLabel)}</span>
             <span class="text-sm text-slate-100 font-mono">${escapeHtml(projectedRoi)}%</span>
+          </div>
+          <div>
+            <span class="block text-xs text-slate-500">Return Status</span>
+            <span class="text-sm text-slate-100">${escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))}</span>
           </div>
         </div>
       </div>
