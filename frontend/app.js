@@ -2450,6 +2450,114 @@ function sumInvestedAmount(deals) {
   );
 }
 
+function dealStatusName(deal) {
+  return deal?.status?.status || deal?.status || 'Unknown';
+}
+
+function fundingAmountSource(deal) {
+  return deal?.display_amount
+    ?? deal?.displayAmount
+    ?? deal?.investment
+    ?? deal?.amount
+    ?? deal?.invested_amount
+    ?? '0';
+}
+
+function fundingDisplayAmount(value, currency = 'NEAR') {
+  const raw = String(value ?? '');
+  if (raw.includes('$')) return formatUsdAmount(numericReturnAmount(raw));
+  if (currency === 'USD') return formatUsdAmount(value);
+  return formatNearAmount(Number(value || 0));
+}
+
+function fundingProgressMetrics(deal = {}) {
+  const status = dealStatusName(deal);
+  const currency = deal.display_currency || (String(fundingAmountSource(deal)).includes('$') ? 'USD' : 'NEAR');
+  const goal = numericReturnAmount(fundingAmountSource(deal));
+  const explicitRaised = deal.amount_raised ?? deal.raised_amount ?? deal.funding_raised_amount ?? deal.fundingRaisedAmount;
+  const explicitPercent = deal.funding_percentage ?? deal.funding_percent ?? deal.fundingProgressPercent;
+  const completedStatuses = ['Completed', 'Funded', 'CycleActive', 'CycleSettlement'];
+  const isDemoDeal = Boolean(deal.isDemoPilot || deal.key || deal.pilot_key);
+  const demoPercent = isDemoDeal && status === 'Active' ? 64 : null;
+  const percent = explicitPercent != null
+    ? Number(explicitPercent)
+    : (goal > 0
+      ? (explicitRaised != null
+        ? (numericReturnAmount(explicitRaised) / goal) * 100
+        : (completedStatuses.includes(status) ? 100 : (demoPercent ?? 0)))
+      : 0);
+  const fundingPercentage = Math.max(0, Math.min(100, Number.isFinite(percent) ? percent : 0));
+  const amountRaised = explicitRaised != null
+    ? numericReturnAmount(explicitRaised)
+    : goal * fundingPercentage / 100;
+  const remainingAmount = Math.max(goal - amountRaised, 0);
+  const investorCount = Number(deal.investor_count ?? deal.investorCount ?? (amountRaised > 0 ? 1 : 0));
+  const daysRemaining = Number(deal.days_remaining ?? deal.daysRemaining ?? (fundingPercentage >= 100 ? 0 : (isDemoDeal ? 14 : 30)));
+
+  return {
+    goal,
+    amountRaised,
+    remainingAmount,
+    fundingPercentage,
+    investorCount: Number.isFinite(investorCount) ? investorCount : 0,
+    daysRemaining: Number.isFinite(daysRemaining) ? Math.max(daysRemaining, 0) : 0,
+    displayGoal: fundingDisplayAmount(goal, currency),
+    displayRaised: fundingDisplayAmount(amountRaised, currency),
+    displayRemaining: fundingDisplayAmount(remainingAmount, currency),
+  };
+}
+
+function renderFundingProgressBar(percent) {
+  const width = Math.max(0, Math.min(100, Number(percent || 0))).toFixed(1);
+  return `
+    <div class="funding-progress-track" aria-label="Funding progress">
+      <div class="funding-progress-fill" style="width: ${width}%"></div>
+    </div>
+  `;
+}
+
+function renderFundingProgressCompact(deal) {
+  const funding = fundingProgressMetrics(deal);
+  return `
+    <div class="funding-progress-compact">
+      <div class="flex flex-wrap items-baseline justify-between gap-2">
+        <span class="text-sm font-semibold text-slate-100">${escapeHtml(funding.displayRaised)} / ${escapeHtml(funding.displayGoal)}</span>
+        <span class="text-xs font-semibold text-green-300">${funding.fundingPercentage.toFixed(0)}% Funded</span>
+      </div>
+      ${renderFundingProgressBar(funding.fundingPercentage)}
+    </div>
+  `;
+}
+
+function renderFundingProgressPanel(deal) {
+  const funding = fundingProgressMetrics(deal);
+  const rows = [
+    ['Funding Goal', funding.displayGoal],
+    ['Amount Raised', funding.displayRaised],
+    ['Remaining Amount', funding.displayRemaining],
+    ['Funding Percentage', `${funding.fundingPercentage.toFixed(1)}%`],
+    ['Investor Count', funding.investorCount],
+    ['Days Remaining', funding.daysRemaining],
+  ];
+  return `
+    <section class="bg-slate-800 rounded-xl p-5 mb-6">
+      <div class="flex flex-wrap items-baseline justify-between gap-3 mb-4">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Funding Progress</h3>
+        <span class="text-sm text-green-300 font-semibold">${escapeHtml(funding.displayRaised)} / ${escapeHtml(funding.displayGoal)} · ${funding.fundingPercentage.toFixed(0)}% Funded</span>
+      </div>
+      ${renderFundingProgressBar(funding.fundingPercentage)}
+      <div class="grid sm:grid-cols-2 lg:grid-cols-6 gap-3 mt-4">
+        ${rows.map(([label, value]) => `
+          <div class="metric-box">
+            <span class="metric-label">${label}</span>
+            <span class="metric-value">${escapeHtml(value)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
+}
+
 const INVESTOR_DEMO_DATASET_ENABLED = true;
 
 const INVESTOR_DEMO_PILOTS = [
@@ -2743,6 +2851,7 @@ function renderMarketplaceDealCard(deal) {
           </div>
         `).join('')}
       </div>
+      ${renderFundingProgressCompact(deal)}
       <a href="#/investor/pilots/${deal.key}" class="inline-flex bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition mt-4">View Deal</a>
     </article>
   `;
@@ -3195,6 +3304,7 @@ function renderInvestorDealCard(deal) {
             <span class="text-sm text-slate-100">${escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))}</span>
           </div>
         </div>
+        ${renderFundingProgressCompact(deal)}
       </div>
       <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
     </div>
@@ -3340,6 +3450,7 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
     </div>
 
     ${renderProjectProfile(deal, status)}
+    ${renderFundingProgressPanel(deal)}
 
     <div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 mb-6 text-sm text-amber-100">
       Investor demo profile: this screen is prepared for presentation and screenshot readiness. It does not deploy or modify a smart contract.
@@ -3448,6 +3559,7 @@ function renderInvestorDealDetail(el, deal, status, balances, events, reports = 
     </div>
 
     ${renderProjectProfile(deal, status)}
+    ${renderFundingProgressPanel(deal)}
 
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">

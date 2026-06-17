@@ -99,6 +99,38 @@ function loadInvestorDashboardHelpers() {
   return module.exports;
 }
 
+function loadFundingProgressHelpers() {
+  const start = appJs.indexOf('function dealStatusName');
+  const end = appJs.indexOf('const INVESTOR_DEMO_DATASET_ENABLED');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const helpers = `
+    function escapeHtml(value) { return String(value ?? ''); }
+    function formatNearAmount(value) {
+      return \`\${value.toFixed(2)} NEAR\`;
+    }
+    function formatUsdAmount(value) {
+      const amount = Number.parseFloat(value);
+      if (!Number.isFinite(amount)) return '$0';
+      return \`$\${amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}\`;
+    }
+    function numericReturnAmount(value) {
+      const normalized = String(value ?? '0').replace(/[^0-9.-]/g, '');
+      const amount = Number(normalized);
+      return Number.isFinite(amount) ? amount : 0;
+    }
+    ${appJs.slice(start, end)}
+    module.exports = {
+      fundingProgressMetrics,
+      renderFundingProgressCompact,
+      renderFundingProgressPanel,
+    };
+  `;
+  const module = { exports: {} };
+  Function('module', helpers)(module);
+  return module.exports;
+}
+
 test('marketplace route and navigation are rendered', () => {
   expect(indexHtml).toContain('id="view-marketplace"');
   expect(appJs).toContain("'view-marketplace'");
@@ -134,6 +166,22 @@ test('marketplace deal cards navigate to investor pilot detail pages', () => {
   expect(appJs).toContain('function renderMarketplaceDealCard');
   expect(appJs).toContain('href="#/investor/pilots/${deal.key}"');
   expect(appJs).toContain("hash.match(/^#\\/?investor\\/pilots\\/([a-z0-9-]+)$/)");
+});
+
+test('marketplace deal cards render compact funding progress', () => {
+  expect(appJs).toContain('function renderFundingProgressCompact');
+  expect(appJs).toContain('function renderFundingProgressBar');
+  expect(appJs).toContain('function fundingProgressMetrics');
+  expect(appJs).toContain('Funding Progress');
+  expect(appJs).toContain('Funding Goal');
+  expect(appJs).toContain('Amount Raised');
+  expect(appJs).toContain('Remaining Amount');
+  expect(appJs).toContain('Funding Percentage');
+  expect(appJs).toContain('Investor Count');
+  expect(appJs).toContain('Days Remaining');
+  expect(appJs).toContain('${renderFundingProgressCompact(deal)}');
+  expect(appJs).toContain('funding-progress-track');
+  expect(appJs).toContain('funding-progress-fill');
 });
 
 test('investor detail fetches farmer cycle reporting endpoint', () => {
@@ -332,6 +380,59 @@ test('investor analytics dashboard renders Phase 9 analytics sections', () => {
   expect(appJs).toContain('Deals with no returns yet');
   expect(appJs).toContain('Projected returns are not guaranteed');
   expect(appJs).toContain('View Deal');
+});
+
+test('funding progress metrics derive demo-safe marketplace values', () => {
+  const { fundingProgressMetrics } = loadFundingProgressHelpers();
+
+  const activeFunding = fundingProgressMetrics({
+    key: 'hissar',
+    status: 'Active',
+    investment: '$50,000',
+  });
+
+  expect(activeFunding.displayGoal).toBe('$50,000');
+  expect(activeFunding.displayRaised).toBe('$32,000');
+  expect(activeFunding.displayRemaining).toBe('$18,000');
+  expect(activeFunding.fundingPercentage).toBe(64);
+  expect(activeFunding.investorCount).toBe(1);
+  expect(activeFunding.daysRemaining).toBe(14);
+
+  const completedFunding = fundingProgressMetrics({
+    key: 'fidlot',
+    status: 'Completed',
+    investment: '$50,000',
+  });
+
+  expect(completedFunding.displayRaised).toBe('$50,000');
+  expect(completedFunding.fundingPercentage).toBe(100);
+  expect(completedFunding.daysRemaining).toBe(0);
+});
+
+test('investor deal detail renders full funding progress panel', () => {
+  const { renderFundingProgressCompact, renderFundingProgressPanel } = loadFundingProgressHelpers();
+
+  const compact = renderFundingProgressCompact({
+    isDemoPilot: true,
+    status: 'Active',
+    display_amount: '$50,000',
+  });
+  expect(compact).toContain('$32,000 / $50,000');
+  expect(compact).toContain('64% Funded');
+  expect(compact).toContain('funding-progress-track');
+
+  const panel = renderFundingProgressPanel({
+    isDemoPilot: true,
+    status: 'Active',
+    display_amount: '$50,000',
+  });
+  expect(panel).toContain('Funding Progress');
+  expect(panel).toContain('Funding Goal');
+  expect(panel).toContain('Amount Raised');
+  expect(panel).toContain('Remaining Amount');
+  expect(panel).toContain('Funding Percentage');
+  expect(panel).toContain('Investor Count');
+  expect(panel).toContain('Days Remaining');
 });
 
 test('investor portfolio metrics calculate profit and percentages safely', () => {
