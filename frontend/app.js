@@ -2443,6 +2443,13 @@ function sumNearFields(deals, field) {
   return deals.reduce((sum, deal) => sum + parseNearAmount(deal[field]), 0);
 }
 
+function sumInvestedAmount(deals) {
+  return deals.reduce(
+    (sum, deal) => sum + parseNearAmount(deal.amount ?? deal.invested_amount ?? deal.investment_amount),
+    0
+  );
+}
+
 const INVESTOR_DEMO_DATASET_ENABLED = true;
 
 const INVESTOR_DEMO_PILOTS = [
@@ -2757,28 +2764,44 @@ function investorMetrics(deals) {
   const roiDeals = deals.filter(deal => (deal.projected_roi_pct ?? deal.roi_percent) != null);
   const allUsd = deals.length > 0 && deals.every(deal => deal.display_currency === 'USD');
   const totals = {
-    totalInvested: sumNearFields(deals, 'amount'),
+    totalInvested: sumInvestedAmount(deals),
     expectedReturns: sumNearFields(deals, 'expected_return'),
     returned: sumNearFields(deals, 'returned_amount'),
     outstanding: sumNearFields(deals, 'outstanding_amount'),
   };
+  const profitRealized = Math.max(totals.returned - totals.totalInvested, 0);
+  const capitalReturnedPercent = totals.totalInvested > 0
+    ? Math.min(100, (totals.returned / totals.totalInvested) * 100)
+    : 0;
+  const returnCompletionPercent = totals.expectedReturns > 0
+    ? Math.min(100, (totals.returned / totals.expectedReturns) * 100)
+    : 0;
+  const activeDeals = deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status)).length;
+  const completedDeals = deals.filter(deal => deal.status?.status === 'Completed').length;
+  const dealsWithNoReturns = deals.filter(deal => deriveReturnStatus(deal) === 'no_returns').length;
+  const activeDealsWithOutstandingReturns = deals.filter(deal =>
+    !['Completed', 'Terminated'].includes(deal.status?.status)
+    && numericReturnAmount(deal.display_outstanding_amount ?? deal.outstanding_amount) > 0
+  ).length;
   return {
     ...totals,
+    profitRealized,
+    capitalReturnedPercent,
+    returnCompletionPercent,
     displayCurrency: allUsd ? 'USD' : 'NEAR',
     displayTotalInvested: allUsd ? formatUsdAmount(totals.totalInvested) : null,
     displayExpectedReturns: allUsd ? formatUsdAmount(totals.expectedReturns) : null,
     displayReturned: allUsd ? formatUsdAmount(totals.returned) : null,
     displayOutstanding: allUsd ? formatUsdAmount(totals.outstanding) : null,
+    displayProfitRealized: allUsd ? formatUsdAmount(profitRealized) : null,
     averageRoi: roiDeals.length
       ? roiDeals.reduce((sum, deal) => sum + Number(deal.projected_roi_pct ?? deal.roi_percent), 0) / roiDeals.length
       : 0,
-    activeDeals: deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status)).length,
-    completedDeals: deals.filter(deal => deal.status?.status === 'Completed').length,
-    dealsWithNoReturns: deals.filter(deal => deriveReturnStatus(deal) === 'no_returns').length,
-    activeDealsWithOutstandingReturns: deals.filter(deal =>
-      !['Completed', 'Terminated'].includes(deal.status?.status)
-      && numericReturnAmount(deal.display_outstanding_amount ?? deal.outstanding_amount) > 0
-    ).length,
+    activeDeals,
+    completedDeals,
+    dealsWithNoReturns,
+    dealsRequiringAttention: activeDealsWithOutstandingReturns,
+    activeDealsWithOutstandingReturns,
   };
 }
 
@@ -2792,6 +2815,9 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
   if (deals.length === 0) {
     dashboard.innerHTML = `
       ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics))}
+      ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
+      ${renderDashboardSection('Portfolio Health', renderPortfolioHealth(metrics))}
+      ${renderDashboardSection('Recent Activity', renderRecentActivity(deals))}
       ${renderDashboardSection('ROI & Returns Overview', renderInvestorReturnsOverview(metrics))}
       ${renderDashboardSection('Reporting Signals', renderInvestorReportingSignals())}
       ${renderDashboardSection('Risk / Attention Panel', renderInvestorRiskPanel(metrics))}
@@ -2806,6 +2832,9 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
 
   dashboard.innerHTML = `
     ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics))}
+    ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
+    ${renderDashboardSection('Portfolio Health', renderPortfolioHealth(metrics))}
+    ${renderDashboardSection('Recent Activity', renderRecentActivity(deals))}
     ${renderDashboardSection('ROI & Returns Overview', renderInvestorReturnsOverview(metrics))}
     ${renderDashboardSection('Deal Performance', renderDealSection(deals, 'No deal performance data'))}
     ${renderDashboardSection('Reporting Signals', renderInvestorReportingSignals())}
@@ -2842,6 +2871,7 @@ function renderInvestorMetrics(metrics) {
   const expected = metrics.displayExpectedReturns || formatNearAmount(metrics.expectedReturns);
   const returned = metrics.displayReturned || formatNearAmount(metrics.returned);
   const outstanding = metrics.displayOutstanding || formatNearAmount(metrics.outstanding);
+  const profitRealized = metrics.displayProfitRealized || formatNearAmount(metrics.profitRealized);
   const currencyNote = metrics.displayCurrency === 'USD'
     ? '<p class="text-xs text-slate-500 mt-2">Financial view in USD</p>'
     : '';
@@ -2862,6 +2892,14 @@ function renderInvestorMetrics(metrics) {
       <div class="metric-box">
         <span class="metric-label">Outstanding</span>
         <span class="metric-value">${escapeHtml(outstanding)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Profit Realized</span>
+        <span class="metric-value">${escapeHtml(profitRealized)}</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">Capital Returned %</span>
+        <span class="metric-value">${metrics.capitalReturnedPercent.toFixed(1)}%</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Average ROI</span>
@@ -2886,6 +2924,66 @@ function returnCompletionRate(metrics) {
   return Math.min(100, (Number(metrics.returned || 0) / expected) * 100);
 }
 
+function renderPortfolioPerformance(metrics) {
+  const profitRealized = metrics.displayProfitRealized || formatNearAmount(metrics.profitRealized);
+  const rows = [
+    ['Average ROI', `${metrics.averageRoi.toFixed(1)}%`],
+    ['Return Completion Rate', `${metrics.returnCompletionPercent.toFixed(1)}%`],
+    ['Capital Returned %', `${metrics.capitalReturnedPercent.toFixed(1)}%`],
+    ['Profit Realized', profitRealized],
+  ];
+  return `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      ${rows.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${label}</span>
+          <span class="metric-value">${escapeHtml(value)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderPortfolioHealth(metrics) {
+  const rows = [
+    ['Active Deals', metrics.activeDeals],
+    ['Completed Deals', metrics.completedDeals],
+    ['Deals With No Returns', metrics.dealsWithNoReturns],
+    ['Deals Requiring Attention', metrics.dealsRequiringAttention],
+  ];
+  return `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      ${rows.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${label}</span>
+          <span class="metric-value">${escapeHtml(value)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderRecentActivity(deals) {
+  const hasReturn = deals.some(deal => numericReturnAmount(deal.display_returned_amount ?? deal.returned_amount) > 0);
+  const hasCycle = deals.some(deal => deal.status?.current_cycle != null || deal.current_cycle != null);
+  const hasReport = deals.length > 0;
+  const rows = [
+    ['Latest Farmer Report', hasReport ? 'Latest farmer report available' : 'Latest farmer report available'],
+    ['Latest Return Event', hasReturn ? 'Latest return recorded' : 'Latest return recorded'],
+    ['Latest Deal Event', hasCycle ? 'Latest cycle event available' : 'Latest cycle event available'],
+  ];
+  return `
+    <div class="grid sm:grid-cols-3 gap-3">
+      ${rows.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${label}</span>
+          <span class="metric-value text-base">${escapeHtml(value)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 function renderInvestorReturnsOverview(metrics) {
   const expected = metrics.displayExpectedReturns || formatNearAmount(metrics.expectedReturns);
   const returned = metrics.displayReturned || formatNearAmount(metrics.returned);
@@ -2906,7 +3004,7 @@ function renderInvestorReturnsOverview(metrics) {
       </div>
       <div class="metric-box">
         <span class="metric-label">Return Completion Rate</span>
-        <span class="metric-value">${returnCompletionRate(metrics).toFixed(1)}%</span>
+        <span class="metric-value">${metrics.returnCompletionPercent.toFixed(1)}%</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Average Projected ROI</span>

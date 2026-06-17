@@ -42,6 +42,63 @@ function loadMarketplaceHelpers() {
   return module.exports;
 }
 
+function loadInvestorDashboardHelpers() {
+  const start = appJs.indexOf('function investorMetrics');
+  const end = appJs.indexOf('function renderFeaturedPilotDeals');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const helpers = `
+    function escapeHtml(value) { return String(value ?? ''); }
+    function parseNearAmount(value) {
+      const parsed = Number.parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    function formatNearAmount(value) {
+      return \`\${value.toFixed(2)} NEAR\`;
+    }
+    function formatUsdAmount(value) {
+      const amount = Number.parseFloat(value);
+      if (!Number.isFinite(amount)) return '$0';
+      return \`$\${amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}\`;
+    }
+    function sumNearFields(deals, field) {
+      return deals.reduce((sum, deal) => sum + parseNearAmount(deal[field]), 0);
+    }
+    function sumInvestedAmount(deals) {
+      return deals.reduce(
+        (sum, deal) => sum + parseNearAmount(deal.amount ?? deal.invested_amount ?? deal.investment_amount),
+        0
+      );
+    }
+    function numericReturnAmount(value) {
+      const normalized = String(value ?? '0').replace(/[^0-9.-]/g, '');
+      const amount = Number(normalized);
+      return Number.isFinite(amount) ? amount : 0;
+    }
+    function deriveReturnStatus(deal) {
+      if (deal.return_status) return deal.return_status;
+      const returned = numericReturnAmount(deal.display_returned_amount ?? deal.returned_amount);
+      const expected = numericReturnAmount(deal.display_expected_return ?? deal.expected_return);
+      if (returned <= 0) return 'no_returns';
+      if (returned < expected) return 'partial';
+      return 'completed';
+    }
+    function returnDisclaimer() { return ''; }
+    ${appJs.slice(start, end)}
+    module.exports = {
+      investorMetrics,
+      renderInvestorMetrics,
+      renderPortfolioPerformance,
+      renderPortfolioHealth,
+      renderRecentActivity,
+      returnCompletionRate,
+    };
+  `;
+  const module = { exports: {} };
+  Function('module', helpers)(module);
+  return module.exports;
+}
+
 test('marketplace route and navigation are rendered', () => {
   expect(indexHtml).toContain('id="view-marketplace"');
   expect(appJs).toContain("'view-marketplace'");
@@ -227,6 +284,8 @@ test('investor home dashboard renders MVP metrics and pilot deals', () => {
   expect(appJs).toContain('Projected Returns');
   expect(appJs).toContain('Returned');
   expect(appJs).toContain('Outstanding');
+  expect(appJs).toContain('Profit Realized');
+  expect(appJs).toContain('Capital Returned %');
   expect(appJs).toContain('Average ROI');
   expect(appJs).toContain('Active Deals');
   expect(appJs).toContain('Completed Deals');
@@ -251,6 +310,9 @@ test('investor home dashboard renders MVP metrics and pilot deals', () => {
 });
 
 test('investor analytics dashboard renders Phase 9 analytics sections', () => {
+  expect(appJs).toContain('Portfolio Performance');
+  expect(appJs).toContain('Portfolio Health');
+  expect(appJs).toContain('Recent Activity');
   expect(appJs).toContain('ROI & Returns Overview');
   expect(appJs).toContain('Projected Portfolio Return');
   expect(appJs).toContain('Capital Returned');
@@ -270,6 +332,90 @@ test('investor analytics dashboard renders Phase 9 analytics sections', () => {
   expect(appJs).toContain('Deals with no returns yet');
   expect(appJs).toContain('Projected returns are not guaranteed');
   expect(appJs).toContain('View Deal');
+});
+
+test('investor portfolio metrics calculate profit and percentages safely', () => {
+  const { investorMetrics, returnCompletionRate } = loadInvestorDashboardHelpers();
+  const metrics = investorMetrics([
+    {
+      amount: '50000.00',
+      expected_return: '82000.00',
+      returned_amount: '82000.00',
+      outstanding_amount: '0.00',
+      display_currency: 'USD',
+      roi_percent: 64,
+      return_status: 'completed',
+      status: { status: 'Completed', current_cycle: 7 },
+    },
+    {
+      amount: '50000.00',
+      expected_return: '81650.00',
+      returned_amount: '0.00',
+      outstanding_amount: '81650.00',
+      display_currency: 'USD',
+      roi_percent: 63.3,
+      return_status: 'no_returns',
+      status: { status: 'Active', current_cycle: 1 },
+    },
+  ]);
+
+  expect(metrics.profitRealized).toBe(0);
+  expect(metrics.capitalReturnedPercent).toBe(82);
+  expect(metrics.returnCompletionPercent).toBeCloseTo(50.107, 3);
+  expect(returnCompletionRate(metrics)).toBeCloseTo(50.107, 3);
+  expect(metrics.dealsWithNoReturns).toBe(1);
+  expect(metrics.dealsRequiringAttention).toBe(1);
+  expect(metrics.displayProfitRealized).toBe('$0');
+});
+
+test('investor portfolio metrics handle zero invested and projected returns', () => {
+  const { investorMetrics } = loadInvestorDashboardHelpers();
+  const metrics = investorMetrics([]);
+
+  expect(metrics.profitRealized).toBe(0);
+  expect(metrics.capitalReturnedPercent).toBe(0);
+  expect(metrics.returnCompletionPercent).toBe(0);
+  expect(metrics.dealsWithNoReturns).toBe(0);
+  expect(metrics.dealsRequiringAttention).toBe(0);
+});
+
+test('investor portfolio sections render performance health and recent activity', () => {
+  const {
+    renderInvestorMetrics,
+    renderPortfolioPerformance,
+    renderPortfolioHealth,
+    renderRecentActivity,
+  } = loadInvestorDashboardHelpers();
+  const metrics = {
+    totalInvested: 100000,
+    expectedReturns: 163650,
+    returned: 82000,
+    outstanding: 81650,
+    profitRealized: 32000,
+    capitalReturnedPercent: 82,
+    returnCompletionPercent: 50.1,
+    displayCurrency: 'USD',
+    displayTotalInvested: '$100,000',
+    displayExpectedReturns: '$163,650',
+    displayReturned: '$82,000',
+    displayOutstanding: '$81,650',
+    displayProfitRealized: '$32,000',
+    averageRoi: 63.65,
+    activeDeals: 1,
+    completedDeals: 1,
+    dealsWithNoReturns: 1,
+    dealsRequiringAttention: 1,
+  };
+
+  expect(renderInvestorMetrics(metrics)).toContain('Profit Realized');
+  expect(renderInvestorMetrics(metrics)).toContain('Capital Returned %');
+  expect(renderPortfolioPerformance(metrics)).toContain('Return Completion Rate');
+  expect(renderPortfolioPerformance(metrics)).toContain('$32,000');
+  expect(renderPortfolioHealth(metrics)).toContain('Deals With No Returns');
+  expect(renderPortfolioHealth(metrics)).toContain('Deals Requiring Attention');
+  expect(renderRecentActivity([{ returned_amount: '82000.00', status: { current_cycle: 7 } }])).toContain('Latest farmer report available');
+  expect(renderRecentActivity([{ returned_amount: '82000.00', status: { current_cycle: 7 } }])).toContain('Latest return recorded');
+  expect(renderRecentActivity([{ returned_amount: '82000.00', status: { current_cycle: 7 } }])).toContain('Latest cycle event available');
 });
 
 test('investor detail fetches and renders repayment history', () => {
