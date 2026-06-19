@@ -106,7 +106,7 @@ Reviewers should inspect:
 Readiness summary based on the current demo assets inventory:
 
 | Area | Readiness | Assessment |
-|---|---:|---|
+| --- | ---: | --- |
 | Product | `92 / 100` | Alpha v1 includes marketplace, investor dashboard, portfolio layer, funding progress, farmer reporting, ROI and returns, and NEAR Testnet flows. |
 | Documentation | `Ready` | Executive summary, product docs, NEAR docs, pilot deal summary, demo flow, and investor materials are available. |
 | Demo | `82 / 100` | Demo flow and many screenshots exist, while some screenshot assets still need refresh or cleanup. |
