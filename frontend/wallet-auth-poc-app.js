@@ -2,10 +2,7 @@ import { setupWalletSelector } from '@near-wallet-selector/core';
 import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 import { Buffer } from 'buffer';
 
-const API_BASE =
-  window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000'
-    : 'https://agripartners.onrender.com';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 const NEAR_WALLET_NETWORK = 'testnet';
 const NEAR_RPC_URL = import.meta.env.VITE_NEAR_RPC_URL || 'https://test.rpc.fastnear.com';
 const NEAR_WALLET_NETWORK_CONFIG = {

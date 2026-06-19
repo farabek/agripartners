@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const pool = require('./db/index');
+const { createCorsOptions } = require('./config/cors');
 const { requireJWT } = require('./middleware/jwtAuth');
 const { requireAdminAccess } = require('./middleware/adminAuth');
 const authRouter = require('./routes/auth');
@@ -19,16 +19,16 @@ const { requireWalletAuth } = require('./middleware/walletAuth');
 });
 
 const app = express();
-app.use(cors());
+app.use(cors(createCorsOptions()));
 app.use(express.json());
 
-app.get('/health', async (req, res) => {
-  try {
-    await pool.query('SELECT 1');
-    res.json({ status: 'ok' });
-  } catch (err) {
-    res.status(503).json({ status: 'error', message: err.message });
-  }
+app.get('/health', (req, res) => {
+  res.json({
+    ok: true,
+    service: 'agripartners-backend',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.use('/api/auth', authRouter);
