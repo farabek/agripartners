@@ -2543,6 +2543,67 @@ function renderFundingProgressPanel(deal) {
   `;
 }
 
+function liveFundingProgressMetrics(deal = {}) {
+  const goalValue = deal.display_amount
+    ?? deal.displayAmount
+    ?? deal.investment
+    ?? deal.amount
+    ?? deal.invested_amount;
+  const raisedValue = deal.amount_raised ?? deal.raised_amount ?? deal.funding_raised_amount ?? deal.fundingRaisedAmount;
+  const percentValue = deal.funding_percentage ?? deal.funding_percent ?? deal.fundingProgressPercent;
+  const goal = goalValue != null ? numericReturnAmount(goalValue) : null;
+  const raised = raisedValue != null ? numericReturnAmount(raisedValue) : null;
+  const explicitPercent = percentValue != null ? Number(percentValue) : null;
+  const percentage = Number.isFinite(explicitPercent) ? Math.max(0, Math.min(100, explicitPercent)) : null;
+  const remaining = goal != null && raised != null ? Math.max(goal - raised, 0) : null;
+  const currency = deal.display_currency || (String(goalValue ?? '').includes('$') ? 'USD' : 'NEAR');
+  const investorCount = deal.investor_count ?? deal.investorCount;
+  const daysRemaining = deal.days_remaining ?? deal.daysRemaining;
+  return {
+    displayGoal: goal != null ? fundingDisplayAmount(goal, currency) : 'Unavailable',
+    displayRaised: raised != null ? fundingDisplayAmount(raised, currency) : 'Unavailable',
+    displayRemaining: remaining != null ? fundingDisplayAmount(remaining, currency) : 'Unavailable',
+    displayPercentage: percentage != null ? `${percentage.toFixed(1)}%` : 'Unavailable',
+    percentage,
+    investorCount: investorCount != null && Number.isFinite(Number(investorCount)) ? Number(investorCount) : 'Unavailable',
+    daysRemaining: daysRemaining != null && Number.isFinite(Number(daysRemaining)) ? Math.max(Number(daysRemaining), 0) : 'Unavailable',
+  };
+}
+
+function renderLiveFundingProgressPanel(deal) {
+  const funding = liveFundingProgressMetrics(deal);
+  const rows = [
+    ['Funding Goal', funding.displayGoal],
+    ['Amount Raised', funding.displayRaised],
+    ['Remaining Amount', funding.displayRemaining],
+    ['Funding Percentage', funding.displayPercentage],
+    ['Investor Count', funding.investorCount],
+    ['Days Remaining', funding.daysRemaining],
+  ];
+  const summary = funding.percentage == null
+    ? 'Funding progress unavailable'
+    : `${funding.displayRaised} / ${funding.displayGoal} · ${funding.percentage.toFixed(0)}% Funded`;
+  return `
+    <section id="investor-funding-progress" class="bg-slate-800 rounded-xl p-5 mb-6">
+      <div class="flex flex-wrap items-baseline justify-between gap-3 mb-4">
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Funding Progress</h3>
+        <span class="text-sm text-green-300 font-semibold">${escapeHtml(summary)}</span>
+      </div>
+      ${funding.percentage == null
+        ? renderInvestorResourceUnavailable('Funding progress', 'Authoritative funding progress is not available for this deal')
+        : renderFundingProgressBar(funding.percentage)}
+      <div class="grid sm:grid-cols-2 lg:grid-cols-6 gap-3 mt-4">
+        ${rows.map(([label, value]) => `
+          <div class="metric-box">
+            <span class="metric-label">${label}</span>
+            <span class="metric-value">${escapeHtml(value)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
+}
+
 const INVESTOR_DASHBOARD_MODE_KEY = 'ap_investor_dashboard_mode';
 const INVESTOR_DASHBOARD_MODE_LIVE = 'live';
 const INVESTOR_DASHBOARD_MODE_DEMO = 'demo';
@@ -3202,24 +3263,39 @@ function investorPilotLabel(deal) {
   return deal.title || `Deal #${deal.id}`;
 }
 
-function investorProjectProfile(deal, status) {
-  const pilot = getPilotForDeal(deal);
-  const projectStatus = status?.status === 'Completed' ? 'Completed' : 'Active';
-  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent ?? 20;
+function investorProjectProfile(deal = {}, status) {
+  if (deal.isDemoPilot) {
+    const pilot = getPilotForDeal(deal);
+    const projectStatus = status?.status || deal.status?.status || 'Unknown';
+    return {
+      title: pilot?.title || deal.title || 'Demo pilot',
+      investment: pilot?.investment || deal.display_amount || 'Unavailable',
+      roi: pilot?.roi || 'Unavailable',
+      roiLabel: projectStatus === 'Completed' ? 'ROI' : 'Projected ROI',
+      apr: pilot?.apr || 'Unavailable',
+      cycles: pilot?.cycles || String(deal.total_cycles ?? 'Unavailable'),
+      description: pilot?.description || deal.description || 'Unavailable',
+      status: projectStatus,
+    };
+  }
 
+  const projectStatus = status?.status || 'Unknown';
+  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent;
+  const investment = deal.display_amount
+    || (deal.amount != null ? formatNearDisplay(deal.amount) : 'Unavailable');
   return {
-    title: pilot?.title || deal.title || `Deal #${deal.id}`,
-    investment: pilot?.investment || formatNearDisplay(deal.amount),
-    roi: pilot?.roi || `${projectedRoi}%`,
+    title: deal.title || `Deal #${deal.id ?? 'Unknown'}`,
+    investment,
+    roi: projectedRoi != null && Number.isFinite(Number(projectedRoi)) ? `${projectedRoi}%` : 'Unavailable',
     roiLabel: projectStatus === 'Completed' ? 'ROI' : 'Projected ROI',
-    apr: pilot?.apr || 'Demo model',
-    cycles: pilot?.cycles || String(deal.total_cycles ?? '-'),
-    description: pilot?.description || deal.description || 'Agricultural investment project demonstrated through the AgriPartners workflow on NEAR Testnet.',
+    apr: deal.apr != null ? String(deal.apr) : (deal.apr_pct != null ? `${deal.apr_pct}%` : 'Unavailable'),
+    cycles: deal.total_cycles != null ? String(deal.total_cycles) : 'Unavailable',
+    description: deal.description || 'Unavailable',
     status: projectStatus,
   };
 }
 
-function renderProjectProfile(deal, status) {
+function renderProjectProfile(deal, status, statusError = null) {
   const profile = investorProjectProfile(deal, status);
   const profileBadge = deal.isDemoPilot ? 'Pilot Profile' : `Deal #${deal.id}`;
   const metrics = [
@@ -3231,7 +3307,7 @@ function renderProjectProfile(deal, status) {
   ];
 
   return `
-    <section class="bg-slate-800 border border-green-900 rounded-lg p-5 mb-6">
+    <section id="investor-project-profile" class="bg-slate-800 border border-green-900 rounded-lg p-5 mb-6">
       <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
           <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Project Profile</span>
@@ -3248,6 +3324,7 @@ function renderProjectProfile(deal, status) {
           </div>
         `).join('')}
       </div>
+      ${statusError ? renderInvestorResourceUnavailable('Contract status', statusError) : ''}
     </section>
   `;
 }
@@ -3487,8 +3564,8 @@ async function showInvestorDeal(id) {
   `;
 
   try {
-    const { deal, status, balances, events, reports, cycles, returns } = await fetchInvestorDealBundle(id);
-    renderInvestorDealDetail(el, deal, status, balances, events, reports, cycles, returns);
+    const bundle = await fetchInvestorDealBundle(id);
+    renderInvestorDealDetail(el, bundle);
   } catch (e) {
     el.querySelector('.spinner')?.remove();
     el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Deal unavailable: ${escapeHtml(e.message)}</div>`;
@@ -3507,26 +3584,108 @@ async function fetchInvestorDealBundle(id) {
     fetch(`${API_BASE}/api/investor/deals/${id}/returns`, { headers })
   ]);
 
-  if (dealRes.status === 'rejected' || !dealRes.value.ok) {
-    const status = dealRes.value?.status;
-    if (status === 401) {
-      clearAuth();
-      location.hash = '#login';
-      throw new Error('Wallet session expired');
-    }
-    if (status === 403) throw new Error('This deal is not linked to the connected wallet account');
-    throw new Error(status === 404 ? 'Deal not found' : 'Backend unavailable');
-  }
-
+  const deal = await readMandatoryInvestorDeal(dealRes);
+  const resources = await Promise.all([
+    readOptionalInvestorResource(statusRes, 'Contract status', normalizeInvestorObjectPayload, null),
+    readOptionalInvestorResource(balancesRes, 'Contract balances', normalizeInvestorObjectPayload, null),
+    readOptionalInvestorResource(eventsRes, 'Event history', normalizeInvestorArrayPayload, []),
+    readOptionalInvestorResource(cyclesRes, 'Cycle status', normalizeInvestorCyclesPayload, []),
+    readOptionalInvestorResource(reportsRes, 'Farmer reports', normalizeInvestorReportsPayload, []),
+    readOptionalInvestorResource(returnsRes, 'Returns ledger', normalizeInvestorArrayPayload, []),
+  ]);
+  const [status, balances, events, cycles, reports, returns] = resources;
   return {
-    deal: await dealRes.value.json(),
-    status: statusRes.status === 'fulfilled' && statusRes.value.ok ? await statusRes.value.json() : null,
-    balances: balancesRes.status === 'fulfilled' && balancesRes.value.ok ? await balancesRes.value.json() : null,
-    events: eventsRes.status === 'fulfilled' && eventsRes.value.ok ? await eventsRes.value.json() : [],
-    cycles: cyclesRes.status === 'fulfilled' && cyclesRes.value.ok ? normalizeCyclesResponse(await cyclesRes.value.json()) : [],
-    reports: reportsRes.status === 'fulfilled' && reportsRes.value.ok ? (await reportsRes.value.json()).reports || [] : [],
-    returns: returnsRes.status === 'fulfilled' && returnsRes.value.ok ? await returnsRes.value.json() : []
+    deal,
+    status: status.data,
+    balances: balances.data,
+    events: events.data,
+    cycles: cycles.data,
+    reports: reports.data,
+    returns: returns.data,
+    resourceErrors: {
+      status: status.error,
+      balances: balances.error,
+      events: events.error,
+      cycles: cycles.error,
+      reports: reports.error,
+      returns: returns.error,
+    },
   };
+}
+
+async function readInvestorResponseJson(response, label) {
+  try {
+    return await response.json();
+  } catch {
+    throw new Error(`${label} returned invalid JSON`);
+  }
+}
+
+function investorResponseError(label, status) {
+  if (status === 401) return `${label} authorization failed: wallet session expired`;
+  if (status === 403) return `${label} authorization failed`;
+  if (status === 404) return `${label} not found`;
+  return `${label} unavailable (HTTP ${status || 'unknown'})`;
+}
+
+async function readMandatoryInvestorDeal(result) {
+  if (result.status === 'rejected') throw new Error('Investor deal request failed: network unavailable');
+  if (!result.value.ok) {
+    if (result.value.status === 401) clearAuth();
+    throw new Error(investorResponseError('Investor deal', result.value.status));
+  }
+  const payload = await readInvestorResponseJson(result.value, 'Investor deal');
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new Error('Investor deal returned malformed data');
+  }
+  return payload;
+}
+
+async function readOptionalInvestorResource(result, label, normalize, fallback) {
+  if (result.status === 'rejected') {
+    return { data: fallback, error: `${label} unavailable: network request failed` };
+  }
+  if (!result.value.ok) {
+    if (result.value.status === 401) clearAuth();
+    return { data: fallback, error: investorResponseError(label, result.value.status) };
+  }
+  try {
+    const payload = await readInvestorResponseJson(result.value, label);
+    return { data: normalize(payload, label), error: null };
+  } catch (err) {
+    return { data: fallback, error: err.message || `${label} returned malformed data` };
+  }
+}
+
+function normalizeInvestorObjectPayload(payload, label) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new Error(`${label} returned malformed data`);
+  }
+  return payload;
+}
+
+function normalizeInvestorArrayPayload(payload, label) {
+  if (!Array.isArray(payload)) throw new Error(`${label} returned malformed data`);
+  if (!payload.every(item => item && typeof item === 'object' && !Array.isArray(item))) {
+    throw new Error(`${label} returned malformed data`);
+  }
+  return payload;
+}
+
+function normalizeInvestorCyclesPayload(payload) {
+  const cycles = Array.isArray(payload) ? payload : payload?.cycles;
+  if (Array.isArray(cycles) && cycles.every(item => item && typeof item === 'object' && !Array.isArray(item))) {
+    return cycles;
+  }
+  throw new Error('Cycle status returned malformed data');
+}
+
+function normalizeInvestorReportsPayload(payload) {
+  if (!payload || !Array.isArray(payload.reports)
+    || !payload.reports.every(item => item && typeof item === 'object' && !Array.isArray(item))) {
+    throw new Error('Farmer reports returned malformed data');
+  }
+  return payload.reports;
 }
 
 function renderInvestorDealAccessMessage(el) {
@@ -3540,7 +3699,17 @@ function renderInvestorDealAccessMessage(el) {
   `;
 }
 
-function renderInvestorDealDetail(el, deal, status, balances, events, reports = [], cycles = [], returns = []) {
+function renderInvestorDealDetail(el, bundle) {
+  const {
+    deal,
+    status,
+    balances,
+    events = [],
+    reports = [],
+    cycles = [],
+    returns = [],
+    resourceErrors = {},
+  } = bundle;
   const investorBalance = balances?.investor || '0';
   const profile = investorProjectProfile(deal, status);
   el.innerHTML = `
@@ -3548,20 +3717,20 @@ function renderInvestorDealDetail(el, deal, status, balances, events, reports = 
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <a href="#investor" class="text-slate-400 hover:text-white text-sm">Back to Investor Portal</a>
       <span class="text-slate-600">|</span>
-      <span class="font-semibold">${escapeHtml(profile.title)}</span>
+      <span id="investor-deal-title" class="font-semibold">${escapeHtml(profile.title)}</span>
       <span class="text-xs text-slate-500">Deal #${escapeHtml(deal.id)}</span>
       <span id="investor-status-badge">${statusBadge(status?.status)}</span>
       <span id="investor-cycle-text" class="text-slate-400 text-sm">Cycle ${status?.current_cycle ?? '—'}</span>
       <button id="btn-investor-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
-    ${renderProjectProfile(deal, status)}
-    ${renderFundingProgressPanel(deal)}
+    ${renderProjectProfile(deal, status, resourceErrors.status)}
+    ${renderLiveFundingProgressPanel(deal)}
 
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Technical Deal Data</h3>
-        ${renderInvestorDealParams(deal, status, investorBalance)}
+        <div id="investor-technical-data">${renderInvestorDealParams(deal, status, investorBalance, resourceErrors)}</div>
       </div>
       <div class="bg-slate-800 rounded-xl p-5">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Investor Actions</h3>
@@ -3575,22 +3744,22 @@ function renderInvestorDealDetail(el, deal, status, balances, events, reports = 
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
-      <div id="investor-cycles-list">${renderCycleStatusCards(cycles)}</div>
+      <div id="investor-cycles-list">${resourceErrors.cycles ? renderInvestorResourceUnavailable('Cycle status', resourceErrors.cycles) : renderCycleStatusCards(cycles)}</div>
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Reports</h3>
-      <div id="investor-reports-list">${renderInvestorReports(reports)}</div>
+      <div id="investor-reports-list">${resourceErrors.reports ? renderInvestorResourceUnavailable('Farmer reports', resourceErrors.reports) : renderInvestorReports(reports)}</div>
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns Ledger</h3>
-      <div id="investor-returns-list">${renderRepaymentHistory(returns)}</div>
+      <div id="investor-returns-list">${resourceErrors.returns ? renderInvestorResourceUnavailable('Returns ledger', resourceErrors.returns) : renderRepaymentHistory(returns)}</div>
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
-      <div id="investor-events-list">${renderEvents(events)}</div>
+      <div id="investor-events-list">${resourceErrors.events ? renderInvestorResourceUnavailable('Event history', resourceErrors.events) : renderEvents(events)}</div>
     </div>
   `;
 
@@ -3602,13 +3771,36 @@ function formatNearDisplay(value) {
   return `${escapeHtml(value ?? '0.00')} NEAR`;
 }
 
+function formatOptionalNearDisplay(value) {
+  return value == null || value === '' ? 'Unavailable' : formatNearDisplay(value);
+}
+
+function formatOptionalYoctoDisplay(value) {
+  if (value == null || value === '') return 'Unavailable';
+  try {
+    return `${yoctoToNear(value)} · ${formatYoctoRaw(value)}`;
+  } catch {
+    return 'Unavailable';
+  }
+}
+
+function renderInvestorResourceUnavailable(label, message) {
+  return `
+    <div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 mt-3 text-sm text-amber-100" data-investor-resource-error="${escapeHtml(label)}">
+      <span class="font-semibold">${escapeHtml(label)} unavailable.</span>
+      <span>${escapeHtml(message)}</span>
+    </div>
+  `;
+}
+
 function returnStatusLabel(status) {
   const labels = {
     no_returns: 'No returns',
     partial: 'Partial return',
     completed: 'Completed',
+    unknown: 'Unknown',
   };
-  return labels[status] || 'No returns';
+  return labels[status] || 'Unknown';
 }
 
 function numericReturnAmount(value) {
@@ -3619,8 +3811,11 @@ function numericReturnAmount(value) {
 
 function deriveReturnStatus(deal) {
   if (deal.return_status) return deal.return_status;
-  const returned = numericReturnAmount(deal.display_returned_amount ?? deal.returned_amount);
-  const expected = numericReturnAmount(deal.display_expected_return ?? deal.expected_return);
+  const rawReturned = deal.display_returned_amount ?? deal.returned_amount;
+  const rawExpected = deal.display_expected_return ?? deal.expected_return;
+  if (rawReturned == null || rawExpected == null) return 'unknown';
+  const returned = numericReturnAmount(rawReturned);
+  const expected = numericReturnAmount(rawExpected);
   if (returned <= 0) return 'no_returns';
   if (returned < expected) return 'partial';
   return 'completed';
@@ -3631,23 +3826,32 @@ function returnDisclaimer() {
 }
 
 function percentLabel(value) {
-  return `${Number(value || 0).toFixed(1)}%`;
+  if (value == null || !Number.isFinite(Number(value))) return 'Unavailable';
+  return `${Number(value).toFixed(1)}%`;
 }
 
 function dealReturnMetrics(deal) {
-  const invested = numericReturnAmount(deal.display_amount ?? deal.invested_amount ?? deal.amount);
-  const expected = numericReturnAmount(deal.display_expected_return ?? deal.expected_return);
-  const returned = numericReturnAmount(deal.display_returned_amount ?? deal.returned_amount);
-  const projectedRoi = Number(deal.projected_roi_pct ?? deal.roi_percent ?? 20);
-  const profitReturned = Math.max(returned - invested, 0);
-  const completionPercent = expected > 0 ? Math.min(100, (returned / expected) * 100) : 0;
-  const actualRoi = invested > 0 ? (profitReturned / invested) * 100 : 0;
-  const remainingRoi = Math.max(0, projectedRoi - actualRoi);
+  const rawInvested = deal.display_amount ?? deal.invested_amount ?? deal.amount;
+  const rawExpected = deal.display_expected_return ?? deal.expected_return;
+  const rawReturned = deal.display_returned_amount ?? deal.returned_amount;
+  const invested = numericReturnAmount(rawInvested);
+  const expected = numericReturnAmount(rawExpected);
+  const returned = numericReturnAmount(rawReturned);
+  const rawProjectedRoi = deal.projected_roi_pct ?? deal.roi_percent;
+  const projectedRoi = rawProjectedRoi != null && Number.isFinite(Number(rawProjectedRoi))
+    ? Number(rawProjectedRoi)
+    : null;
+  const profitReturned = rawInvested != null && rawReturned != null ? Math.max(returned - invested, 0) : null;
+  const completionPercent = rawExpected != null && rawReturned != null
+    ? (expected > 0 ? Math.min(100, (returned / expected) * 100) : 0)
+    : null;
+  const actualRoi = profitReturned != null && invested > 0 ? (profitReturned / invested) * 100 : null;
+  const remainingRoi = projectedRoi == null || actualRoi == null ? null : Math.max(0, projectedRoi - actualRoi);
   return {
     invested,
     expected,
     returned,
-    projectedRoi: Number.isFinite(projectedRoi) ? projectedRoi : 0,
+    projectedRoi,
     completionPercent,
     actualRoi,
     remainingRoi,
@@ -3680,14 +3884,14 @@ function renderInvestorReturnsManagement(deal, returns = []) {
 function renderInvestmentSummary(deal) {
   const status = deal.status?.status || deal.status;
   const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI';
-  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent ?? 20;
+  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent;
   const rows = [
-    ['Invested', deal.display_amount || formatNearDisplay(deal.invested_amount || deal.amount)],
-    ['Projected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)],
-    ['Returned Amount', deal.display_returned_amount || formatNearDisplay(deal.returned_amount)],
-    ['Outstanding Return', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)],
+    ['Invested', deal.display_amount || formatOptionalNearDisplay(deal.invested_amount ?? deal.amount)],
+    ['Projected Return', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)],
+    ['Returned Amount', deal.display_returned_amount || formatOptionalNearDisplay(deal.returned_amount)],
+    ['Outstanding Return', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)],
     ['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))],
-    [roiLabel, `${escapeHtml(projectedRoi)}%`],
+    [roiLabel, projectedRoi != null ? `${escapeHtml(projectedRoi)}%` : 'Unavailable'],
   ];
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-6 gap-3">
@@ -3704,10 +3908,10 @@ function renderInvestmentSummary(deal) {
 
 function renderReturnsSummary(deal) {
   const rows = [
-    ['Invested', deal.display_amount || formatNearDisplay(deal.invested_amount || deal.amount)],
-    ['Projected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)],
-    ['Returned Amount', deal.display_returned_amount || formatNearDisplay(deal.returned_amount)],
-    ['Outstanding Return', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)],
+    ['Invested', deal.display_amount || formatOptionalNearDisplay(deal.invested_amount ?? deal.amount)],
+    ['Projected Return', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)],
+    ['Returned Amount', deal.display_returned_amount || formatOptionalNearDisplay(deal.returned_amount)],
+    ['Outstanding Return', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)],
     ['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))],
   ];
   return `
@@ -3724,8 +3928,8 @@ function renderReturnsSummary(deal) {
 
 function renderRoiProgressCard(deal) {
   const metrics = dealReturnMetrics(deal);
-  const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount);
-  const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return);
+  const returned = deal.display_returned_amount || formatOptionalNearDisplay(deal.returned_amount);
+  const expected = deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return);
   const completion = percentLabel(metrics.completionPercent);
   return `
     <div class="roi-progress-card">
@@ -3739,9 +3943,11 @@ function renderRoiProgressCard(deal) {
           <p class="metric-value">${completion}</p>
         </div>
       </div>
-      <div class="roi-progress-track" aria-label="Return completion progress">
-        <div class="roi-progress-fill" style="width: ${Math.max(0, Math.min(100, metrics.completionPercent)).toFixed(1)}%"></div>
-      </div>
+      ${metrics.completionPercent == null
+        ? renderInvestorResourceUnavailable('ROI progress', 'Return data is unavailable')
+        : `<div class="roi-progress-track" aria-label="Return completion progress">
+            <div class="roi-progress-fill" style="width: ${Math.max(0, Math.min(100, metrics.completionPercent)).toFixed(1)}%"></div>
+          </div>`}
       <p class="text-sm text-slate-400">Completion: ${completion}</p>
     </div>
   `;
@@ -3849,22 +4055,26 @@ function renderCycleStatusCards(cycles) {
   }).join('');
 }
 
-function renderInvestorDealParams(deal, status, investorBalance) {
+function renderInvestorDealParams(deal, status, investorBalance, resourceErrors = {}) {
+  const investmentAmount = formatOptionalYoctoDisplay(deal.investment_amount);
+  const availableBalance = resourceErrors.balances
+    ? 'Unavailable'
+    : formatOptionalYoctoDisplay(investorBalance);
   const rows = [
-    ['Contract ID',        deal.contract_address],
-    ['Farmer',             deal.farmer],
-    ['Investor',           deal.investor],
-    ['Investment Amount',  `${yoctoToNear(deal.investment_amount)} · ${formatYoctoRaw(deal.investment_amount)}`],
+    ['Contract ID',        deal.contract_address || 'Unavailable'],
+    ['Farmer',             deal.farmer || 'Unavailable'],
+    ['Investor',           deal.investor || 'Unavailable'],
+    ['Investment Amount',  investmentAmount],
     ['Status',             status?.status || 'Unknown'],
     ['Current Cycle',      status?.current_cycle ?? '—'],
-    ['Investor Available', `${yoctoToNear(investorBalance)} · ${formatYoctoRaw(investorBalance)}`],
+    ['Investor Available', availableBalance],
   ];
-  return rows.map(([k, v]) => `
+  return `${rows.map(([k, v]) => `
     <div class="flex justify-between text-sm gap-3">
       <span class="text-slate-400 shrink-0">${k}</span>
       <span ${k === 'Investor Available' ? 'id="investor-available-balance"' : ''} class="text-slate-100 font-mono text-right break-all">${escapeHtml(v)}</span>
     </div>
-  `).join('');
+  `).join('')}${resourceErrors.balances ? renderInvestorResourceUnavailable('Contract balances', resourceErrors.balances) : ''}`;
 }
 
 function showInvestorActionResult(type, message, txHash) {
@@ -3892,7 +4102,10 @@ async function withdrawInvestorFromPortal(deal) {
       headers: jsonAuthHeaders(),
     });
     const data = await res.json().catch(() => ({}));
-    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (res.status === 401) {
+      clearAuth();
+      throw new Error('Wallet session expired while submitting investor withdrawal');
+    }
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     showInvestorActionResult('success', 'Investor withdrawal completed successfully', data.tx_hash);
     await refreshInvestorDeal(deal.id);
@@ -3908,9 +4121,14 @@ async function refreshInvestorDeal(id) {
   if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
 
   try {
-    const { deal, status, balances, events, reports, cycles, returns } = await fetchInvestorDealBundle(id);
+    const bundle = await fetchInvestorDealBundle(id);
+    const { deal, status, balances, events, reports, cycles, returns, resourceErrors = {} } = bundle;
+    const titleEl = document.getElementById('investor-deal-title');
     const badgeEl = document.getElementById('investor-status-badge');
     const cycleEl = document.getElementById('investor-cycle-text');
+    const profileEl = document.getElementById('investor-project-profile');
+    const fundingEl = document.getElementById('investor-funding-progress');
+    const technicalEl = document.getElementById('investor-technical-data');
     const eventsEl = document.getElementById('investor-events-list');
     const reportsEl = document.getElementById('investor-reports-list');
     const cyclesEl = document.getElementById('investor-cycles-list');
@@ -3919,21 +4137,35 @@ async function refreshInvestorDeal(id) {
     const roiProgressEl = document.getElementById('investor-roi-progress');
     const actualRoiEl = document.getElementById('investor-actual-vs-projected-roi');
     const returnsEl = document.getElementById('investor-returns-list');
+    if (titleEl) titleEl.textContent = investorProjectProfile(deal, status).title;
     if (badgeEl) badgeEl.innerHTML = statusBadge(status?.status);
     if (cycleEl) cycleEl.textContent = `Cycle ${status?.current_cycle ?? '—'}`;
-    if (eventsEl) eventsEl.innerHTML = renderEvents(events);
-    if (reportsEl) reportsEl.innerHTML = renderInvestorReports(reports);
-    if (cyclesEl) cyclesEl.innerHTML = renderCycleStatusCards(cycles);
+    if (profileEl) profileEl.outerHTML = renderProjectProfile(deal, status, resourceErrors.status);
+    if (fundingEl) fundingEl.outerHTML = renderLiveFundingProgressPanel(deal);
+    if (technicalEl) technicalEl.innerHTML = renderInvestorDealParams(deal, status, balances?.investor || '0', resourceErrors);
+    if (eventsEl) eventsEl.innerHTML = resourceErrors.events
+      ? renderInvestorResourceUnavailable('Event history', resourceErrors.events)
+      : renderEvents(events);
+    if (reportsEl) reportsEl.innerHTML = resourceErrors.reports
+      ? renderInvestorResourceUnavailable('Farmer reports', resourceErrors.reports)
+      : renderInvestorReports(reports);
+    if (cyclesEl) cyclesEl.innerHTML = resourceErrors.cycles
+      ? renderInvestorResourceUnavailable('Cycle status', resourceErrors.cycles)
+      : renderCycleStatusCards(cycles);
     if (summaryEl) summaryEl.innerHTML = renderInvestmentSummary(deal);
     if (returnsSummaryEl) returnsSummaryEl.innerHTML = renderReturnsSummary(deal);
     if (roiProgressEl) roiProgressEl.innerHTML = renderRoiProgressCard(deal);
     if (actualRoiEl) actualRoiEl.innerHTML = renderActualVsProjectedRoi(deal);
-    if (returnsEl) returnsEl.innerHTML = renderRepaymentHistory(returns);
+    if (returnsEl) returnsEl.innerHTML = resourceErrors.returns
+      ? renderInvestorResourceUnavailable('Returns ledger', resourceErrors.returns)
+      : renderRepaymentHistory(returns);
 
     const investorBalanceEl = document.getElementById('investor-available-balance');
     if (investorBalanceEl) {
-      const investorBalance = balances?.investor || '0';
-      investorBalanceEl.textContent = `${yoctoToNear(investorBalance)} · ${formatYoctoRaw(investorBalance)}`;
+      const investorBalance = balances?.investor;
+      investorBalanceEl.textContent = resourceErrors.balances || investorBalance == null
+        ? 'Unavailable'
+        : `${yoctoToNear(investorBalance)} · ${formatYoctoRaw(investorBalance)}`;
     }
   } catch (err) {
     showInvestorActionResult('error', `Refresh failed: ${err.message}`);

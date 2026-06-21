@@ -23,6 +23,21 @@ function loadInvestorReturnMetricHelpers() {
   return module.exports;
 }
 
+function loadInvestorMissingValueHelpers() {
+  const start = appJs.indexOf('function formatNearDisplay');
+  const end = appJs.indexOf('function renderActualVsProjectedRoi');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const helpers = `
+    function escapeHtml(value) { return String(value ?? ''); }
+    ${appJs.slice(start, end)}
+    module.exports = { renderInvestmentSummary, renderReturnsSummary, dealReturnMetrics };
+  `;
+  const module = { exports: {} };
+  Function('module', helpers)(module);
+  return module.exports;
+}
+
 function loadMarketplaceHelpers() {
   const start = appJs.indexOf('const INVESTOR_DEMO_PILOTS');
   const end = appJs.indexOf('function showMarketplace');
@@ -135,6 +150,155 @@ function loadInvestorModeHelpers() {
   return module.exports;
 }
 
+function testResponse(status, payload, { invalidJson = false } = {}) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    json: invalidJson
+      ? async () => { throw new Error('invalid json'); }
+      : async () => payload,
+  };
+}
+
+function successfulInvestorDetailPayload(url) {
+  if (url.endsWith('/status')) return { status: 'CycleActive', current_cycle: 2 };
+  if (url.endsWith('/balances')) return { investor: '1000' };
+  if (url.endsWith('/events')) return [{ event_type: 'CycleStarted' }];
+  if (url.endsWith('/cycles')) return [{ cycle_number: 2 }];
+  if (url.endsWith('/reports')) return { reports: [{ title: 'Report' }] };
+  if (url.endsWith('/returns')) return [{ amount_near: '1' }];
+  return { id: 7, title: 'Live Deal', amount: '10' };
+}
+
+function loadInvestorDealBundleHelpers(fetchImpl, clearAuthMock = jest.fn()) {
+  const start = appJs.indexOf('async function fetchInvestorDealBundle');
+  const end = appJs.indexOf('function renderInvestorDealAccessMessage');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const helpers = `
+    const API_BASE = 'https://api.example.test';
+    function authHeaders() { return { Authorization: 'Bearer test' }; }
+    const clearAuth = clearAuthMock;
+    ${appJs.slice(start, end)}
+    module.exports = { fetchInvestorDealBundle };
+  `;
+  const module = { exports: {} };
+  Function('module', 'fetch', 'clearAuthMock', helpers)(module, fetchImpl, clearAuthMock);
+  return module.exports;
+}
+
+function loadInvestorProjectProfileHelper() {
+  const start = appJs.indexOf('function investorProjectProfile');
+  const end = appJs.indexOf('function renderProjectProfile');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const helpers = `
+    function getPilotForDeal() {
+      return {
+        title: 'Static Fidlot Title', investment: '$50,000', roi: '64%',
+        apr: '21.9%', cycles: '7', description: 'Static pilot description'
+      };
+    }
+    function formatNearDisplay(value) { return \`\${value} NEAR\`; }
+    ${appJs.slice(start, end)}
+    module.exports = { investorProjectProfile };
+  `;
+  const module = { exports: {} };
+  Function('module', helpers)(module);
+  return module.exports;
+}
+
+function loadLiveFundingHelper() {
+  const start = appJs.indexOf('function liveFundingProgressMetrics');
+  const end = appJs.indexOf('function renderLiveFundingProgressPanel');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const helpers = `
+    function numericReturnAmount(value) {
+      const amount = Number(String(value ?? '').replace(/[^0-9.-]/g, ''));
+      return Number.isFinite(amount) ? amount : 0;
+    }
+    function fundingDisplayAmount(value, currency) {
+      return currency === 'USD' ? \`$\${value}\` : \`\${value.toFixed(2)} NEAR\`;
+    }
+    ${appJs.slice(start, end)}
+    module.exports = { liveFundingProgressMetrics };
+  `;
+  const module = { exports: {} };
+  Function('module', helpers)(module);
+  return module.exports;
+}
+
+function loadRefreshInvestorDealHelper(bundle) {
+  const start = appJs.indexOf('async function refreshInvestorDeal');
+  const end = appJs.indexOf('// --- Deal detail ---');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const elements = new Map();
+  const ids = [
+    'btn-investor-refresh', 'investor-deal-title', 'investor-status-badge', 'investor-cycle-text',
+    'investor-project-profile', 'investor-funding-progress', 'investor-technical-data',
+    'investor-events-list', 'investor-reports-list', 'investor-cycles-list',
+    'investor-investment-summary', 'investor-returns-summary', 'investor-roi-progress',
+    'investor-actual-vs-projected-roi', 'investor-returns-list', 'investor-available-balance',
+  ];
+  ids.forEach(id => elements.set(id, { id, innerHTML: '', outerHTML: '', textContent: '', disabled: false }));
+  const documentMock = { getElementById: id => elements.get(id) || null };
+  const helpers = `
+    const document = documentMock;
+    async function fetchInvestorDealBundle() { return bundle; }
+    function investorProjectProfile(deal) { return { title: deal.title }; }
+    function statusBadge(value) { return \`status:\${value}\`; }
+    function renderProjectProfile(deal) { return \`profile:\${deal.title}\`; }
+    function renderLiveFundingProgressPanel(deal) { return \`funding:\${deal.title}\`; }
+    function renderInvestorDealParams(deal) { return \`technical:\${deal.title}\`; }
+    function renderInvestorResourceUnavailable(label, error) { return \`error:\${label}:\${error}\`; }
+    function renderEvents(value) { return \`events:\${value.length}\`; }
+    function renderInvestorReports(value) { return \`reports:\${value.length}\`; }
+    function renderCycleStatusCards(value) { return \`cycles:\${value.length}\`; }
+    function renderInvestmentSummary(deal) { return \`summary:\${deal.title}\`; }
+    function renderReturnsSummary(deal) { return \`returns-summary:\${deal.title}\`; }
+    function renderRoiProgressCard(deal) { return \`roi:\${deal.title}\`; }
+    function renderActualVsProjectedRoi(deal) { return \`actual:\${deal.title}\`; }
+    function renderRepaymentHistory(value) { return \`returns:\${value.length}\`; }
+    function yoctoToNear(value) { return String(value); }
+    function formatYoctoRaw(value) { return String(value); }
+    function showInvestorActionResult() {}
+    ${appJs.slice(start, end)}
+    module.exports = { refreshInvestorDeal };
+  `;
+  const module = { exports: {} };
+  Function('module', 'documentMock', 'bundle', helpers)(module, documentMock, bundle);
+  return { ...module.exports, elements };
+}
+
+function loadWithdrawInvestorHelper(fetchImpl) {
+  const start = appJs.indexOf('async function withdrawInvestorFromPortal');
+  const end = appJs.indexOf('async function refreshInvestorDeal');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const actionResult = jest.fn();
+  const refresh = jest.fn().mockResolvedValue(undefined);
+  const clearAuthMock = jest.fn();
+  const button = { disabled: false, textContent: '' };
+  const helpers = `
+    const API_BASE = 'https://agripartners-zlp2.onrender.com';
+    function confirm() { return true; }
+    const document = { getElementById: () => button };
+    function jsonAuthHeaders() { return {}; }
+    const showInvestorActionResult = actionResult;
+    const refreshInvestorDeal = refresh;
+    const clearAuth = clearAuthMock;
+    ${appJs.slice(start, end)}
+    module.exports = { withdrawInvestorFromPortal };
+  `;
+  const module = { exports: {} };
+  Function('module', 'fetch', 'button', 'actionResult', 'refresh', 'clearAuthMock', helpers)(
+    module, fetchImpl, button, actionResult, refresh, clearAuthMock
+  );
+  return { ...module.exports, actionResult, refresh, button };
+}
+
 function loadFundingProgressHelpers() {
   const start = appJs.indexOf('function dealStatusName');
   const end = appJs.indexOf('const INVESTOR_DASHBOARD_MODE_KEY');
@@ -222,7 +386,7 @@ test('marketplace deal cards render compact funding progress', () => {
 
 test('investor detail fetches farmer cycle reporting endpoint', () => {
   expect(appJs).toContain("fetch(`${API_BASE}/api/investor/deals/${id}/cycles`, { headers })");
-  expect(appJs).toContain('normalizeCyclesResponse(await cyclesRes.value.json())');
+  expect(appJs).toContain("readOptionalInvestorResource(cyclesRes, 'Cycle status', normalizeInvestorCyclesPayload, [])");
   expect(appJs).toContain('id="investor-cycles-list"');
 });
 
@@ -277,6 +441,205 @@ test('investor detail renders ROI and returns management sections', () => {
   expect(appJs).toContain('Status / Notes');
   expect(appJs).toContain('No returns recorded yet.');
   expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
+});
+
+test('investor deal bundle loads all live resources successfully', async () => {
+  const fetchImpl = jest.fn(url => Promise.resolve(testResponse(200, successfulInvestorDetailPayload(url))));
+  const { fetchInvestorDealBundle } = loadInvestorDealBundleHelpers(fetchImpl);
+
+  const bundle = await fetchInvestorDealBundle(7);
+
+  expect(fetchImpl).toHaveBeenCalledTimes(7);
+  expect(bundle.deal).toEqual(expect.objectContaining({ id: 7, title: 'Live Deal' }));
+  expect(bundle.status).toEqual({ status: 'CycleActive', current_cycle: 2 });
+  expect(bundle.balances).toEqual({ investor: '1000' });
+  expect(bundle.events).toHaveLength(1);
+  expect(bundle.cycles).toHaveLength(1);
+  expect(bundle.reports).toHaveLength(1);
+  expect(bundle.returns).toHaveLength(1);
+  expect(bundle.resourceErrors).toEqual({
+    status: null, balances: null, events: null, cycles: null,
+    reports: null, returns: null,
+  });
+});
+
+test.each([
+  ['401', () => Promise.resolve(testResponse(401, {})), 'wallet session expired'],
+  ['404', () => Promise.resolve(testResponse(404, {})), 'Investor deal not found'],
+  ['500', () => Promise.resolve(testResponse(500, {})), 'Investor deal unavailable (HTTP 500)'],
+  ['network failure', () => Promise.reject(new Error('offline')), 'network unavailable'],
+  ['invalid JSON', () => Promise.resolve(testResponse(200, null, { invalidJson: true })), 'invalid JSON'],
+])('mandatory investor deal request exposes %s errors', async (_name, mainResponse, expected) => {
+  const fetchImpl = jest.fn(url => url.endsWith('/deals/7')
+    ? mainResponse()
+    : Promise.resolve(testResponse(200, successfulInvestorDetailPayload(url))));
+  const clearAuthMock = jest.fn();
+  const { fetchInvestorDealBundle } = loadInvestorDealBundleHelpers(fetchImpl, clearAuthMock);
+
+  await expect(fetchInvestorDealBundle(7)).rejects.toThrow(expected);
+  if (_name === '401') expect(clearAuthMock).toHaveBeenCalledTimes(1);
+});
+
+test.each([
+  ['/status', 'status', 'Contract status unavailable (HTTP 500)'],
+  ['/balances', 'balances', 'Contract balances unavailable (HTTP 500)'],
+  ['/events', 'events', 'Event history unavailable (HTTP 500)'],
+  ['/cycles', 'cycles', 'Cycle status unavailable (HTTP 500)'],
+  ['/reports', 'reports', 'Farmer reports unavailable (HTTP 500)'],
+  ['/returns', 'returns', 'Returns ledger unavailable (HTTP 500)'],
+])('optional investor resource %s fails independently', async (suffix, errorKey, expectedError) => {
+  const fetchImpl = jest.fn(url => Promise.resolve(
+    url.endsWith(suffix)
+      ? testResponse(500, {})
+      : testResponse(200, successfulInvestorDetailPayload(url))
+  ));
+  const { fetchInvestorDealBundle } = loadInvestorDealBundleHelpers(fetchImpl);
+
+  const bundle = await fetchInvestorDealBundle(7);
+
+  expect(bundle.deal.id).toBe(7);
+  expect(bundle.resourceErrors[errorKey]).toBe(expectedError);
+  expect(bundle[errorKey]).toEqual(['events', 'cycles', 'reports', 'returns'].includes(errorKey) ? [] : null);
+});
+
+test('optional auth failure is retained as a visible section error', async () => {
+  const fetchImpl = jest.fn(url => Promise.resolve(
+    url.endsWith('/status')
+      ? testResponse(401, {})
+      : testResponse(200, successfulInvestorDetailPayload(url))
+  ));
+  const clearAuthMock = jest.fn();
+  const { fetchInvestorDealBundle } = loadInvestorDealBundleHelpers(fetchImpl, clearAuthMock);
+
+  const bundle = await fetchInvestorDealBundle(7);
+
+  expect(bundle.resourceErrors.status).toContain('authorization failed');
+  expect(clearAuthMock).toHaveBeenCalledTimes(1);
+});
+
+test('empty optional data and optional request errors remain distinct', async () => {
+  const emptyFetch = jest.fn(url => Promise.resolve(testResponse(200,
+    url.endsWith('/reports') ? { reports: [] } : (url.endsWith('/deals/7') || url.endsWith('/status') || url.endsWith('/balances')
+      ? successfulInvestorDetailPayload(url) : []))));
+  const failedFetch = jest.fn(url => Promise.resolve(
+    url.endsWith('/events') ? testResponse(503, {}) : testResponse(200, successfulInvestorDetailPayload(url))
+  ));
+
+  const emptyBundle = await loadInvestorDealBundleHelpers(emptyFetch).fetchInvestorDealBundle(7);
+  const failedBundle = await loadInvestorDealBundleHelpers(failedFetch).fetchInvestorDealBundle(7);
+
+  expect(emptyBundle.events).toEqual([]);
+  expect(emptyBundle.resourceErrors.events).toBeNull();
+  expect(failedBundle.events).toEqual([]);
+  expect(failedBundle.resourceErrors.events).toContain('HTTP 503');
+});
+
+test('malformed optional responses do not crash the live detail bundle', async () => {
+  const fetchImpl = jest.fn(url => Promise.resolve(
+    url.endsWith('/reports')
+      ? testResponse(200, { reports: [null] })
+      : testResponse(200, successfulInvestorDetailPayload(url))
+  ));
+  const { fetchInvestorDealBundle } = loadInvestorDealBundleHelpers(fetchImpl);
+
+  const bundle = await fetchInvestorDealBundle(7);
+
+  expect(bundle.reports).toEqual([]);
+  expect(bundle.resourceErrors.reports).toBe('Farmer reports returned malformed data');
+});
+
+test('invalid optional JSON becomes a section error without blocking the deal', async () => {
+  const fetchImpl = jest.fn(url => Promise.resolve(
+    url.endsWith('/returns')
+      ? testResponse(200, null, { invalidJson: true })
+      : testResponse(200, successfulInvestorDetailPayload(url))
+  ));
+  const { fetchInvestorDealBundle } = loadInvestorDealBundleHelpers(fetchImpl);
+
+  const bundle = await fetchInvestorDealBundle(7);
+
+  expect(bundle.deal.id).toBe(7);
+  expect(bundle.returns).toEqual([]);
+  expect(bundle.resourceErrors.returns).toBe('Returns ledger returned invalid JSON');
+});
+
+test('live Fidlot-like deal never receives static pilot profile values', () => {
+  const { investorProjectProfile } = loadInvestorProjectProfileHelper();
+  const live = investorProjectProfile({
+    id: 7,
+    title: 'Fidlot Livestock Project',
+    amount: '12',
+    description: null,
+    projected_roi_pct: null,
+    total_cycles: null,
+  }, null);
+
+  expect(live).toEqual(expect.objectContaining({
+    title: 'Fidlot Livestock Project',
+    investment: '12 NEAR',
+    roi: 'Unavailable',
+    apr: 'Unavailable',
+    cycles: 'Unavailable',
+    description: 'Unavailable',
+    status: 'Unknown',
+  }));
+  expect(live.title).not.toBe('Static Fidlot Title');
+  expect(live.investment).not.toBe('$50,000');
+});
+
+test('explicit demo pilot profile still uses the preserved pilot mapping', () => {
+  const { investorProjectProfile } = loadInvestorProjectProfileHelper();
+  const demo = investorProjectProfile({ isDemoPilot: true }, { status: 'Completed' });
+
+  expect(demo).toEqual(expect.objectContaining({
+    title: 'Static Fidlot Title',
+    investment: '$50,000',
+    roi: '64%',
+    apr: '21.9%',
+    status: 'Completed',
+  }));
+  expect(appJs).toContain('showInvestorPilotProfile(investorPilot[1])');
+});
+
+test('live funding metrics never invent percentages or deadlines', () => {
+  const { liveFundingProgressMetrics } = loadLiveFundingHelper();
+  const missing = liveFundingProgressMetrics({ amount: '50' });
+
+  expect(missing).toEqual(expect.objectContaining({
+    displayGoal: '50.00 NEAR',
+    displayRaised: 'Unavailable',
+    displayRemaining: 'Unavailable',
+    displayPercentage: 'Unavailable',
+    percentage: null,
+    investorCount: 'Unavailable',
+    daysRemaining: 'Unavailable',
+  }));
+});
+
+test('missing live financial DTO fields render Unknown or Unavailable', () => {
+  const { renderInvestmentSummary, renderReturnsSummary, dealReturnMetrics } = loadInvestorMissingValueHelpers();
+  const deal = { id: 7, projected_roi_pct: null, expected_return: null, returned_amount: null };
+
+  const investment = renderInvestmentSummary(deal);
+  const returns = renderReturnsSummary(deal);
+  const metrics = dealReturnMetrics(deal);
+
+  expect(investment).toContain('Unavailable');
+  expect(investment).toContain('Unknown');
+  expect(investment).not.toContain('20%');
+  expect(returns).toContain('Unavailable');
+  expect(metrics.projectedRoi).toBeNull();
+  expect(metrics.completionPercent).toBeNull();
+});
+
+test('live route has no automatic demo fallback', () => {
+  const liveStart = appJs.indexOf('async function showInvestorDeal');
+  const bundleStart = appJs.indexOf('async function fetchInvestorDealBundle');
+  const liveSource = appJs.slice(liveStart, bundleStart);
+
+  expect(liveSource).not.toContain('getPilotForDeal');
+  expect(liveSource).not.toContain('INVESTOR_DEMO_PILOTS');
+  expect(liveSource).not.toContain('renderInvestorDemoDealDetail');
 });
 
 test('investor return metrics use profit-based actual ROI for completed Fidlot-like case', () => {
@@ -650,6 +1013,53 @@ test('investor detail fetches and renders repayment history', () => {
   expect(appJs).toContain('renderReturnsLedgerRows(returns)');
 });
 
+test('investor detail refresh updates every bundle-dependent live section', async () => {
+  const bundle = {
+    deal: { id: 7, title: 'Refreshed Live Deal' },
+    status: { status: 'CycleActive', current_cycle: 3 },
+    balances: { investor: '1000' },
+    events: [{}], reports: [{}], cycles: [{}], returns: [{}],
+    resourceErrors: {},
+  };
+  const { refreshInvestorDeal, elements } = loadRefreshInvestorDealHelper(bundle);
+
+  await refreshInvestorDeal(7);
+
+  expect(elements.get('investor-deal-title').textContent).toBe('Refreshed Live Deal');
+  expect(elements.get('investor-project-profile').outerHTML).toContain('profile:Refreshed Live Deal');
+  expect(elements.get('investor-funding-progress').outerHTML).toContain('funding:Refreshed Live Deal');
+  expect(elements.get('investor-technical-data').innerHTML).toContain('technical:Refreshed Live Deal');
+  expect(elements.get('investor-events-list').innerHTML).toBe('events:1');
+  expect(elements.get('investor-reports-list').innerHTML).toBe('reports:1');
+  expect(elements.get('investor-cycles-list').innerHTML).toBe('cycles:1');
+  expect(elements.get('investor-returns-list').innerHTML).toBe('returns:1');
+  expect(elements.get('investor-investment-summary').innerHTML).toContain('summary:Refreshed Live Deal');
+});
+
+test('investor withdrawal success still refreshes the live bundle', async () => {
+  const fetchImpl = jest.fn().mockResolvedValue(testResponse(200, { tx_hash: 'tx-123' }));
+  const { withdrawInvestorFromPortal, actionResult, refresh } = loadWithdrawInvestorHelper(fetchImpl);
+
+  await withdrawInvestorFromPortal({ id: 7, investor: 'investor.testnet' });
+
+  expect(fetchImpl).toHaveBeenCalledWith(
+    'https://agripartners-zlp2.onrender.com/api/investor/deals/7/withdraw',
+    expect.objectContaining({ method: 'POST' })
+  );
+  expect(actionResult).toHaveBeenCalledWith('success', 'Investor withdrawal completed successfully', 'tx-123');
+  expect(refresh).toHaveBeenCalledWith(7);
+});
+
+test('investor withdrawal error remains visible and does not refresh', async () => {
+  const fetchImpl = jest.fn().mockResolvedValue(testResponse(500, { error: 'withdraw failed' }));
+  const { withdrawInvestorFromPortal, actionResult, refresh } = loadWithdrawInvestorHelper(fetchImpl);
+
+  await withdrawInvestorFromPortal({ id: 7, investor: 'investor.testnet' });
+
+  expect(actionResult).toHaveBeenCalledWith('error', 'Investor withdrawal failed: withdraw failed');
+  expect(refresh).not.toHaveBeenCalled();
+});
+
 test('investor demo dataset hides test records and renders clean pilot routes', () => {
   expect(appJs).toContain('const INVESTOR_DEMO_PILOTS');
   expect(appJs).toContain("key: 'fidlot'");
@@ -685,10 +1095,10 @@ test('investor demo financial metrics render in USD instead of NEAR', () => {
   expect(appJs).toContain('const invested = deal.display_amount || formatNearDisplay(deal.amount)');
   expect(appJs).toContain('const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return)');
   expect(appJs).toContain('const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount)');
-  expect(appJs).toContain("['Invested', deal.display_amount || formatNearDisplay(deal.invested_amount || deal.amount)]");
-  expect(appJs).toContain("['Projected Return', deal.display_expected_return || formatNearDisplay(deal.expected_return)]");
-  expect(appJs).toContain("['Outstanding Return', deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount)]");
+  expect(appJs).toContain("['Invested', deal.display_amount || formatOptionalNearDisplay(deal.invested_amount ?? deal.amount)]");
+  expect(appJs).toContain("['Projected Return', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)]");
+  expect(appJs).toContain("['Outstanding Return', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)]");
   expect(appJs).toContain("['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))]");
-  expect(appJs).toContain('const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent ?? 20');
-  expect(appJs).toContain('[roiLabel, `${escapeHtml(projectedRoi)}%`]');
+  expect(appJs).toContain('const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent;');
+  expect(appJs).toContain("[roiLabel, projectedRoi != null ? `${escapeHtml(projectedRoi)}%` : 'Unavailable']");
 });
