@@ -99,9 +99,45 @@ function loadInvestorDashboardHelpers() {
   return module.exports;
 }
 
+function loadInvestorLiveDataHelpers(fetchImpl = jest.fn()) {
+  const start = appJs.indexOf('async function enrichDealsForInvestor');
+  const end = appJs.indexOf('function parseNearAmount');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const helpers = `
+    const API_BASE = 'https://api.example.test';
+    function authHeaders() { return { Authorization: 'Bearer test' }; }
+    ${appJs.slice(start, end)}
+    module.exports = {
+      enrichDealsForInvestor,
+      normalizeInvestorDealsPayload,
+      normalizeInvestorDeal,
+    };
+  `;
+  const module = { exports: {} };
+  Function('module', 'fetch', helpers)(module, fetchImpl);
+  return module.exports;
+}
+
+function loadInvestorModeHelpers() {
+  const start = appJs.indexOf('function normalizeInvestorDashboardMode');
+  const end = appJs.indexOf('function renderNoWalletInvestorDashboard');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const helpers = `
+    const INVESTOR_DASHBOARD_MODE_LIVE = 'live';
+    const INVESTOR_DASHBOARD_MODE_DEMO = 'demo';
+    ${appJs.slice(start, end)}
+    module.exports = { normalizeInvestorDashboardMode };
+  `;
+  const module = { exports: {} };
+  Function('module', helpers)(module);
+  return module.exports;
+}
+
 function loadFundingProgressHelpers() {
   const start = appJs.indexOf('function dealStatusName');
-  const end = appJs.indexOf('const INVESTOR_DEMO_DATASET_ENABLED');
+  const end = appJs.indexOf('const INVESTOR_DASHBOARD_MODE_KEY');
   expect(start).toBeGreaterThanOrEqual(0);
   expect(end).toBeGreaterThan(start);
   const helpers = `
@@ -324,7 +360,7 @@ test('investor detail renders project profile before technical deal data', () =>
   expect(appJs).not.toContain('[2, 8].includes');
 });
 
-test('investor home dashboard renders MVP metrics and pilot deals', () => {
+test('investor home dashboard renders MVP metrics and preserves its sections', () => {
   expect(appJs).toContain('function investorMetrics');
   expect(appJs).toContain('Investor Analytics Dashboard');
   expect(appJs).toContain('Portfolio performance, pilot deals, returns, and reporting visibility.');
@@ -349,12 +385,99 @@ test('investor home dashboard renders MVP metrics and pilot deals', () => {
   expect(appJs).not.toContain('Poultry Farm');
   expect(appJs).not.toContain('Cotton Farm');
   expect(appJs).not.toContain('Demo Portfolio');
-  expect(appJs).toContain('INVESTOR_DEMO_DATASET_ENABLED');
-  expect(appJs).toContain('buildInvestorDemoDataset(deals, connectedWalletAccount)');
+  expect(appJs).not.toContain('INVESTOR_DEMO_DATASET_ENABLED');
+  expect(appJs).toContain('buildInvestorDemoDataset([], connectedWalletAccount)');
   expect(appJs).toContain('Financial view in USD');
   expect(appJs).not.toContain('Demo financial view in USD');
   expect(appJs).toContain('displayTotalInvested');
   expect(appJs).toContain('displayExpectedReturns');
+});
+
+test('investor dashboard defaults unknown or missing mode values to live mode', () => {
+  const { normalizeInvestorDashboardMode } = loadInvestorModeHelpers();
+
+  expect(normalizeInvestorDashboardMode(null)).toBe('live');
+  expect(normalizeInvestorDashboardMode('invalid')).toBe('live');
+  expect(normalizeInvestorDashboardMode('live')).toBe('live');
+  expect(normalizeInvestorDashboardMode('demo')).toBe('demo');
+  expect(appJs).toContain("const INVESTOR_DASHBOARD_MODE_LIVE = 'live'");
+});
+
+test('explicit demo mode is labeled and does not depend on the live deals request', () => {
+  const demoBranch = appJs.indexOf('if (dashboardMode === INVESTOR_DASHBOARD_MODE_DEMO)');
+  const liveRequest = appJs.indexOf('fetch(`${API_BASE}/api/investor/deals`');
+
+  expect(demoBranch).toBeGreaterThanOrEqual(0);
+  expect(liveRequest).toBeGreaterThan(demoBranch);
+  expect(appJs).toContain('Static pilot data is shown for demonstration only. It is not your live portfolio.');
+  expect(appJs).toContain('data-investor-dashboard-mode="demo"');
+  expect(appJs).toContain('renderFeaturedPilotDealsForMode(mode)');
+});
+
+test('live mode has explicit error and empty portfolio states without demo fallback', () => {
+  expect(appJs).toContain('Investor Portal unavailable: ${e.message}');
+  expect(appJs).toContain('No active investments found for connected wallet account:');
+  expect(appJs).toContain('Featured pilot profiles are available in explicit Demo Mode.');
+  expect(appJs).not.toContain('INVESTOR_DEMO_DATASET_ENABLED');
+});
+
+test('live deal payload normalization handles missing and null fields safely', () => {
+  const { normalizeInvestorDealsPayload } = loadInvestorLiveDataHelpers();
+  const deals = normalizeInvestorDealsPayload([{
+    id: 7,
+    status: null,
+    amount: null,
+    projected_roi_pct: null,
+  }]);
+
+  expect(deals).toEqual([expect.objectContaining({
+    id: 7,
+    amount: '0',
+    expected_return: '0',
+    returned_amount: '0',
+    outstanding_amount: '0',
+    projected_roi_pct: 0,
+    status: { status: 'Unknown' },
+    balances: null,
+  })]);
+  expect(() => normalizeInvestorDealsPayload({ deals: [] })).toThrow('Investor deals response is not a list');
+});
+
+test('per-deal enrichment keeps the live deal when optional requests partially fail', async () => {
+  const fetchImpl = jest.fn(url => {
+    if (url.endsWith('/7')) {
+      return Promise.resolve({ ok: true, status: 200, json: async () => ({ title: 'Live Deal', amount: null }) });
+    }
+    if (url.endsWith('/status')) return Promise.reject(new Error('RPC unavailable'));
+    return Promise.resolve({ ok: false, status: 503, json: async () => ({}) });
+  });
+  const { enrichDealsForInvestor } = loadInvestorLiveDataHelpers(fetchImpl);
+
+  const deals = await enrichDealsForInvestor([{ id: 7, status: 'Active', amount: '10' }]);
+
+  expect(deals).toHaveLength(1);
+  expect(deals[0]).toEqual(expect.objectContaining({
+    id: 7,
+    title: 'Live Deal',
+    amount: '10',
+    status: { status: 'Active' },
+    enrichment_warnings: [
+      'contract status unavailable',
+      'contract balances unavailable (HTTP 503)',
+    ],
+  }));
+});
+
+test('per-deal authorization failure remains an explicit live mode error', async () => {
+  const fetchImpl = jest.fn(url => Promise.resolve({
+    ok: !url.endsWith('/7'),
+    status: url.endsWith('/7') ? 401 : 200,
+    json: async () => ({}),
+  }));
+  const { enrichDealsForInvestor } = loadInvestorLiveDataHelpers(fetchImpl);
+
+  await expect(enrichDealsForInvestor([{ id: 7 }]))
+    .rejects.toThrow('Investor authorization failed while loading deal details');
 });
 
 test('investor analytics dashboard renders Phase 9 analytics sections', () => {

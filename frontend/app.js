@@ -35,6 +35,7 @@ function clearAuth() {
   localStorage.removeItem(AUTH_STORAGE_KEY);
   sessionStorage.removeItem(AUTH_STORAGE_KEY);
   localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
+  sessionStorage.removeItem('ap_investor_dashboard_mode');
 }
 
 function authHeaders() {
@@ -2012,10 +2013,12 @@ async function showInvestorPortal() {
     </div>
     <div id="near-wallet-section" class="mb-6"></div>
     <div id="investor-profile-section" class="mb-6"></div>
+    <div id="investor-dashboard-mode" class="mb-6"></div>
     <div id="investor-dashboard-content"></div>
   `;
   renderNearWalletSection();
   const profileEl = document.getElementById('investor-profile-section');
+  const modeEl = document.getElementById('investor-dashboard-mode');
   const dashboardEl = document.getElementById('investor-dashboard-content');
 
   if (!connectedWalletAccount) {
@@ -2028,25 +2031,36 @@ async function showInvestorPortal() {
   }
 
   loadInvestorProfile();
+  const dashboardMode = getInvestorDashboardMode();
+  renderInvestorDashboardModeControl(modeEl, dashboardMode);
+  bindInvestorDashboardModeControl(modeEl, dashboardMode);
 
   dashboardEl.innerHTML = `
     <h2 class="text-xl font-semibold mb-4">My Investments</h2>
     <div class="spinner"></div>
   `;
 
+  if (dashboardMode === INVESTOR_DASHBOARD_MODE_DEMO) {
+    const demoDeals = buildInvestorDemoDataset([], connectedWalletAccount);
+    renderInvestorDashboard(dashboardEl, demoDeals, connectedWalletAccount, dashboardMode);
+    return;
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api/investor/deals`, { headers: authHeaders() });
-    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (res.status === 401) {
+      clearAuth();
+      renderInvestorPortalMessage(dashboardEl, 'Wallet session expired. Sign in again to load live investor data.', 'error');
+      return;
+    }
     if (res.status === 403) {
       renderInvestorPortalMessage(dashboardEl, 'This session is not authorized for wallet investor data.', 'error');
       return;
     }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const deals = await res.json();
-    const enrichedDeals = INVESTOR_DEMO_DATASET_ENABLED
-      ? buildInvestorDemoDataset(deals, connectedWalletAccount)
-      : await enrichDealsForInvestor(deals);
-    renderInvestorDashboard(dashboardEl, enrichedDeals, connectedWalletAccount);
+    const deals = normalizeInvestorDealsPayload(await res.json());
+    const enrichedDeals = await enrichDealsForInvestor(deals);
+    renderInvestorDashboard(dashboardEl, enrichedDeals, connectedWalletAccount, dashboardMode);
   } catch (e) {
     dashboardEl.querySelector('.spinner')?.remove();
     renderInvestorPortalMessage(
@@ -2055,6 +2069,56 @@ async function showInvestorPortal() {
       'error'
     );
   }
+}
+
+function normalizeInvestorDashboardMode(value) {
+  return value === INVESTOR_DASHBOARD_MODE_DEMO
+    ? INVESTOR_DASHBOARD_MODE_DEMO
+    : INVESTOR_DASHBOARD_MODE_LIVE;
+}
+
+function getInvestorDashboardMode() {
+  try {
+    return normalizeInvestorDashboardMode(sessionStorage.getItem(INVESTOR_DASHBOARD_MODE_KEY));
+  } catch {
+    return INVESTOR_DASHBOARD_MODE_LIVE;
+  }
+}
+
+function setInvestorDashboardMode(mode) {
+  const normalizedMode = normalizeInvestorDashboardMode(mode);
+  try { sessionStorage.setItem(INVESTOR_DASHBOARD_MODE_KEY, normalizedMode); } catch {}
+  return normalizedMode;
+}
+
+function renderInvestorDashboardModeControl(el, mode) {
+  if (!el) return;
+  const isDemo = mode === INVESTOR_DASHBOARD_MODE_DEMO;
+  el.innerHTML = `
+    <div class="bg-slate-800 border ${isDemo ? 'border-amber-500' : 'border-slate-700'} rounded-lg px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="text-sm font-semibold ${isDemo ? 'text-amber-300' : 'text-green-300'}">${isDemo ? 'Demo Mode' : 'Live Mode'}</p>
+        <p class="text-xs text-slate-400">${isDemo
+          ? 'Static pilot data is shown for demonstration only. It is not your live portfolio.'
+          : 'Showing live portfolio data for the connected wallet account.'}</p>
+      </div>
+      <div class="inline-flex rounded-lg border border-slate-600 overflow-hidden" aria-label="Investor dashboard data mode">
+        <button type="button" data-investor-dashboard-mode="live" class="px-3 py-2 text-sm ${!isDemo ? 'bg-green-600 text-white' : 'bg-slate-900 text-slate-300 hover:bg-slate-700'}">Live Mode</button>
+        <button type="button" data-investor-dashboard-mode="demo" class="px-3 py-2 text-sm ${isDemo ? 'bg-amber-600 text-white' : 'bg-slate-900 text-slate-300 hover:bg-slate-700'}">Demo Mode</button>
+      </div>
+    </div>
+  `;
+}
+
+function bindInvestorDashboardModeControl(el, currentMode) {
+  el?.querySelectorAll('[data-investor-dashboard-mode]').forEach(button => {
+    button.addEventListener('click', () => {
+      const nextMode = normalizeInvestorDashboardMode(button.dataset.investorDashboardMode);
+      if (nextMode === currentMode) return;
+      setInvestorDashboardMode(nextMode);
+      showInvestorPortal();
+    });
+  });
 }
 
 function renderNoWalletInvestorDashboard() {
@@ -2130,7 +2194,11 @@ async function loadInvestorProfile() {
   try {
     const res = await fetch(`${API_BASE}/api/investor/profile`, { headers: authHeaders() });
     const data = await res.json().catch(() => ({}));
-    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (res.status === 401) {
+      clearAuth();
+      renderInvestorProfileError(el, 'Wallet session expired. Sign in again to load your investor profile.');
+      return;
+    }
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     renderInvestorProfileForm(el, data);
   } catch (err) {
@@ -2272,20 +2340,73 @@ function renderInvestorPortalMessage(el, message, type = 'info') {
 
 async function enrichDealsForInvestor(deals) {
   const headers = authHeaders();
-  return Promise.all(deals.map(async deal => {
+  const safeDeals = Array.isArray(deals) ? deals : [];
+  return Promise.all(safeDeals.map(async deal => {
     const [detailRes, statusRes, balancesRes] = await Promise.allSettled([
       fetch(`${API_BASE}/api/investor/deals/${deal.id}`, { headers }),
       fetch(`${API_BASE}/api/investor/deals/${deal.id}/status`, { headers }),
       fetch(`${API_BASE}/api/investor/deals/${deal.id}/balances`, { headers })
     ]);
-    const detail = detailRes.status === 'fulfilled' && detailRes.value.ok
-      ? await detailRes.value.json() : {};
-    const status = statusRes.status === 'fulfilled' && statusRes.value.ok
-      ? await statusRes.value.json() : null;
-    const balances = balancesRes.status === 'fulfilled' && balancesRes.value.ok
-      ? await balancesRes.value.json() : null;
-    return { ...deal, ...detail, status, balances };
+    const [detailResult, statusResult, balancesResult] = await Promise.all([
+      readInvestorEnrichmentResult(detailRes, 'deal details', {}),
+      readInvestorEnrichmentResult(statusRes, 'contract status', null),
+      readInvestorEnrichmentResult(balancesRes, 'contract balances', null),
+    ]);
+    const warnings = [detailResult.error, statusResult.error, balancesResult.error].filter(Boolean);
+    const detail = detailResult.data && typeof detailResult.data === 'object'
+      ? Object.fromEntries(Object.entries(detailResult.data).filter(([, value]) => value != null))
+      : {};
+    return normalizeInvestorDeal({
+      ...deal,
+      ...detail,
+      status: statusResult.data ?? detail.status ?? deal.status,
+      balances: balancesResult.data ?? detail.balances ?? deal.balances ?? null,
+      enrichment_warnings: warnings,
+    });
   }));
+}
+
+async function readInvestorEnrichmentResult(result, label, fallback) {
+  if (result.status !== 'fulfilled') {
+    return { data: fallback, error: `${label} unavailable` };
+  }
+  if ([401, 403].includes(result.value.status)) {
+    throw new Error(`Investor authorization failed while loading ${label}`);
+  }
+  if (!result.value.ok) {
+    return { data: fallback, error: `${label} unavailable (HTTP ${result.value.status})` };
+  }
+  try {
+    return { data: await result.value.json(), error: null };
+  } catch {
+    return { data: fallback, error: `${label} returned invalid data` };
+  }
+}
+
+function normalizeInvestorDealsPayload(payload) {
+  if (!Array.isArray(payload)) throw new Error('Investor deals response is not a list');
+  return payload.filter(deal => deal && typeof deal === 'object').map(normalizeInvestorDeal);
+}
+
+function normalizeInvestorDeal(deal) {
+  const source = deal && typeof deal === 'object' ? deal : {};
+  const rawStatus = source.status;
+  const status = rawStatus && typeof rawStatus === 'object'
+    ? { ...rawStatus, status: rawStatus.status || 'Unknown' }
+    : { status: typeof rawStatus === 'string' && rawStatus ? rawStatus : 'Unknown' };
+  return {
+    ...source,
+    id: source.id ?? null,
+    amount: source.amount ?? source.invested_amount ?? source.investment_amount ?? '0',
+    expected_return: source.expected_return ?? '0',
+    returned_amount: source.returned_amount ?? '0',
+    outstanding_amount: source.outstanding_amount ?? '0',
+    projected_roi_pct: Number.isFinite(Number(source.projected_roi_pct))
+      ? Number(source.projected_roi_pct)
+      : (Number.isFinite(Number(source.roi_percent)) ? Number(source.roi_percent) : 0),
+    status,
+    balances: source.balances && typeof source.balances === 'object' ? source.balances : null,
+  };
 }
 
 function parseNearAmount(value) {
@@ -2422,7 +2543,9 @@ function renderFundingProgressPanel(deal) {
   `;
 }
 
-const INVESTOR_DEMO_DATASET_ENABLED = true;
+const INVESTOR_DASHBOARD_MODE_KEY = 'ap_investor_dashboard_mode';
+const INVESTOR_DASHBOARD_MODE_LIVE = 'live';
+const INVESTOR_DASHBOARD_MODE_DEMO = 'demo';
 
 const INVESTOR_DEMO_PILOTS = [
   {
@@ -2734,6 +2857,7 @@ function adminDemoMetrics(deals) {
 }
 
 function investorMetrics(deals) {
+  deals = Array.isArray(deals) ? deals.filter(deal => deal && typeof deal === 'object') : [];
   const roiDeals = deals.filter(deal => (deal.projected_roi_pct ?? deal.roi_percent) != null);
   const allUsd = deals.length > 0 && deals.every(deal => deal.display_currency === 'USD');
   const totals = {
@@ -2768,7 +2892,10 @@ function investorMetrics(deals) {
     displayOutstanding: allUsd ? formatUsdAmount(totals.outstanding) : null,
     displayProfitRealized: allUsd ? formatUsdAmount(profitRealized) : null,
     averageRoi: roiDeals.length
-      ? roiDeals.reduce((sum, deal) => sum + Number(deal.projected_roi_pct ?? deal.roi_percent), 0) / roiDeals.length
+      ? roiDeals.reduce((sum, deal) => {
+        const roi = Number(deal.projected_roi_pct ?? deal.roi_percent);
+        return sum + (Number.isFinite(roi) ? roi : 0);
+      }, 0) / roiDeals.length
       : 0,
     activeDeals,
     completedDeals,
@@ -2778,8 +2905,9 @@ function investorMetrics(deals) {
   };
 }
 
-function renderInvestorDashboard(el, deals, connectedWalletAccount) {
+function renderInvestorDashboard(el, deals, connectedWalletAccount, mode = INVESTOR_DASHBOARD_MODE_LIVE) {
   el.querySelector('.spinner')?.remove();
+  deals = Array.isArray(deals) ? deals : [];
   const metrics = investorMetrics(deals);
   const dashboard = document.createElement('div');
   const activeDeals = deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status));
@@ -2794,7 +2922,7 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
       ${renderDashboardSection('ROI & Returns Overview', renderInvestorReturnsOverview(metrics))}
       ${renderDashboardSection('Reporting Signals', renderInvestorReportingSignals())}
       ${renderDashboardSection('Risk / Attention Panel', renderInvestorRiskPanel(metrics))}
-      ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDeals())}
+      ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDealsForMode(mode))}
       ${renderDashboardSection('Deal Performance', renderEmptyDashboardSection('Deal performance appears once investor deals are available'))}
       ${renderDashboardSection('Active Investments', `<p class="text-slate-400">No active investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>`)}
       ${renderDashboardSection('Completed Investments', renderEmptyDashboardSection('No completed deals yet'))}
@@ -2812,7 +2940,7 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
     ${renderDashboardSection('Deal Performance', renderDealSection(deals, 'No deal performance data'))}
     ${renderDashboardSection('Reporting Signals', renderInvestorReportingSignals())}
     ${renderDashboardSection('Risk / Attention Panel', renderInvestorRiskPanel(metrics))}
-    ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDeals())}
+    ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDealsForMode(mode))}
     ${renderDashboardSection('Active Investments', renderDealSection(activeDeals, 'No active deals'))}
     ${renderDashboardSection('Completed Investments', renderDealSection(completedDeals, 'No completed deals yet'))}
   `;
@@ -2835,7 +2963,7 @@ function renderEmptyDashboardSection(message) {
 }
 
 function renderDealSection(deals, emptyMessage) {
-  if (!deals.length) return renderEmptyDashboardSection(emptyMessage);
+  if (!Array.isArray(deals) || !deals.length) return renderEmptyDashboardSection(emptyMessage);
   return `<div class="grid gap-4">${deals.map(renderInvestorDealCard).join('')}</div>`;
 }
 
@@ -3032,6 +3160,11 @@ function renderFeaturedPilotDeals() {
       ${FEATURED_PILOT_DEALS.map(renderFeaturedPilotDealCard).join('')}
     </div>
   `;
+}
+
+function renderFeaturedPilotDealsForMode(mode) {
+  if (mode === INVESTOR_DASHBOARD_MODE_DEMO) return renderFeaturedPilotDeals();
+  return renderEmptyDashboardSection('Featured pilot profiles are available in explicit Demo Mode.');
 }
 
 function renderFeaturedPilotDealCard(deal) {
