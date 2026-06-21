@@ -126,6 +126,34 @@ test('GET /api/farmer/deals/:dealId/cycles returns cycles for owned deal', async
   });
 });
 
+test('POST /api/farmer/deals/:dealId/withdraw withdraws an owned deal server-side', async () => {
+  nearService.withdrawContractAs.mockResolvedValue({ txHash: 'farmer-withdraw-tx' });
+
+  const res = await request(app)
+    .post('/api/farmer/deals/3/withdraw')
+    .set('Authorization', `Bearer ${farmerToken}`)
+    .send({});
+
+  expect(res.status).toBe(200);
+  expect(nearService.withdrawContractAs).toHaveBeenCalledWith('farmer.testnet', 'ap3.farab.testnet');
+  expect(dealService.addEvent).toHaveBeenCalledWith({
+    deal_id: 3,
+    event_type: 'FarmerWithdraw',
+    tx_hash: 'farmer-withdraw-tx',
+  });
+  expect(res.body).toEqual({ ok: true, tx_hash: 'farmer-withdraw-tx' });
+});
+
+test('POST /api/farmer/deals/:dealId/withdraw rejects another wallet', async () => {
+  const res = await request(app)
+    .post('/api/farmer/deals/3/withdraw')
+    .set('Authorization', `Bearer ${investorToken}`)
+    .send({});
+
+  expect(res.status).toBe(403);
+  expect(nearService.withdrawContractAs).not.toHaveBeenCalled();
+});
+
 test('POST /api/farmer/deals/:dealId/confirm-funding confirms own cycle', async () => {
   const res = await request(app)
     .post('/api/farmer/deals/3/cycles/1/confirm-funding')

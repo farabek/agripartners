@@ -133,17 +133,14 @@ test('farmer withdraw button is hidden behind positive farmer balance', () => {
   expect(detailBody).toContain('No Farmer Balance');
 });
 
-test('farmer withdraw uses wallet signed contract call, not backend private keys', () => {
+test('farmer withdraw uses authenticated backend API without browser Node modules', () => {
   const withdrawStart = appJs.indexOf('async function withdrawFarmerWithWallet');
   expect(withdrawStart).toBeGreaterThan(-1);
   const withdrawBody = appJs.slice(withdrawStart, withdrawStart + 1800);
 
-  expect(withdrawBody).toContain('signAndSendWalletFunctionCall');
-  expect(withdrawBody).toContain('contractId: deal.contract_address');
-  expect(withdrawBody).toContain("methodName: 'withdraw'");
-  expect(withdrawBody).toContain('expectedAccountId: deal.farmer');
+  expect(withdrawBody).toContain('fetchFarmerJson(`/api/farmer/deals/${deal.id}/withdraw`');
+  expect(withdrawBody).toContain("method: 'POST'");
   expect(withdrawBody).toContain('connectedWallet !== deal.farmer');
   expect(withdrawBody).toContain('await showFarmerDeal(deal.id)');
-  expect(withdrawBody).not.toContain('/api/admin/deals');
-  expect(withdrawBody).not.toContain('/withdraw-as');
+  expect(withdrawBody).not.toContain('signAndSendWalletFunctionCall');
 });

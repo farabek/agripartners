@@ -87,6 +87,22 @@ router.get('/deals/:dealId/cycles', async (req, res) => {
   }
 });
 
+router.post('/deals/:dealId/withdraw', async (req, res) => {
+  try {
+    const deal = await getOwnedFarmerDeal(req, res);
+    if (!deal) return;
+    const result = await nearService.withdrawContractAs(deal.farmer, deal.contract_address);
+    await dealService.addEvent({
+      deal_id: deal.id,
+      event_type: 'FarmerWithdraw',
+      tx_hash: result.txHash,
+    });
+    res.json({ ok: true, tx_hash: result.txHash });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/deals/:dealId/confirm-funding', async (req, res) => {
   req.params.cycleId = req.body.cycleId;
   return confirmFarmerCycleFunding(req, res);

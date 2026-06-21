@@ -1,17 +1,6 @@
-import { setupWalletSelector } from '@near-wallet-selector/core';
-import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
-import { Buffer } from 'buffer';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const API_BASE = 'https://agripartners-zlp2.onrender.com';
 const NEAR_WALLET_NETWORK = 'testnet';
-const NEAR_RPC_URL = import.meta.env.VITE_NEAR_RPC_URL || 'https://test.rpc.fastnear.com';
-const NEAR_WALLET_NETWORK_CONFIG = {
-  networkId: NEAR_WALLET_NETWORK,
-  nodeUrl: NEAR_RPC_URL,
-  helperUrl: 'https://helper.testnet.near.org',
-  explorerUrl: 'https://testnet.nearblocks.io',
-  indexerUrl: 'https://testnet-api.kitwallet.app',
-};
+const MY_NEAR_WALLET_URL = 'https://testnet.mynearwallet.com';
 
 const POC_TOKEN_KEY = 'ap_wallet_auth_poc_token';
 const POC_CHALLENGE_KEY = 'ap_wallet_auth_poc_challenge';
@@ -25,8 +14,6 @@ const els = {
   authStatus: document.getElementById('auth-status'),
   log: document.getElementById('poc-log'),
 };
-
-let selector;
 
 function log(message, data) {
   const line = data ? `${message}\n${JSON.stringify(data, null, 2)}` : message;
@@ -72,29 +59,14 @@ async function readJsonResponse(response) {
 }
 
 async function initSelector() {
-  selector = await setupWalletSelector({
-    network: NEAR_WALLET_NETWORK_CONFIG,
-    modules: [setupMyNearWallet()],
-  });
-
-  const state = selector.store.getState();
-  const account = state.accounts.find(item => item.active) || state.accounts[0];
-  els.walletStatus.textContent = account ? account.accountId : 'Ready to connect';
+  els.walletStatus.textContent = 'Ready to connect';
   els.sign.disabled = false;
-  log('Wallet Selector initialized', {
+  log('Browser-safe wallet redirect ready', {
     networkId: NEAR_WALLET_NETWORK,
-    nodeUrl: NEAR_RPC_URL,
-    selectedWalletId: state.selectedWalletId,
-    accounts: state.accounts.map(item => item.accountId),
   });
 }
 
 async function signMessage() {
-  if (!selector) {
-    await initSelector();
-  }
-
-  const wallet = await selector.wallet('my-near-wallet');
   const challenge = await postJson('/api/wallet-auth/challenge');
   const callbackUrl = `${window.location.origin}${window.location.pathname}`;
   challenge.callbackUrl = callbackUrl;
@@ -102,24 +74,16 @@ async function signMessage() {
 
   log('Challenge received', challenge);
 
-  const nonce = Buffer.from(challenge.nonceBase64, 'base64');
-  log('Nonce diagnostics before signMessage', {
-    constructorName: nonce.constructor?.name,
-    isBuffer: Buffer.isBuffer(nonce),
-    length: nonce.length,
-    byteLength: nonce.byteLength,
-  });
-
-  if (nonce.length !== 32) {
-    throw new Error(`Challenge nonce must decode to exactly 32 bytes; received ${nonce.length}`);
+  if (!challenge.nonceBase64 || atob(challenge.nonceBase64).length !== 32) {
+    throw new Error('Challenge nonce must decode to exactly 32 bytes');
   }
 
-  await wallet.signMessage({
-    message: challenge.message,
-    recipient: challenge.recipient,
-    nonce,
-    callbackUrl,
-  });
+  const walletUrl = new URL('/sign-message', MY_NEAR_WALLET_URL);
+  walletUrl.searchParams.set('message', challenge.message);
+  walletUrl.searchParams.set('recipient', challenge.recipient);
+  walletUrl.searchParams.set('nonce', challenge.nonceBase64);
+  walletUrl.searchParams.set('callbackUrl', callbackUrl);
+  window.location.assign(walletUrl.toString());
 }
 
 async function verifyCallback(callbackParams) {

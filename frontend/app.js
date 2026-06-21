@@ -1,30 +1,9 @@
-import { Buffer } from 'buffer';
-
-globalThis.global = globalThis;
-globalThis.Buffer = Buffer;
-
-if (typeof window !== 'undefined') {
-  window.Buffer = Buffer;
-}
-
-const { setupWalletSelector } = await import('@near-wallet-selector/core');
-const { setupMyNearWallet } = await import('@near-wallet-selector/my-near-wallet');
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const API_BASE = 'https://agripartners-zlp2.onrender.com';
 const NEAR_WALLET_NETWORK = 'testnet';
-const NEAR_RPC_URL = import.meta.env.VITE_NEAR_RPC_URL || 'https://test.rpc.fastnear.com';
-const NEAR_WALLET_NETWORK_CONFIG = {
-  networkId: NEAR_WALLET_NETWORK,
-  nodeUrl: NEAR_RPC_URL,
-  helperUrl: 'https://helper.testnet.near.org',
-  explorerUrl: 'https://testnet.nearblocks.io',
-  indexerUrl: 'https://testnet-api.kitwallet.app',
-};
+const MY_NEAR_WALLET_URL = 'https://testnet.mynearwallet.com';
 const WALLET_AUTH_CHALLENGE_KEY = 'ap_wallet_auth_challenge';
 const AUTH_STORAGE_KEY = 'ap_auth';
 const LOCAL_MVP_ADMIN_WALLETS = ['farab.testnet'];
-
-let walletSelector;
 
 // --- Auth state ---
 
@@ -133,107 +112,17 @@ function walletCallbackUrl() {
   return `${window.location.origin}${window.location.pathname}`;
 }
 
-async function getWalletSelector() {
-  if (walletSelector) return walletSelector;
-  walletSelector = await setupWalletSelector({
-    network: NEAR_WALLET_NETWORK_CONFIG,
-    modules: [setupMyNearWallet()],
-  });
-  exposeWalletDebugHelpers();
-  return walletSelector;
-}
-
-async function getMyNearWallet() {
-  const selector = await getWalletSelector();
-  const wallet = await selector.wallet('my-near-wallet');
-  logWalletSelectorDebug('getMyNearWallet', selector, wallet);
-  return wallet;
-}
-
-function getWalletSelectorSnapshot(selector) {
-  const state = selector.store.getState();
-  const activeAccount = state.accounts.find((account) => account.active) || state.accounts[0] || null;
-  return {
-    state,
-    selectedWalletId: state.selectedWalletId,
-    accounts: state.accounts,
-    activeAccount,
-  };
-}
-
-function logWalletSelectorDebug(label, selector, wallet = null) {
-  if (!isLocalMvpHost()) return;
-  const snapshot = getWalletSelectorSnapshot(selector);
-  console.debug(`[wallet-selector:${label}]`, {
-    selectedWalletId: snapshot.selectedWalletId,
-    state: snapshot.state,
-    accounts: snapshot.accounts,
-    activeAccount: snapshot.activeAccount,
-    wallet,
-  });
-}
-
-function exposeWalletDebugHelpers() {
-  if (!isLocalMvpHost() || typeof window === 'undefined') return;
-  window.__apDebug = {
-    get selector() { return walletSelector; },
-    getMyNearWallet,
-    getWalletSelector,
-  };
-}
-
-async function ensureWalletSelectorSession({ contractId, methodName, expectedAccountId }) {
-  const selector = await getWalletSelector();
-  const wallet = await getMyNearWallet();
-  const snapshot = getWalletSelectorSnapshot(selector);
-  const matchingAccount = snapshot.accounts.find((account) => account.accountId === expectedAccountId);
-
-  logWalletSelectorDebug('before-sign', selector, wallet);
-
-  if (matchingAccount) {
-    selector.setActiveAccount(expectedAccountId);
-    logWalletSelectorDebug('active-account-restored', selector, wallet);
-    return { selector, wallet, accountId: expectedAccountId };
+function redirectToWalletMessageSigning({ message, nonceBase64, recipient, callbackUrl }) {
+  if (!nonceBase64 || atob(nonceBase64).length !== 32) {
+    throw new Error('Challenge nonce must decode to exactly 32 bytes');
   }
 
-  if (selector.isSignedIn() || snapshot.accounts.length > 0) {
-    const activeAccount = snapshot.activeAccount?.accountId || 'unknown';
-    throw new Error(`Wallet Selector is signed in as ${activeAccount}. Sign out and log in as ${expectedAccountId}.`);
-  }
-
-  const accounts = await wallet.signIn({
-    contractId,
-    methodNames: [methodName],
-    successUrl: window.location.href,
-    failureUrl: window.location.href,
-  });
-  if (accounts?.some((account) => account.accountId === expectedAccountId)) {
-    selector.setActiveAccount(expectedAccountId);
-    logWalletSelectorDebug('signed-in-before-sign', selector, wallet);
-    return { selector, wallet, accountId: expectedAccountId };
-  }
-  throw new Error('Wallet connection approval is required. Approve MyNearWallet, then retry withdrawal.');
-}
-
-async function signAndSendWalletFunctionCall({ contractId, methodName, args = {}, gas = '100000000000000', deposit = '0', expectedAccountId = null }) {
-  const { wallet } = expectedAccountId
-    ? await ensureWalletSelectorSession({ contractId, methodName, expectedAccountId })
-    : { wallet: await getMyNearWallet() };
-  return wallet.signAndSendTransaction({
-    receiverId: contractId,
-    callbackUrl: window.location.href,
-    actions: [
-      {
-        type: 'FunctionCall',
-        params: {
-          methodName,
-          args,
-          gas,
-          deposit,
-        },
-      },
-    ],
-  });
+  const walletUrl = new URL('/sign-message', MY_NEAR_WALLET_URL);
+  walletUrl.searchParams.set('message', message);
+  walletUrl.searchParams.set('nonce', nonceBase64);
+  walletUrl.searchParams.set('recipient', recipient);
+  walletUrl.searchParams.set('callbackUrl', callbackUrl);
+  window.location.assign(walletUrl.toString());
 }
 
 function readWalletCallbackParams() {
@@ -298,20 +187,13 @@ async function resolveWalletLandingHash() {
 }
 
 async function loginWithNearWallet() {
-  const wallet = await getMyNearWallet();
   const challenge = await postJson('/api/wallet-auth/challenge');
   challenge.callbackUrl = walletCallbackUrl();
   localStorage.setItem(WALLET_AUTH_CHALLENGE_KEY, JSON.stringify(challenge));
-
-  const nonce = Buffer.from(challenge.nonceBase64, 'base64');
-  if (nonce.length !== 32) {
-    throw new Error(`Challenge nonce must decode to exactly 32 bytes; received ${nonce.length}`);
-  }
-
-  await wallet.signMessage({
+  redirectToWalletMessageSigning({
     message: challenge.message,
     recipient: challenge.recipient,
-    nonce,
+    nonceBase64: challenge.nonceBase64,
     callbackUrl: challenge.callbackUrl,
   });
 }
@@ -694,14 +576,6 @@ async function handleWalletLogin() {
 }
 
 async function logout() {
-  try {
-    if (walletSelector?.isSignedIn()) {
-      const wallet = await getMyNearWallet();
-      await wallet.signOut();
-    }
-  } catch (err) {
-    console.warn('Wallet sign out failed', err);
-  }
   clearAuth();
   location.hash = '#login';
 }
@@ -2037,13 +1911,6 @@ function showFarmerActionResult(type, message) {
   el.classList.remove('hidden');
 }
 
-function getWalletTransactionHash(result) {
-  return result?.transaction?.hash
-    || result?.transaction_outcome?.id
-    || result?.receipts_outcome?.[0]?.id
-    || '';
-}
-
 async function withdrawFarmerWithWallet(deal) {
   const connectedWallet = getNearWalletAccount();
   if (connectedWallet !== deal.farmer) {
@@ -2057,15 +1924,14 @@ async function withdrawFarmerWithWallet(deal) {
     btn.disabled = true;
     btn.textContent = 'Opening wallet...';
   }
-  showFarmerActionResult('success', 'Farmer withdrawal submitted to wallet...');
+  showFarmerActionResult('success', 'Farmer withdrawal submitted...');
 
   try {
-    const result = await signAndSendWalletFunctionCall({
-      contractId: deal.contract_address,
-      methodName: 'withdraw',
-      expectedAccountId: deal.farmer,
+    const result = await fetchFarmerJson(`/api/farmer/deals/${deal.id}/withdraw`, {
+      method: 'POST',
+      body: JSON.stringify({}),
     });
-    const txHash = getWalletTransactionHash(result);
+    const txHash = result.tx_hash || '';
     showFarmerActionResult('success', txHash
       ? `Farmer withdrawal completed. Tx: ${txHash}`
       : 'Farmer withdrawal completed.');
