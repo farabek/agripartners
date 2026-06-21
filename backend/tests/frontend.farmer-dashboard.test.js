@@ -6,15 +6,140 @@ const appJs = fs.readFileSync(
   'utf8'
 );
 
+function response(status, payload, { invalidJson = false } = {}) {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    json: invalidJson ? async () => { throw new Error('invalid'); } : async () => payload,
+  };
+}
+
+function loadFetchFarmerJson(fetchImpl, clearAuthMock = jest.fn()) {
+  const start = appJs.indexOf('async function fetchFarmerJson');
+  const end = appJs.indexOf('async function showFarmerPortal');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const source = `
+    const API_BASE = 'https://api.example.test';
+    function authHeaders() { return {}; }
+    function jsonAuthHeaders() { return {}; }
+    const clearAuth = clearAuthMock;
+    ${appJs.slice(start, end)}
+    module.exports = { fetchFarmerJson };
+  `;
+  const module = { exports: {} };
+  Function('module', 'fetch', 'clearAuthMock', source)(module, fetchImpl, clearAuthMock);
+  return module.exports;
+}
+
+function loadFarmerDashboardDataHelpers() {
+  const start = appJs.indexOf('function normalizeFarmerDashboardPayload');
+  const end = appJs.indexOf('function farmerProfileValue');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const source = `
+    function getNearWalletAccount() { return 'wallet-fallback.testnet'; }
+    ${appJs.slice(start, end)}
+    module.exports = { normalizeFarmerDashboardPayload, normalizeFarmerProfilePayload, normalizeLiveFarmerDeal };
+  `;
+  const module = { exports: {} };
+  Function('module', source)(module);
+  return module.exports;
+}
+
+function loadFarmerProfileDisplay() {
+  const start = appJs.indexOf('function farmerProfileDisplay');
+  const end = appJs.indexOf('function renderFarmerProfilePanel');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const module = { exports: {} };
+  Function('module', `${appJs.slice(start, end)}\nmodule.exports = { farmerProfileDisplay };`)(module);
+  return module.exports;
+}
+
+function loadFarmerEmptyState() {
+  const start = appJs.indexOf('function renderFarmerEmptyState');
+  const end = appJs.indexOf('function bindFarmerDashboardActions');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const source = `
+    function escapeHtml(value) { return String(value ?? ''); }
+    ${appJs.slice(start, end)}
+    module.exports = { renderFarmerEmptyState };
+  `;
+  const module = { exports: {} };
+  Function('module', source)(module);
+  return module.exports;
+}
+
+function loadFarmerDealBundle(fetchFarmerJsonImpl) {
+  const normalizeStart = appJs.indexOf('function normalizeLiveFarmerDeal');
+  const normalizeEnd = appJs.indexOf('function farmerProfileValue');
+  const start = appJs.indexOf('async function fetchFarmerDealBundle');
+  const end = appJs.indexOf('function showFarmerPilotProfile');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const source = `
+    const fetchFarmerJson = fetchFarmerJsonImpl;
+    ${appJs.slice(normalizeStart, normalizeEnd)}
+    ${appJs.slice(start, end)}
+    module.exports = { fetchFarmerDealBundle };
+  `;
+  const module = { exports: {} };
+  Function('module', 'fetchFarmerJsonImpl', source)(module, fetchFarmerJsonImpl);
+  return module.exports;
+}
+
+function loadFarmerProjectProfileRenderer() {
+  const start = appJs.indexOf('function renderFarmerProjectProfile');
+  const end = appJs.indexOf('function renderFarmerFundingStatus');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const source = `
+    function escapeHtml(value) { return String(value ?? ''); }
+    function formatFarmerFundingAmount(value) { return value == null ? 'Unavailable' : String(value); }
+    ${appJs.slice(start, end)}
+    module.exports = { renderFarmerProjectProfile };
+  `;
+  const module = { exports: {} };
+  Function('module', source)(module);
+  return module.exports;
+}
+
+function loadWithdrawFarmer(fetchImpl) {
+  const start = appJs.indexOf('async function withdrawFarmerWithWallet');
+  const end = appJs.indexOf('async function confirmFarmerFunding');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const actionResult = jest.fn();
+  const showDeal = jest.fn().mockResolvedValue(undefined);
+  const button = { disabled: false, textContent: '' };
+  const source = `
+    function getNearWalletAccount() { return 'farmer.testnet'; }
+    function confirm() { return true; }
+    const document = { getElementById: () => button };
+    const fetchFarmerJson = fetchImpl;
+    const showFarmerActionResult = actionResult;
+    const showFarmerDeal = showDeal;
+    ${appJs.slice(start, end)}
+    module.exports = { withdrawFarmerWithWallet };
+  `;
+  const module = { exports: {} };
+  Function('module', 'fetchImpl', 'actionResult', 'showDeal', 'button', source)(
+    module, fetchImpl, actionResult, showDeal, button
+  );
+  return { ...module.exports, actionResult, showDeal, button };
+}
+
 test('farmer dashboard loads profile and deals together', () => {
   const showFarmerPortalStart = appJs.indexOf('async function showFarmerPortal');
   expect(showFarmerPortalStart).toBeGreaterThan(-1);
   const showFarmerPortalBody = appJs.slice(showFarmerPortalStart, showFarmerPortalStart + 1800);
 
-  expect(showFarmerPortalBody).toContain('fetchMyProfile()');
+  expect(showFarmerPortalBody).toContain("fetchFarmerJson('/api/profile/me')");
   expect(showFarmerPortalBody).toContain("fetchFarmerJson('/api/farmer/deals')");
-  expect(showFarmerPortalBody).toContain('buildFarmerDemoDataset(dealsData.deals || [], dealsData.farmer)');
-  expect(showFarmerPortalBody).toContain('renderFarmerDashboard(contentEl, deals, dealsData.farmer, profileData.profile)');
+  expect(showFarmerPortalBody).not.toContain('buildFarmerDemoDataset');
+  expect(showFarmerPortalBody).toContain('renderFarmerDashboard(contentEl, farmerData.deals, farmerData.farmer, profile)');
 });
 
 test('new farmer empty state is friendly and actionable', () => {
@@ -26,18 +151,14 @@ test('new farmer empty state is friendly and actionable', () => {
 
 test('farmer dashboard renders profile fields and summary cards', () => {
   expect(appJs).toContain('renderFarmerProfilePanel');
-  expect(appJs).toContain('AgriPartners Pilot Farm');
-  expect(appJs).toContain('Tashkent Region');
-  expect(appJs).toContain('Hissar Sheep Breeding');
-  expect(appJs).toContain("role: 'farmer'");
   expect(appJs).toContain('Farmer Operations Dashboard');
-  expect(appJs).toContain('Operational view for active agricultural pilot deals.');
+  expect(appJs).toContain('Operational view for agricultural deals.');
   expect(appJs).toContain('Farm Profile');
   expect(appJs).toContain('Farm Name');
   expect(appJs).toContain('Region');
   expect(appJs).toContain('Activity / Livestock Type');
   expect(appJs).toContain('Farmer Account');
-  expect(appJs).toContain('Funding Received');
+  expect(appJs).toContain('Deal Funding');
   expect(appJs).toContain('Active Deals');
   expect(appJs).toContain('Current Cycle');
   expect(appJs).toContain('Reports Submitted');
@@ -58,7 +179,7 @@ test('farmer deal cards remain linked to the detail page', () => {
 });
 
 test('farmer demo dataset shows only clean pilot deals', () => {
-  expect(appJs).toContain('const FARMER_DEMO_DATASET_ENABLED = true');
+  expect(appJs).not.toContain('FARMER_DEMO_DATASET_ENABLED');
   expect(appJs).toContain('function buildFarmerDemoDataset');
   expect(appJs).toContain('function farmerDemoDealFromPilot');
   expect(appJs).toContain('Fidlot Livestock Project');
@@ -71,15 +192,15 @@ test('farmer demo dataset shows only clean pilot deals', () => {
   expect(appJs).not.toContain('withdraw_signer_test');
 });
 
-test('farmer summary metrics show clean demo values', () => {
-  expect(appJs).toContain('activeDeals = deals.filter((deal) => deal.status !== \'Completed\').length');
+test('farmer summary metrics use known live states safely', () => {
+  expect(appJs).toContain('activeDeals = deals.filter((deal) => activeStatuses.includes(deal.status)).length');
   expect(appJs).toContain('reportsSubmitted = deals.filter((deal) => deal.reportStatus === \'submitted\').length');
   expect(appJs).toContain('nextReportDue = deals.filter((deal) => deal.reportStatus === \'pending\' || deal.reportStatus === \'due\').length');
   expect(appJs).toContain('displayTotalFunding');
   expect(appJs).toContain("displayAmount: '$50,000'");
   expect(appJs).toContain('Financial view in USD');
   expect(appJs).not.toContain('Demo financial view in USD');
-  expect(appJs).toContain('Funding Received');
+  expect(appJs).toContain('Deal Funding');
 });
 
 test('farmer demo deal detail renders project profile and report cycle status', () => {
@@ -117,7 +238,7 @@ test('farmer deal detail fetches balances for withdraw state', () => {
   const showFarmerDealBody = appJs.slice(showFarmerDealStart, showFarmerDealStart + 1400);
 
   expect(showFarmerDealBody).toContain('fetchFarmerJson(`/api/deals/${id}/balances`)');
-  expect(showFarmerDealBody).toContain('renderFarmerDealDetail(el, dealData.deal, cyclesData.cycles || [], balancesData)');
+  expect(showFarmerDealBody).toContain('renderFarmerDealDetail(el, bundle)');
 });
 
 test('farmer withdraw button is hidden behind positive farmer balance', () => {
@@ -125,8 +246,8 @@ test('farmer withdraw button is hidden behind positive farmer balance', () => {
   expect(detailStart).toBeGreaterThan(-1);
   const detailBody = appJs.slice(detailStart, detailStart + 2500);
 
-  expect(detailBody).toContain("const farmerBalance = balances?.farmer || '0'");
-  expect(detailBody).toContain('const canWithdrawFarmer = hasPositiveYocto(farmerBalance)');
+  expect(detailBody).toContain('const farmerBalance = resourceErrors.balances ? null : balances?.farmer');
+  expect(detailBody).toContain('const canWithdrawFarmer = hasPositiveYoctoSafe(farmerBalance)');
   expect(detailBody).toContain('id="btn-farmer-withdraw"');
   expect(detailBody).toContain("${canWithdrawFarmer ? '' : 'disabled'}");
   expect(detailBody).toContain('Withdraw Farmer Balance');
@@ -141,6 +262,212 @@ test('farmer withdraw uses authenticated backend API without browser Node module
   expect(withdrawBody).toContain('fetchFarmerJson(`/api/farmer/deals/${deal.id}/withdraw`');
   expect(withdrawBody).toContain("method: 'POST'");
   expect(withdrawBody).toContain('connectedWallet !== deal.farmer');
-  expect(withdrawBody).toContain('await showFarmerDeal(deal.id)');
+  expect(withdrawBody).toContain("await showFarmerDeal(deal.id, { type: 'success', message })");
+  expect(withdrawBody).toContain("btn.textContent = 'Withdrawing...'");
   expect(withdrawBody).not.toContain('signAndSendWalletFunctionCall');
+});
+
+test('farmer dashboard normalization keeps live deals and supports zero-deal portfolios', () => {
+  const { normalizeFarmerDashboardPayload } = loadFarmerDashboardDataHelpers();
+
+  const live = normalizeFarmerDashboardPayload({
+    farmer: 'farmer.testnet',
+    deals: [{ id: 9, title: 'Live Orchard', status: 'Funded' }],
+  });
+  const empty = normalizeFarmerDashboardPayload({ farmer: 'farmer.testnet', deals: [] });
+
+  expect(live.deals).toHaveLength(1);
+  expect(live.deals[0]).toEqual(expect.objectContaining({ id: 9, title: 'Live Orchard', status: 'Funded' }));
+  expect(live.deals[0].isDemoPilot).toBeUndefined();
+  expect(empty.deals).toEqual([]);
+  expect(appJs.slice(appJs.indexOf('async function showFarmerPortal'), appJs.indexOf('function normalizeFarmerDashboardPayload')))
+    .not.toContain('buildFarmerDemoDataset');
+});
+
+test('farmer zero-deal empty state renders explicitly', () => {
+  const { renderFarmerEmptyState } = loadFarmerEmptyState();
+  const html = renderFarmerEmptyState('farmer.testnet');
+
+  expect(html).toContain('No active deals yet');
+  expect(html).toContain('farmer.testnet');
+  expect(html).not.toContain('Fidlot Livestock Project');
+  expect(html).not.toContain('Hissar Sheep Breeding Project');
+});
+
+test('live farmer profile uses neutral missing values instead of demo defaults', () => {
+  const { farmerProfileDisplay } = loadFarmerProfileDisplay();
+  const profile = farmerProfileDisplay({}, 'farmer.testnet');
+
+  expect(profile).toEqual({
+    farmName: 'Unavailable',
+    region: 'Unavailable',
+    activity: 'Unavailable',
+    farmerAccount: 'farmer.testnet',
+    status: 'Unknown',
+    role: 'Unknown',
+  });
+  expect(Object.values(profile)).not.toContain('AgriPartners Pilot Farm');
+  expect(Object.values(profile)).not.toContain('Tashkent Region');
+  expect(Object.values(profile)).not.toContain('Hissar Sheep Breeding');
+  expect(Object.values(profile)).not.toContain('Active');
+});
+
+test.each([
+  [401, 'Wallet session expired'],
+  [403, 'forbidden'],
+  [404, 'missing'],
+  [500, 'HTTP 500'],
+])('farmer API exposes HTTP %s errors', async (status, expected) => {
+  const clearAuthMock = jest.fn();
+  const fetchImpl = jest.fn().mockResolvedValue(response(status, {
+    error: status === 403 ? 'forbidden' : (status === 404 ? 'missing' : undefined),
+  }));
+  const { fetchFarmerJson } = loadFetchFarmerJson(fetchImpl, clearAuthMock);
+
+  await expect(fetchFarmerJson('/api/farmer/deals')).rejects.toThrow(expected);
+  if (status === 401) expect(clearAuthMock).toHaveBeenCalledTimes(1);
+});
+
+test('farmer API exposes network and invalid JSON failures', async () => {
+  const network = loadFetchFarmerJson(jest.fn().mockRejectedValue(new Error('offline')));
+  const invalid = loadFetchFarmerJson(jest.fn().mockResolvedValue(response(200, null, { invalidJson: true })));
+
+  await expect(network.fetchFarmerJson('/api/farmer/deals')).rejects.toThrow('offline');
+  await expect(invalid.fetchFarmerJson('/api/farmer/deals'))
+    .rejects.toThrow('Farmer API returned invalid JSON for /api/farmer/deals');
+});
+
+function successfulFarmerBundleResponse(path) {
+  if (path.endsWith('/cycles')) return { cycles: [{ id: 1, status: 'funding_sent' }] };
+  if (path.endsWith('/balances')) return { farmer: '1000' };
+  return {
+    deal: { id: 9, farmer: 'farmer.testnet', status: 'Funded', activeCycleId: 1 },
+    raw: { id: 9, title: 'Live Orchard', description: 'Live description', deal_type: 'orchard' },
+  };
+}
+
+test('owned farmer detail loads successfully and merges raw live fields', async () => {
+  const fetchFarmerJson = jest.fn(path => Promise.resolve(successfulFarmerBundleResponse(path)));
+  const { fetchFarmerDealBundle } = loadFarmerDealBundle(fetchFarmerJson);
+
+  const bundle = await fetchFarmerDealBundle(9);
+
+  expect(fetchFarmerJson).toHaveBeenCalledTimes(3);
+  expect(bundle.deal).toEqual(expect.objectContaining({
+    id: 9,
+    title: 'Live Orchard',
+    description: 'Live description',
+    deal_type: 'orchard',
+    status: 'Funded',
+    activeCycleId: 1,
+  }));
+  expect(bundle.cycles).toHaveLength(1);
+  expect(bundle.balances).toEqual({ farmer: '1000' });
+  expect(bundle.resourceErrors).toEqual({ cycles: null, balances: null });
+});
+
+test.each([
+  ['401', 'Wallet session expired'],
+  ['403', 'Only deal farmer can access this deal'],
+  ['404', 'Farmer deal not found'],
+  ['network', 'offline'],
+  ['malformed', 'Farmer deal returned malformed data'],
+])('mandatory farmer detail exposes %s failure', async (kind, expected) => {
+  const fetchFarmerJson = jest.fn(path => {
+    if (!path.endsWith('/deals/9')) return Promise.resolve(successfulFarmerBundleResponse(path));
+    if (kind === 'malformed') return Promise.resolve({ deal: null });
+    return Promise.reject(new Error(expected));
+  });
+  const { fetchFarmerDealBundle } = loadFarmerDealBundle(fetchFarmerJson);
+
+  await expect(fetchFarmerDealBundle(9)).rejects.toThrow(expected);
+});
+
+test.each([
+  ['/cycles', 'cycles', [], 'Cycle status unavailable'],
+  ['/balances', 'balances', null, 'Farmer balances unavailable'],
+])('optional farmer resource %s fails independently', async (suffix, key, fallback, expected) => {
+  const fetchFarmerJson = jest.fn(path => path.endsWith(suffix)
+    ? Promise.reject(new Error('offline'))
+    : Promise.resolve(successfulFarmerBundleResponse(path)));
+  const { fetchFarmerDealBundle } = loadFarmerDealBundle(fetchFarmerJson);
+
+  const bundle = await fetchFarmerDealBundle(9);
+
+  expect(bundle.deal.id).toBe(9);
+  expect(bundle[key]).toEqual(fallback);
+  expect(bundle.resourceErrors[key]).toContain(expected);
+});
+
+test('empty cycles and cycles request failure remain distinct', async () => {
+  const emptyFetch = jest.fn(path => Promise.resolve(
+    path.endsWith('/cycles') ? { cycles: [] } : successfulFarmerBundleResponse(path)
+  ));
+  const failedFetch = jest.fn(path => path.endsWith('/cycles')
+    ? Promise.reject(new Error('offline'))
+    : Promise.resolve(successfulFarmerBundleResponse(path)));
+
+  const empty = await loadFarmerDealBundle(emptyFetch).fetchFarmerDealBundle(9);
+  const failed = await loadFarmerDealBundle(failedFetch).fetchFarmerDealBundle(9);
+
+  expect(empty.cycles).toEqual([]);
+  expect(empty.resourceErrors.cycles).toBeNull();
+  expect(failed.cycles).toEqual([]);
+  expect(failed.resourceErrors.cycles).toContain('offline');
+});
+
+test('malformed optional farmer payloads become section errors', async () => {
+  const fetchFarmerJson = jest.fn(path => Promise.resolve(
+    path.endsWith('/cycles') ? { cycles: [null] }
+      : (path.endsWith('/balances') ? [] : successfulFarmerBundleResponse(path))
+  ));
+  const { fetchFarmerDealBundle } = loadFarmerDealBundle(fetchFarmerJson);
+
+  const bundle = await fetchFarmerDealBundle(9);
+
+  expect(bundle.resourceErrors.cycles).toBe('Cycle status returned malformed data');
+  expect(bundle.resourceErrors.balances).toBe('Farmer balances returned malformed data');
+});
+
+test('live farmer detail renders missing fields as Unknown or Unavailable', () => {
+  const { renderFarmerProjectProfile } = loadFarmerProjectProfileRenderer();
+  const html = renderFarmerProjectProfile({ id: 9, status: null });
+
+  expect(html).toContain('Unknown');
+  expect(html).toContain('Unavailable');
+  expect(html).not.toContain('Funding Confirmed');
+  expect(html).not.toContain('Cycle Active');
+  expect(html).not.toContain('Next Report Due');
+  expect(html).not.toContain('Agricultural project demonstrated');
+});
+
+test('explicit farmer demo pilot route remains available', () => {
+  expect(appJs).toContain('showFarmerPilotProfile(farmerPilot[1])');
+  expect(appJs).toContain('function renderFarmerDemoDealDetail');
+  expect(appJs).toContain('farmerDemoDealFromPilot(pilot, getNearWalletAccount())');
+  expect(appJs).toContain('const dealHref = deal.isDemoPilot ? `#farmer/pilots/${deal.pilot_key}`');
+});
+
+test('farmer withdrawal success refreshes detail and preserves success state', async () => {
+  const fetchImpl = jest.fn().mockResolvedValue({ tx_hash: 'tx-farmer-1' });
+  const { withdrawFarmerWithWallet, showDeal, actionResult } = loadWithdrawFarmer(fetchImpl);
+
+  await withdrawFarmerWithWallet({ id: 9, farmer: 'farmer.testnet' });
+
+  expect(fetchImpl).toHaveBeenCalledWith('/api/farmer/deals/9/withdraw', expect.objectContaining({ method: 'POST' }));
+  expect(showDeal).toHaveBeenCalledWith(9, {
+    type: 'success',
+    message: 'Farmer withdrawal completed. Tx: tx-farmer-1',
+  });
+  expect(actionResult).toHaveBeenCalledWith('success', 'Farmer withdrawal submitted...');
+});
+
+test('farmer withdrawal error remains visible without refresh', async () => {
+  const fetchImpl = jest.fn().mockRejectedValue(new Error('signer unavailable'));
+  const { withdrawFarmerWithWallet, showDeal, actionResult } = loadWithdrawFarmer(fetchImpl);
+
+  await withdrawFarmerWithWallet({ id: 9, farmer: 'farmer.testnet' });
+
+  expect(actionResult).toHaveBeenCalledWith('error', 'Farmer withdrawal failed: signer unavailable');
+  expect(showDeal).not.toHaveBeenCalled();
 });

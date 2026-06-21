@@ -1214,12 +1214,18 @@ async function fetchFarmerJson(path, options = {}) {
       ...(options.headers || {}),
     },
   });
-  const data = await res.json().catch(() => ({}));
+  let data = {};
+  let parseError = null;
+  try {
+    data = await res.json();
+  } catch {
+    parseError = new Error(`Farmer API returned invalid JSON for ${path}`);
+  }
   if (res.status === 401) {
     clearAuth();
-    location.hash = '#login';
     throw new Error('Wallet session expired');
   }
+  if (parseError) throw parseError;
   if (res.status === 403 || res.status === 404) {
     throw new Error(data.error || 'Farmer deal not found');
   }
@@ -1235,7 +1241,7 @@ async function showFarmerPortal() {
     ${renderNav()}
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-green-400 mb-1">Farmer Operations Dashboard</h1>
-      <p class="text-slate-400">Operational view for active agricultural pilot deals.</p>
+      <p class="text-slate-400">Operational view for agricultural deals.</p>
       <p class="text-slate-400 mt-2">Wallet / Account: <span class="text-slate-200 font-medium">${escapeHtml(connectedWalletAccount || 'Not connected')}</span></p>
     </div>
     <div id="farmer-dashboard-content">
@@ -1256,17 +1262,52 @@ async function showFarmerPortal() {
 
   try {
     const [profileData, dealsData] = await Promise.all([
-      fetchMyProfile(),
+      fetchFarmerJson('/api/profile/me'),
       fetchFarmerJson('/api/farmer/deals'),
     ]);
-    const deals = FARMER_DEMO_DATASET_ENABLED
-      ? buildFarmerDemoDataset(dealsData.deals || [], dealsData.farmer)
-      : (dealsData.deals || []);
-    renderFarmerDashboard(contentEl, deals, dealsData.farmer, profileData.profile);
+    const farmerData = normalizeFarmerDashboardPayload(dealsData);
+    const profile = normalizeFarmerProfilePayload(profileData);
+    renderFarmerDashboard(contentEl, farmerData.deals, farmerData.farmer, profile);
   } catch (err) {
     contentEl.querySelector('.spinner')?.remove();
     contentEl.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Farmer Portal unavailable: ${escapeHtml(err.message)}</div>`;
   }
+}
+
+function normalizeFarmerDashboardPayload(payload) {
+  if (!payload || typeof payload !== 'object' || !Array.isArray(payload.deals)) {
+    throw new Error('Farmer deals returned malformed data');
+  }
+  if (!payload.deals.every(deal => deal && typeof deal === 'object' && !Array.isArray(deal))) {
+    throw new Error('Farmer deals returned malformed data');
+  }
+  return {
+    farmer: payload.farmer || getNearWalletAccount() || '',
+    deals: payload.deals.map(normalizeLiveFarmerDeal),
+  };
+}
+
+function normalizeFarmerProfilePayload(payload) {
+  if (!payload || typeof payload !== 'object') throw new Error('Farmer profile returned malformed data');
+  if (payload.profile == null) return {};
+  if (typeof payload.profile !== 'object' || Array.isArray(payload.profile)) {
+    throw new Error('Farmer profile returned malformed data');
+  }
+  return payload.profile;
+}
+
+function normalizeLiveFarmerDeal(deal = {}) {
+  return {
+    ...deal,
+    id: deal.id ?? null,
+    title: deal.title || null,
+    description: deal.description || null,
+    status: deal.status || 'Unknown',
+    activeCycleId: deal.activeCycleId ?? null,
+    fundingStatus: deal.fundingStatus || null,
+    reportStatus: deal.reportStatus || null,
+    reportLabel: deal.reportLabel || null,
+  };
 }
 
 function farmerProfileValue(profile, field, fallback = 'Not set') {
@@ -1287,18 +1328,21 @@ function farmerDemoProfile(profile = {}) {
 }
 
 function farmerDashboardMetrics(deals) {
+  deals = Array.isArray(deals) ? deals : [];
   const allUsd = deals.length > 0 && deals.every((deal) => deal.display_currency === 'USD');
   const totalFunding = deals.reduce(
-    (sum, deal) => allUsd ? sum : addYocto(sum, deal.amount || deal.investment_amount || '0'),
+    (sum, deal) => allUsd ? sum : addYoctoSafe(sum, deal.amount ?? deal.investment_amount),
     '0'
   );
   const activeCycles = deals.filter((deal) => deal.activeCycleId != null).length;
-  const activeDeals = deals.filter((deal) => deal.status !== 'Completed').length;
+  const activeStatuses = ['Initialized', 'Funded', 'CycleActive', 'CycleSettlement', 'Active'];
+  const activeDeals = deals.filter((deal) => activeStatuses.includes(deal.status)).length;
+  const hasReportStatus = deals.some((deal) => deal.reportStatus != null);
   const reportsSubmitted = deals.filter((deal) => deal.reportStatus === 'submitted').length;
   const nextReportDue = deals.filter((deal) => deal.reportStatus === 'pending' || deal.reportStatus === 'due').length;
   const currentCycle = deals.find((deal) => deal.activeCycleId != null)?.activeCycleId
-    ?? deals.find((deal) => deal.status !== 'Completed')?.current_cycle
-    ?? 'No active cycle';
+    ?? deals.find((deal) => activeStatuses.includes(deal.status))?.current_cycle
+    ?? 'Unavailable';
   return {
     activeDeals,
     totalFunding,
@@ -1307,20 +1351,29 @@ function farmerDashboardMetrics(deals) {
       : null,
     activeCycles,
     currentCycle,
-    reportsSubmitted,
-    nextReportDue,
+    reportsSubmitted: hasReportStatus ? reportsSubmitted : null,
+    nextReportDue: hasReportStatus ? nextReportDue : null,
   };
 }
 
+function addYoctoSafe(total, value) {
+  if (value == null || value === '') return total;
+  try {
+    return addYocto(total, value);
+  } catch {
+    return total;
+  }
+}
+
 function farmerProfileDisplay(profile, farmer) {
-  const source = FARMER_DEMO_DATASET_ENABLED ? farmerDemoProfile(profile) : (profile || {});
+  const source = profile || {};
   return {
-    farmName: source.organizationName || source.displayName || 'AgriPartners Pilot Farm',
-    region: source.region || source.country || 'Tashkent Region',
-    activity: source.activity || source.bio || 'Hissar Sheep Breeding',
+    farmName: source.organizationName || source.displayName || 'Unavailable',
+    region: source.region || source.country || 'Unavailable',
+    activity: source.activity || source.bio || 'Unavailable',
     farmerAccount: farmer || source.walletAccountId || 'Not connected',
-    status: source.status || 'Active',
-    role: source.role || 'farmer',
+    status: source.status || 'Unknown',
+    role: source.role || 'Unknown',
   };
 }
 
@@ -1370,7 +1423,7 @@ function renderFarmerSummaryCards(metrics) {
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
       <div class="metric-box">
-        <span class="metric-label">Funding Received</span>
+        <span class="metric-label">Deal Funding</span>
         <span class="metric-value">${escapeHtml(totalFunding)}</span>
         ${rawFunding}
       </div>
@@ -1384,11 +1437,11 @@ function renderFarmerSummaryCards(metrics) {
       </div>
       <div class="metric-box">
         <span class="metric-label">Reports Submitted</span>
-        <span class="metric-value">${metrics.reportsSubmitted}</span>
+        <span class="metric-value">${metrics.reportsSubmitted ?? 'Unavailable'}</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Next Report Due</span>
-        <span class="metric-value">${metrics.nextReportDue}</span>
+        <span class="metric-value">${metrics.nextReportDue ?? 'Unavailable'}</span>
       </div>
     </div>
   `;
@@ -1433,6 +1486,7 @@ function bindFarmerDashboardActions(farmer) {
 
 function renderFarmerDashboard(el, deals, farmer, profile = null) {
   el.querySelector('.spinner')?.remove();
+  deals = Array.isArray(deals) ? deals : [];
   const metrics = farmerDashboardMetrics(deals);
 
   if (deals.length === 0) {
@@ -1472,8 +1526,8 @@ function farmerDealProjectedRoi(deal) {
 function renderFarmerDealCard(deal) {
   const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`;
   const dealHref = deal.isDemoPilot ? `#farmer/pilots/${deal.pilot_key}` : `#farmer/deals/${deal.id}`;
-  const amount = deal.display_amount || yoctoToNear(deal.amount || deal.investment_amount);
-  const activeCycle = deal.activeCycleId ?? 'none';
+  const amount = deal.display_amount || formatFarmerFundingAmount(deal.amount ?? deal.investment_amount);
+  const activeCycle = deal.activeCycleId ?? 'Unavailable';
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="space-y-1 min-w-0">
@@ -1486,8 +1540,8 @@ function renderFarmerDealCard(deal) {
         <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${escapeHtml(formatAddress(deal.investor))}</span></p>
         <p class="text-sm text-slate-400">Funding: <span class="text-slate-100 font-mono">${escapeHtml(amount)}</span></p>
         <p class="text-sm text-slate-400">Current Cycle: <span class="text-slate-200">${escapeHtml(activeCycle)}</span></p>
-        <p class="text-sm text-slate-400">Funding Status: <span class="text-slate-200">${escapeHtml(deal.fundingStatus || 'Funding Confirmed')}</span></p>
-        <p class="text-sm text-slate-400">Report Status: <span class="text-slate-200">${escapeHtml(deal.reportLabel || 'Next Report Due')}</span></p>
+        <p class="text-sm text-slate-400">Funding Status: <span class="text-slate-200">${escapeHtml(deal.fundingStatus || 'Unavailable')}</span></p>
+        <p class="text-sm text-slate-400">Report Status: <span class="text-slate-200">${escapeHtml(deal.reportLabel || 'Unavailable')}</span></p>
         <p class="text-sm text-slate-400">Projected ROI: <span class="text-slate-200">${escapeHtml(farmerDealProjectedRoi(deal))}</span></p>
         <p class="text-sm text-green-300">Next action: ${escapeHtml(farmerDealNextAction(deal))}</p>
       </div>
@@ -1496,7 +1550,16 @@ function renderFarmerDealCard(deal) {
   `;
 }
 
-async function showFarmerDeal(id) {
+function formatFarmerFundingAmount(value) {
+  if (value == null || value === '') return 'Unavailable';
+  try {
+    return yoctoToNear(value);
+  } catch {
+    return 'Unavailable';
+  }
+}
+
+async function showFarmerDeal(id, actionState = null) {
   showView('view-farmer');
   const el = document.getElementById('view-farmer');
   el.innerHTML = `
@@ -1506,16 +1569,72 @@ async function showFarmerDeal(id) {
   `;
 
   try {
-    const [dealData, cyclesData, balancesData] = await Promise.all([
-      fetchFarmerJson(`/api/farmer/deals/${id}`),
-      fetchFarmerJson(`/api/farmer/deals/${id}/cycles`),
-      fetchFarmerJson(`/api/deals/${id}/balances`),
-    ]);
-    renderFarmerDealDetail(el, dealData.deal, cyclesData.cycles || [], balancesData);
+    const bundle = await fetchFarmerDealBundle(id);
+    renderFarmerDealDetail(el, bundle);
+    if (actionState) showFarmerActionResult(actionState.type, actionState.message);
   } catch (err) {
     el.querySelector('.spinner')?.remove();
     el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Deal unavailable: ${escapeHtml(err.message)}</div>`;
   }
+}
+
+async function fetchFarmerDealBundle(id) {
+  const [dealResult, cyclesResult, balancesResult] = await Promise.allSettled([
+    fetchFarmerJson(`/api/farmer/deals/${id}`),
+    fetchFarmerJson(`/api/farmer/deals/${id}/cycles`),
+    fetchFarmerJson(`/api/deals/${id}/balances`),
+  ]);
+  const deal = readMandatoryFarmerDealResult(dealResult);
+  const cycles = readOptionalFarmerResource(cyclesResult, 'Cycle status', normalizeFarmerCyclesPayload, []);
+  const balances = readOptionalFarmerResource(balancesResult, 'Farmer balances', normalizeFarmerBalancesPayload, null);
+  return {
+    deal,
+    cycles: cycles.data,
+    balances: balances.data,
+    resourceErrors: {
+      cycles: cycles.error,
+      balances: balances.error,
+    },
+  };
+}
+
+function readMandatoryFarmerDealResult(result) {
+  if (result.status === 'rejected') {
+    throw new Error(result.reason?.message || 'Farmer deal request failed');
+  }
+  const payload = result.value;
+  if (!payload || typeof payload !== 'object'
+    || !payload.deal || typeof payload.deal !== 'object' || Array.isArray(payload.deal)
+    || (payload.raw != null && (typeof payload.raw !== 'object' || Array.isArray(payload.raw)))) {
+    throw new Error('Farmer deal returned malformed data');
+  }
+  return normalizeLiveFarmerDeal({ ...(payload.raw || {}), ...payload.deal });
+}
+
+function readOptionalFarmerResource(result, label, normalize, fallback) {
+  if (result.status === 'rejected') {
+    return { data: fallback, error: `${label} unavailable: ${result.reason?.message || 'request failed'}` };
+  }
+  try {
+    return { data: normalize(result.value), error: null };
+  } catch (err) {
+    return { data: fallback, error: err.message || `${label} returned malformed data` };
+  }
+}
+
+function normalizeFarmerCyclesPayload(payload) {
+  if (!payload || !Array.isArray(payload.cycles)
+    || !payload.cycles.every(cycle => cycle && typeof cycle === 'object' && !Array.isArray(cycle))) {
+    throw new Error('Cycle status returned malformed data');
+  }
+  return payload.cycles;
+}
+
+function normalizeFarmerBalancesPayload(payload) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new Error('Farmer balances returned malformed data');
+  }
+  return payload;
 }
 
 function showFarmerPilotProfile(key) {
@@ -1590,11 +1709,11 @@ function renderFarmerDemoDealDetail(el, deal, cycles, events) {
 
 function renderFarmerProjectProfile(deal) {
   const metrics = [
-    ['Funding', deal.display_amount || yoctoToNear(deal.amount || deal.investment_amount)],
-    ['Status', deal.status],
-    ['Funding Status', deal.fundingStatus || 'Funding Confirmed'],
-    ['Cycle Status', deal.cycleStatus || 'Cycle Active'],
-    ['Report', deal.reportLabel || 'Next Report Due'],
+    ['Funding', deal.display_amount || formatFarmerFundingAmount(deal.amount ?? deal.investment_amount)],
+    ['Status', deal.status || 'Unknown'],
+    ['Funding Status', deal.fundingStatus || 'Unavailable'],
+    ['Cycle Status', deal.cycleStatus || 'Unavailable'],
+    ['Report', deal.reportLabel || 'Unavailable'],
   ];
   return `
     <section class="bg-slate-800 border border-green-900 rounded-lg p-5 mb-6">
@@ -1602,9 +1721,9 @@ function renderFarmerProjectProfile(deal) {
         <div>
           <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Project Profile</span>
           <h1 class="text-2xl md:text-3xl font-bold text-slate-50 mt-1">${escapeHtml(deal.title || `Deal #${deal.id}`)}</h1>
-          <p class="text-sm text-slate-400 mt-2 max-w-3xl">${escapeHtml(deal.description || 'Agricultural project demonstrated through the AgriPartners farmer workflow.')}</p>
+          <p class="text-sm text-slate-400 mt-2 max-w-3xl">${escapeHtml(deal.description || 'Unavailable')}</p>
         </div>
-        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">${escapeHtml(deal.deal_type || 'Pilot')}</span>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">${escapeHtml(deal.deal_type || 'Unavailable')}</span>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
         ${metrics.map(([label, value]) => `
@@ -1620,10 +1739,10 @@ function renderFarmerProjectProfile(deal) {
 
 function renderFarmerFundingStatus(deal) {
   const rows = [
-    ['Funding Status', deal.fundingStatus || 'Funding Confirmed'],
-    ['Funding Amount', deal.display_amount || yoctoToNear(deal.amount || deal.investment_amount)],
-    ['Investor', formatAddress(deal.investor)],
-    ['Return Status', deal.returnLabel || 'Cycle Active'],
+    ['Funding Status', deal.fundingStatus || 'Unavailable'],
+    ['Funding Amount', deal.display_amount || formatFarmerFundingAmount(deal.amount ?? deal.investment_amount)],
+    ['Investor', deal.investor ? formatAddress(deal.investor) : 'Unavailable'],
+    ['Return Status', deal.returnLabel || 'Unavailable'],
   ];
   return rows.map(([k, v]) => `
     <div class="flex justify-between text-sm gap-3 py-1">
@@ -1650,10 +1769,10 @@ function renderFarmerDealOperationsSummary(deal, cycles) {
   const cycle = currentFarmerCycle(cycles);
   const reportSubmitted = farmerReportSubmitted(cycle);
   const summaryRows = [
-    ['Deal Summary', deal.description || 'Operational pilot deal for farmer-side reporting and cycle tracking.'],
-    ['Funding Status', deal.fundingStatus || (cycle?.fundingReceived ? 'Funding Confirmed' : 'Funding Pending')],
-    ['Current Cycle Status', cycle?.cycleStatus || deal.cycleStatus || 'No active cycle'],
-    ['Report Status', reportSubmitted ? 'Report Submitted' : (deal.reportLabel || 'Next Report Due')],
+    ['Deal Summary', deal.description || 'Unavailable'],
+    ['Funding Status', deal.fundingStatus || (cycle ? (cycle.fundingReceived ? 'Funding Confirmed' : 'Not confirmed') : 'Unavailable')],
+    ['Current Cycle Status', cycle?.cycleStatus || cycle?.status || deal.cycleStatus || 'Unavailable'],
+    ['Report Status', reportSubmitted ? 'Report Submitted' : (deal.reportLabel || (cycle ? 'Not submitted' : 'Unavailable'))],
   ];
   return `
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-6">
@@ -1671,11 +1790,18 @@ function renderFarmerDealOperationsSummary(deal, cycles) {
 }
 
 function farmerTimelineSteps(cycle) {
-  const fundingSent = cycle?.status && cycle.status !== 'pending';
-  const fundingConfirmed = Boolean(cycle?.fundingReceived);
-  const cycleStarted = fundingConfirmed || ['cycle_active', 'funding_sent', 'reported', 'completed'].includes(cycle?.status);
-  const reportSubmitted = farmerReportSubmitted(cycle);
-  const cycleCompleted = farmerCycleCompleted(cycle);
+  const hasStatus = typeof cycle?.status === 'string' && cycle.status.length > 0;
+  const fundingSent = hasStatus
+    ? ['funding_sent', 'cycle_active', 'reported', 'completed'].includes(cycle.status)
+    : null;
+  const fundingConfirmed = typeof cycle?.fundingReceived === 'boolean' ? cycle.fundingReceived : null;
+  const cycleStarted = hasStatus ? ['cycle_active', 'reported', 'completed'].includes(cycle.status) : null;
+  const reportSubmitted = cycle?.reportStatus != null || cycle?.report
+    ? farmerReportSubmitted(cycle)
+    : null;
+  const cycleCompleted = hasStatus || cycle?.cycleStatus
+    ? farmerCycleCompleted(cycle)
+    : null;
   return [
     ['Funding Sent', fundingSent],
     ['Funding Confirmed', fundingConfirmed],
@@ -1697,10 +1823,10 @@ function renderFarmerCycleTimeline(cycles) {
       </div>
       <div class="farmer-timeline">
         ${farmerTimelineSteps(cycle).map(([label, done]) => `
-          <div class="farmer-timeline-step ${done ? 'is-complete' : 'is-pending'}">
+          <div class="farmer-timeline-step ${done === true ? 'is-complete' : (done === false ? 'is-pending' : 'is-unknown')}">
             <span class="farmer-timeline-dot"></span>
             <span class="farmer-timeline-label">${label}</span>
-            <span class="farmer-timeline-state">${done ? 'Completed' : 'Pending'}</span>
+            <span class="farmer-timeline-state">${done === true ? 'Completed' : (done === false ? 'Pending' : 'Unknown')}</span>
           </div>
         `).join('')}
       </div>
@@ -1712,8 +1838,8 @@ function normalizeFarmerReport(cycle) {
   const report = cycle.report || {};
   return {
     cycleNumber: cycle.id ?? cycle.cycle_id ?? 'Cycle',
-    title: report.report_title || report.title || cycle.report_title || 'Farmer report',
-    summary: report.report_body || report.description || cycle.report_body || 'Report submitted for this cycle.',
+    title: report.report_title || report.title || cycle.report_title || 'Unavailable',
+    summary: report.report_body || report.description || cycle.report_body || 'Unavailable',
     amountUsed: report.amount_used || report.amountUsed || cycle.amount_used || 'Not provided',
     submittedDate: report.report_created_at || report.submittedAt || report.created_at || cycle.report_created_at || '',
     status: cycle.reportStatus === 'submitted' ? 'Submitted' : 'Pending',
@@ -1770,9 +1896,13 @@ function renderFarmerDemoReportSection(deal, cycles) {
   `;
 }
 
-function renderFarmerDealDetail(el, deal, cycles, balances = null) {
-  const farmerBalance = balances?.farmer || '0';
-  const canWithdrawFarmer = hasPositiveYocto(farmerBalance);
+function renderFarmerDealDetail(el, bundle) {
+  const { deal, cycles = [], balances = null, resourceErrors = {} } = bundle;
+  const farmerBalance = resourceErrors.balances ? null : balances?.farmer;
+  const canWithdrawFarmer = hasPositiveYoctoSafe(farmerBalance);
+  const balanceDisplay = farmerBalance == null
+    ? 'Unavailable'
+    : `${yoctoToNear(farmerBalance)} · ${formatYoctoRaw(farmerBalance)}`;
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
@@ -1795,27 +1925,28 @@ function renderFarmerDealDetail(el, deal, cycles, balances = null) {
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Actions</h3>
         <div class="mb-4 text-sm">
           <span class="block text-slate-500">Farmer Available</span>
-          <span id="farmer-available-balance" class="text-slate-100 font-mono">${escapeHtml(`${yoctoToNear(farmerBalance)} · ${formatYoctoRaw(farmerBalance)}`)}</span>
+          <span id="farmer-available-balance" class="text-slate-100 font-mono">${escapeHtml(balanceDisplay)}</span>
         </div>
-        <button id="btn-farmer-withdraw" class="admin-action-btn action-fund w-full mb-4" ${canWithdrawFarmer ? '' : 'disabled'}>${canWithdrawFarmer ? 'Withdraw Farmer Balance' : 'No Farmer Balance'}</button>
-        <p class="text-xs text-slate-400 mb-4">Confirm received funding and submit text reports for active cycles.</p>
+        ${resourceErrors.balances ? renderFarmerResourceUnavailable('Farmer balances', resourceErrors.balances) : ''}
+        <button id="btn-farmer-withdraw" class="admin-action-btn action-fund w-full mb-4" ${canWithdrawFarmer ? '' : 'disabled'}>${canWithdrawFarmer ? 'Withdraw Farmer Balance' : (resourceErrors.balances ? 'Balance Unavailable' : 'No Farmer Balance')}</button>
+        <p class="text-xs text-slate-400 mb-4">Withdrawals use backend signer support. Confirm received funding and submit text reports for active cycles.</p>
         <div id="farmer-action-result" class="hidden rounded-lg px-4 py-3 text-sm"></div>
       </div>
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
-      <div id="farmer-cycles-list">${renderFarmerCycles(deal.id, cycles)}</div>
+      <div id="farmer-cycles-list">${resourceErrors.cycles ? renderFarmerResourceUnavailable('Cycle status', resourceErrors.cycles) : renderFarmerCycles(deal.id, cycles)}</div>
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mt-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Timeline</h3>
-      ${renderFarmerCycleTimeline(cycles)}
+      ${resourceErrors.cycles ? renderFarmerResourceUnavailable('Cycle timeline', resourceErrors.cycles) : renderFarmerCycleTimeline(cycles)}
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mt-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Reports History</h3>
-      ${renderFarmerReportsHistory(cycles)}
+      ${resourceErrors.cycles ? renderFarmerResourceUnavailable('Reports history', resourceErrors.cycles) : renderFarmerReportsHistory(cycles)}
     </div>
   `;
 
@@ -1824,14 +1955,32 @@ function renderFarmerDealDetail(el, deal, cycles, balances = null) {
   bindFarmerCycleActions(deal.id);
 }
 
+function hasPositiveYoctoSafe(value) {
+  if (value == null || value === '') return false;
+  try {
+    return hasPositiveYocto(value);
+  } catch {
+    return false;
+  }
+}
+
+function renderFarmerResourceUnavailable(label, message) {
+  return `
+    <div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 mb-3 text-sm text-amber-100" data-farmer-resource-error="${escapeHtml(label)}">
+      <span class="font-semibold">${escapeHtml(label)} unavailable.</span>
+      <span>${escapeHtml(message)}</span>
+    </div>
+  `;
+}
+
 function renderFarmerDealParams(deal) {
   const rows = [
-    ['Farmer', deal.farmer],
-    ['Investor', deal.investor],
-    ['Amount', yoctoToNear(deal.amount || deal.investment_amount)],
-    ['Status', deal.status],
-    ['Active Cycle', deal.activeCycleId ?? 'none'],
-    ['Contract', deal.contract_address],
+    ['Farmer', deal.farmer || 'Unavailable'],
+    ['Investor', deal.investor || 'Unavailable'],
+    ['Amount', formatFarmerFundingAmount(deal.amount ?? deal.investment_amount)],
+    ['Status', deal.status || 'Unknown'],
+    ['Active Cycle', deal.activeCycleId ?? 'Unavailable'],
+    ['Contract', deal.contract_address || 'Unavailable'],
   ];
   return rows.map(([k, v]) => `
     <div class="flex justify-between text-sm gap-3">
@@ -1849,9 +1998,17 @@ function renderFarmerCycles(dealId, cycles) {
     const fundingSent = ['funding_sent', 'reported'].includes(cycle.status);
     const canConfirmFunding = fundingSent && !cycle.fundingReceived;
     const canSubmitReport = cycle.fundingReceived && !reportSubmitted;
+    const fundingLabel = cycle.fundingReceived === true
+      ? 'Funding Confirmed'
+      : (cycle.fundingReceived === false ? 'Not confirmed' : 'Unknown');
+    const reportLabel = reportSubmitted
+      ? 'Report Submitted'
+      : (cycle.reportStatus === 'due' ? 'Next Report Due' : (cycle.reportStatus ? 'Not submitted' : 'Unknown'));
     const cycleLabel = reportSubmitted
       ? 'Report Submitted'
-      : (cycle.fundingReceived ? (cycle.reportStatus === 'due' ? 'Next Report Due' : 'Funding Confirmed') : (cycle.status === 'pending' ? 'Pending' : 'Funding sent'));
+      : (cycle.fundingReceived
+        ? (cycle.reportStatus === 'due' ? 'Next Report Due' : 'Funding Confirmed')
+        : (cycle.status === 'pending' ? 'Pending' : (fundingSent ? 'Funding sent' : 'Unknown')));
     return `
       <div class="farmer-cycle-row">
         <div class="min-w-0">
@@ -1859,9 +2016,9 @@ function renderFarmerCycles(dealId, cycles) {
             <span class="font-semibold text-slate-100">Cycle #${cycle.id}</span>
             <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(cycleLabel)}</span>
           </div>
-          <p class="text-sm text-slate-400">Funding Status: <span class="text-slate-200">${cycle.fundingReceived ? 'Funding Confirmed' : 'Not confirmed'}</span></p>
-          <p class="text-sm text-slate-400">Cycle Status: <span class="text-slate-200">${escapeHtml(cycle.cycleStatus || (reportSubmitted ? 'Completed' : 'Cycle Active'))}</span></p>
-          <p class="text-sm text-slate-400">Farmer Report: <span class="text-slate-200">${reportSubmitted ? 'Report Submitted' : 'Next Report Due'}</span></p>
+          <p class="text-sm text-slate-400">Funding Status: <span class="text-slate-200">${fundingLabel}</span></p>
+          <p class="text-sm text-slate-400">Cycle Status: <span class="text-slate-200">${escapeHtml(cycle.cycleStatus || cycle.status || 'Unknown')}</span></p>
+          <p class="text-sm text-slate-400">Farmer Report: <span class="text-slate-200">${reportLabel}</span></p>
           ${reportSubmitted ? renderFarmerReportSummary(cycle.report) : ''}
         </div>
         ${isDemoPilot ? '' : `<div class="farmer-cycle-actions">
@@ -1923,7 +2080,7 @@ async function withdrawFarmerWithWallet(deal) {
   const btn = document.getElementById('btn-farmer-withdraw');
   if (btn) {
     btn.disabled = true;
-    btn.textContent = 'Opening wallet...';
+    btn.textContent = 'Withdrawing...';
   }
   showFarmerActionResult('success', 'Farmer withdrawal submitted...');
 
@@ -1933,10 +2090,10 @@ async function withdrawFarmerWithWallet(deal) {
       body: JSON.stringify({}),
     });
     const txHash = result.tx_hash || '';
-    showFarmerActionResult('success', txHash
+    const message = txHash
       ? `Farmer withdrawal completed. Tx: ${txHash}`
-      : 'Farmer withdrawal completed.');
-    await showFarmerDeal(deal.id);
+      : 'Farmer withdrawal completed.';
+    await showFarmerDeal(deal.id, { type: 'success', message });
   } catch (err) {
     showFarmerActionResult('error', `Farmer withdrawal failed: ${err.message}`);
   } finally {
@@ -1953,8 +2110,7 @@ async function confirmFarmerFunding(dealId, cycleId) {
       method: 'POST',
       body: JSON.stringify({}),
     });
-    showFarmerActionResult('success', 'Funding receipt confirmed');
-    await showFarmerDeal(dealId);
+    await showFarmerDeal(dealId, { type: 'success', message: 'Funding receipt confirmed' });
   } catch (err) {
     showFarmerActionResult('error', `Confirmation failed: ${err.message}`);
   }
@@ -1989,8 +2145,7 @@ async function submitFarmerReport(dealId, cycleId) {
       method: 'POST',
       body: JSON.stringify(payload),
     });
-    showFarmerActionResult('success', 'Cycle report submitted');
-    await showFarmerDeal(dealId);
+    await showFarmerDeal(dealId, { type: 'success', message: 'Cycle report submitted' });
   } catch (err) {
     showFarmerActionResult('error', `Report failed: ${err.message}`);
   }
@@ -2662,7 +2817,6 @@ const INVESTOR_DEMO_PILOTS = [
 ];
 
 const FEATURED_PILOT_DEALS = INVESTOR_DEMO_PILOTS;
-const FARMER_DEMO_DATASET_ENABLED = true;
 const ADMIN_DEMO_DATASET_ENABLED = true;
 
 function pilotKeyFromText(value) {
