@@ -1,15 +1,24 @@
 const LOCAL_ORIGINS = [
+  'http://localhost:3000',
   'http://127.0.0.1:5173',
   'http://localhost:5173',
 ];
 
-function getAllowedOrigins(value = process.env.CORS_ORIGIN) {
-  if (!value) return LOCAL_ORIGINS;
+const PRODUCTION_ORIGINS = [
+  'https://frontend-omega-woad-90.vercel.app',
+];
 
-  return value
-    .split(',')
-    .map((origin) => origin.trim())
-    .filter(Boolean);
+const DEFAULT_ALLOWED_ORIGINS = [...LOCAL_ORIGINS, ...PRODUCTION_ORIGINS];
+
+function getAllowedOrigins(value = process.env.CORS_ORIGIN) {
+  const configuredOrigins = value
+    ? value
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+    : [];
+
+  return [...new Set([...DEFAULT_ALLOWED_ORIGINS, ...configuredOrigins])];
 }
 
 function createCorsOptions(value = process.env.CORS_ORIGIN) {
@@ -22,4 +31,10 @@ function createCorsOptions(value = process.env.CORS_ORIGIN) {
   };
 }
 
-module.exports = { createCorsOptions, getAllowedOrigins, LOCAL_ORIGINS };
+module.exports = {
+  createCorsOptions,
+  getAllowedOrigins,
+  DEFAULT_ALLOWED_ORIGINS,
+  LOCAL_ORIGINS,
+  PRODUCTION_ORIGINS,
+};
