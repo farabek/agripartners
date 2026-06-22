@@ -1,52 +1,13 @@
 const pool = require('../db/index');
-
-const YOCTO_PER_NEAR = BigInt('1000000000000000000000000');
-const DEFAULT_PROJECTED_ROI_PCT = '20';
-const ROI_SCALE = 10000n;
-const PERCENT_DENOMINATOR = 100n * ROI_SCALE;
-
-function parseNearToYocto(value) {
-  const raw = String(value ?? '').trim();
-  if (!/^\d+(\.\d{1,24})?$/.test(raw)) {
-    throw new Error('amount_near must be a valid NEAR amount');
-  }
-  const [whole, fraction = ''] = raw.split('.');
-  return (BigInt(whole) * YOCTO_PER_NEAR + BigInt(fraction.padEnd(24, '0'))).toString();
-}
-
-function formatYoctoToNear(yocto) {
-  const value = BigInt(yocto || '0');
-  const whole = value / YOCTO_PER_NEAR;
-  const fraction = value % YOCTO_PER_NEAR;
-  const fractionText = fraction.toString().padStart(24, '0').replace(/0+$/, '');
-  const decimals = (fractionText || '').padEnd(2, '0');
-  return `${whole}.${decimals}`;
-}
+const {
+  parseNearToYocto,
+  formatYoctoToNear,
+  calculateDealFinancialSummary,
+  calculatePortfolioFinancialSummary,
+} = require('./financialService');
 
 function normalizeReturnAmount(value) {
   return formatYoctoToNear(parseNearToYocto(value));
-}
-
-function parseProjectedRoiPct(value) {
-  const raw = String(value ?? DEFAULT_PROJECTED_ROI_PCT).trim();
-  if (!/^\d+(\.\d{1,4})?$/.test(raw)) {
-    throw new Error('projected_roi_pct must be a valid percentage with up to 4 decimal places');
-  }
-  const [whole, fraction = ''] = raw.split('.');
-  return BigInt(whole) * ROI_SCALE + BigInt(fraction.padEnd(4, '0'));
-}
-
-function formatProjectedRoiPct(value) {
-  const scaled = parseProjectedRoiPct(value);
-  const whole = scaled / ROI_SCALE;
-  const fraction = (scaled % ROI_SCALE).toString().padStart(4, '0').replace(/0+$/, '');
-  return Number(`${whole}${fraction ? `.${fraction}` : ''}`);
-}
-
-function returnStatus(returnedYocto, expectedYocto) {
-  if (returnedYocto <= 0n) return 'no_returns';
-  if (returnedYocto < expectedYocto) return 'partial';
-  return 'completed';
 }
 
 async function getAllDeals() {
@@ -174,28 +135,29 @@ async function createDealReturn(dealId, repayment) {
 
 async function getDealReturnSummary(deal) {
   const returns = await getDealReturns(deal.id);
-  const investedYocto = BigInt(deal.investment_amount || '0');
-  const projectedRoiPct = deal.projected_roi_pct ?? DEFAULT_PROJECTED_ROI_PCT;
-  const projectedRoiScaled = parseProjectedRoiPct(projectedRoiPct);
-  const expectedYocto = investedYocto * (PERCENT_DENOMINATOR + projectedRoiScaled) / PERCENT_DENOMINATOR;
-  const returnedYocto = returns.reduce(
-    (sum, repayment) => sum + BigInt(parseNearToYocto(repayment.amount_near)),
-    0n
-  );
-  const outstandingYocto = expectedYocto > returnedYocto ? expectedYocto - returnedYocto : 0n;
-  const investedAmount = formatYoctoToNear(investedYocto.toString());
-  const projectedRoiPercent = formatProjectedRoiPct(projectedRoiPct);
+  const financialSummary = calculateDealFinancialSummary({
+    investmentAmountYocto: deal.investment_amount,
+    projectedRoiPct: deal.projected_roi_pct,
+    returns,
+  });
 
   return {
-    amount: investedAmount,
-    invested_amount: investedAmount,
-    projected_roi_pct: projectedRoiPercent,
-    expected_return: formatYoctoToNear(expectedYocto.toString()),
-    returned_amount: formatYoctoToNear(returnedYocto.toString()),
-    outstanding_amount: formatYoctoToNear(outstandingYocto.toString()),
-    return_status: returnStatus(returnedYocto, expectedYocto),
-    roi_percent: projectedRoiPercent,
+    amount: financialSummary.investmentAmount,
+    invested_amount: financialSummary.investmentAmount,
+    projected_roi_pct: financialSummary.projectedRoi,
+    expected_return: financialSummary.projectedTotalPayout,
+    returned_amount: financialSummary.recordedReturns,
+    outstanding_amount: financialSummary.projectedOutstanding,
+    return_status: financialSummary.returnStatus,
+    roi_percent: financialSummary.projectedRoi,
+    ...financialSummary,
   };
+}
+
+async function getInvestorPortfolioFinancialSummary(accountId) {
+  const deals = await getInvestorDeals(accountId);
+  const summaries = await Promise.all(deals.map((deal) => getDealReturnSummary(deal)));
+  return calculatePortfolioFinancialSummary(summaries);
 }
 
 async function enrichDealWithReturnSummary(deal) {
@@ -357,6 +319,7 @@ module.exports = {
   getDealReturns,
   createDealReturn,
   getDealReturnSummary,
+  getInvestorPortfolioFinancialSummary,
   enrichDealWithReturnSummary,
   createFarmerReport,
   confirmFarmerFunding,

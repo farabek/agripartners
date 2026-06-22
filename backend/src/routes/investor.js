@@ -63,6 +63,14 @@ router.get('/deals', async (req, res) => {
   }
 });
 
+router.get('/portfolio-summary', async (req, res) => {
+  try {
+    res.json(await dealService.getInvestorPortfolioFinancialSummary(req.wallet.account_id));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/deals/:id', async (req, res) => {
   try {
     const deal = await getInvestorDeal(req, res);

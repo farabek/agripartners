@@ -16,6 +16,7 @@ const {
   getDealReturns,
   createDealReturn,
   getDealReturnSummary,
+  getInvestorPortfolioFinancialSummary,
   createFarmerReport,
   confirmFarmerFunding,
   submitFarmerCycleReport,
@@ -238,6 +239,7 @@ test('getDealReturnSummary marks partial return when returned amount is below ex
   const summary = await getDealReturnSummary({
     id: 1,
     investment_amount: '100000000000000000000000',
+    projected_roi_pct: '20',
   });
 
   expect(summary).toEqual({
@@ -249,6 +251,13 @@ test('getDealReturnSummary marks partial return when returned amount is below ex
     outstanding_amount: '0.07',
     return_status: 'partial',
     roi_percent: 20,
+    investmentAmount: '0.10',
+    projectedRoi: 20,
+    projectedProfit: '0.02',
+    projectedTotalPayout: '0.12',
+    recordedReturns: '0.05',
+    projectedOutstanding: '0.07',
+    returnStatus: 'partial',
   });
 });
 
@@ -272,6 +281,13 @@ test('getDealReturnSummary uses deal-level projected ROI when present', async ()
     outstanding_amount: '0.0625',
     return_status: 'partial',
     roi_percent: 12.5,
+    investmentAmount: '0.10',
+    projectedRoi: 12.5,
+    projectedProfit: '0.0125',
+    projectedTotalPayout: '0.1125',
+    recordedReturns: '0.05',
+    projectedOutstanding: '0.0625',
+    returnStatus: 'partial',
   });
 });
 
@@ -337,19 +353,45 @@ test('getDealReturnSummary floors outstanding at zero for overpaid returns', asy
   expect(summary.return_status).toBe('completed');
 });
 
-test('getDealReturnSummary handles zero or missing values safely', async () => {
+test('getDealReturnSummary returns null projections for missing authoritative inputs', async () => {
   pool.query.mockResolvedValue({ rows: [] });
 
   await expect(getDealReturnSummary({ id: 1 })).resolves.toEqual(expect.objectContaining({
-    amount: '0.00',
-    invested_amount: '0.00',
-    expected_return: '0.00',
+    amount: null,
+    invested_amount: null,
+    expected_return: null,
     returned_amount: '0.00',
-    outstanding_amount: '0.00',
-    return_status: 'no_returns',
-    projected_roi_pct: 20,
-    roi_percent: 20,
+    outstanding_amount: null,
+    return_status: null,
+    projected_roi_pct: null,
+    roi_percent: null,
+    investmentAmount: null,
+    projectedRoi: null,
+    projectedProfit: null,
+    projectedTotalPayout: null,
+    recordedReturns: '0.00',
+    projectedOutstanding: null,
+    returnStatus: null,
   }));
+});
+
+test('getInvestorPortfolioFinancialSummary calculates an investment-weighted ROI', async () => {
+  pool.query
+    .mockResolvedValueOnce({ rows: [
+      { id: 1, investor: 'investor.testnet', investment_amount: '100000000000000000000000000', projected_roi_pct: '10' },
+      { id: 2, investor: 'investor.testnet', investment_amount: '300000000000000000000000000', projected_roi_pct: '30' },
+    ] })
+    .mockResolvedValueOnce({ rows: [{ amount_near: '20' }] })
+    .mockResolvedValueOnce({ rows: [{ amount_near: '100' }] });
+
+  await expect(getInvestorPortfolioFinancialSummary('investor.testnet')).resolves.toEqual({
+    totalInvested: '400.00',
+    totalProjectedProfit: '100.00',
+    totalProjectedPayout: '500.00',
+    totalRecordedReturns: '120.00',
+    totalOutstanding: '380.00',
+    weightedProjectedRoi: 25,
+  });
 });
 
 test('confirmFarmerFunding upserts confirmation timestamp', async () => {

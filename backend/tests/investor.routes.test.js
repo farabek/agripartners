@@ -51,6 +51,14 @@ beforeEach(() => {
   jest.clearAllMocks();
   dealService.getInvestorDeals.mockResolvedValue([investorDeal]);
   dealService.getInvestorDealById.mockResolvedValue(investorDeal);
+  dealService.getInvestorPortfolioFinancialSummary.mockResolvedValue({
+    totalInvested: '0.10',
+    totalProjectedProfit: '0.02',
+    totalProjectedPayout: '0.12',
+    totalRecordedReturns: '0.05',
+    totalOutstanding: '0.07',
+    weightedProjectedRoi: 20,
+  });
   dealService.enrichDealWithReturnSummary.mockResolvedValue({
     ...investorDeal,
     amount: '0.10',
@@ -61,6 +69,13 @@ beforeEach(() => {
     outstanding_amount: '0.07',
     return_status: 'partial',
     roi_percent: 20,
+    investmentAmount: '0.10',
+    projectedRoi: 20,
+    projectedProfit: '0.02',
+    projectedTotalPayout: '0.12',
+    recordedReturns: '0.05',
+    projectedOutstanding: '0.07',
+    returnStatus: 'partial',
   });
   dealService.getDealReturns.mockResolvedValue([{
     id: 1,
@@ -111,6 +126,23 @@ test('GET /api/investor/deals requires wallet JWT', async () => {
     .set('Authorization', `Bearer ${adminToken}`);
 
   expect(res.status).toBe(403);
+});
+
+test('GET /api/investor/portfolio-summary returns the backend-authoritative portfolio DTO', async () => {
+  const res = await request(app)
+    .get('/api/investor/portfolio-summary')
+    .set('Authorization', `Bearer ${walletToken}`);
+
+  expect(res.status).toBe(200);
+  expect(dealService.getInvestorPortfolioFinancialSummary).toHaveBeenCalledWith('investor.testnet');
+  expect(res.body).toEqual({
+    totalInvested: '0.10',
+    totalProjectedProfit: '0.02',
+    totalProjectedPayout: '0.12',
+    totalRecordedReturns: '0.05',
+    totalOutstanding: '0.07',
+    weightedProjectedRoi: 20,
+  });
 });
 
 test('GET /api/investor/profile requires wallet JWT', async () => {
@@ -199,6 +231,13 @@ test('GET /api/investor/deals/:id returns ROI summary fields', async () => {
     outstanding_amount: '0.07',
     return_status: 'partial',
     roi_percent: 20,
+    investmentAmount: '0.10',
+    projectedRoi: 20,
+    projectedProfit: '0.02',
+    projectedTotalPayout: '0.12',
+    recordedReturns: '0.05',
+    projectedOutstanding: '0.07',
+    returnStatus: 'partial',
   }));
 });
 
