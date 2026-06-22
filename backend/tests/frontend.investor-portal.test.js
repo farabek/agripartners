@@ -25,13 +25,19 @@ function loadInvestorReturnMetricHelpers() {
 
 function loadInvestorMissingValueHelpers() {
   const start = appJs.indexOf('function formatNearDisplay');
-  const end = appJs.indexOf('function renderActualVsProjectedRoi');
+  const end = appJs.indexOf('function renderRepaymentHistory');
   expect(start).toBeGreaterThanOrEqual(0);
   expect(end).toBeGreaterThan(start);
   const helpers = `
     function escapeHtml(value) { return String(value ?? ''); }
     ${appJs.slice(start, end)}
-    module.exports = { renderInvestmentSummary, renderReturnsSummary, dealReturnMetrics };
+    module.exports = {
+      renderInvestmentSummary,
+      renderReturnsSummary,
+      renderInvestorReturnsManagement,
+      renderActualVsProjectedRoi,
+      dealReturnMetrics,
+    };
   `;
   const module = { exports: {} };
   Function('module', helpers)(module);
@@ -78,16 +84,7 @@ function loadInvestorDashboardHelpers() {
       if (!Number.isFinite(amount)) return 'Unavailable';
       return \`$\${amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}\`;
     }
-    function sumNearFields(deals, field) {
-      if (!deals.length) return 0;
-      const values = deals.map(deal => parseNearAmount(deal[field]));
-      return values.some(value => value == null) ? null : values.reduce((sum, value) => sum + value, 0);
-    }
-    function sumInvestedAmount(deals) {
-      if (!deals.length) return 0;
-      const values = deals.map(deal => parseNearAmount(deal.amount ?? deal.invested_amount ?? deal.investment_amount));
-      return values.some(value => value == null) ? null : values.reduce((sum, value) => sum + value, 0);
-    }
+    function formatOptionalNearDisplay(value) { return value == null || value === '' ? 'Unavailable' : value + ' NEAR'; }
     function numericReturnAmount(value) {
       const normalized = String(value ?? '0').replace(/[^0-9.-]/g, '');
       const amount = Number(normalized);
@@ -106,15 +103,17 @@ function loadInvestorDashboardHelpers() {
     }
     function returnDisclaimer() { return ''; }
     function renderEmptyDashboardSection(message) { return '<div>' + message + '</div>'; }
+    function renderInvestorDealCard(deal) { return '<article>' + (deal.title || deal.id) + '</article>'; }
+    const document = { createElement: () => ({ innerHTML: '' }) };
     ${appJs.slice(start, end)}
     module.exports = {
       investorMetrics,
+      renderInvestorDashboard,
       renderInvestorMetrics,
       renderPortfolioPerformance,
       investorAttentionState,
       renderInvestorAttention,
       renderRecentActivity,
-      returnCompletionRate,
     };
   `;
   const module = { exports: {} };
@@ -132,9 +131,11 @@ function loadInvestorLiveDataHelpers(fetchImpl = jest.fn()) {
     function authHeaders() { return { Authorization: 'Bearer test' }; }
     ${appJs.slice(start, end)}
     module.exports = {
+      fetchInvestorPortfolioSummary,
       enrichDealsForInvestor,
       normalizeInvestorDealsPayload,
       normalizeInvestorDeal,
+      normalizeInvestorPortfolioSummary,
     };
   `;
   const module = { exports: {} };
@@ -186,6 +187,7 @@ function loadInvestorDealBundleHelpers(fetchImpl, clearAuthMock = jest.fn()) {
   const helpers = `
     const API_BASE = 'https://api.example.test';
     function authHeaders() { return { Authorization: 'Bearer test' }; }
+    function normalizeInvestorDeal(deal) { return deal; }
     const clearAuth = clearAuthMock;
     ${appJs.slice(start, end)}
     module.exports = { fetchInvestorDealBundle };
@@ -208,6 +210,7 @@ function loadInvestorProjectProfileHelper() {
       };
     }
     function formatNearDisplay(value) { return \`\${value} NEAR\`; }
+    function formatOptionalNearDisplay(value) { return value == null ? 'Unavailable' : value + ' NEAR'; }
     ${appJs.slice(start, end)}
     module.exports = { investorProjectProfile };
   `;
@@ -489,17 +492,15 @@ test('investor detail renders investment summary', () => {
   expect(appJs).toContain('Investment Summary');
   expect(appJs).toContain('id="investor-investment-summary"');
   expect(appJs).toContain('function renderInvestmentSummary');
-  expect(appJs).toContain('Projected Return');
-  expect(appJs).toContain('Returned Amount');
-  expect(appJs).toContain('Outstanding Return');
-  expect(appJs).toContain('Return Status');
+  expect(appJs).toContain('Projected Profit');
+  expect(appJs).toContain('Projected Total Payout');
+  expect(appJs).toContain('Recorded Off-chain Returns');
+  expect(appJs).toContain('Projected Outstanding');
+  expect(appJs).toContain('Recorded Return Status');
   expect(appJs).toContain('function deriveReturnStatus');
-  expect(appJs).toContain("if (returned <= 0) return 'no_returns'");
-  expect(appJs).toContain("if (returned < expected) return 'partial'");
-  expect(appJs).toContain("return 'completed'");
-  expect(appJs).toContain("partial: 'Partial return'");
-  expect(appJs).toContain("completed: 'Completed'");
-  expect(appJs).toContain('ROI');
+  expect(appJs).toContain("if (!deal.isDemoPilot) return 'unknown'");
+  expect(appJs).toContain("partial: 'Partially recorded'");
+  expect(appJs).toContain("completed: 'Projected payout recorded'");
   expect(appJs).toContain('Projected ROI');
   expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
 });
@@ -508,15 +509,16 @@ test('investor detail renders ROI and returns management sections', () => {
   expect(appJs).toContain('Returns Summary');
   expect(appJs).toContain('id="investor-returns-summary"');
   expect(appJs).toContain('function renderReturnsSummary');
-  expect(appJs).toContain('ROI Progress');
+  expect(appJs).toContain('Recorded Return Progress');
   expect(appJs).toContain('id="investor-roi-progress"');
-  expect(appJs).toContain('Total Cash Returned / Projected Total Payout');
+  expect(appJs).toContain("'Recorded Off-chain Returns'");
   expect(appJs).toContain('Completion Percent');
-  expect(appJs).toContain('Actual vs Projected ROI');
+  expect(appJs).toContain('Financial Authority Status');
   expect(appJs).toContain('id="investor-actual-vs-projected-roi"');
   expect(appJs).toContain('Realized ROI');
-  expect(appJs).toContain('Remaining ROI');
-  expect(appJs).toContain('Returns Ledger');
+  expect(appJs).toContain("['Realized Profit', 'Not yet authoritative']");
+  expect(appJs).toContain("['Realized ROI', 'Not yet authoritative']");
+  expect(appJs).toContain('Recorded Off-chain Returns Ledger');
   expect(appJs).toContain('<th class="text-left py-2 pr-3">Note</th>');
   expect(appJs).toContain('No returns recorded yet.');
   expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
@@ -737,7 +739,7 @@ test('live Fidlot-like deal never receives static pilot profile values', () => {
   const live = investorProjectProfile({
     id: 7,
     title: 'Fidlot Livestock Project',
-    amount: '12',
+    investmentAmount: '12',
     description: null,
     projected_roi_pct: null,
     total_cycles: null,
@@ -754,6 +756,14 @@ test('live Fidlot-like deal never receives static pilot profile values', () => {
   }));
   expect(live.title).not.toBe('Static Fidlot Title');
   expect(live.investment).not.toBe('$50,000');
+
+  const completedLive = investorProjectProfile({
+    id: 8,
+    investmentAmount: '10.00',
+    projectedRoi: 20,
+  }, { status: 'Completed' });
+  expect(completedLive.roiLabel).toBe('Projected ROI');
+  expect(completedLive.roi).toBe('20%');
 });
 
 test('explicit demo pilot profile still uses the preserved pilot mapping', () => {
@@ -811,10 +821,37 @@ test('live route has no automatic demo fallback', () => {
   expect(liveSource).not.toContain('renderInvestorDemoDealDetail');
 });
 
-test('investor return metrics use profit-based actual ROI for completed Fidlot-like case', () => {
+test('live investor return metrics keep realized values unavailable', () => {
   const { dealReturnMetrics, percentLabel } = loadInvestorReturnMetricHelpers();
 
   const metrics = dealReturnMetrics({
+    display_amount: '$50,000',
+    display_expected_return: '$82,000',
+    display_returned_amount: '$82,000',
+    projectedRoi: 64,
+  });
+
+  expect(metrics.actualRoi).toBeNull();
+  expect(metrics.remainingRoi).toBeNull();
+  expect(percentLabel(metrics.completionPercent)).toBe('100.0%');
+});
+
+test('live financial authority panel removes Remaining ROI and keeps realized values non-authoritative', () => {
+  const { renderActualVsProjectedRoi } = loadInvestorMissingValueHelpers();
+  const html = renderActualVsProjectedRoi({ projectedRoi: 20 });
+
+  expect(html).toContain('Projected ROI');
+  expect(html).toContain('Realized Profit');
+  expect(html).toContain('Realized ROI');
+  expect(html).toContain('Not yet authoritative');
+  expect(html).not.toContain('Remaining ROI');
+});
+
+test('demo investor return metrics remain isolated and unchanged', () => {
+  const { dealReturnMetrics, percentLabel } = loadInvestorReturnMetricHelpers();
+
+  const metrics = dealReturnMetrics({
+    isDemoPilot: true,
     display_amount: '$50,000',
     display_expected_return: '$82,000',
     display_returned_amount: '$82,000',
@@ -824,51 +861,35 @@ test('investor return metrics use profit-based actual ROI for completed Fidlot-l
   expect(percentLabel(metrics.actualRoi)).toBe('64.0%');
   expect(percentLabel(metrics.remainingRoi)).toBe('0.0%');
   expect(percentLabel(metrics.completionPercent)).toBe('100.0%');
-});
 
-test('investor return metrics show zero actual ROI for no-return Hissar-like case', () => {
-  const { dealReturnMetrics, percentLabel } = loadInvestorReturnMetricHelpers();
-
-  const metrics = dealReturnMetrics({
+  const { renderInvestorReturnsManagement } = loadInvestorMissingValueHelpers();
+  const html = renderInvestorReturnsManagement({
+    isDemoPilot: true,
+    status: { status: 'Completed' },
     display_amount: '$50,000',
-    display_expected_return: '$81,650',
-    display_returned_amount: '$0',
-    projected_roi_pct: 63.3,
+    display_expected_return: '$82,000',
+    display_returned_amount: '$82,000',
+    display_outstanding_amount: '$0',
+    projected_roi_pct: 64,
   });
-
-  expect(percentLabel(metrics.actualRoi)).toBe('0.0%');
-  expect(percentLabel(metrics.remainingRoi)).toBe('63.3%');
-  expect(percentLabel(metrics.completionPercent)).toBe('0.0%');
+  expect(html).toContain('ROI Progress');
+  expect(html).toContain('Actual vs Projected ROI');
+  expect(html).not.toContain('Financial Authority Status');
 });
 
-test('investor return metrics keep progress based on returned over projected return', () => {
+test('live recorded return progress remains presentation-only', () => {
   const { dealReturnMetrics, percentLabel } = loadInvestorReturnMetricHelpers();
 
   const metrics = dealReturnMetrics({
     display_amount: '$50,000',
     display_expected_return: '$82,000',
     display_returned_amount: '$60,000',
-    projected_roi_pct: 64,
+    projectedRoi: 64,
   });
 
-  expect(percentLabel(metrics.actualRoi)).toBe('20.0%');
-  expect(percentLabel(metrics.remainingRoi)).toBe('44.0%');
+  expect(metrics.actualRoi).toBeNull();
+  expect(metrics.remainingRoi).toBeNull();
   expect(percentLabel(metrics.completionPercent)).toBe('73.2%');
-});
-
-test('investor return metrics floor remaining ROI at zero when actual reaches projected ROI', () => {
-  const { dealReturnMetrics, percentLabel } = loadInvestorReturnMetricHelpers();
-
-  const metrics = dealReturnMetrics({
-    display_amount: '$50,000',
-    display_expected_return: '$82,000',
-    display_returned_amount: '$90,000',
-    projected_roi_pct: 64,
-  });
-
-  expect(percentLabel(metrics.actualRoi)).toBe('80.0%');
-  expect(percentLabel(metrics.remainingRoi)).toBe('0.0%');
-  expect(percentLabel(metrics.completionPercent)).toBe('100.0%');
 });
 
 test('investor detail renders project profile before technical deal data', () => {
@@ -898,11 +919,12 @@ test('investor home dashboard renders MVP metrics and preserves its sections', (
   expect(appJs).toContain('Portfolio performance, pilot deals, returns, and reporting visibility.');
   expect(appJs).toContain('Portfolio Summary');
   expect(appJs).toContain('Projected Total Payout');
-  expect(appJs).toContain('Total Cash Returned');
-  expect(appJs).toContain('Outstanding Payout');
-  expect(appJs).toContain('Calculated Realized Profit');
-  expect(appJs).toContain('Capital Returned %');
-  expect(appJs).toContain('Average ROI');
+  expect(appJs).toContain('Recorded Off-chain Returns');
+  expect(appJs).toContain('Projected Outstanding');
+  expect(appJs).toContain('Weighted Projected ROI');
+  expect(appJs).toContain("['Realized Profit', 'Not yet authoritative']");
+  expect(appJs).not.toContain('Calculated Realized Profit');
+  expect(appJs).not.toContain('Capital Returned %');
   expect(appJs).toContain('Active Deals');
   expect(appJs).toContain('Completed Deals');
   expect(appJs).toContain('Active Investments');
@@ -920,10 +942,7 @@ test('investor home dashboard renders MVP metrics and preserves its sections', (
   const livePortalSource = appJs.slice(appJs.indexOf('async function showInvestorPortal'), appJs.indexOf('function renderNoWalletInvestorDashboard'));
   expect(livePortalSource).not.toContain('buildInvestorDemoDataset');
   expect(livePortalSource).not.toContain('Demo Mode');
-  expect(appJs).toContain('Financial view in USD');
-  expect(appJs).not.toContain('Demo financial view in USD');
-  expect(appJs).toContain('displayTotalInvested');
-  expect(appJs).toContain('displayExpectedReturns');
+  expect(livePortalSource).toContain('fetchInvestorPortfolioSummary(headers)');
 });
 
 test('live investor dashboard has no demo controls or static dataset entry', () => {
@@ -932,6 +951,7 @@ test('live investor dashboard has no demo controls or static dataset entry', () 
   const liveSource = appJs.slice(liveStart, liveEnd);
 
   expect(liveSource).toContain('fetch(`${API_BASE}/api/investor/deals`');
+  expect(liveSource).toContain('fetchInvestorPortfolioSummary(headers)');
   expect(liveSource).not.toContain('buildInvestorDemoDataset');
   expect(appJs).not.toContain('data-investor-dashboard-mode');
   expect(appJs).not.toContain('investor-dashboard-mode');
@@ -952,6 +972,7 @@ test('live deal payload normalization handles missing and null fields safely', (
     status: null,
     amount: null,
     projected_roi_pct: null,
+    investmentAmount: null,
   }]);
 
   expect(deals).toEqual([expect.objectContaining({
@@ -961,16 +982,113 @@ test('live deal payload normalization handles missing and null fields safely', (
     returned_amount: null,
     outstanding_amount: null,
     projected_roi_pct: null,
+    projectedRoi: null,
+    projectedProfit: null,
+    projectedTotalPayout: null,
+    recordedReturns: null,
+    projectedOutstanding: null,
+    returnStatus: null,
     status: { status: 'Unknown' },
     balances: null,
   })]);
   expect(() => normalizeInvestorDealsPayload({ deals: [] })).toThrow('Investor deals response is not a list');
 });
 
+test('camelCase deal financial DTO fields take priority over legacy aliases', () => {
+  const { normalizeInvestorDeal } = loadInvestorLiveDataHelpers();
+  const deal = normalizeInvestorDeal({
+    investmentAmount: '100.00', amount: '999.00',
+    projectedRoi: 20, projected_roi_pct: 99,
+    projectedProfit: '20.00',
+    projectedTotalPayout: '120.00', expected_return: '999.00',
+    recordedReturns: '25.00', returned_amount: '999.00',
+    projectedOutstanding: '95.00', outstanding_amount: '0.00',
+    returnStatus: 'partial', return_status: 'completed',
+  });
+
+  expect(deal).toEqual(expect.objectContaining({
+    investmentAmount: '100.00', projectedRoi: 20, projectedProfit: '20.00',
+    projectedTotalPayout: '120.00', recordedReturns: '25.00',
+    projectedOutstanding: '95.00', returnStatus: 'partial',
+    amount: '100.00', expected_return: '120.00', returned_amount: '25.00',
+    outstanding_amount: '95.00', return_status: 'partial',
+  }));
+});
+
+test('live return status uses the backend DTO and is not recomputed from amounts', () => {
+  const { renderReturnsSummary } = loadInvestorMissingValueHelpers();
+  const html = renderReturnsSummary({
+    returnStatus: 'partial',
+    recordedReturns: '120.00',
+    projectedTotalPayout: '120.00',
+  });
+
+  expect(html).toContain('Partially recorded');
+  expect(html).not.toContain('Projected payout recorded');
+});
+
+test('legacy snake_case financial fields remain a compatibility fallback', () => {
+  const { normalizeInvestorDeal } = loadInvestorLiveDataHelpers();
+  expect(normalizeInvestorDeal({
+    invested_amount: '50.00', projected_roi_pct: 10,
+    expected_return: '55.00', returned_amount: '5.00',
+    outstanding_amount: '50.00', return_status: 'partial',
+  })).toEqual(expect.objectContaining({
+    investmentAmount: '50.00', projectedRoi: 10,
+    projectedTotalPayout: '55.00', recordedReturns: '5.00',
+    projectedOutstanding: '50.00', returnStatus: 'partial',
+  }));
+});
+
+test('portfolio summary endpoint is fetched once and normalized without browser aggregation', async () => {
+  const fetchImpl = jest.fn().mockResolvedValue(testResponse(200, {
+    totalInvested: '400.00', totalProjectedProfit: '100.00',
+    totalProjectedPayout: '500.00', totalRecordedReturns: '120.00',
+    totalOutstanding: '380.00', weightedProjectedRoi: 25,
+  }));
+  const { fetchInvestorPortfolioSummary } = loadInvestorLiveDataHelpers(fetchImpl);
+
+  await expect(fetchInvestorPortfolioSummary()).resolves.toEqual({
+    data: {
+      totalInvested: '400.00', totalProjectedProfit: '100.00',
+      totalProjectedPayout: '500.00', totalRecordedReturns: '120.00',
+      totalOutstanding: '380.00', weightedProjectedRoi: 25,
+    },
+    error: null,
+    authStatus: null,
+  });
+  expect(fetchImpl).toHaveBeenCalledTimes(1);
+  expect(fetchImpl).toHaveBeenCalledWith(
+    'https://api.example.test/api/investor/portfolio-summary',
+    expect.objectContaining({ headers: expect.any(Object) })
+  );
+});
+
+test('portfolio summary failure remains explicit and does not reconstruct totals', async () => {
+  const fetchImpl = jest.fn().mockResolvedValue(testResponse(503, {}));
+  const { fetchInvestorPortfolioSummary } = loadInvestorLiveDataHelpers(fetchImpl);
+  const result = await fetchInvestorPortfolioSummary();
+
+  expect(result.data).toBeNull();
+  expect(result.error).toContain('HTTP 503');
+  expect(result.authStatus).toBeNull();
+});
+
+test.each([401, 403])('portfolio summary preserves %s authorization handling', async (status) => {
+  const fetchImpl = jest.fn().mockResolvedValue(testResponse(status, {}));
+  const { fetchInvestorPortfolioSummary } = loadInvestorLiveDataHelpers(fetchImpl);
+  await expect(fetchInvestorPortfolioSummary()).resolves.toEqual(expect.objectContaining({
+    data: null,
+    authStatus: status,
+  }));
+});
+
 test('per-deal enrichment keeps the live deal when optional requests partially fail', async () => {
   const fetchImpl = jest.fn(url => {
     if (url.endsWith('/7')) {
-      return Promise.resolve({ ok: true, status: 200, json: async () => ({ title: 'Live Deal', amount: null }) });
+      return Promise.resolve({ ok: true, status: 200, json: async () => ({
+        title: 'Live Deal', investmentAmount: null, recordedReturns: null,
+      }) });
     }
     if (url.endsWith('/status')) return Promise.reject(new Error('RPC unavailable'));
     return Promise.resolve({ ok: false, status: 503, json: async () => ({}) });
@@ -983,7 +1101,9 @@ test('per-deal enrichment keeps the live deal when optional requests partially f
   expect(deals[0]).toEqual(expect.objectContaining({
     id: 7,
     title: 'Live Deal',
-    amount: '10',
+    amount: null,
+    investmentAmount: null,
+    recordedReturns: null,
     status: { status: 'Active' },
     enrichment_warnings: [
       'contract status unavailable',
@@ -1011,11 +1131,10 @@ test('investor analytics dashboard renders Phase 9 analytics sections', () => {
   expect(dashboardSource).not.toContain('ROI & Returns Overview');
   expect(dashboardSource).not.toContain('Deal Performance');
   expect(appJs).toContain('Projected Total Payout');
-  expect(appJs).toContain('Total Cash Returned');
-  expect(appJs).toContain('Outstanding Payout');
-  expect(appJs).toContain('Return Completion Rate');
-  expect(appJs).toContain('Average Projected ROI');
-  expect(appJs).toContain('Return Status');
+  expect(appJs).toContain('Recorded Off-chain Returns');
+  expect(appJs).toContain('Projected Outstanding');
+  expect(appJs).toContain('Weighted Projected ROI');
+  expect(appJs).toContain('Recorded Return Status');
   expect(appJs).toContain('Reporting Information');
   expect(appJs).toContain('Reports visible in deal detail');
   expect(appJs).toContain('Cycle status visible');
@@ -1087,15 +1206,15 @@ test('live deal card prioritizes title, performance, three financial KPIs and Vi
   const html = renderInvestorDealCard({
     id: 7,
     title: 'Live Orchard',
-    amount: '100',
-    returned_amount: '25',
-    outstanding_amount: '95',
+    investmentAmount: '100',
+    recordedReturns: '25',
+    projectedOutstanding: '95',
     status: { status: 'CycleActive', current_cycle: 2 },
     farmer: 'farmer.testnet',
     contract_address: 'deal.testnet',
   });
 
-  const orderedLabels = ['Live Orchard', 'Active', 'Total Invested', 'Total Cash Returned', 'Outstanding Payout', 'View Deal'];
+  const orderedLabels = ['Live Orchard', 'Active', 'Total Invested', 'Recorded Off-chain Returns', 'Projected Outstanding', 'View Deal'];
   const positions = orderedLabels.map(label => html.indexOf(label));
   expect(positions.every(position => position >= 0)).toBe(true);
   expect(positions).toEqual([...positions].sort((a, b) => a - b));
@@ -1145,11 +1264,11 @@ test('live compact funding progress requires an authoritative percentage', () =>
 
 test('active and completed cards share the same financial and secondary structure', () => {
   const { renderInvestorDealCard } = loadInvestorDealCardHelpers();
-  const base = { id: 9, title: 'Deal', amount: '100', returned_amount: '20', outstanding_amount: '100' };
+  const base = { id: 9, title: 'Deal', investmentAmount: '100', recordedReturns: '20', projectedOutstanding: '100' };
   const active = renderInvestorDealCard({ ...base, status: { status: 'Funded', current_cycle: 0 } });
   const completed = renderInvestorDealCard({ ...base, status: { status: 'Completed', current_cycle: 3 } });
 
-  for (const label of ['Total Invested', 'Total Cash Returned', 'Outstanding Payout', 'Farmer:', 'Contract:', 'Current cycle:', 'Reports:', 'View Deal']) {
+  for (const label of ['Total Invested', 'Recorded Off-chain Returns', 'Projected Outstanding', 'Farmer:', 'Contract:', 'Current cycle:', 'Reports:', 'View Deal']) {
     expect(active).toContain(label);
     expect(completed).toContain(label);
   }
@@ -1157,49 +1276,33 @@ test('active and completed cards share the same financial and secondary structur
   expect(completed).toContain('Completed');
 });
 
-test('investor portfolio metrics calculate profit and percentages safely', () => {
-  const { investorMetrics, returnCompletionRate } = loadInvestorDashboardHelpers();
-  const metrics = investorMetrics([
-    {
-      amount: '50000.00',
-      expected_return: '82000.00',
-      returned_amount: '82000.00',
-      outstanding_amount: '0.00',
-      display_currency: 'USD',
-      roi_percent: 64,
-      return_status: 'completed',
-      status: { status: 'Completed', current_cycle: 7 },
-    },
-    {
-      amount: '50000.00',
-      expected_return: '81650.00',
-      returned_amount: '0.00',
-      outstanding_amount: '81650.00',
-      display_currency: 'USD',
-      roi_percent: 63.3,
-      return_status: 'no_returns',
-      status: { status: 'Active', current_cycle: 1 },
-    },
-  ]);
-
-  expect(metrics.profitRealized).toBe(0);
-  expect(metrics.capitalReturnedPercent).toBe(82);
-  expect(metrics.returnCompletionPercent).toBeCloseTo(50.107, 3);
-  expect(returnCompletionRate(metrics)).toBeCloseTo(50.107, 3);
-  expect(metrics.dealsWithNoReturns).toBe(1);
-  expect(metrics.dealsRequiringAttention).toBe(1);
-  expect(metrics.displayProfitRealized).toBe('$0');
-});
-
-test('investor portfolio metrics handle zero invested and projected returns', () => {
+test('investor portfolio metrics use backend totals and weighted ROI verbatim', () => {
   const { investorMetrics } = loadInvestorDashboardHelpers();
-  const metrics = investorMetrics([]);
+  const metrics = investorMetrics([
+    { status: { status: 'Completed' } },
+    { status: { status: 'Active' } },
+  ], {
+    totalInvested: '400.00',
+    totalProjectedProfit: '100.00',
+    totalProjectedPayout: '500.00',
+    totalRecordedReturns: '120.00',
+    totalOutstanding: '380.00',
+    weightedProjectedRoi: 25,
+  });
 
-  expect(metrics.profitRealized).toBe(0);
-  expect(metrics.capitalReturnedPercent).toBe(0);
-  expect(metrics.returnCompletionPercent).toBe(0);
-  expect(metrics.dealsWithNoReturns).toBe(0);
-  expect(metrics.dealsRequiringAttention).toBe(0);
+  expect(metrics).toEqual({
+    totalInvested: '400.00',
+    totalProjectedProfit: '100.00',
+    totalProjectedPayout: '500.00',
+    totalRecordedReturns: '120.00',
+    totalOutstanding: '380.00',
+    weightedProjectedRoi: 25,
+    activeDeals: 1,
+    completedDeals: 1,
+  });
+  expect(metrics).not.toHaveProperty('averageRoi');
+  expect(metrics).not.toHaveProperty('profitRealized');
+  expect(metrics).not.toHaveProperty('capitalReturnedPercent');
 });
 
 test('investor portfolio sections render compact summary, attention, performance and recent activity', () => {
@@ -1211,64 +1314,55 @@ test('investor portfolio sections render compact summary, attention, performance
     renderRecentActivity,
   } = loadInvestorDashboardHelpers();
   const metrics = {
-    totalInvested: 100000,
-    expectedReturns: 163650,
-    returned: 82000,
-    outstanding: 81650,
-    profitRealized: 32000,
-    capitalReturnedPercent: 82,
-    returnCompletionPercent: 50.1,
-    displayCurrency: 'USD',
-    displayTotalInvested: '$100,000',
-    displayExpectedReturns: '$163,650',
-    displayReturned: '$82,000',
-    displayOutstanding: '$81,650',
-    displayProfitRealized: '$32,000',
-    averageRoi: 63.65,
+    totalInvested: '100000.00',
+    totalProjectedProfit: '63650.00',
+    totalProjectedPayout: '163650.00',
+    totalRecordedReturns: '82000.00',
+    totalOutstanding: '81650.00',
+    weightedProjectedRoi: 63.65,
     activeDeals: 1,
     completedDeals: 1,
-    dealsWithNoReturns: 1,
-    dealsRequiringAttention: 1,
   };
 
   const unavailableAttention = investorAttentionState([{ id: 1 }]);
   const summary = renderInvestorMetrics(metrics, unavailableAttention);
   expect(summary).toContain('Total Invested');
-  expect(summary).toContain('Total Cash Returned');
-  expect(summary).toContain('Outstanding Payout');
+  expect(summary).toContain('Recorded Off-chain Returns');
+  expect(summary).toContain('Projected Outstanding');
   expect(summary).toContain('Investments Requiring Attention');
   expect(summary).toContain('Unavailable');
   expect(summary).not.toContain('Projected Total Payout');
   expect(summary).not.toContain('Capital Returned %');
   expect(summary).not.toContain('Average ROI');
-  expect(renderPortfolioPerformance(metrics)).toContain('Return Completion Rate');
-  expect(renderPortfolioPerformance(metrics)).toContain('$32,000');
-  expect(renderPortfolioPerformance(metrics)).toContain('Calculated Realized Profit');
+  expect(renderPortfolioPerformance(metrics)).toContain('Weighted Projected ROI');
+  expect(renderPortfolioPerformance(metrics)).toContain('63.6%');
+  expect(renderPortfolioPerformance(metrics)).toContain('Not yet authoritative');
+  expect(renderPortfolioPerformance(metrics)).not.toContain('Capital Returned %');
+  expect(renderPortfolioPerformance(metrics)).not.toContain('Calculated Realized Profit');
   expect(renderInvestorAttention(unavailableAttention)).toContain('No authoritative attention signals are available');
   expect(renderRecentActivity([{ returned_amount: '82000.00', status: { current_cycle: 7 } }]))
     .toContain('Authoritative recent activity is not available');
   expect(renderRecentActivity([])).not.toContain('Latest return recorded');
 });
 
-test('missing portfolio financial values remain unavailable instead of becoming zero', () => {
-  const { investorMetrics, renderInvestorMetrics, renderPortfolioPerformance } = loadInvestorDashboardHelpers();
-  const metrics = investorMetrics([{
-    amount: null,
-    expected_return: null,
-    returned_amount: null,
-    outstanding_amount: null,
-    projected_roi_pct: null,
-    status: { status: 'Unknown' },
-  }]);
+test('financial summary failure renders an error while deal cards remain visible', () => {
+  const { renderInvestorDashboard } = loadInvestorDashboardHelpers();
+  const appended = [];
+  const el = {
+    querySelector: () => null,
+    appendChild: child => appended.push(child),
+  };
 
-  expect(metrics.totalInvested).toBeNull();
-  expect(metrics.expectedReturns).toBeNull();
-  expect(metrics.returned).toBeNull();
-  expect(metrics.outstanding).toBeNull();
-  expect(metrics.profitRealized).toBeNull();
-  expect(metrics.averageRoi).toBeNull();
-  expect(renderInvestorMetrics(metrics)).toContain('Unavailable');
-  expect(renderPortfolioPerformance(metrics)).toContain('Not yet calculated');
+  renderInvestorDashboard(el, [{ id: 7, title: 'Live Deal', status: { status: 'Active' } }], 'investor.testnet', {
+    data: null,
+    error: 'Portfolio financial summary unavailable (HTTP 503)',
+  });
+
+  expect(appended).toHaveLength(1);
+  expect(appended[0].innerHTML).toContain('Financial summary unavailable');
+  expect(appended[0].innerHTML).toContain('HTTP 503');
+  expect(appended[0].innerHTML).toContain('<article>Live Deal</article>');
+  expect(appended[0].innerHTML).not.toContain('0.00 NEAR');
 });
 
 test('dashboard sections follow the investor-first hierarchy', () => {
@@ -1403,16 +1497,12 @@ test('investor demo financial metrics render in USD instead of NEAR', () => {
   expect(appJs).toContain("displayExpectedReturn: '$81,650'");
   expect(appJs).toContain("displayReturnedAmount: '$0'");
   expect(appJs).toContain("displayOutstandingAmount: '$81,650'");
-  expect(appJs).toContain('displayTotalInvested: allUsd && totals.totalInvested != null ? formatUsdAmount(totals.totalInvested) : null');
-  expect(appJs).toContain('displayExpectedReturns: allUsd && totals.expectedReturns != null ? formatUsdAmount(totals.expectedReturns) : null');
-  expect(appJs).toContain('displayReturned: allUsd && totals.returned != null ? formatUsdAmount(totals.returned) : null');
-  expect(appJs).toContain('displayOutstanding: allUsd && totals.outstanding != null ? formatUsdAmount(totals.outstanding) : null');
-  expect(appJs).toContain('const invested = deal.display_amount || formatNearDisplay(deal.amount)');
-  expect(appJs).toContain('const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount)');
-  expect(appJs).toContain("['Invested', deal.display_amount || formatOptionalNearDisplay(deal.invested_amount ?? deal.amount)]");
-  expect(appJs).toContain("['Projected Total Payout', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)]");
-  expect(appJs).toContain("['Outstanding Payout', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)]");
-  expect(appJs).toContain("['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))]");
-  expect(appJs).toContain('const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent;');
-  expect(appJs).toContain("[roiLabel, projectedRoi != null ? `${escapeHtml(projectedRoi)}%` : 'Unavailable']");
+  const demoStart = appJs.indexOf('function renderInvestorDemoDealDetail');
+  const demoEnd = appJs.indexOf('async function showInvestorDeal');
+  const demoSource = appJs.slice(demoStart, demoEnd);
+  expect(demoSource).toContain('renderInvestorReturnsManagement(deal, returns)');
+  expect(demoSource).toContain('Returns Ledger');
+  expect(demoSource).not.toContain('Recorded Off-chain Returns Ledger');
+  expect(appJs).toContain("isDemoPilot ? 'ROI Progress' : 'Recorded Return Progress'");
+  expect(appJs).toContain("isDemoPilot ? 'Actual vs Projected ROI' : 'Financial Authority Status'");
 });

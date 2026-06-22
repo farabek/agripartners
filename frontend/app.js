@@ -2243,7 +2243,11 @@ async function showInvestorPortal() {
   `;
 
   try {
-    const res = await fetch(`${API_BASE}/api/investor/deals`, { headers: authHeaders() });
+    const headers = authHeaders();
+    const [res, portfolioResult] = await Promise.all([
+      fetch(`${API_BASE}/api/investor/deals`, { headers }),
+      fetchInvestorPortfolioSummary(headers),
+    ]);
     if (res.status === 401) {
       clearAuth();
       renderInvestorPortalMessage(dashboardEl, 'Wallet session expired. Sign in again to load live investor data.', 'error');
@@ -2253,10 +2257,19 @@ async function showInvestorPortal() {
       renderInvestorPortalMessage(dashboardEl, 'This session is not authorized for wallet investor data.', 'error');
       return;
     }
+    if (portfolioResult.authStatus === 401) {
+      clearAuth();
+      renderInvestorPortalMessage(dashboardEl, 'Wallet session expired. Sign in again to load live investor data.', 'error');
+      return;
+    }
+    if (portfolioResult.authStatus === 403) {
+      renderInvestorPortalMessage(dashboardEl, 'This session is not authorized for wallet investor data.', 'error');
+      return;
+    }
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const deals = normalizeInvestorDealsPayload(await res.json());
     const enrichedDeals = await enrichDealsForInvestor(deals);
-    renderInvestorDashboard(dashboardEl, enrichedDeals, connectedWalletAccount);
+    renderInvestorDashboard(dashboardEl, enrichedDeals, connectedWalletAccount, portfolioResult);
   } catch (e) {
     dashboardEl.querySelector('.spinner')?.remove();
     renderInvestorPortalMessage(
@@ -2500,7 +2513,7 @@ async function enrichDealsForInvestor(deals) {
     ]);
     const warnings = [detailResult.error, statusResult.error, balancesResult.error].filter(Boolean);
     const detail = detailResult.data && typeof detailResult.data === 'object'
-      ? Object.fromEntries(Object.entries(detailResult.data).filter(([, value]) => value != null))
+      ? detailResult.data
       : {};
     return normalizeInvestorDeal({
       ...deal,
@@ -2510,6 +2523,29 @@ async function enrichDealsForInvestor(deals) {
       enrichment_warnings: warnings,
     });
   }));
+}
+
+async function fetchInvestorPortfolioSummary(headers = authHeaders()) {
+  try {
+    const response = await fetch(`${API_BASE}/api/investor/portfolio-summary`, { headers });
+    if ([401, 403].includes(response.status)) {
+      return {
+        data: null,
+        error: response.status === 401 ? 'Wallet session expired' : 'Investor authorization failed',
+        authStatus: response.status,
+      };
+    }
+    if (!response.ok) {
+      return { data: null, error: `Portfolio financial summary unavailable (HTTP ${response.status})`, authStatus: null };
+    }
+    return { data: normalizeInvestorPortfolioSummary(await response.json()), error: null, authStatus: null };
+  } catch (err) {
+    return {
+      data: null,
+      error: `Portfolio financial summary unavailable: ${err.message || 'network request failed'}`,
+      authStatus: null,
+    };
+  }
 }
 
 async function readInvestorEnrichmentResult(result, label, fallback) {
@@ -2534,23 +2570,77 @@ function normalizeInvestorDealsPayload(payload) {
   return payload.filter(deal => deal && typeof deal === 'object').map(normalizeInvestorDeal);
 }
 
+function normalizeFinancialAmount(value) {
+  if (value == null || value === '') return null;
+  return Number.isFinite(Number(value)) ? String(value) : null;
+}
+
+function normalizeFinancialPercent(value) {
+  if (value == null || value === '') return null;
+  return Number.isFinite(Number(value)) ? Number(value) : null;
+}
+
+function normalizeInvestorPortfolioSummary(payload) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new Error('Portfolio financial summary returned malformed data');
+  }
+  return {
+    totalInvested: normalizeFinancialAmount(payload.totalInvested),
+    totalProjectedProfit: normalizeFinancialAmount(payload.totalProjectedProfit),
+    totalProjectedPayout: normalizeFinancialAmount(payload.totalProjectedPayout),
+    totalRecordedReturns: normalizeFinancialAmount(payload.totalRecordedReturns),
+    totalOutstanding: normalizeFinancialAmount(payload.totalOutstanding),
+    weightedProjectedRoi: normalizeFinancialPercent(payload.weightedProjectedRoi),
+  };
+}
+
+function preferredFinancialField(source, camelField, legacyFields = []) {
+  if (Object.prototype.hasOwnProperty.call(source, camelField)) return source[camelField] ?? null;
+  for (const field of legacyFields) {
+    if (Object.prototype.hasOwnProperty.call(source, field)) return source[field] ?? null;
+  }
+  return null;
+}
+
 function normalizeInvestorDeal(deal) {
   const source = deal && typeof deal === 'object' ? deal : {};
   const rawStatus = source.status;
   const status = rawStatus && typeof rawStatus === 'object'
     ? { ...rawStatus, status: rawStatus.status || 'Unknown' }
     : { status: typeof rawStatus === 'string' && rawStatus ? rawStatus : 'Unknown' };
-  const rawProjectedRoi = source.projected_roi_pct ?? source.roi_percent;
+  const investmentAmount = normalizeFinancialAmount(preferredFinancialField(
+    source, 'investmentAmount', ['amount', 'invested_amount']
+  ));
+  const projectedRoi = normalizeFinancialPercent(preferredFinancialField(
+    source, 'projectedRoi', ['projected_roi_pct', 'roi_percent']
+  ));
+  const projectedProfit = normalizeFinancialAmount(preferredFinancialField(source, 'projectedProfit'));
+  const projectedTotalPayout = normalizeFinancialAmount(preferredFinancialField(
+    source, 'projectedTotalPayout', ['expected_return']
+  ));
+  const recordedReturns = normalizeFinancialAmount(preferredFinancialField(
+    source, 'recordedReturns', ['returned_amount']
+  ));
+  const projectedOutstanding = normalizeFinancialAmount(preferredFinancialField(
+    source, 'projectedOutstanding', ['outstanding_amount']
+  ));
+  const returnStatus = preferredFinancialField(source, 'returnStatus', ['return_status']);
   return {
     ...source,
     id: source.id ?? null,
-    amount: source.amount ?? source.invested_amount ?? source.investment_amount ?? null,
-    expected_return: source.expected_return ?? null,
-    returned_amount: source.returned_amount ?? null,
-    outstanding_amount: source.outstanding_amount ?? null,
-    projected_roi_pct: rawProjectedRoi != null && rawProjectedRoi !== '' && Number.isFinite(Number(rawProjectedRoi))
-      ? Number(rawProjectedRoi)
-      : null,
+    investmentAmount,
+    projectedRoi,
+    projectedProfit,
+    projectedTotalPayout,
+    recordedReturns,
+    projectedOutstanding,
+    returnStatus: returnStatus == null || returnStatus === '' ? null : String(returnStatus),
+    amount: investmentAmount,
+    expected_return: projectedTotalPayout,
+    returned_amount: recordedReturns,
+    outstanding_amount: projectedOutstanding,
+    projected_roi_pct: projectedRoi,
+    return_status: returnStatus == null || returnStatus === '' ? null : String(returnStatus),
     status,
     balances: source.balances && typeof source.balances === 'object' ? source.balances : null,
   };
@@ -2571,18 +2661,6 @@ function formatUsdAmount(value) {
   const amount = Number.parseFloat(value);
   if (!Number.isFinite(amount)) return 'Unavailable';
   return `$${amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
-}
-
-function sumNearFields(deals, field) {
-  if (!deals.length) return 0;
-  const values = deals.map(deal => parseNearAmount(deal[field]));
-  return values.some(value => value == null) ? null : values.reduce((sum, value) => sum + value, 0);
-}
-
-function sumInvestedAmount(deals) {
-  if (!deals.length) return 0;
-  const values = deals.map(deal => parseNearAmount(deal.amount ?? deal.invested_amount ?? deal.investment_amount));
-  return values.some(value => value == null) ? null : values.reduce((sum, value) => sum + value, 0);
 }
 
 function dealStatusName(deal) {
@@ -3071,68 +3149,27 @@ function adminDemoMetrics(deals) {
   };
 }
 
-function investorMetrics(deals) {
+function investorMetrics(deals, portfolioSummary = null) {
   deals = Array.isArray(deals) ? deals.filter(deal => deal && typeof deal === 'object') : [];
-  const roiDeals = deals.filter(deal => {
-    const value = deal.projected_roi_pct ?? deal.roi_percent;
-    return value != null && value !== '' && Number.isFinite(Number(value));
-  });
-  const allUsd = deals.length > 0 && deals.every(deal => deal.display_currency === 'USD');
-  const totals = {
-    totalInvested: sumInvestedAmount(deals),
-    expectedReturns: sumNearFields(deals, 'expected_return'),
-    returned: sumNearFields(deals, 'returned_amount'),
-    outstanding: sumNearFields(deals, 'outstanding_amount'),
-  };
-  const profitRealized = totals.returned == null || totals.totalInvested == null
-    ? null
-    : Math.max(totals.returned - totals.totalInvested, 0);
-  const capitalReturnedPercent = totals.totalInvested == null || totals.returned == null
-    ? null
-    : totals.totalInvested > 0
-    ? Math.min(100, (totals.returned / totals.totalInvested) * 100)
-    : 0;
-  const returnCompletionPercent = totals.expectedReturns == null || totals.returned == null
-    ? null
-    : totals.expectedReturns > 0
-    ? Math.min(100, (totals.returned / totals.expectedReturns) * 100)
-    : 0;
   const activeDeals = deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status)).length;
   const completedDeals = deals.filter(deal => deal.status?.status === 'Completed').length;
-  const dealsWithNoReturns = deals.filter(deal => deriveReturnStatus(deal) === 'no_returns').length;
-  const activeDealsWithOutstandingReturns = deals.filter(deal =>
-    !['Completed', 'Terminated'].includes(deal.status?.status)
-    && numericReturnAmount(deal.display_outstanding_amount ?? deal.outstanding_amount) > 0
-  ).length;
   return {
-    ...totals,
-    profitRealized,
-    capitalReturnedPercent,
-    returnCompletionPercent,
-    displayCurrency: allUsd ? 'USD' : 'NEAR',
-    displayTotalInvested: allUsd && totals.totalInvested != null ? formatUsdAmount(totals.totalInvested) : null,
-    displayExpectedReturns: allUsd && totals.expectedReturns != null ? formatUsdAmount(totals.expectedReturns) : null,
-    displayReturned: allUsd && totals.returned != null ? formatUsdAmount(totals.returned) : null,
-    displayOutstanding: allUsd && totals.outstanding != null ? formatUsdAmount(totals.outstanding) : null,
-    displayProfitRealized: allUsd && profitRealized != null ? formatUsdAmount(profitRealized) : null,
-    averageRoi: roiDeals.length
-      ? roiDeals.reduce((sum, deal) => {
-        const roi = Number(deal.projected_roi_pct ?? deal.roi_percent);
-        return sum + (Number.isFinite(roi) ? roi : 0);
-      }, 0) / roiDeals.length
-      : null,
+    totalInvested: portfolioSummary?.totalInvested ?? null,
+    totalProjectedProfit: portfolioSummary?.totalProjectedProfit ?? null,
+    totalProjectedPayout: portfolioSummary?.totalProjectedPayout ?? null,
+    totalRecordedReturns: portfolioSummary?.totalRecordedReturns ?? null,
+    totalOutstanding: portfolioSummary?.totalOutstanding ?? null,
+    weightedProjectedRoi: portfolioSummary?.weightedProjectedRoi ?? null,
     activeDeals,
     completedDeals,
-    dealsWithNoReturns,
-    dealsRequiringAttention: activeDealsWithOutstandingReturns,
-    activeDealsWithOutstandingReturns,
   };
 }
 
-function renderInvestorDashboard(el, deals, connectedWalletAccount) {
+function renderInvestorDashboard(el, deals, connectedWalletAccount, portfolioResult = {}) {
   el.querySelector('.spinner')?.remove();
   deals = Array.isArray(deals) ? deals : [];
-  const metrics = investorMetrics(deals);
+  const metrics = investorMetrics(deals, portfolioResult.data);
+  const financialError = portfolioResult.error || (!portfolioResult.data ? 'Portfolio financial summary unavailable' : null);
   const dashboard = document.createElement('div');
   const activeDeals = deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status));
   const completedDeals = deals.filter(deal => deal.status?.status === 'Completed');
@@ -3140,11 +3177,11 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
 
   if (deals.length === 0) {
     dashboard.innerHTML = `
-      ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention))}
+      ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention, financialError))}
       ${renderDashboardSection('Attention Required', renderInvestorAttention(attention))}
       ${renderDashboardSection('Active Investments', `<p class="text-slate-400">No active investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>`)}
       ${renderDashboardSection('Completed Investments', renderEmptyDashboardSection('No completed deals yet'))}
-      ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
+      ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics, financialError))}
       ${renderDashboardSection('Recent Activity', renderRecentActivity())}
       ${renderDashboardSection('Reporting Information', renderInvestorReportingSignals())}
     `;
@@ -3153,11 +3190,11 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
   }
 
   dashboard.innerHTML = `
-    ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention))}
+    ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention, financialError))}
     ${renderDashboardSection('Attention Required', renderInvestorAttention(attention))}
     ${renderDashboardSection('Active Investments', renderDealSection(activeDeals, 'No active deals'))}
     ${renderDashboardSection('Completed Investments', renderDealSection(completedDeals, 'No completed deals yet'))}
-    ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
+    ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics, financialError))}
     ${renderDashboardSection('Recent Activity', renderRecentActivity())}
     ${renderDashboardSection('Reporting Information', renderInvestorReportingSignals())}
   `;
@@ -3211,14 +3248,12 @@ function renderInvestorAttention(attention) {
   `).join('')}</div>`;
 }
 
-function renderInvestorMetrics(metrics, attention = { available: false, count: null }) {
-  const invested = metrics.displayTotalInvested || formatNearAmount(metrics.totalInvested);
-  const returned = metrics.displayReturned || formatNearAmount(metrics.returned);
-  const outstanding = metrics.displayOutstanding || formatNearAmount(metrics.outstanding);
+function renderInvestorMetrics(metrics, attention = { available: false, count: null }, financialError = null) {
+  if (financialError) return renderInvestorFinancialSummaryUnavailable(financialError);
+  const invested = formatOptionalNearDisplay(metrics.totalInvested);
+  const returned = formatOptionalNearDisplay(metrics.totalRecordedReturns);
+  const outstanding = formatOptionalNearDisplay(metrics.totalOutstanding);
   const attentionValue = attention.available ? attention.count : 'Unavailable';
-  const currencyNote = metrics.displayCurrency === 'USD'
-    ? '<p class="text-xs text-slate-500 mt-2">Financial view in USD</p>'
-    : '';
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
       <div class="metric-box">
@@ -3226,11 +3261,11 @@ function renderInvestorMetrics(metrics, attention = { available: false, count: n
         <span class="metric-value">${escapeHtml(invested)}</span>
       </div>
       <div class="metric-box">
-        <span class="metric-label">Total Cash Returned</span>
+        <span class="metric-label">Recorded Off-chain Returns</span>
         <span class="metric-value">${escapeHtml(returned)}</span>
       </div>
       <div class="metric-box">
-        <span class="metric-label">Outstanding Payout</span>
+        <span class="metric-label">Projected Outstanding</span>
         <span class="metric-value">${escapeHtml(outstanding)}</span>
       </div>
       <div class="metric-box">
@@ -3238,30 +3273,30 @@ function renderInvestorMetrics(metrics, attention = { available: false, count: n
         <span class="metric-value">${escapeHtml(attentionValue)}</span>
       </div>
     </div>
-    ${currencyNote}
   `;
 }
 
-function returnCompletionRate(metrics) {
-  if (metrics.expectedReturns == null || metrics.returned == null) return null;
-  const expected = Number(metrics.expectedReturns);
-  if (expected <= 0) return 0;
-  return Math.min(100, (Number(metrics.returned || 0) / expected) * 100);
+function renderInvestorFinancialSummaryUnavailable(message) {
+  return `
+    <div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 text-sm text-amber-100" data-investor-financial-summary-error>
+      <span class="font-semibold">Financial summary unavailable.</span>
+      <span>${escapeHtml(message)}</span>
+    </div>
+  `;
 }
 
 function portfolioPercentLabel(value, missingLabel = 'Unavailable') {
   return value == null || !Number.isFinite(Number(value)) ? missingLabel : `${Number(value).toFixed(1)}%`;
 }
 
-function renderPortfolioPerformance(metrics) {
-  const expected = metrics.displayExpectedReturns || formatNearAmount(metrics.expectedReturns);
-  const calculatedProfit = metrics.displayProfitRealized || formatNearAmount(metrics.profitRealized);
+function renderPortfolioPerformance(metrics, financialError = null) {
+  if (financialError) return renderInvestorFinancialSummaryUnavailable(financialError);
   const rows = [
-    ['Projected Total Payout', expected],
-    ['Calculated Realized Profit', calculatedProfit],
-    ['Average Projected ROI', portfolioPercentLabel(metrics.averageRoi, 'Not yet calculated')],
-    ['Return Completion Rate', portfolioPercentLabel(metrics.returnCompletionPercent)],
-    ['Capital Returned %', portfolioPercentLabel(metrics.capitalReturnedPercent)],
+    ['Projected Profit', formatOptionalNearDisplay(metrics.totalProjectedProfit)],
+    ['Projected Total Payout', formatOptionalNearDisplay(metrics.totalProjectedPayout)],
+    ['Weighted Projected ROI', portfolioPercentLabel(metrics.weightedProjectedRoi, 'Unavailable')],
+    ['Realized Profit', 'Not yet authoritative'],
+    ['Realized ROI', 'Not yet authoritative'],
     ['Active Deals', metrics.activeDeals],
     ['Completed Deals', metrics.completedDeals],
   ];
@@ -3274,7 +3309,7 @@ function renderPortfolioPerformance(metrics) {
         </div>
       `).join('')}
     </div>
-    <p class="text-xs text-slate-500 mt-2">Calculated realized profit is derived from recorded returns under draft ADR-002 semantics.</p>
+    <p class="text-xs text-slate-500 mt-2">Realized performance remains unavailable until return entries are typed and reconciled.</p>
   `;
 }
 
@@ -3324,14 +3359,14 @@ function investorProjectProfile(deal = {}, status) {
   }
 
   const projectStatus = status?.status || 'Unknown';
-  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent;
+  const projectedRoi = deal.projectedRoi;
   const investment = deal.display_amount
-    || (deal.amount != null ? formatNearDisplay(deal.amount) : 'Unavailable');
+    || formatOptionalNearDisplay(deal.investmentAmount);
   return {
     title: deal.title || `Deal #${deal.id ?? 'Unknown'}`,
     investment,
     roi: projectedRoi != null && Number.isFinite(Number(projectedRoi)) ? `${projectedRoi}%` : 'Unavailable',
-    roiLabel: projectStatus === 'Completed' ? 'ROI' : 'Projected ROI',
+    roiLabel: 'Projected ROI',
     apr: deal.apr != null ? String(deal.apr) : (deal.apr_pct != null ? `${deal.apr_pct}%` : 'Unavailable'),
     cycles: deal.total_cycles != null ? String(deal.total_cycles) : 'Unavailable',
     description: deal.description || 'Unavailable',
@@ -3396,9 +3431,9 @@ function renderInvestorDealCard(deal) {
   const pilotLabel = investorPilotLabel(deal);
   const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`;
   const dealHref = deal.isDemoPilot ? `#investor/pilots/${deal.pilot_key}` : `#investor/deals/${deal.id}`;
-  const invested = deal.display_amount || formatNearDisplay(deal.amount);
-  const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount);
-  const outstanding = deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount);
+  const invested = deal.display_amount || formatNearDisplay(deal.investmentAmount);
+  const returned = deal.display_returned_amount || formatNearDisplay(deal.recordedReturns);
+  const outstanding = deal.display_outstanding_amount || formatNearDisplay(deal.projectedOutstanding);
   const performance = investorDealPerformanceState(deal);
   const currentCycle = deal.status?.current_cycle ?? 'Unknown';
   const farmer = deal.farmer ? formatAddress(deal.farmer) : 'Unknown';
@@ -3421,11 +3456,11 @@ function renderInvestorDealCard(deal) {
           <span class="text-sm text-slate-100 font-mono">${escapeHtml(invested)}</span>
         </div>
         <div>
-          <span class="block text-xs text-slate-500">Total Cash Returned</span>
+          <span class="block text-xs text-slate-500">Recorded Off-chain Returns</span>
           <span class="text-sm text-green-300 font-mono">${escapeHtml(returned)}</span>
         </div>
         <div>
-          <span class="block text-xs text-slate-500">Outstanding Payout</span>
+          <span class="block text-xs text-slate-500">Projected Outstanding</span>
           <span class="text-sm text-slate-100 font-mono">${escapeHtml(outstanding)}</span>
         </div>
       </div>
@@ -3642,7 +3677,7 @@ async function fetchInvestorDealBundle(id) {
     fetch(`${API_BASE}/api/investor/deals/${id}/returns`, { headers })
   ]);
 
-  const deal = await readMandatoryInvestorDeal(dealRes);
+  const deal = normalizeInvestorDeal(await readMandatoryInvestorDeal(dealRes));
   const resources = await Promise.all([
     readOptionalInvestorResource(statusRes, 'Contract status', normalizeInvestorObjectPayload, null),
     readOptionalInvestorResource(balancesRes, 'Contract balances', normalizeInvestorObjectPayload, null),
@@ -3818,7 +3853,7 @@ function renderInvestorDealDetail(el, bundle) {
     </div>
 
     <div id="investor-detail-ledger" class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns Ledger</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Recorded Off-chain Returns Ledger</h3>
       <div id="investor-returns-list">${resourceErrors.returns ? renderInvestorResourceUnavailable('Returns ledger', resourceErrors.returns) : renderRepaymentHistory(returns)}</div>
     </div>
 
@@ -3897,7 +3932,9 @@ function numericReturnAmount(value) {
 }
 
 function deriveReturnStatus(deal) {
-  if (deal.return_status) return deal.return_status;
+  const authoritativeStatus = deal.returnStatus ?? deal.return_status;
+  if (authoritativeStatus) return authoritativeStatus;
+  if (!deal.isDemoPilot) return 'unknown';
   const rawReturned = deal.display_returned_amount ?? deal.returned_amount;
   const rawExpected = deal.display_expected_return ?? deal.expected_return;
   if (rawReturned == null || rawExpected == null) return 'unknown';
@@ -3906,6 +3943,16 @@ function deriveReturnStatus(deal) {
   if (returned <= 0) return 'no_returns';
   if (returned < expected) return 'partial';
   return 'completed';
+}
+
+function recordedReturnStatusLabel(status) {
+  const labels = {
+    no_returns: 'No recorded returns',
+    partial: 'Partially recorded',
+    completed: 'Projected payout recorded',
+    unknown: 'Unknown',
+  };
+  return labels[status] || 'Unknown';
 }
 
 function returnDisclaimer() {
@@ -3918,22 +3965,27 @@ function percentLabel(value) {
 }
 
 function dealReturnMetrics(deal) {
-  const rawInvested = deal.display_amount ?? deal.invested_amount ?? deal.amount;
-  const rawExpected = deal.display_expected_return ?? deal.expected_return;
-  const rawReturned = deal.display_returned_amount ?? deal.returned_amount;
+  const isDemoPilot = Boolean(deal.isDemoPilot);
+  const rawInvested = deal.display_amount ?? deal.investmentAmount ?? deal.invested_amount ?? deal.amount;
+  const rawExpected = deal.display_expected_return ?? deal.projectedTotalPayout ?? deal.expected_return;
+  const rawReturned = deal.display_returned_amount ?? deal.recordedReturns ?? deal.returned_amount;
   const invested = numericReturnAmount(rawInvested);
   const expected = numericReturnAmount(rawExpected);
   const returned = numericReturnAmount(rawReturned);
-  const rawProjectedRoi = deal.projected_roi_pct ?? deal.roi_percent;
+  const rawProjectedRoi = deal.projectedRoi ?? deal.projected_roi_pct ?? deal.roi_percent;
   const projectedRoi = rawProjectedRoi != null && Number.isFinite(Number(rawProjectedRoi))
     ? Number(rawProjectedRoi)
     : null;
-  const profitReturned = rawInvested != null && rawReturned != null ? Math.max(returned - invested, 0) : null;
   const completionPercent = rawExpected != null && rawReturned != null
     ? (expected > 0 ? Math.min(100, (returned / expected) * 100) : 0)
     : null;
-  const actualRoi = profitReturned != null && invested > 0 ? (profitReturned / invested) * 100 : null;
-  const remainingRoi = projectedRoi == null || actualRoi == null ? null : Math.max(0, projectedRoi - actualRoi);
+  const demoProfitReturned = isDemoPilot && rawInvested != null && rawReturned != null
+    ? Math.max(returned - invested, 0)
+    : null;
+  const actualRoi = demoProfitReturned != null && invested > 0 ? (demoProfitReturned / invested) * 100 : null;
+  const remainingRoi = isDemoPilot && projectedRoi != null && actualRoi != null
+    ? Math.max(0, projectedRoi - actualRoi)
+    : null;
   return {
     invested,
     expected,
@@ -3946,6 +3998,7 @@ function dealReturnMetrics(deal) {
 }
 
 function renderInvestorReturnsManagement(deal, returns = []) {
+  const isDemoPilot = Boolean(deal.isDemoPilot);
   return `
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Investment Summary</h3>
@@ -3957,27 +4010,29 @@ function renderInvestorReturnsManagement(deal, returns = []) {
         <div id="investor-returns-summary">${renderReturnsSummary(deal)}</div>
       </div>
       <div class="bg-slate-800 rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">ROI Progress</h3>
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">${isDemoPilot ? 'ROI Progress' : 'Recorded Return Progress'}</h3>
         <div id="investor-roi-progress">${renderRoiProgressCard(deal)}</div>
       </div>
     </div>
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Actual vs Projected ROI</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">${isDemoPilot ? 'Actual vs Projected ROI' : 'Financial Authority Status'}</h3>
       <div id="investor-actual-vs-projected-roi">${renderActualVsProjectedRoi(deal)}</div>
     </div>
   `;
 }
 
 function renderInvestmentSummary(deal) {
+  const isDemoPilot = Boolean(deal.isDemoPilot);
   const status = deal.status?.status || deal.status;
-  const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI';
-  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent;
+  const roiLabel = isDemoPilot && status === 'Completed' ? 'ROI' : 'Projected ROI';
+  const projectedRoi = deal.projectedRoi ?? deal.projected_roi_pct ?? deal.roi_percent;
   const rows = [
-    ['Invested', deal.display_amount || formatOptionalNearDisplay(deal.invested_amount ?? deal.amount)],
-    ['Projected Total Payout', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)],
-    ['Total Cash Returned', deal.display_returned_amount || formatOptionalNearDisplay(deal.returned_amount)],
-    ['Outstanding Payout', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)],
-    ['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))],
+    ['Invested', deal.display_amount || formatOptionalNearDisplay(deal.investmentAmount ?? deal.invested_amount ?? deal.amount)],
+    ...(!isDemoPilot ? [['Projected Profit', formatOptionalNearDisplay(deal.projectedProfit)]] : []),
+    ['Projected Total Payout', deal.display_expected_return || formatOptionalNearDisplay(deal.projectedTotalPayout ?? deal.expected_return)],
+    [isDemoPilot ? 'Total Cash Returned' : 'Recorded Off-chain Returns', deal.display_returned_amount || formatOptionalNearDisplay(deal.recordedReturns ?? deal.returned_amount)],
+    [isDemoPilot ? 'Outstanding Payout' : 'Projected Outstanding', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.projectedOutstanding ?? deal.outstanding_amount)],
+    [isDemoPilot ? 'Return Status' : 'Recorded Return Status', escapeHtml(isDemoPilot ? returnStatusLabel(deriveReturnStatus(deal)) : recordedReturnStatusLabel(deriveReturnStatus(deal)))],
     [roiLabel, projectedRoi != null ? `${escapeHtml(projectedRoi)}%` : 'Unavailable'],
   ];
   return `
@@ -3994,12 +4049,13 @@ function renderInvestmentSummary(deal) {
 }
 
 function renderReturnsSummary(deal) {
+  const isDemoPilot = Boolean(deal.isDemoPilot);
   const rows = [
-    ['Invested', deal.display_amount || formatOptionalNearDisplay(deal.invested_amount ?? deal.amount)],
-    ['Projected Total Payout', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)],
-    ['Total Cash Returned', deal.display_returned_amount || formatOptionalNearDisplay(deal.returned_amount)],
-    ['Outstanding Payout', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)],
-    ['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))],
+    ['Invested', deal.display_amount || formatOptionalNearDisplay(deal.investmentAmount ?? deal.invested_amount ?? deal.amount)],
+    ['Projected Total Payout', deal.display_expected_return || formatOptionalNearDisplay(deal.projectedTotalPayout ?? deal.expected_return)],
+    [isDemoPilot ? 'Total Cash Returned' : 'Recorded Off-chain Returns', deal.display_returned_amount || formatOptionalNearDisplay(deal.recordedReturns ?? deal.returned_amount)],
+    [isDemoPilot ? 'Outstanding Payout' : 'Projected Outstanding', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.projectedOutstanding ?? deal.outstanding_amount)],
+    [isDemoPilot ? 'Return Status' : 'Recorded Return Status', escapeHtml(isDemoPilot ? returnStatusLabel(deriveReturnStatus(deal)) : recordedReturnStatusLabel(deriveReturnStatus(deal)))],
   ];
   return `
     <div class="grid sm:grid-cols-2 gap-3">
@@ -4014,16 +4070,17 @@ function renderReturnsSummary(deal) {
 }
 
 function renderRoiProgressCard(deal) {
+  const isDemoPilot = Boolean(deal.isDemoPilot);
   const metrics = dealReturnMetrics(deal);
-  const returned = deal.display_returned_amount || formatOptionalNearDisplay(deal.returned_amount);
-  const expected = deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return);
+  const returned = deal.display_returned_amount || formatOptionalNearDisplay(deal.recordedReturns ?? deal.returned_amount);
+  const expected = deal.display_expected_return || formatOptionalNearDisplay(deal.projectedTotalPayout ?? deal.expected_return);
   const completion = percentLabel(metrics.completionPercent);
   return `
     <div class="roi-progress-card">
       <div class="flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <span class="metric-label">Total Cash Returned / Projected Total Payout</span>
-          <p class="metric-value text-green-300">Returned: ${escapeHtml(returned)} / ${escapeHtml(expected)}</p>
+          <span class="metric-label">${isDemoPilot ? 'Total Cash Returned' : 'Recorded Off-chain Returns'} / Projected Total Payout</span>
+          <p class="metric-value text-green-300">${isDemoPilot ? 'Returned' : 'Recorded'}: ${escapeHtml(returned)} / ${escapeHtml(expected)}</p>
         </div>
         <div class="text-right">
           <span class="metric-label">Completion Percent</span>
@@ -4031,7 +4088,7 @@ function renderRoiProgressCard(deal) {
         </div>
       </div>
       ${metrics.completionPercent == null
-        ? renderInvestorResourceUnavailable('ROI progress', 'Return data is unavailable')
+        ? renderInvestorResourceUnavailable(isDemoPilot ? 'ROI progress' : 'Recorded return progress', 'Return data is unavailable')
         : `<div class="roi-progress-track" aria-label="Return completion progress">
             <div class="roi-progress-fill" style="width: ${Math.max(0, Math.min(100, metrics.completionPercent)).toFixed(1)}%"></div>
           </div>`}
@@ -4042,11 +4099,17 @@ function renderRoiProgressCard(deal) {
 
 function renderActualVsProjectedRoi(deal) {
   const metrics = dealReturnMetrics(deal);
-  const rows = [
-    ['Projected ROI', percentLabel(metrics.projectedRoi)],
-    ['Realized ROI', percentLabel(metrics.actualRoi)],
-    ['Remaining ROI', percentLabel(metrics.remainingRoi)],
-  ];
+  const rows = deal.isDemoPilot
+    ? [
+        ['Projected ROI', percentLabel(metrics.projectedRoi)],
+        ['Realized ROI', percentLabel(metrics.actualRoi)],
+        ['Remaining ROI', percentLabel(metrics.remainingRoi)],
+      ]
+    : [
+        ['Projected ROI', percentLabel(metrics.projectedRoi)],
+        ['Realized Profit', 'Not yet authoritative'],
+        ['Realized ROI', 'Not yet authoritative'],
+      ];
   return `
     <div class="grid sm:grid-cols-3 gap-3">
       ${rows.map(([label, value]) => `
