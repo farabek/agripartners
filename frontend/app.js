@@ -3782,47 +3782,71 @@ function renderInvestorDealDetail(el, bundle) {
       <button id="btn-investor-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
-    ${renderProjectProfile(deal, status, resourceErrors.status)}
-    ${renderLiveFundingProgressPanel(deal)}
+    <nav aria-label="Deal sections" class="flex flex-wrap gap-2 mb-6 text-sm">
+      <button type="button" id="btn-investor-section-overview" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Overview</button>
+      <button type="button" id="btn-investor-section-returns" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Returns</button>
+      <button type="button" id="btn-investor-section-reports" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Reports</button>
+      <button type="button" id="btn-investor-section-activity" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Activity</button>
+      <button type="button" id="btn-investor-section-technical" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Technical</button>
+    </nav>
 
-    <div class="grid md:grid-cols-2 gap-6 mb-6">
-      <div class="bg-slate-800 rounded-xl p-5 space-y-2">
-        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Technical Deal Data</h3>
-        <div id="investor-technical-data">${renderInvestorDealParams(deal, status, investorBalance, resourceErrors)}</div>
-      </div>
-      <div class="bg-slate-800 rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Investor Actions</h3>
-        <p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2 mb-4">Testnet MVP: investor withdrawal is executed through backend signer support.</p>
-        <button id="btn-investor-withdraw" class="admin-action-btn w-full">Withdraw Investor</button>
-        <div id="investor-action-result" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></div>
-      </div>
+    <div id="investor-detail-overview">
+      ${renderProjectProfile(deal, status, resourceErrors.status)}
+      ${renderLiveFundingProgressPanel(deal)}
     </div>
 
-    ${renderInvestorReturnsManagement(deal, returns)}
+    <div id="investor-detail-returns">
+      ${renderInvestorReturnsManagement(deal, returns)}
+      <button type="button" id="btn-investor-section-ledger" class="text-sm text-green-400 hover:underline mb-6">View ledger entries</button>
+    </div>
+
+    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Investor Actions</h3>
+      <p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2 mb-4">Testnet MVP: investor withdrawal is executed through backend signer support.</p>
+      <button id="btn-investor-withdraw" class="admin-action-btn w-full">Withdraw Investor</button>
+      <div id="investor-action-result" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></div>
+    </div>
+
+    <div id="investor-detail-reports" class="bg-slate-800 rounded-xl p-5 mb-6">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Reports</h3>
+      <div id="investor-reports-list">${resourceErrors.reports ? renderInvestorResourceUnavailable('Farmer reports', resourceErrors.reports) : renderInvestorReports(reports)}</div>
+    </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
       <div id="investor-cycles-list">${resourceErrors.cycles ? renderInvestorResourceUnavailable('Cycle status', resourceErrors.cycles) : renderCycleStatusCards(cycles)}</div>
     </div>
 
-    <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Reports</h3>
-      <div id="investor-reports-list">${resourceErrors.reports ? renderInvestorResourceUnavailable('Farmer reports', resourceErrors.reports) : renderInvestorReports(reports)}</div>
-    </div>
-
-    <div class="bg-slate-800 rounded-xl p-5 mb-6">
+    <div id="investor-detail-ledger" class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns Ledger</h3>
       <div id="investor-returns-list">${resourceErrors.returns ? renderInvestorResourceUnavailable('Returns ledger', resourceErrors.returns) : renderRepaymentHistory(returns)}</div>
     </div>
 
-    <div class="bg-slate-800 rounded-xl p-5">
+    <div id="investor-detail-activity" class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
       <div id="investor-events-list">${resourceErrors.events ? renderInvestorResourceUnavailable('Event history', resourceErrors.events) : renderEvents(events)}</div>
+    </div>
+
+    <div id="investor-detail-technical" class="bg-slate-800 rounded-xl p-5 space-y-2">
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Technical Deal Data</h3>
+      <div id="investor-technical-data">${renderInvestorDealParams(deal, status, investorBalance, resourceErrors)}</div>
     </div>
   `;
 
   document.getElementById('btn-investor-refresh').addEventListener('click', () => refreshInvestorDeal(deal.id));
   document.getElementById('btn-investor-withdraw').addEventListener('click', () => withdrawInvestorFromPortal(deal));
+  bindInvestorDetailSectionLink('btn-investor-section-overview', 'investor-detail-overview');
+  bindInvestorDetailSectionLink('btn-investor-section-returns', 'investor-detail-returns');
+  bindInvestorDetailSectionLink('btn-investor-section-reports', 'investor-detail-reports');
+  bindInvestorDetailSectionLink('btn-investor-section-activity', 'investor-detail-activity');
+  bindInvestorDetailSectionLink('btn-investor-section-technical', 'investor-detail-technical');
+  bindInvestorDetailSectionLink('btn-investor-section-ledger', 'investor-detail-ledger');
+}
+
+function bindInvestorDetailSectionLink(buttonId, sectionId) {
+  document.getElementById(buttonId)?.addEventListener('click', () => {
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 }
 
 function formatNearDisplay(value) {

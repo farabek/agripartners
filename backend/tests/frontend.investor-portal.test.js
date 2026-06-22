@@ -265,6 +265,49 @@ function loadInvestorDealCardHelpers() {
   return module.exports;
 }
 
+function loadInvestorDetailRenderer() {
+  const start = appJs.indexOf('function renderInvestorDealDetail');
+  const end = appJs.indexOf('function formatNearDisplay');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const listeners = [];
+  const elements = new Map();
+  const documentMock = {
+    getElementById(id) {
+      if (!elements.has(id)) {
+        elements.set(id, {
+          addEventListener: (event, handler) => listeners.push({ id, event, handler }),
+          scrollIntoView: jest.fn(),
+        });
+      }
+      return elements.get(id);
+    },
+  };
+  const helpers = `
+    const document = documentMock;
+    function renderNav() { return '<nav>Global navigation</nav>'; }
+    function escapeHtml(value) { return String(value ?? ''); }
+    function investorProjectProfile(deal) { return { title: deal.title || 'Deal' }; }
+    function statusBadge(value) { return '<span>Status:' + value + '</span>'; }
+    function renderProjectProfile(deal, status, error) { return '<section>Deal Overview' + (error ? '|error:Contract status:' + error : '') + '</section>'; }
+    function renderLiveFundingProgressPanel() { return '<section>Funding Progress</section>'; }
+    function renderInvestorReturnsManagement() { return '<section>Investment Summary|Returns Summary|ROI Progress|Actual vs Projected ROI</section>'; }
+    function renderInvestorDealParams(deal, status, balance, errors) { return 'Technical fields' + (errors.balances ? '|error:Contract balances:' + errors.balances : ''); }
+    function renderInvestorResourceUnavailable(label, error) { return 'error:' + label + ':' + error; }
+    function renderCycleStatusCards() { return 'Cycle cards'; }
+    function renderInvestorReports() { return 'Report cards'; }
+    function renderRepaymentHistory() { return 'Return entries'; }
+    function renderEvents() { return 'Event entries'; }
+    function refreshInvestorDeal() {}
+    function withdrawInvestorFromPortal() {}
+    ${appJs.slice(start, end)}
+    module.exports = { renderInvestorDealDetail };
+  `;
+  const module = { exports: {} };
+  Function('module', 'documentMock', 'listeners', helpers)(module, documentMock, listeners);
+  return { ...module.exports, listeners, elements };
+}
+
 function loadRefreshInvestorDealHelper(bundle) {
   const start = appJs.indexOf('async function refreshInvestorDeal');
   const end = appJs.indexOf('// --- Deal detail ---');
@@ -477,6 +520,96 @@ test('investor detail renders ROI and returns management sections', () => {
   expect(appJs).toContain('<th class="text-left py-2 pr-3">Note</th>');
   expect(appJs).toContain('No returns recorded yet.');
   expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
+});
+
+test('live investor detail follows the investor-first reading order', () => {
+  const { renderInvestorDealDetail } = loadInvestorDetailRenderer();
+  const el = { innerHTML: '' };
+
+  renderInvestorDealDetail(el, {
+    deal: { id: 7, title: 'Live Deal' },
+    status: { status: 'CycleActive', current_cycle: 2 },
+    balances: { investor: '1000' },
+    reports: [], cycles: [], returns: [], events: [], resourceErrors: {},
+  });
+
+  const orderedSections = [
+    'Deal Overview',
+    'Investment Summary',
+    'Returns Summary',
+    'ROI Progress',
+    'Investor Actions',
+    'Farmer Reports',
+    'Cycle Status',
+    'Returns Ledger',
+    'Event History',
+    'Technical Deal Data',
+  ];
+  const positions = orderedSections.map(section => el.innerHTML.indexOf(section));
+  expect(positions.every(position => position >= 0)).toBe(true);
+  expect(positions).toEqual([...positions].sort((a, b) => a - b));
+});
+
+test('live investor detail navigation exposes and scrolls to returns, reports, activity and technical sections', () => {
+  const { renderInvestorDealDetail, listeners, elements } = loadInvestorDetailRenderer();
+  const el = { innerHTML: '' };
+
+  renderInvestorDealDetail(el, {
+    deal: { id: 8, title: 'Navigable Deal' }, status: {}, balances: null,
+    reports: [], cycles: [], returns: [], events: [], resourceErrors: {},
+  });
+
+  expect(el.innerHTML).toContain('aria-label="Deal sections"');
+  expect(el.innerHTML).toContain('id="btn-investor-section-overview"');
+  expect(el.innerHTML).toContain('id="btn-investor-section-returns"');
+  expect(el.innerHTML).toContain('id="btn-investor-section-reports"');
+  expect(el.innerHTML).toContain('id="btn-investor-section-activity"');
+  expect(el.innerHTML).toContain('id="btn-investor-section-technical"');
+  expect(el.innerHTML).toContain('id="btn-investor-section-ledger"');
+  expect(el.innerHTML).toContain('id="investor-detail-ledger"');
+  expect(el.innerHTML).toContain('id="investor-returns-list"');
+  expect(el.innerHTML).toContain('id="investor-reports-list"');
+  expect(el.innerHTML.indexOf('id="investor-detail-ledger"'))
+    .toBeLessThan(el.innerHTML.indexOf('Returns Ledger'));
+  expect(el.innerHTML.indexOf('Cycle Status'))
+    .toBeLessThan(el.innerHTML.indexOf('id="investor-detail-ledger"'));
+
+  const ledgerListener = listeners.find(listener => listener.id === 'btn-investor-section-ledger');
+  ledgerListener.handler();
+  expect(elements.get('investor-detail-ledger').scrollIntoView)
+    .toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+});
+
+test('reordered live detail keeps optional resource failures visible in their own sections', () => {
+  const { renderInvestorDealDetail } = loadInvestorDetailRenderer();
+  const el = { innerHTML: '' };
+
+  renderInvestorDealDetail(el, {
+    deal: { id: 9, title: 'Partial Deal' }, status: null, balances: null,
+    reports: [], cycles: [], returns: [], events: [],
+    resourceErrors: {
+      status: 'status failed', balances: 'balances failed', reports: 'reports failed',
+      cycles: 'cycles failed', returns: 'returns failed', events: 'events failed',
+    },
+  });
+
+  expect(el.innerHTML).toContain('error:Contract status:status failed');
+  expect(el.innerHTML).toContain('error:Contract balances:balances failed');
+  expect(el.innerHTML).toContain('error:Farmer reports:reports failed');
+  expect(el.innerHTML).toContain('error:Cycle status:cycles failed');
+  expect(el.innerHTML).toContain('error:Returns ledger:returns failed');
+  expect(el.innerHTML).toContain('error:Event history:events failed');
+});
+
+test('live detail navigation changes remain isolated from explicit demo pilot detail', () => {
+  const demoStart = appJs.indexOf('function renderInvestorDemoDealDetail');
+  const demoEnd = appJs.indexOf('async function showInvestorDeal');
+  const demoSource = appJs.slice(demoStart, demoEnd);
+
+  expect(demoSource).toContain('Investor demo profile: this screen is prepared for presentation and screenshot readiness.');
+  expect(demoSource).toContain('renderInvestorReturnsManagement(deal, returns)');
+  expect(demoSource).not.toContain('investor-detail-overview');
+  expect(demoSource).not.toContain('aria-label="Deal sections"');
 });
 
 test('investor deal bundle loads all live resources successfully', async () => {
