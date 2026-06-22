@@ -29,6 +29,31 @@ const adminToken = jwt.sign(
   { id: 1, username: 'admin', role: 'admin', near_account: null },
   'test-jwt-secret'
 );
+const unknownRoleToken = jwt.sign(
+  { id: 4, username: 'unknown', role: 'auditor', near_account: 'auditor.testnet' },
+  'test-jwt-secret'
+);
+const missingRoleToken = jwt.sign(
+  { id: 5, username: 'missing-role', near_account: 'user.testnet' },
+  'test-jwt-secret'
+);
+const farmerWithoutAccountToken = jwt.sign(
+  { id: 6, username: 'farmer-no-wallet', role: 'farmer', near_account: null },
+  'test-jwt-secret'
+);
+const investorWithoutAccountToken = jwt.sign(
+  { id: 7, username: 'investor-no-wallet', role: 'investor', near_account: null },
+  'test-jwt-secret'
+);
+const walletAuthToken = jwt.sign(
+  {
+    type: 'wallet-auth-poc',
+    account_id: 'wallet-user.testnet',
+    public_key: 'ed25519:test',
+    network: 'testnet',
+  },
+  'test-jwt-secret'
+);
 
 const mockDeals = [
   { id: 1, farmer: 'farmer.testnet', investor: 'investor.testnet', deal_type: 'fidlot' }
@@ -75,6 +100,22 @@ test('GET /api/me/deals calls getDealsByUser with null for admin', async () => {
     .set('Authorization', `Bearer ${adminToken}`);
   expect(res.status).toBe(200);
   expect(dealService.getDealsByUser).toHaveBeenCalledWith(null, 'admin');
+});
+
+test.each([
+  ['unknown role', unknownRoleToken],
+  ['missing role', missingRoleToken],
+  ['wallet-auth JWT', walletAuthToken],
+  ['farmer without near_account', farmerWithoutAccountToken],
+  ['investor without near_account', investorWithoutAccountToken],
+])('GET /api/me/deals returns 403 for %s', async (_label, token) => {
+  const res = await request(app)
+    .get('/api/me/deals')
+    .set('Authorization', `Bearer ${token}`);
+
+  expect(res.status).toBe(403);
+  expect(res.body.error).toBe('Forbidden');
+  expect(dealService.getDealsByUser).not.toHaveBeenCalled();
 });
 
 test('GET /api/me/deals returns 500 on DB error', async () => {

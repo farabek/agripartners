@@ -321,22 +321,25 @@ async function submitFarmerCycleReport(dealId, cycleNum, farmerWallet, report) {
 }
 
 async function getDealsByUser(near_account, role) {
-  if (near_account && role === 'farmer') {
+  if (role === 'admin') {
+    const { rows } = await pool.query('SELECT * FROM deals ORDER BY created_at DESC');
+    return rows;
+  }
+  if (role === 'farmer' && near_account) {
     const { rows } = await pool.query(
       'SELECT * FROM deals WHERE farmer = $1 ORDER BY created_at DESC',
       [near_account]
     );
     return rows;
   }
-  if (near_account && role === 'investor') {
+  if (role === 'investor' && near_account) {
     const { rows } = await pool.query(
       'SELECT * FROM deals WHERE investor = $1 ORDER BY created_at DESC',
       [near_account]
     );
     return rows;
   }
-  const { rows } = await pool.query('SELECT * FROM deals ORDER BY created_at DESC');
-  return rows;
+  throw new Error('Unsupported deal access context');
 }
 
 module.exports = {

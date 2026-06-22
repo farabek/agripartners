@@ -442,8 +442,12 @@ test('getDealsByUser returns all deals for admin role', async () => {
   expect(deals).toHaveLength(1);
 });
 
-test('getDealsByUser returns all deals when near_account is not set', async () => {
-  pool.query.mockResolvedValue({ rows: [] });
-  await getDealsByUser(null, 'farmer');
-  expect(pool.query).toHaveBeenCalledWith('SELECT * FROM deals ORDER BY created_at DESC');
+test.each([
+  [null, 'farmer'],
+  [null, 'investor'],
+  ['auditor.testnet', 'auditor'],
+  [null, undefined],
+])('getDealsByUser rejects unsupported access context without querying (%s, %s)', async (nearAccount, role) => {
+  await expect(getDealsByUser(nearAccount, role)).rejects.toThrow('Unsupported deal access context');
+  expect(pool.query).not.toHaveBeenCalled();
 });
