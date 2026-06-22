@@ -36,7 +36,6 @@ function clearAuth() {
   localStorage.removeItem(AUTH_STORAGE_KEY);
   sessionStorage.removeItem(AUTH_STORAGE_KEY);
   localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
-  sessionStorage.removeItem('ap_investor_dashboard_mode');
 }
 
 function authHeaders() {
@@ -2222,12 +2221,10 @@ async function showInvestorPortal() {
     </div>
     <div id="near-wallet-section" class="mb-6"></div>
     <div id="investor-profile-section" class="mb-6"></div>
-    <div id="investor-dashboard-mode" class="mb-6"></div>
     <div id="investor-dashboard-content"></div>
   `;
   renderNearWalletSection();
   const profileEl = document.getElementById('investor-profile-section');
-  const modeEl = document.getElementById('investor-dashboard-mode');
   const dashboardEl = document.getElementById('investor-dashboard-content');
 
   if (!connectedWalletAccount) {
@@ -2240,20 +2237,10 @@ async function showInvestorPortal() {
   }
 
   loadInvestorProfile();
-  const dashboardMode = getInvestorDashboardMode();
-  renderInvestorDashboardModeControl(modeEl, dashboardMode);
-  bindInvestorDashboardModeControl(modeEl, dashboardMode);
-
   dashboardEl.innerHTML = `
     <h2 class="text-xl font-semibold mb-4">My Investments</h2>
     <div class="spinner"></div>
   `;
-
-  if (dashboardMode === INVESTOR_DASHBOARD_MODE_DEMO) {
-    const demoDeals = buildInvestorDemoDataset([], connectedWalletAccount);
-    renderInvestorDashboard(dashboardEl, demoDeals, connectedWalletAccount, dashboardMode);
-    return;
-  }
 
   try {
     const res = await fetch(`${API_BASE}/api/investor/deals`, { headers: authHeaders() });
@@ -2269,7 +2256,7 @@ async function showInvestorPortal() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const deals = normalizeInvestorDealsPayload(await res.json());
     const enrichedDeals = await enrichDealsForInvestor(deals);
-    renderInvestorDashboard(dashboardEl, enrichedDeals, connectedWalletAccount, dashboardMode);
+    renderInvestorDashboard(dashboardEl, enrichedDeals, connectedWalletAccount);
   } catch (e) {
     dashboardEl.querySelector('.spinner')?.remove();
     renderInvestorPortalMessage(
@@ -2278,56 +2265,6 @@ async function showInvestorPortal() {
       'error'
     );
   }
-}
-
-function normalizeInvestorDashboardMode(value) {
-  return value === INVESTOR_DASHBOARD_MODE_DEMO
-    ? INVESTOR_DASHBOARD_MODE_DEMO
-    : INVESTOR_DASHBOARD_MODE_LIVE;
-}
-
-function getInvestorDashboardMode() {
-  try {
-    return normalizeInvestorDashboardMode(sessionStorage.getItem(INVESTOR_DASHBOARD_MODE_KEY));
-  } catch {
-    return INVESTOR_DASHBOARD_MODE_LIVE;
-  }
-}
-
-function setInvestorDashboardMode(mode) {
-  const normalizedMode = normalizeInvestorDashboardMode(mode);
-  try { sessionStorage.setItem(INVESTOR_DASHBOARD_MODE_KEY, normalizedMode); } catch {}
-  return normalizedMode;
-}
-
-function renderInvestorDashboardModeControl(el, mode) {
-  if (!el) return;
-  const isDemo = mode === INVESTOR_DASHBOARD_MODE_DEMO;
-  el.innerHTML = `
-    <div class="bg-slate-800 border ${isDemo ? 'border-amber-500' : 'border-slate-700'} rounded-lg px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <p class="text-sm font-semibold ${isDemo ? 'text-amber-300' : 'text-green-300'}">${isDemo ? 'Demo Mode' : 'Live Mode'}</p>
-        <p class="text-xs text-slate-400">${isDemo
-          ? 'Static pilot data is shown for demonstration only. It is not your live portfolio.'
-          : 'Showing live portfolio data for the connected wallet account.'}</p>
-      </div>
-      <div class="inline-flex rounded-lg border border-slate-600 overflow-hidden" aria-label="Investor dashboard data mode">
-        <button type="button" data-investor-dashboard-mode="live" class="px-3 py-2 text-sm ${!isDemo ? 'bg-green-600 text-white' : 'bg-slate-900 text-slate-300 hover:bg-slate-700'}">Live Mode</button>
-        <button type="button" data-investor-dashboard-mode="demo" class="px-3 py-2 text-sm ${isDemo ? 'bg-amber-600 text-white' : 'bg-slate-900 text-slate-300 hover:bg-slate-700'}">Demo Mode</button>
-      </div>
-    </div>
-  `;
-}
-
-function bindInvestorDashboardModeControl(el, currentMode) {
-  el?.querySelectorAll('[data-investor-dashboard-mode]').forEach(button => {
-    button.addEventListener('click', () => {
-      const nextMode = normalizeInvestorDashboardMode(button.dataset.investorDashboardMode);
-      if (nextMode === currentMode) return;
-      setInvestorDashboardMode(nextMode);
-      showInvestorPortal();
-    });
-  });
 }
 
 function renderNoWalletInvestorDashboard() {
@@ -2603,45 +2540,49 @@ function normalizeInvestorDeal(deal) {
   const status = rawStatus && typeof rawStatus === 'object'
     ? { ...rawStatus, status: rawStatus.status || 'Unknown' }
     : { status: typeof rawStatus === 'string' && rawStatus ? rawStatus : 'Unknown' };
+  const rawProjectedRoi = source.projected_roi_pct ?? source.roi_percent;
   return {
     ...source,
     id: source.id ?? null,
-    amount: source.amount ?? source.invested_amount ?? source.investment_amount ?? '0',
-    expected_return: source.expected_return ?? '0',
-    returned_amount: source.returned_amount ?? '0',
-    outstanding_amount: source.outstanding_amount ?? '0',
-    projected_roi_pct: Number.isFinite(Number(source.projected_roi_pct))
-      ? Number(source.projected_roi_pct)
-      : (Number.isFinite(Number(source.roi_percent)) ? Number(source.roi_percent) : 0),
+    amount: source.amount ?? source.invested_amount ?? source.investment_amount ?? null,
+    expected_return: source.expected_return ?? null,
+    returned_amount: source.returned_amount ?? null,
+    outstanding_amount: source.outstanding_amount ?? null,
+    projected_roi_pct: rawProjectedRoi != null && rawProjectedRoi !== '' && Number.isFinite(Number(rawProjectedRoi))
+      ? Number(rawProjectedRoi)
+      : null,
     status,
     balances: source.balances && typeof source.balances === 'object' ? source.balances : null,
   };
 }
 
 function parseNearAmount(value) {
+  if (value == null || value === '') return null;
   const parsed = Number.parseFloat(value);
-  return Number.isFinite(parsed) ? parsed : 0;
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function formatNearAmount(value) {
+  if (value == null || !Number.isFinite(Number(value))) return 'Unavailable';
   return `${value.toFixed(2)} NEAR`;
 }
 
 function formatUsdAmount(value) {
   const amount = Number.parseFloat(value);
-  if (!Number.isFinite(amount)) return '$0';
+  if (!Number.isFinite(amount)) return 'Unavailable';
   return `$${amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
 }
 
 function sumNearFields(deals, field) {
-  return deals.reduce((sum, deal) => sum + parseNearAmount(deal[field]), 0);
+  if (!deals.length) return 0;
+  const values = deals.map(deal => parseNearAmount(deal[field]));
+  return values.some(value => value == null) ? null : values.reduce((sum, value) => sum + value, 0);
 }
 
 function sumInvestedAmount(deals) {
-  return deals.reduce(
-    (sum, deal) => sum + parseNearAmount(deal.amount ?? deal.invested_amount ?? deal.investment_amount),
-    0
-  );
+  if (!deals.length) return 0;
+  const values = deals.map(deal => parseNearAmount(deal.amount ?? deal.invested_amount ?? deal.investment_amount));
+  return values.some(value => value == null) ? null : values.reduce((sum, value) => sum + value, 0);
 }
 
 function dealStatusName(deal) {
@@ -2813,10 +2754,6 @@ function renderLiveFundingProgressPanel(deal) {
   `;
 }
 
-const INVESTOR_DASHBOARD_MODE_KEY = 'ap_investor_dashboard_mode';
-const INVESTOR_DASHBOARD_MODE_LIVE = 'live';
-const INVESTOR_DASHBOARD_MODE_DEMO = 'demo';
-
 const INVESTOR_DEMO_PILOTS = [
   {
     number: 1,
@@ -2870,7 +2807,6 @@ const INVESTOR_DEMO_PILOTS = [
   },
 ];
 
-const FEATURED_PILOT_DEALS = INVESTOR_DEMO_PILOTS;
 function pilotKeyFromText(value) {
   const text = String(value || '').toLowerCase();
   if (text.includes('fidlot')) return 'fidlot';
@@ -2912,10 +2848,6 @@ function investorDemoDealFromPilot(pilot, connectedWalletAccount) {
     status: { status: pilot.status, current_cycle: pilot.currentCycle },
     balances: null,
   };
-}
-
-function buildInvestorDemoDataset(_deals, connectedWalletAccount) {
-  return INVESTOR_DEMO_PILOTS.map(pilot => investorDemoDealFromPilot(pilot, connectedWalletAccount));
 }
 
 function farmerDemoDealFromPilot(pilot, farmerAccount) {
@@ -3125,7 +3057,10 @@ function adminDemoMetrics(deals) {
 
 function investorMetrics(deals) {
   deals = Array.isArray(deals) ? deals.filter(deal => deal && typeof deal === 'object') : [];
-  const roiDeals = deals.filter(deal => (deal.projected_roi_pct ?? deal.roi_percent) != null);
+  const roiDeals = deals.filter(deal => {
+    const value = deal.projected_roi_pct ?? deal.roi_percent;
+    return value != null && value !== '' && Number.isFinite(Number(value));
+  });
   const allUsd = deals.length > 0 && deals.every(deal => deal.display_currency === 'USD');
   const totals = {
     totalInvested: sumInvestedAmount(deals),
@@ -3133,11 +3068,17 @@ function investorMetrics(deals) {
     returned: sumNearFields(deals, 'returned_amount'),
     outstanding: sumNearFields(deals, 'outstanding_amount'),
   };
-  const profitRealized = Math.max(totals.returned - totals.totalInvested, 0);
-  const capitalReturnedPercent = totals.totalInvested > 0
+  const profitRealized = totals.returned == null || totals.totalInvested == null
+    ? null
+    : Math.max(totals.returned - totals.totalInvested, 0);
+  const capitalReturnedPercent = totals.totalInvested == null || totals.returned == null
+    ? null
+    : totals.totalInvested > 0
     ? Math.min(100, (totals.returned / totals.totalInvested) * 100)
     : 0;
-  const returnCompletionPercent = totals.expectedReturns > 0
+  const returnCompletionPercent = totals.expectedReturns == null || totals.returned == null
+    ? null
+    : totals.expectedReturns > 0
     ? Math.min(100, (totals.returned / totals.expectedReturns) * 100)
     : 0;
   const activeDeals = deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status)).length;
@@ -3153,17 +3094,17 @@ function investorMetrics(deals) {
     capitalReturnedPercent,
     returnCompletionPercent,
     displayCurrency: allUsd ? 'USD' : 'NEAR',
-    displayTotalInvested: allUsd ? formatUsdAmount(totals.totalInvested) : null,
-    displayExpectedReturns: allUsd ? formatUsdAmount(totals.expectedReturns) : null,
-    displayReturned: allUsd ? formatUsdAmount(totals.returned) : null,
-    displayOutstanding: allUsd ? formatUsdAmount(totals.outstanding) : null,
-    displayProfitRealized: allUsd ? formatUsdAmount(profitRealized) : null,
+    displayTotalInvested: allUsd && totals.totalInvested != null ? formatUsdAmount(totals.totalInvested) : null,
+    displayExpectedReturns: allUsd && totals.expectedReturns != null ? formatUsdAmount(totals.expectedReturns) : null,
+    displayReturned: allUsd && totals.returned != null ? formatUsdAmount(totals.returned) : null,
+    displayOutstanding: allUsd && totals.outstanding != null ? formatUsdAmount(totals.outstanding) : null,
+    displayProfitRealized: allUsd && profitRealized != null ? formatUsdAmount(profitRealized) : null,
     averageRoi: roiDeals.length
       ? roiDeals.reduce((sum, deal) => {
         const roi = Number(deal.projected_roi_pct ?? deal.roi_percent);
         return sum + (Number.isFinite(roi) ? roi : 0);
       }, 0) / roiDeals.length
-      : 0,
+      : null,
     activeDeals,
     completedDeals,
     dealsWithNoReturns,
@@ -3172,7 +3113,7 @@ function investorMetrics(deals) {
   };
 }
 
-function renderInvestorDashboard(el, deals, connectedWalletAccount, mode = INVESTOR_DASHBOARD_MODE_LIVE) {
+function renderInvestorDashboard(el, deals, connectedWalletAccount) {
   el.querySelector('.spinner')?.remove();
   deals = Array.isArray(deals) ? deals : [];
   const metrics = investorMetrics(deals);
@@ -3186,11 +3127,8 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount, mode = INVES
       ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
       ${renderDashboardSection('Portfolio Health', renderPortfolioHealth(metrics))}
       ${renderDashboardSection('Recent Activity', renderRecentActivity(deals))}
-      ${renderDashboardSection('ROI & Returns Overview', renderInvestorReturnsOverview(metrics))}
       ${renderDashboardSection('Reporting Signals', renderInvestorReportingSignals())}
       ${renderDashboardSection('Risk / Attention Panel', renderInvestorRiskPanel(metrics))}
-      ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDealsForMode(mode))}
-      ${renderDashboardSection('Deal Performance', renderEmptyDashboardSection('Deal performance appears once investor deals are available'))}
       ${renderDashboardSection('Active Investments', `<p class="text-slate-400">No active investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>`)}
       ${renderDashboardSection('Completed Investments', renderEmptyDashboardSection('No completed deals yet'))}
     `;
@@ -3203,11 +3141,8 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount, mode = INVES
     ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
     ${renderDashboardSection('Portfolio Health', renderPortfolioHealth(metrics))}
     ${renderDashboardSection('Recent Activity', renderRecentActivity(deals))}
-    ${renderDashboardSection('ROI & Returns Overview', renderInvestorReturnsOverview(metrics))}
-    ${renderDashboardSection('Deal Performance', renderDealSection(deals, 'No deal performance data'))}
     ${renderDashboardSection('Reporting Signals', renderInvestorReportingSignals())}
     ${renderDashboardSection('Risk / Attention Panel', renderInvestorRiskPanel(metrics))}
-    ${renderDashboardSection('Featured Pilot Deals', renderFeaturedPilotDealsForMode(mode))}
     ${renderDashboardSection('Active Investments', renderDealSection(activeDeals, 'No active deals'))}
     ${renderDashboardSection('Completed Investments', renderDealSection(completedDeals, 'No completed deals yet'))}
   `;
@@ -3250,28 +3185,28 @@ function renderInvestorMetrics(metrics) {
         <span class="metric-value">${escapeHtml(invested)}</span>
       </div>
       <div class="metric-box">
-        <span class="metric-label">Projected Returns</span>
+        <span class="metric-label">Projected Total Payout</span>
         <span class="metric-value">${escapeHtml(expected)}</span>
       </div>
       <div class="metric-box">
-        <span class="metric-label">Returned</span>
+        <span class="metric-label">Total Cash Returned</span>
         <span class="metric-value">${escapeHtml(returned)}</span>
       </div>
       <div class="metric-box">
-        <span class="metric-label">Outstanding</span>
+        <span class="metric-label">Outstanding Payout</span>
         <span class="metric-value">${escapeHtml(outstanding)}</span>
       </div>
       <div class="metric-box">
-        <span class="metric-label">Profit Realized</span>
+        <span class="metric-label">Realized Profit</span>
         <span class="metric-value">${escapeHtml(profitRealized)}</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Capital Returned %</span>
-        <span class="metric-value">${metrics.capitalReturnedPercent.toFixed(1)}%</span>
+        <span class="metric-value">${portfolioPercentLabel(metrics.capitalReturnedPercent)}</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Average ROI</span>
-        <span class="metric-value">${metrics.averageRoi.toFixed(1)}%</span>
+        <span class="metric-value">${portfolioPercentLabel(metrics.averageRoi, 'Not yet calculated')}</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Active Deals</span>
@@ -3287,18 +3222,21 @@ function renderInvestorMetrics(metrics) {
 }
 
 function returnCompletionRate(metrics) {
-  const expected = Number(metrics.expectedReturns || 0);
+  if (metrics.expectedReturns == null || metrics.returned == null) return null;
+  const expected = Number(metrics.expectedReturns);
   if (expected <= 0) return 0;
   return Math.min(100, (Number(metrics.returned || 0) / expected) * 100);
 }
 
+function portfolioPercentLabel(value, missingLabel = 'Unavailable') {
+  return value == null || !Number.isFinite(Number(value)) ? missingLabel : `${Number(value).toFixed(1)}%`;
+}
+
 function renderPortfolioPerformance(metrics) {
-  const profitRealized = metrics.displayProfitRealized || formatNearAmount(metrics.profitRealized);
   const rows = [
-    ['Average ROI', `${metrics.averageRoi.toFixed(1)}%`],
-    ['Return Completion Rate', `${metrics.returnCompletionPercent.toFixed(1)}%`],
-    ['Capital Returned %', `${metrics.capitalReturnedPercent.toFixed(1)}%`],
-    ['Profit Realized', profitRealized],
+    ['Average Projected ROI', portfolioPercentLabel(metrics.averageRoi, 'Not yet calculated')],
+    ['Return Completion Rate', portfolioPercentLabel(metrics.returnCompletionPercent)],
+    ['Capital Returned %', portfolioPercentLabel(metrics.capitalReturnedPercent)],
   ];
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -3331,56 +3269,8 @@ function renderPortfolioHealth(metrics) {
   `;
 }
 
-function renderRecentActivity(deals) {
-  const hasReturn = deals.some(deal => numericReturnAmount(deal.display_returned_amount ?? deal.returned_amount) > 0);
-  const hasCycle = deals.some(deal => deal.status?.current_cycle != null || deal.current_cycle != null);
-  const hasReport = deals.length > 0;
-  const rows = [
-    ['Latest Farmer Report', hasReport ? 'Latest farmer report available' : 'Latest farmer report available'],
-    ['Latest Return Event', hasReturn ? 'Latest return recorded' : 'Latest return recorded'],
-    ['Latest Deal Event', hasCycle ? 'Latest cycle event available' : 'Latest cycle event available'],
-  ];
-  return `
-    <div class="grid sm:grid-cols-3 gap-3">
-      ${rows.map(([label, value]) => `
-        <div class="metric-box">
-          <span class="metric-label">${label}</span>
-          <span class="metric-value text-base">${escapeHtml(value)}</span>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderInvestorReturnsOverview(metrics) {
-  const expected = metrics.displayExpectedReturns || formatNearAmount(metrics.expectedReturns);
-  const returned = metrics.displayReturned || formatNearAmount(metrics.returned);
-  const outstanding = metrics.displayOutstanding || formatNearAmount(metrics.outstanding);
-  return `
-    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-      <div class="metric-box">
-        <span class="metric-label">Projected Portfolio Return</span>
-        <span class="metric-value">${escapeHtml(expected)}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Capital Returned</span>
-        <span class="metric-value">${escapeHtml(returned)}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Outstanding Returns</span>
-        <span class="metric-value">${escapeHtml(outstanding)}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Return Completion Rate</span>
-        <span class="metric-value">${metrics.returnCompletionPercent.toFixed(1)}%</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Average Projected ROI</span>
-        <span class="metric-value">${metrics.averageRoi.toFixed(1)}%</span>
-      </div>
-    </div>
-    ${returnDisclaimer()}
-  `;
+function renderRecentActivity() {
+  return renderEmptyDashboardSection('Authoritative recent activity is not available in the portfolio summary. Open a deal to view its event and return history.');
 }
 
 function renderInvestorReportingSignals() {
@@ -3418,48 +3308,6 @@ function renderInvestorRiskPanel(metrics) {
         </div>
       `).join('')}
     </div>
-  `;
-}
-
-function renderFeaturedPilotDeals() {
-  return `
-    <div class="grid lg:grid-cols-2 gap-4">
-      ${FEATURED_PILOT_DEALS.map(renderFeaturedPilotDealCard).join('')}
-    </div>
-  `;
-}
-
-function renderFeaturedPilotDealsForMode(mode) {
-  if (mode === INVESTOR_DASHBOARD_MODE_DEMO) return renderFeaturedPilotDeals();
-  return renderEmptyDashboardSection('Featured pilot profiles are available in explicit Demo Mode.');
-}
-
-function renderFeaturedPilotDealCard(deal) {
-  const roiLabel = deal.status === 'Completed' ? 'ROI' : 'Projected ROI';
-  const metrics = [
-    ['Investment', deal.investment],
-    [roiLabel, deal.roi],
-    ['APR', deal.apr],
-    ['Cycles', deal.cycles],
-  ];
-  return `
-    <article class="bg-slate-800 border border-green-900 rounded-lg p-5">
-      <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
-        <div>
-          <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Pilot Deal #${deal.number}</span>
-          <h3 class="text-xl font-bold text-slate-50 mt-1">${escapeHtml(deal.title)}</h3>
-        </div>
-        <span class="text-xs font-semibold bg-green-950 text-green-200 border border-green-800 px-2 py-1 rounded">${escapeHtml(deal.type)}</span>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        ${metrics.map(([label, value]) => `
-          <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
-            <span class="block text-xs text-slate-500">${label}</span>
-            <span class="block text-lg font-bold text-slate-100">${escapeHtml(value)}</span>
-          </div>
-        `).join('')}
-      </div>
-    </article>
   `;
 }
 
@@ -3564,15 +3412,15 @@ function renderInvestorDealCard(deal) {
             <span class="text-sm text-slate-100 font-mono">${escapeHtml(invested)}</span>
           </div>
           <div>
-            <span class="block text-xs text-slate-500">Projected Return</span>
+            <span class="block text-xs text-slate-500">Projected Total Payout</span>
             <span class="text-sm text-slate-100 font-mono">${escapeHtml(expected)}</span>
           </div>
           <div>
-            <span class="block text-xs text-slate-500">Returned</span>
+            <span class="block text-xs text-slate-500">Total Cash Returned</span>
             <span class="text-sm text-green-300 font-mono">${escapeHtml(returned)}</span>
           </div>
           <div>
-            <span class="block text-xs text-slate-500">Outstanding</span>
+            <span class="block text-xs text-slate-500">Outstanding Payout</span>
             <span class="text-sm text-slate-100 font-mono">${escapeHtml(outstanding)}</span>
           </div>
           <div>
@@ -3916,7 +3764,7 @@ function renderInvestorDealDetail(el, bundle) {
     returns = [],
     resourceErrors = {},
   } = bundle;
-  const investorBalance = balances?.investor || '0';
+  const investorBalance = balances?.investor ?? null;
   const profile = investorProjectProfile(deal, status);
   el.innerHTML = `
     ${renderNav()}
@@ -3974,7 +3822,7 @@ function renderInvestorDealDetail(el, bundle) {
 }
 
 function formatNearDisplay(value) {
-  return `${escapeHtml(value ?? '0.00')} NEAR`;
+  return value == null || value === '' ? 'Unavailable' : `${escapeHtml(value)} NEAR`;
 }
 
 function formatOptionalNearDisplay(value) {
@@ -4098,9 +3946,9 @@ function renderInvestmentSummary(deal) {
   const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent;
   const rows = [
     ['Invested', deal.display_amount || formatOptionalNearDisplay(deal.invested_amount ?? deal.amount)],
-    ['Projected Return', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)],
-    ['Returned Amount', deal.display_returned_amount || formatOptionalNearDisplay(deal.returned_amount)],
-    ['Outstanding Return', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)],
+    ['Projected Total Payout', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)],
+    ['Total Cash Returned', deal.display_returned_amount || formatOptionalNearDisplay(deal.returned_amount)],
+    ['Outstanding Payout', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)],
     ['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))],
     [roiLabel, projectedRoi != null ? `${escapeHtml(projectedRoi)}%` : 'Unavailable'],
   ];
@@ -4120,9 +3968,9 @@ function renderInvestmentSummary(deal) {
 function renderReturnsSummary(deal) {
   const rows = [
     ['Invested', deal.display_amount || formatOptionalNearDisplay(deal.invested_amount ?? deal.amount)],
-    ['Projected Return', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)],
-    ['Returned Amount', deal.display_returned_amount || formatOptionalNearDisplay(deal.returned_amount)],
-    ['Outstanding Return', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)],
+    ['Projected Total Payout', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)],
+    ['Total Cash Returned', deal.display_returned_amount || formatOptionalNearDisplay(deal.returned_amount)],
+    ['Outstanding Payout', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)],
     ['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))],
   ];
   return `
@@ -4146,7 +3994,7 @@ function renderRoiProgressCard(deal) {
     <div class="roi-progress-card">
       <div class="flex flex-wrap items-baseline justify-between gap-3">
         <div>
-          <span class="metric-label">Returned / Projected Return</span>
+          <span class="metric-label">Total Cash Returned / Projected Total Payout</span>
           <p class="metric-value text-green-300">Returned: ${escapeHtml(returned)} / ${escapeHtml(expected)}</p>
         </div>
         <div class="text-right">
@@ -4168,7 +4016,7 @@ function renderActualVsProjectedRoi(deal) {
   const metrics = dealReturnMetrics(deal);
   const rows = [
     ['Projected ROI', percentLabel(metrics.projectedRoi)],
-    ['Actual ROI Received', percentLabel(metrics.actualRoi)],
+    ['Realized ROI', percentLabel(metrics.actualRoi)],
     ['Remaining ROI', percentLabel(metrics.remainingRoi)],
   ];
   return `
@@ -4353,7 +4201,7 @@ async function refreshInvestorDeal(id) {
     if (cycleEl) cycleEl.textContent = `Cycle ${status?.current_cycle ?? '—'}`;
     if (profileEl) profileEl.outerHTML = renderProjectProfile(deal, status, resourceErrors.status);
     if (fundingEl) fundingEl.outerHTML = renderLiveFundingProgressPanel(deal);
-    if (technicalEl) technicalEl.innerHTML = renderInvestorDealParams(deal, status, balances?.investor || '0', resourceErrors);
+    if (technicalEl) technicalEl.innerHTML = renderInvestorDealParams(deal, status, balances?.investor ?? null, resourceErrors);
     if (eventsEl) eventsEl.innerHTML = resourceErrors.events
       ? renderInvestorResourceUnavailable('Event history', resourceErrors.events)
       : renderEvents(events);
@@ -4619,18 +4467,16 @@ function renderReturnsLedgerRows(returns) {
         <thead class="text-slate-400">
           <tr class="border-b border-slate-700">
             <th class="text-left py-2 pr-3">Date</th>
-            <th class="text-left py-2 pr-3">Cycle</th>
             <th class="text-left py-2 pr-3">Amount</th>
-            <th class="text-left py-2 pr-3">Status / Notes</th>
+            <th class="text-left py-2 pr-3">Note</th>
           </tr>
         </thead>
         <tbody>
           ${returns.map((entry) => `
             <tr class="border-b border-slate-700 last:border-0">
-              <td class="py-2 pr-3 text-slate-300">${entry.created_at ? escapeHtml(new Date(entry.created_at).toLocaleDateString('en-US')) : 'Recorded'}</td>
-              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.cycle_num ?? entry.cycle_id ?? '-')}</td>
+              <td class="py-2 pr-3 text-slate-300">${entry.created_at ? escapeHtml(new Date(entry.created_at).toLocaleDateString('en-US')) : 'Unavailable'}</td>
               <td class="py-2 pr-3 text-green-300 font-mono">${formatOptionalNearDisplay(entry.amount_near)}</td>
-              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.status || entry.note || 'Recorded')}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.note || 'No note')}</td>
             </tr>
           `).join('')}
         </tbody>

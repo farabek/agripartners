@@ -59,31 +59,34 @@ function loadMarketplaceHelpers() {
 
 function loadInvestorDashboardHelpers() {
   const start = appJs.indexOf('function investorMetrics');
-  const end = appJs.indexOf('function renderFeaturedPilotDeals');
+  const end = appJs.indexOf('function investorPilotLabel');
   expect(start).toBeGreaterThanOrEqual(0);
   expect(end).toBeGreaterThan(start);
   const helpers = `
     function escapeHtml(value) { return String(value ?? ''); }
     function parseNearAmount(value) {
+      if (value == null || value === '') return null;
       const parsed = Number.parseFloat(value);
-      return Number.isFinite(parsed) ? parsed : 0;
+      return Number.isFinite(parsed) ? parsed : null;
     }
     function formatNearAmount(value) {
+      if (value == null || !Number.isFinite(Number(value))) return 'Unavailable';
       return \`\${value.toFixed(2)} NEAR\`;
     }
     function formatUsdAmount(value) {
       const amount = Number.parseFloat(value);
-      if (!Number.isFinite(amount)) return '$0';
+      if (!Number.isFinite(amount)) return 'Unavailable';
       return \`$\${amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}\`;
     }
     function sumNearFields(deals, field) {
-      return deals.reduce((sum, deal) => sum + parseNearAmount(deal[field]), 0);
+      if (!deals.length) return 0;
+      const values = deals.map(deal => parseNearAmount(deal[field]));
+      return values.some(value => value == null) ? null : values.reduce((sum, value) => sum + value, 0);
     }
     function sumInvestedAmount(deals) {
-      return deals.reduce(
-        (sum, deal) => sum + parseNearAmount(deal.amount ?? deal.invested_amount ?? deal.investment_amount),
-        0
-      );
+      if (!deals.length) return 0;
+      const values = deals.map(deal => parseNearAmount(deal.amount ?? deal.invested_amount ?? deal.investment_amount));
+      return values.some(value => value == null) ? null : values.reduce((sum, value) => sum + value, 0);
     }
     function numericReturnAmount(value) {
       const normalized = String(value ?? '0').replace(/[^0-9.-]/g, '');
@@ -92,13 +95,17 @@ function loadInvestorDashboardHelpers() {
     }
     function deriveReturnStatus(deal) {
       if (deal.return_status) return deal.return_status;
-      const returned = numericReturnAmount(deal.display_returned_amount ?? deal.returned_amount);
-      const expected = numericReturnAmount(deal.display_expected_return ?? deal.expected_return);
+      const rawReturned = deal.display_returned_amount ?? deal.returned_amount;
+      const rawExpected = deal.display_expected_return ?? deal.expected_return;
+      if (rawReturned == null || rawExpected == null) return 'unknown';
+      const returned = numericReturnAmount(rawReturned);
+      const expected = numericReturnAmount(rawExpected);
       if (returned <= 0) return 'no_returns';
       if (returned < expected) return 'partial';
       return 'completed';
     }
     function returnDisclaimer() { return ''; }
+    function renderEmptyDashboardSection(message) { return '<div>' + message + '</div>'; }
     ${appJs.slice(start, end)}
     module.exports = {
       investorMetrics,
@@ -301,7 +308,7 @@ function loadWithdrawInvestorHelper(fetchImpl) {
 
 function loadFundingProgressHelpers() {
   const start = appJs.indexOf('function dealStatusName');
-  const end = appJs.indexOf('const INVESTOR_DASHBOARD_MODE_KEY');
+  const end = appJs.indexOf('const INVESTOR_DEMO_PILOTS');
   expect(start).toBeGreaterThanOrEqual(0);
   expect(end).toBeGreaterThan(start);
   const helpers = `
@@ -431,14 +438,14 @@ test('investor detail renders ROI and returns management sections', () => {
   expect(appJs).toContain('function renderReturnsSummary');
   expect(appJs).toContain('ROI Progress');
   expect(appJs).toContain('id="investor-roi-progress"');
-  expect(appJs).toContain('Returned / Projected Return');
+  expect(appJs).toContain('Total Cash Returned / Projected Total Payout');
   expect(appJs).toContain('Completion Percent');
   expect(appJs).toContain('Actual vs Projected ROI');
   expect(appJs).toContain('id="investor-actual-vs-projected-roi"');
-  expect(appJs).toContain('Actual ROI Received');
+  expect(appJs).toContain('Realized ROI');
   expect(appJs).toContain('Remaining ROI');
   expect(appJs).toContain('Returns Ledger');
-  expect(appJs).toContain('Status / Notes');
+  expect(appJs).toContain('<th class="text-left py-2 pr-3">Note</th>');
   expect(appJs).toContain('No returns recorded yet.');
   expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
 });
@@ -728,59 +735,51 @@ test('investor home dashboard renders MVP metrics and preserves its sections', (
   expect(appJs).toContain('Investor Analytics Dashboard');
   expect(appJs).toContain('Portfolio performance, pilot deals, returns, and reporting visibility.');
   expect(appJs).toContain('Portfolio Summary');
-  expect(appJs).toContain('Projected Returns');
-  expect(appJs).toContain('Returned');
-  expect(appJs).toContain('Outstanding');
-  expect(appJs).toContain('Profit Realized');
+  expect(appJs).toContain('Projected Total Payout');
+  expect(appJs).toContain('Total Cash Returned');
+  expect(appJs).toContain('Outstanding Payout');
+  expect(appJs).toContain('Realized Profit');
   expect(appJs).toContain('Capital Returned %');
   expect(appJs).toContain('Average ROI');
   expect(appJs).toContain('Active Deals');
   expect(appJs).toContain('Completed Deals');
-  expect(appJs).toContain('Featured Pilot Deals');
   expect(appJs).toContain('Active Investments');
   expect(appJs).toContain('Completed Investments');
   expect(appJs).toContain('Fidlot Livestock Project');
   expect(appJs).toContain('Hissar Sheep Breeding Project');
   expect(appJs).toContain('21.9%');
   expect(appJs).toContain('21.1%');
-  expect(appJs).toContain("const roiLabel = deal.status === 'Completed' ? 'ROI' : 'Projected ROI'");
+  expect(appJs).toContain("const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI'");
   expect(appJs).not.toContain('Greenhouse Project');
   expect(appJs).not.toContain('Poultry Farm');
   expect(appJs).not.toContain('Cotton Farm');
   expect(appJs).not.toContain('Demo Portfolio');
   expect(appJs).not.toContain('INVESTOR_DEMO_DATASET_ENABLED');
-  expect(appJs).toContain('buildInvestorDemoDataset([], connectedWalletAccount)');
+  const livePortalSource = appJs.slice(appJs.indexOf('async function showInvestorPortal'), appJs.indexOf('function renderNoWalletInvestorDashboard'));
+  expect(livePortalSource).not.toContain('buildInvestorDemoDataset');
+  expect(livePortalSource).not.toContain('Demo Mode');
   expect(appJs).toContain('Financial view in USD');
   expect(appJs).not.toContain('Demo financial view in USD');
   expect(appJs).toContain('displayTotalInvested');
   expect(appJs).toContain('displayExpectedReturns');
 });
 
-test('investor dashboard defaults unknown or missing mode values to live mode', () => {
-  const { normalizeInvestorDashboardMode } = loadInvestorModeHelpers();
+test('live investor dashboard has no demo controls or static dataset entry', () => {
+  const liveStart = appJs.indexOf('async function showInvestorPortal');
+  const liveEnd = appJs.indexOf('function renderNoWalletInvestorDashboard');
+  const liveSource = appJs.slice(liveStart, liveEnd);
 
-  expect(normalizeInvestorDashboardMode(null)).toBe('live');
-  expect(normalizeInvestorDashboardMode('invalid')).toBe('live');
-  expect(normalizeInvestorDashboardMode('live')).toBe('live');
-  expect(normalizeInvestorDashboardMode('demo')).toBe('demo');
-  expect(appJs).toContain("const INVESTOR_DASHBOARD_MODE_LIVE = 'live'");
-});
-
-test('explicit demo mode is labeled and does not depend on the live deals request', () => {
-  const demoBranch = appJs.indexOf('if (dashboardMode === INVESTOR_DASHBOARD_MODE_DEMO)');
-  const liveRequest = appJs.indexOf('fetch(`${API_BASE}/api/investor/deals`');
-
-  expect(demoBranch).toBeGreaterThanOrEqual(0);
-  expect(liveRequest).toBeGreaterThan(demoBranch);
-  expect(appJs).toContain('Static pilot data is shown for demonstration only. It is not your live portfolio.');
-  expect(appJs).toContain('data-investor-dashboard-mode="demo"');
-  expect(appJs).toContain('renderFeaturedPilotDealsForMode(mode)');
+  expect(liveSource).toContain('fetch(`${API_BASE}/api/investor/deals`');
+  expect(liveSource).not.toContain('buildInvestorDemoDataset');
+  expect(appJs).not.toContain('data-investor-dashboard-mode');
+  expect(appJs).not.toContain('investor-dashboard-mode');
+  expect(appJs).toContain('showInvestorPilotProfile(investorPilot[1])');
 });
 
 test('live mode has explicit error and empty portfolio states without demo fallback', () => {
   expect(appJs).toContain('Investor Portal unavailable: ${e.message}');
   expect(appJs).toContain('No active investments found for connected wallet account:');
-  expect(appJs).toContain('Featured pilot profiles are available in explicit Demo Mode.');
+  expect(appJs).not.toContain('Featured pilot profiles are available in explicit Demo Mode.');
   expect(appJs).not.toContain('INVESTOR_DEMO_DATASET_ENABLED');
 });
 
@@ -795,11 +794,11 @@ test('live deal payload normalization handles missing and null fields safely', (
 
   expect(deals).toEqual([expect.objectContaining({
     id: 7,
-    amount: '0',
-    expected_return: '0',
-    returned_amount: '0',
-    outstanding_amount: '0',
-    projected_roi_pct: 0,
+    amount: null,
+    expected_return: null,
+    returned_amount: null,
+    outstanding_amount: null,
+    projected_roi_pct: null,
     status: { status: 'Unknown' },
     balances: null,
   })]);
@@ -844,16 +843,17 @@ test('per-deal authorization failure remains an explicit live mode error', async
 });
 
 test('investor analytics dashboard renders Phase 9 analytics sections', () => {
+  const dashboardSource = appJs.slice(appJs.indexOf('function renderInvestorDashboard'), appJs.indexOf('function renderDashboardSection'));
   expect(appJs).toContain('Portfolio Performance');
   expect(appJs).toContain('Portfolio Health');
   expect(appJs).toContain('Recent Activity');
-  expect(appJs).toContain('ROI & Returns Overview');
-  expect(appJs).toContain('Projected Portfolio Return');
-  expect(appJs).toContain('Capital Returned');
-  expect(appJs).toContain('Outstanding Returns');
+  expect(dashboardSource).not.toContain('ROI & Returns Overview');
+  expect(dashboardSource).not.toContain('Deal Performance');
+  expect(appJs).toContain('Projected Total Payout');
+  expect(appJs).toContain('Total Cash Returned');
+  expect(appJs).toContain('Outstanding Payout');
   expect(appJs).toContain('Return Completion Rate');
   expect(appJs).toContain('Average Projected ROI');
-  expect(appJs).toContain('Deal Performance');
   expect(appJs).toContain('Return Status');
   expect(appJs).toContain('Reporting Signals');
   expect(appJs).toContain('Reports visible in deal detail');
@@ -994,15 +994,51 @@ test('investor portfolio sections render performance health and recent activity'
     dealsRequiringAttention: 1,
   };
 
-  expect(renderInvestorMetrics(metrics)).toContain('Profit Realized');
+  expect(renderInvestorMetrics(metrics)).toContain('Realized Profit');
   expect(renderInvestorMetrics(metrics)).toContain('Capital Returned %');
   expect(renderPortfolioPerformance(metrics)).toContain('Return Completion Rate');
-  expect(renderPortfolioPerformance(metrics)).toContain('$32,000');
+  expect(renderPortfolioPerformance(metrics)).not.toContain('$32,000');
+  expect(renderInvestorMetrics(metrics)).toContain('$32,000');
   expect(renderPortfolioHealth(metrics)).toContain('Deals With No Returns');
   expect(renderPortfolioHealth(metrics)).toContain('Deals Requiring Attention');
-  expect(renderRecentActivity([{ returned_amount: '82000.00', status: { current_cycle: 7 } }])).toContain('Latest farmer report available');
-  expect(renderRecentActivity([{ returned_amount: '82000.00', status: { current_cycle: 7 } }])).toContain('Latest return recorded');
-  expect(renderRecentActivity([{ returned_amount: '82000.00', status: { current_cycle: 7 } }])).toContain('Latest cycle event available');
+  expect(renderRecentActivity([{ returned_amount: '82000.00', status: { current_cycle: 7 } }]))
+    .toContain('Authoritative recent activity is not available');
+  expect(renderRecentActivity([])).not.toContain('Latest return recorded');
+});
+
+test('missing portfolio financial values remain unavailable instead of becoming zero', () => {
+  const { investorMetrics, renderInvestorMetrics, renderPortfolioPerformance } = loadInvestorDashboardHelpers();
+  const metrics = investorMetrics([{
+    amount: null,
+    expected_return: null,
+    returned_amount: null,
+    outstanding_amount: null,
+    projected_roi_pct: null,
+    status: { status: 'Unknown' },
+  }]);
+
+  expect(metrics.totalInvested).toBeNull();
+  expect(metrics.expectedReturns).toBeNull();
+  expect(metrics.returned).toBeNull();
+  expect(metrics.outstanding).toBeNull();
+  expect(metrics.profitRealized).toBeNull();
+  expect(metrics.averageRoi).toBeNull();
+  expect(renderInvestorMetrics(metrics)).toContain('Unavailable');
+  expect(renderPortfolioPerformance(metrics)).toContain('Not yet calculated');
+});
+
+test('returns ledger renders only authoritative return fields', () => {
+  const ledgerStart = appJs.indexOf('function renderReturnsLedgerRows');
+  const ledgerEnd = appJs.indexOf('function renderParams');
+  const ledgerSource = appJs.slice(ledgerStart, ledgerEnd);
+
+  expect(ledgerSource).toContain('Date');
+  expect(ledgerSource).toContain('Amount');
+  expect(ledgerSource).toContain('Note');
+  expect(ledgerSource).not.toContain('Cycle');
+  expect(ledgerSource).not.toContain('Status / Notes');
+  expect(ledgerSource).not.toContain('entry.cycle_num');
+  expect(ledgerSource).not.toContain("entry.status ||");
 });
 
 test('investor detail fetches and renders repayment history', () => {
@@ -1088,16 +1124,16 @@ test('investor demo financial metrics render in USD instead of NEAR', () => {
   expect(appJs).toContain("displayExpectedReturn: '$81,650'");
   expect(appJs).toContain("displayReturnedAmount: '$0'");
   expect(appJs).toContain("displayOutstandingAmount: '$81,650'");
-  expect(appJs).toContain('displayTotalInvested: allUsd ? formatUsdAmount(totals.totalInvested) : null');
-  expect(appJs).toContain('displayExpectedReturns: allUsd ? formatUsdAmount(totals.expectedReturns) : null');
-  expect(appJs).toContain('displayReturned: allUsd ? formatUsdAmount(totals.returned) : null');
-  expect(appJs).toContain('displayOutstanding: allUsd ? formatUsdAmount(totals.outstanding) : null');
+  expect(appJs).toContain('displayTotalInvested: allUsd && totals.totalInvested != null ? formatUsdAmount(totals.totalInvested) : null');
+  expect(appJs).toContain('displayExpectedReturns: allUsd && totals.expectedReturns != null ? formatUsdAmount(totals.expectedReturns) : null');
+  expect(appJs).toContain('displayReturned: allUsd && totals.returned != null ? formatUsdAmount(totals.returned) : null');
+  expect(appJs).toContain('displayOutstanding: allUsd && totals.outstanding != null ? formatUsdAmount(totals.outstanding) : null');
   expect(appJs).toContain('const invested = deal.display_amount || formatNearDisplay(deal.amount)');
   expect(appJs).toContain('const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return)');
   expect(appJs).toContain('const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount)');
   expect(appJs).toContain("['Invested', deal.display_amount || formatOptionalNearDisplay(deal.invested_amount ?? deal.amount)]");
-  expect(appJs).toContain("['Projected Return', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)]");
-  expect(appJs).toContain("['Outstanding Return', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)]");
+  expect(appJs).toContain("['Projected Total Payout', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)]");
+  expect(appJs).toContain("['Outstanding Payout', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.outstanding_amount)]");
   expect(appJs).toContain("['Return Status', escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))]");
   expect(appJs).toContain('const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent;');
   expect(appJs).toContain("[roiLabel, projectedRoi != null ? `${escapeHtml(projectedRoi)}%` : 'Unavailable']");
