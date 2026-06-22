@@ -4550,6 +4550,30 @@ function renderAdminReturnsLedger(returns, error = null) {
   `;
 }
 
+function adminReturnTypeLabel(entryType) {
+  return {
+    principal: 'Principal',
+    profit: 'Profit',
+    fee: 'Fee',
+    correction: 'Correction',
+  }[entryType] || 'Legacy / Untyped';
+}
+
+function adminReturnStatusLabel(paymentStatus) {
+  return {
+    recorded: 'Recorded off-chain',
+    approved: 'Approved',
+    paid: 'Paid',
+    reconciled: 'Reconciled',
+  }[paymentStatus] || 'Recorded off-chain';
+}
+
+function renderAdminReturnEvidence(transactionHash) {
+  if (!transactionHash) return '<span class="text-slate-500">None</span>';
+  const transactionUrlHash = encodeURIComponent(transactionHash);
+  return `<a href="https://testnet.nearblocks.io/txns/${transactionUrlHash}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline font-mono">${escapeHtml(formatAddress(transactionHash))}</a>`;
+}
+
 function renderReturnsLedgerRows(returns) {
   if (!returns.length) return '<p class="text-slate-500 text-sm">No returns recorded yet</p>';
   return `
@@ -4559,6 +4583,10 @@ function renderReturnsLedgerRows(returns) {
           <tr class="border-b border-slate-700">
             <th class="text-left py-2 pr-3">Date</th>
             <th class="text-left py-2 pr-3">Amount</th>
+            <th class="text-left py-2 pr-3">Type</th>
+            <th class="text-left py-2 pr-3">Status</th>
+            <th class="text-left py-2 pr-3">Recorded By</th>
+            <th class="text-left py-2 pr-3">Evidence / Transaction Hash</th>
             <th class="text-left py-2 pr-3">Note</th>
           </tr>
         </thead>
@@ -4567,6 +4595,10 @@ function renderReturnsLedgerRows(returns) {
             <tr class="border-b border-slate-700 last:border-0">
               <td class="py-2 pr-3 text-slate-300">${entry.created_at ? escapeHtml(new Date(entry.created_at).toLocaleDateString('en-US')) : 'Unavailable'}</td>
               <td class="py-2 pr-3 text-green-300 font-mono">${formatOptionalNearDisplay(entry.amount_near)}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(adminReturnTypeLabel(entry.entry_type))}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(adminReturnStatusLabel(entry.payment_status))}</td>
+              <td class="py-2 pr-3 text-slate-300 font-mono">${entry.recorded_by ? escapeHtml(entry.recorded_by) : 'Unavailable'}</td>
+              <td class="py-2 pr-3 text-slate-300">${renderAdminReturnEvidence(entry.transaction_hash)}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.note || 'No note')}</td>
             </tr>
           `).join('')}
@@ -4663,13 +4695,21 @@ function renderAdminActions(deal, status) {
         <p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2">
           Recording a return updates the admin ledger only. It does not execute a smart contract transfer.
         </p>
-        <div class="grid sm:grid-cols-[160px_1fr_auto] gap-2">
+        <div class="grid sm:grid-cols-[160px_160px_1fr_auto] gap-2">
           <input id="admin-return-amount" name="amount_near" type="text" inputmode="decimal" placeholder="Amount (NEAR)"
             class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-green-500" />
+          <select id="admin-return-type" name="entry_type" aria-label="Return entry type"
+            class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-green-500">
+            <option value="">Select type (optional)</option>
+            <option value="principal">Principal</option>
+            <option value="profit">Profit</option>
+            <option value="fee">Fee</option>
+          </select>
           <input id="admin-return-note" name="note" type="text" placeholder="Note"
             class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-green-500" />
           <button id="btn-admin-record-return" type="submit" class="admin-action-btn">Record Return</button>
         </div>
+        <p class="text-xs text-slate-400">Type classifies the recorded off-chain return. It does not prove payment or reconciliation.</p>
       </form>
       <div id="admin-action-result" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></div>
     </div>
@@ -4721,15 +4761,18 @@ async function recordAdminReturn(event, deal) {
   const form = event.currentTarget;
   const btn = document.getElementById('btn-admin-record-return');
   const amountNear = document.getElementById('admin-return-amount')?.value.trim();
+  const entryType = document.getElementById('admin-return-type')?.value;
   const note = document.getElementById('admin-return-note')?.value.trim();
   if (btn) { btn.disabled = true; btn.textContent = 'Recording...'; }
   showAdminActionResult('success', 'Recording return...');
 
   try {
+    const payload = { amount_near: amountNear, note };
+    if (entryType) payload.entry_type = entryType;
     const res = await fetch(`${API_BASE}/api/admin/deals/${deal.id}/returns`, {
       method: 'POST',
       headers: jsonAuthHeaders(),
-      body: JSON.stringify({ amount_near: amountNear, note }),
+      body: JSON.stringify(payload),
     });
     const data = await res.json().catch(() => ({}));
     if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }

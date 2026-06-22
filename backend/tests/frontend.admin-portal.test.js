@@ -101,6 +101,55 @@ test('cycle, report and return actions keep real backend success/error handling'
   expect(appJs).toContain('failed: ${err.message}');
 });
 
+test('admin return form offers optional Alpha-safe typed return choices', () => {
+  const form = functionBody('renderAdminActions', 6500);
+  expect(form).toContain('id="admin-return-type"');
+  expect(form).toContain('<option value="principal">Principal</option>');
+  expect(form).toContain('<option value="profit">Profit</option>');
+  expect(form).toContain('<option value="fee">Fee</option>');
+  expect(form).not.toContain('<option value="correction"');
+  expect(form).toContain('Select type (optional)');
+  expect(form).toContain('Type classifies the recorded off-chain return. It does not prove payment or reconciliation.');
+});
+
+test('admin return submit includes a selected type and preserves untyped payload compatibility', () => {
+  const submit = functionBody('recordAdminReturn', 2400);
+  expect(submit).toContain("document.getElementById('admin-return-type')?.value");
+  expect(submit).toContain('const payload = { amount_near: amountNear, note }');
+  expect(submit).toContain('if (entryType) payload.entry_type = entryType');
+  expect(submit).toContain('body: JSON.stringify(payload)');
+  expect(submit).not.toContain('payment_status');
+  expect(submit).not.toContain('recorded_by');
+  expect(submit).not.toContain('correction');
+  expect(submit).toContain("showAdminActionResult('success', 'Return recorded successfully')");
+  expect(submit).toContain('Record return failed:');
+});
+
+test('admin return ledger renders typed metadata and safe legacy labels', () => {
+  const ledger = functionBody('renderReturnsLedgerRows', 3600);
+  const typeLabels = functionBody('adminReturnTypeLabel', 700);
+  const statusLabels = functionBody('adminReturnStatusLabel', 700);
+  const evidence = functionBody('renderAdminReturnEvidence', 900);
+  expect(ledger).toContain('Type');
+  expect(ledger).toContain('Status');
+  expect(ledger).toContain('Recorded By');
+  expect(ledger).toContain('Evidence / Transaction Hash');
+  expect(ledger).toContain('entry.entry_type');
+  expect(ledger).toContain('entry.payment_status');
+  expect(ledger).toContain('entry.recorded_by');
+  expect(ledger).toContain('entry.transaction_hash');
+  expect(typeLabels).toContain("'Legacy / Untyped'");
+  expect(statusLabels).toContain("recorded: 'Recorded off-chain'");
+  expect(evidence).toContain('testnet.nearblocks.io/txns/');
+});
+
+test('typed return UI does not alter explicit admin demo detail', () => {
+  const demo = functionBody('renderAdminDemoDealDetail', 5000);
+  expect(demo).not.toContain('admin-return-type');
+  expect(demo).not.toContain('entry_type');
+  expect(demo).toContain('Returns History');
+});
+
 test('production disables fund-as and withdraw-as controls with a clear explanation', () => {
   expect(appJs).toContain('const IS_PRODUCTION_BUILD = import.meta.env.PROD');
   const body = functionBody('isProductionDisabledAdminAction', 700);
