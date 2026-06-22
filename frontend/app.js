@@ -3120,31 +3120,30 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount) {
   const dashboard = document.createElement('div');
   const activeDeals = deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status));
   const completedDeals = deals.filter(deal => deal.status?.status === 'Completed');
+  const attention = investorAttentionState(deals);
 
   if (deals.length === 0) {
     dashboard.innerHTML = `
-      ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics))}
-      ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
-      ${renderDashboardSection('Portfolio Health', renderPortfolioHealth(metrics))}
-      ${renderDashboardSection('Recent Activity', renderRecentActivity(deals))}
-      ${renderDashboardSection('Reporting Signals', renderInvestorReportingSignals())}
-      ${renderDashboardSection('Risk / Attention Panel', renderInvestorRiskPanel(metrics))}
+      ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention))}
+      ${renderDashboardSection('Attention Required', renderInvestorAttention(attention))}
       ${renderDashboardSection('Active Investments', `<p class="text-slate-400">No active investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>`)}
       ${renderDashboardSection('Completed Investments', renderEmptyDashboardSection('No completed deals yet'))}
+      ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
+      ${renderDashboardSection('Recent Activity', renderRecentActivity())}
+      ${renderDashboardSection('Reporting Information', renderInvestorReportingSignals())}
     `;
     el.appendChild(dashboard);
     return;
   }
 
   dashboard.innerHTML = `
-    ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics))}
-    ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
-    ${renderDashboardSection('Portfolio Health', renderPortfolioHealth(metrics))}
-    ${renderDashboardSection('Recent Activity', renderRecentActivity(deals))}
-    ${renderDashboardSection('Reporting Signals', renderInvestorReportingSignals())}
-    ${renderDashboardSection('Risk / Attention Panel', renderInvestorRiskPanel(metrics))}
+    ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention))}
+    ${renderDashboardSection('Attention Required', renderInvestorAttention(attention))}
     ${renderDashboardSection('Active Investments', renderDealSection(activeDeals, 'No active deals'))}
     ${renderDashboardSection('Completed Investments', renderDealSection(completedDeals, 'No completed deals yet'))}
+    ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
+    ${renderDashboardSection('Recent Activity', renderRecentActivity())}
+    ${renderDashboardSection('Reporting Information', renderInvestorReportingSignals())}
   `;
   el.appendChild(dashboard);
 }
@@ -3169,12 +3168,38 @@ function renderDealSection(deals, emptyMessage) {
   return `<div class="grid gap-4">${deals.map(renderInvestorDealCard).join('')}</div>`;
 }
 
-function renderInvestorMetrics(metrics) {
+function investorAttentionState(deals) {
+  const safeDeals = Array.isArray(deals) ? deals : [];
+  if (safeDeals.length === 0) return { available: true, count: 0, items: [] };
+  const hasCompleteAuthoritativeFlags = safeDeals.every(deal => typeof deal.attention_required === 'boolean');
+  if (!hasCompleteAuthoritativeFlags) return { available: false, count: null, items: [] };
+  const items = safeDeals.filter(deal => deal.attention_required === true);
+  return { available: true, count: items.length, items };
+}
+
+function renderInvestorAttention(attention) {
+  if (!attention?.available) {
+    return '<p class="text-sm text-slate-500">No authoritative attention signals are available for this portfolio.</p>';
+  }
+  if (!attention.count) {
+    return '<p class="text-sm text-slate-500">No investments require attention based on available backend signals.</p>';
+  }
+  return `<div class="grid gap-3">${attention.items.map(deal => `
+    <div class="bg-slate-800 border border-amber-800 rounded-lg px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <p class="font-semibold text-slate-100">${escapeHtml(deal.title || `Deal #${deal.id ?? 'Unknown'}`)}</p>
+        <p class="text-sm text-amber-200">${escapeHtml(deal.attention_reason || 'Backend attention flag is active.')}</p>
+      </div>
+      ${deal.id == null ? '' : `<a href="#investor/deals/${escapeHtml(deal.id)}" class="text-sm text-green-400 hover:underline">View Deal</a>`}
+    </div>
+  `).join('')}</div>`;
+}
+
+function renderInvestorMetrics(metrics, attention = { available: false, count: null }) {
   const invested = metrics.displayTotalInvested || formatNearAmount(metrics.totalInvested);
-  const expected = metrics.displayExpectedReturns || formatNearAmount(metrics.expectedReturns);
   const returned = metrics.displayReturned || formatNearAmount(metrics.returned);
   const outstanding = metrics.displayOutstanding || formatNearAmount(metrics.outstanding);
-  const profitRealized = metrics.displayProfitRealized || formatNearAmount(metrics.profitRealized);
+  const attentionValue = attention.available ? attention.count : 'Unavailable';
   const currencyNote = metrics.displayCurrency === 'USD'
     ? '<p class="text-xs text-slate-500 mt-2">Financial view in USD</p>'
     : '';
@@ -3185,10 +3210,6 @@ function renderInvestorMetrics(metrics) {
         <span class="metric-value">${escapeHtml(invested)}</span>
       </div>
       <div class="metric-box">
-        <span class="metric-label">Projected Total Payout</span>
-        <span class="metric-value">${escapeHtml(expected)}</span>
-      </div>
-      <div class="metric-box">
         <span class="metric-label">Total Cash Returned</span>
         <span class="metric-value">${escapeHtml(returned)}</span>
       </div>
@@ -3197,24 +3218,8 @@ function renderInvestorMetrics(metrics) {
         <span class="metric-value">${escapeHtml(outstanding)}</span>
       </div>
       <div class="metric-box">
-        <span class="metric-label">Realized Profit</span>
-        <span class="metric-value">${escapeHtml(profitRealized)}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Capital Returned %</span>
-        <span class="metric-value">${portfolioPercentLabel(metrics.capitalReturnedPercent)}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Average ROI</span>
-        <span class="metric-value">${portfolioPercentLabel(metrics.averageRoi, 'Not yet calculated')}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Active Deals</span>
-        <span class="metric-value">${metrics.activeDeals}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Completed Deals</span>
-        <span class="metric-value">${metrics.completedDeals}</span>
+        <span class="metric-label">Investments Requiring Attention</span>
+        <span class="metric-value">${escapeHtml(attentionValue)}</span>
       </div>
     </div>
     ${currencyNote}
@@ -3233,29 +3238,16 @@ function portfolioPercentLabel(value, missingLabel = 'Unavailable') {
 }
 
 function renderPortfolioPerformance(metrics) {
+  const expected = metrics.displayExpectedReturns || formatNearAmount(metrics.expectedReturns);
+  const calculatedProfit = metrics.displayProfitRealized || formatNearAmount(metrics.profitRealized);
   const rows = [
+    ['Projected Total Payout', expected],
+    ['Calculated Realized Profit', calculatedProfit],
     ['Average Projected ROI', portfolioPercentLabel(metrics.averageRoi, 'Not yet calculated')],
     ['Return Completion Rate', portfolioPercentLabel(metrics.returnCompletionPercent)],
     ['Capital Returned %', portfolioPercentLabel(metrics.capitalReturnedPercent)],
-  ];
-  return `
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-      ${rows.map(([label, value]) => `
-        <div class="metric-box">
-          <span class="metric-label">${label}</span>
-          <span class="metric-value">${escapeHtml(value)}</span>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderPortfolioHealth(metrics) {
-  const rows = [
     ['Active Deals', metrics.activeDeals],
     ['Completed Deals', metrics.completedDeals],
-    ['Deals With No Returns', metrics.dealsWithNoReturns],
-    ['Deals Requiring Attention', metrics.dealsRequiringAttention],
   ];
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -3266,11 +3258,12 @@ function renderPortfolioHealth(metrics) {
         </div>
       `).join('')}
     </div>
+    <p class="text-xs text-slate-500 mt-2">Calculated realized profit is derived from recorded returns under draft ADR-002 semantics.</p>
   `;
 }
 
 function renderRecentActivity() {
-  return renderEmptyDashboardSection('Authoritative recent activity is not available in the portfolio summary. Open a deal to view its event and return history.');
+  return '<p class="text-sm text-slate-500">Authoritative recent activity is not available in the portfolio summary. Open a deal to view its event and return history.</p>';
 }
 
 function renderInvestorReportingSignals() {
@@ -3286,25 +3279,6 @@ function renderInvestorReportingSignals() {
         <div class="metric-box">
           <span class="metric-label">${label}</span>
           <span class="metric-value text-base">${value}</span>
-        </div>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderInvestorRiskPanel(metrics) {
-  const items = [
-    ['Active deals with outstanding returns', metrics.activeDealsWithOutstandingReturns],
-    ['Deals with no returns yet', metrics.dealsWithNoReturns],
-    ['Completed deals', metrics.completedDeals],
-    ['Projected returns are not guaranteed', 'Disclosure active'],
-  ];
-  return `
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-      ${items.map(([label, value]) => `
-        <div class="metric-box">
-          <span class="metric-label">${label}</span>
-          <span class="metric-value text-base">${escapeHtml(value)}</span>
         </div>
       `).join('')}
     </div>

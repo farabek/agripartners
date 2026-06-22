@@ -111,7 +111,8 @@ function loadInvestorDashboardHelpers() {
       investorMetrics,
       renderInvestorMetrics,
       renderPortfolioPerformance,
-      renderPortfolioHealth,
+      investorAttentionState,
+      renderInvestorAttention,
       renderRecentActivity,
       returnCompletionRate,
     };
@@ -738,7 +739,7 @@ test('investor home dashboard renders MVP metrics and preserves its sections', (
   expect(appJs).toContain('Projected Total Payout');
   expect(appJs).toContain('Total Cash Returned');
   expect(appJs).toContain('Outstanding Payout');
-  expect(appJs).toContain('Realized Profit');
+  expect(appJs).toContain('Calculated Realized Profit');
   expect(appJs).toContain('Capital Returned %');
   expect(appJs).toContain('Average ROI');
   expect(appJs).toContain('Active Deals');
@@ -845,7 +846,6 @@ test('per-deal authorization failure remains an explicit live mode error', async
 test('investor analytics dashboard renders Phase 9 analytics sections', () => {
   const dashboardSource = appJs.slice(appJs.indexOf('function renderInvestorDashboard'), appJs.indexOf('function renderDashboardSection'));
   expect(appJs).toContain('Portfolio Performance');
-  expect(appJs).toContain('Portfolio Health');
   expect(appJs).toContain('Recent Activity');
   expect(dashboardSource).not.toContain('ROI & Returns Overview');
   expect(dashboardSource).not.toContain('Deal Performance');
@@ -855,16 +855,16 @@ test('investor analytics dashboard renders Phase 9 analytics sections', () => {
   expect(appJs).toContain('Return Completion Rate');
   expect(appJs).toContain('Average Projected ROI');
   expect(appJs).toContain('Return Status');
-  expect(appJs).toContain('Reporting Signals');
+  expect(appJs).toContain('Reporting Information');
   expect(appJs).toContain('Reports visible in deal detail');
   expect(appJs).toContain('Cycle status visible');
   expect(appJs).toContain('Event history available');
   expect(appJs).toContain('Farmer reports available');
   expect(appJs).toContain('Available in deal detail');
-  expect(appJs).toContain('Risk / Attention Panel');
-  expect(appJs).toContain('Active deals with outstanding returns');
-  expect(appJs).toContain('Deals with no returns yet');
-  expect(appJs).toContain('Projected returns are not guaranteed');
+  expect(appJs).toContain('Attention Required');
+  expect(appJs).toContain('No authoritative attention signals are available');
+  expect(dashboardSource).not.toContain('Portfolio Health');
+  expect(dashboardSource).not.toContain('Risk / Attention Panel');
   expect(appJs).toContain('View Deal');
 });
 
@@ -966,11 +966,12 @@ test('investor portfolio metrics handle zero invested and projected returns', ()
   expect(metrics.dealsRequiringAttention).toBe(0);
 });
 
-test('investor portfolio sections render performance health and recent activity', () => {
+test('investor portfolio sections render compact summary, attention, performance and recent activity', () => {
   const {
     renderInvestorMetrics,
     renderPortfolioPerformance,
-    renderPortfolioHealth,
+    investorAttentionState,
+    renderInvestorAttention,
     renderRecentActivity,
   } = loadInvestorDashboardHelpers();
   const metrics = {
@@ -994,13 +995,20 @@ test('investor portfolio sections render performance health and recent activity'
     dealsRequiringAttention: 1,
   };
 
-  expect(renderInvestorMetrics(metrics)).toContain('Realized Profit');
-  expect(renderInvestorMetrics(metrics)).toContain('Capital Returned %');
+  const unavailableAttention = investorAttentionState([{ id: 1 }]);
+  const summary = renderInvestorMetrics(metrics, unavailableAttention);
+  expect(summary).toContain('Total Invested');
+  expect(summary).toContain('Total Cash Returned');
+  expect(summary).toContain('Outstanding Payout');
+  expect(summary).toContain('Investments Requiring Attention');
+  expect(summary).toContain('Unavailable');
+  expect(summary).not.toContain('Projected Total Payout');
+  expect(summary).not.toContain('Capital Returned %');
+  expect(summary).not.toContain('Average ROI');
   expect(renderPortfolioPerformance(metrics)).toContain('Return Completion Rate');
-  expect(renderPortfolioPerformance(metrics)).not.toContain('$32,000');
-  expect(renderInvestorMetrics(metrics)).toContain('$32,000');
-  expect(renderPortfolioHealth(metrics)).toContain('Deals With No Returns');
-  expect(renderPortfolioHealth(metrics)).toContain('Deals Requiring Attention');
+  expect(renderPortfolioPerformance(metrics)).toContain('$32,000');
+  expect(renderPortfolioPerformance(metrics)).toContain('Calculated Realized Profit');
+  expect(renderInvestorAttention(unavailableAttention)).toContain('No authoritative attention signals are available');
   expect(renderRecentActivity([{ returned_amount: '82000.00', status: { current_cycle: 7 } }]))
     .toContain('Authoritative recent activity is not available');
   expect(renderRecentActivity([])).not.toContain('Latest return recorded');
@@ -1025,6 +1033,41 @@ test('missing portfolio financial values remain unavailable instead of becoming 
   expect(metrics.averageRoi).toBeNull();
   expect(renderInvestorMetrics(metrics)).toContain('Unavailable');
   expect(renderPortfolioPerformance(metrics)).toContain('Not yet calculated');
+});
+
+test('dashboard sections follow the investor-first hierarchy', () => {
+  const dashboardStart = appJs.indexOf('function renderInvestorDashboard');
+  const dashboardEnd = appJs.indexOf('function renderDashboardSection');
+  const source = appJs.slice(dashboardStart, dashboardEnd);
+  const titles = [
+    'Portfolio Summary',
+    'Attention Required',
+    'Active Investments',
+    'Completed Investments',
+    'Portfolio Performance',
+    'Recent Activity',
+    'Reporting Information',
+  ];
+  const positions = titles.map(title => source.indexOf(`'${title}'`));
+
+  expect(positions.every(position => position >= 0)).toBe(true);
+  expect(positions).toEqual([...positions].sort((a, b) => a - b));
+});
+
+test('attention state uses only explicit backend flags', () => {
+  const { investorAttentionState, renderInvestorAttention } = loadInvestorDashboardHelpers();
+
+  expect(investorAttentionState([{ id: 1, outstanding_amount: '100' }])).toEqual({
+    available: false,
+    count: null,
+    items: [],
+  });
+  expect(investorAttentionState([
+    { id: 1, attention_required: false },
+    { id: 2, title: 'Needs review', attention_required: true, attention_reason: 'Backend review required' },
+  ])).toEqual(expect.objectContaining({ available: true, count: 1 }));
+  expect(renderInvestorAttention({ available: true, count: 0, items: [] }))
+    .toContain('No investments require attention based on available backend signals');
 });
 
 test('returns ledger renders only authoritative return fields', () => {
