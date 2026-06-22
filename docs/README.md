@@ -53,6 +53,7 @@ Admins monitor pilot funding, deal status, farmer reporting, repayment status, a
 - [Farmer Portal](farmer-portal.md)
 - [Admin Dashboard](admin-dashboard.md)
 - [NEAR Testnet](near-testnet.md)
+- [ADR-001 — Live-first Architecture](architecture/ADR-001-live-first-architecture.md)
 
 ## Supporting Folders
 
@@ -62,4 +63,3 @@ Admins monitor pilot funding, deal status, farmer reporting, repayment status, a
 - [Business Model](business-model/)
 - [Workflows](workflows/)
 - [Demo Guide](demo-guide/)
-
