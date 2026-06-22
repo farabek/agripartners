@@ -44,6 +44,29 @@ function loadInvestorMissingValueHelpers() {
   return module.exports;
 }
 
+function loadInvestorTypedReturnLedgerHelpers() {
+  const start = appJs.indexOf('function investorReturnTypeLabel');
+  const end = appJs.indexOf('function renderInvestorReports');
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  const helpers = `
+    function escapeHtml(value) { return String(value ?? ''); }
+    function formatAddress(value) { return String(value ?? ''); }
+    function formatOptionalNearDisplay(value) { return value == null || value === '' ? 'Unavailable' : value + ' NEAR'; }
+    function renderReturnsLedgerRows() { return 'Demo ledger'; }
+    ${appJs.slice(start, end)}
+    module.exports = {
+      investorReturnTypeLabel,
+      investorReturnPaymentStatusLabel,
+      renderInvestorReturnEvidence,
+      renderInvestorTypedReturnLedger,
+    };
+  `;
+  const module = { exports: {} };
+  Function('module', helpers)(module);
+  return module.exports;
+}
+
 function loadMarketplaceHelpers() {
   const start = appJs.indexOf('const INVESTOR_DEMO_PILOTS');
   const end = appJs.indexOf('function showMarketplace');
@@ -299,7 +322,7 @@ function loadInvestorDetailRenderer() {
     function renderInvestorResourceUnavailable(label, error) { return 'error:' + label + ':' + error; }
     function renderCycleStatusCards() { return 'Cycle cards'; }
     function renderInvestorReports() { return 'Report cards'; }
-    function renderRepaymentHistory() { return 'Return entries'; }
+    function renderInvestorTypedReturnLedger() { return 'Return entries'; }
     function renderEvents() { return 'Event entries'; }
     function refreshInvestorDeal() {}
     function withdrawInvestorFromPortal() {}
@@ -342,7 +365,7 @@ function loadRefreshInvestorDealHelper(bundle) {
     function renderReturnsSummary(deal) { return \`returns-summary:\${deal.title}\`; }
     function renderRoiProgressCard(deal) { return \`roi:\${deal.title}\`; }
     function renderActualVsProjectedRoi(deal) { return \`actual:\${deal.title}\`; }
-    function renderRepaymentHistory(value) { return \`returns:\${value.length}\`; }
+    function renderInvestorTypedReturnLedger(value) { return \`returns:\${value.length}\`; }
     function yoctoToNear(value) { return String(value); }
     function formatYoctoRaw(value) { return String(value); }
     function showInvestorActionResult() {}
@@ -1400,26 +1423,77 @@ test('attention state uses only explicit backend flags', () => {
     .toContain('No investments require attention based on available backend signals');
 });
 
-test('returns ledger renders only authoritative return fields', () => {
-  const ledgerStart = appJs.indexOf('function renderReturnsLedgerRows');
-  const ledgerEnd = appJs.indexOf('function renderParams');
+test('returns ledger renders typed return fields without realized metrics', () => {
+  const ledgerStart = appJs.indexOf('function renderInvestorTypedReturnLedger');
+  const ledgerEnd = appJs.indexOf('function renderRepaymentHistory');
   const ledgerSource = appJs.slice(ledgerStart, ledgerEnd);
 
   expect(ledgerSource).toContain('Date');
+  expect(ledgerSource).toContain('Type');
   expect(ledgerSource).toContain('Amount');
+  expect(ledgerSource).toContain('Status');
+  expect(ledgerSource).toContain('Evidence / Tx Hash');
   expect(ledgerSource).toContain('Note');
   expect(ledgerSource).not.toContain('Cycle');
-  expect(ledgerSource).not.toContain('Status / Notes');
-  expect(ledgerSource).not.toContain('entry.cycle_num');
-  expect(ledgerSource).not.toContain("entry.status ||");
+  expect(ledgerSource).not.toContain('Realized Profit');
+  expect(ledgerSource).not.toContain('Realized ROI');
+  expect(ledgerSource).not.toContain('Verified');
+  expect(ledgerSource).not.toContain('Earned');
+  expect(ledgerSource).not.toContain('Guaranteed');
+});
+
+test('investor typed return ledger renders types, legacy rows, and correction safely', () => {
+  const { investorReturnTypeLabel, renderInvestorTypedReturnLedger } = loadInvestorTypedReturnLedgerHelpers();
+
+  expect(investorReturnTypeLabel({ entry_type: 'principal' })).toBe('Principal');
+  expect(investorReturnTypeLabel({ entry_type: 'profit' })).toBe('Profit');
+  expect(investorReturnTypeLabel({ entry_type: 'fee' })).toBe('Fee');
+  expect(investorReturnTypeLabel({ entry_type: 'correction' })).toBe('Correction');
+  expect(investorReturnTypeLabel({ entry_type: null })).toBe('Legacy / Untyped');
+  expect(investorReturnTypeLabel({ entry_type: 'profit', legacyUntyped: true })).toBe('Legacy / Untyped');
+
+  const html = renderInvestorTypedReturnLedger([
+    { amount_near: '10', entry_type: 'principal', payment_status: 'recorded', note: 'Principal row' },
+    { amount_near: '2', entry_type: null, legacyUntyped: true, note: 'Historical row' },
+  ]);
+  expect(html).toContain('Principal');
+  expect(html).toContain('Legacy / Untyped');
+  expect(html).toContain('Recorded');
+});
+
+test('investor typed return ledger renders payment lifecycle labels with a safe missing fallback', () => {
+  const { investorReturnPaymentStatusLabel } = loadInvestorTypedReturnLedgerHelpers();
+
+  expect(investorReturnPaymentStatusLabel('recorded')).toBe('Recorded');
+  expect(investorReturnPaymentStatusLabel('approved')).toBe('Approved');
+  expect(investorReturnPaymentStatusLabel('paid')).toBe('Paid');
+  expect(investorReturnPaymentStatusLabel('reconciled')).toBe('Reconciled');
+  expect(investorReturnPaymentStatusLabel(null)).toBe('Recorded off-chain');
+  expect(investorReturnPaymentStatusLabel(undefined)).toBe('Recorded off-chain');
+});
+
+test('investor typed return evidence is a reference and missing evidence stays explicit', () => {
+  const { renderInvestorReturnEvidence } = loadInvestorTypedReturnLedgerHelpers();
+
+  expect(renderInvestorReturnEvidence(null)).toContain('No evidence');
+  const evidence = renderInvestorReturnEvidence('tx-hash-123');
+  expect(evidence).toContain('testnet.nearblocks.io/txns/tx-hash-123');
+  expect(evidence).toContain('Reference only; not proof of payment or reconciliation');
+  expect(evidence).not.toContain('Verified');
+});
+
+test('investor typed return ledger preserves its empty state', () => {
+  const { renderInvestorTypedReturnLedger } = loadInvestorTypedReturnLedgerHelpers();
+  expect(renderInvestorTypedReturnLedger([])).toContain('No returns recorded yet.');
 });
 
 test('investor detail fetches and renders repayment history', () => {
   expect(appJs).toContain("fetch(`${API_BASE}/api/investor/deals/${id}/returns`, { headers })");
   expect(appJs).toContain('id="investor-returns-list"');
   expect(appJs).toContain('function renderRepaymentHistory');
+  expect(appJs).toContain('function renderInvestorTypedReturnLedger');
   expect(appJs).toContain('amount_near');
-  expect(appJs).toContain('renderReturnsLedgerRows(returns)');
+  expect(appJs).toContain('renderInvestorTypedReturnLedger(returns)');
 });
 
 test('investor detail refresh updates every bundle-dependent live section', async () => {

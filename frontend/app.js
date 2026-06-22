@@ -3854,7 +3854,7 @@ function renderInvestorDealDetail(el, bundle) {
 
     <div id="investor-detail-ledger" class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Recorded Off-chain Returns Ledger</h3>
-      <div id="investor-returns-list">${resourceErrors.returns ? renderInvestorResourceUnavailable('Returns ledger', resourceErrors.returns) : renderRepaymentHistory(returns)}</div>
+      <div id="investor-returns-list">${resourceErrors.returns ? renderInvestorResourceUnavailable('Returns ledger', resourceErrors.returns) : renderInvestorTypedReturnLedger(returns)}</div>
     </div>
 
     <div id="investor-detail-activity" class="bg-slate-800 rounded-xl p-5 mb-6">
@@ -4123,6 +4123,64 @@ function renderActualVsProjectedRoi(deal) {
   `;
 }
 
+function investorReturnTypeLabel(entry) {
+  if (entry.legacyUntyped || entry.entry_type == null) return 'Legacy / Untyped';
+  return {
+    principal: 'Principal',
+    profit: 'Profit',
+    fee: 'Fee',
+    correction: 'Correction',
+  }[entry.entry_type] || 'Unknown type';
+}
+
+function investorReturnPaymentStatusLabel(paymentStatus) {
+  if (paymentStatus == null || paymentStatus === '') return 'Recorded off-chain';
+  return {
+    recorded: 'Recorded',
+    approved: 'Approved',
+    paid: 'Paid',
+    reconciled: 'Reconciled',
+  }[paymentStatus] || 'Unknown status';
+}
+
+function renderInvestorReturnEvidence(transactionHash) {
+  if (!transactionHash) return '<span class="text-slate-500">No evidence</span>';
+  const transactionUrlHash = encodeURIComponent(transactionHash);
+  return `<a href="https://testnet.nearblocks.io/txns/${transactionUrlHash}" target="_blank" rel="noopener noreferrer" title="Reference only; not proof of payment or reconciliation" class="text-blue-400 hover:underline font-mono">${escapeHtml(formatAddress(transactionHash))}</a>`;
+}
+
+function renderInvestorTypedReturnLedger(returns) {
+  if (!returns.length) return '<p class="text-slate-500 text-sm">No returns recorded yet.</p>';
+  return `
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-slate-400">
+          <tr class="border-b border-slate-700">
+            <th class="text-left py-2 pr-3">Date</th>
+            <th class="text-left py-2 pr-3">Type</th>
+            <th class="text-left py-2 pr-3">Amount</th>
+            <th class="text-left py-2 pr-3">Status</th>
+            <th class="text-left py-2 pr-3">Evidence / Tx Hash</th>
+            <th class="text-left py-2 pr-3">Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${returns.map((entry) => `
+            <tr class="border-b border-slate-700 last:border-0">
+              <td class="py-2 pr-3 text-slate-300">${entry.created_at ? escapeHtml(new Date(entry.created_at).toLocaleDateString('en-US')) : 'Unavailable'}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(investorReturnTypeLabel(entry))}</td>
+              <td class="py-2 pr-3 text-green-300 font-mono">${formatOptionalNearDisplay(entry.amount_near)}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(investorReturnPaymentStatusLabel(entry.payment_status))}</td>
+              <td class="py-2 pr-3 text-slate-300">${renderInvestorReturnEvidence(entry.transaction_hash)}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.note || 'No note')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
 function renderRepaymentHistory(returns) {
   if (!returns.length) return '<p class="text-slate-500 text-sm">No returns recorded yet.</p>';
   return renderReturnsLedgerRows(returns);
@@ -4308,7 +4366,7 @@ async function refreshInvestorDeal(id) {
     if (actualRoiEl) actualRoiEl.innerHTML = renderActualVsProjectedRoi(deal);
     if (returnsEl) returnsEl.innerHTML = resourceErrors.returns
       ? renderInvestorResourceUnavailable('Returns ledger', resourceErrors.returns)
-      : renderRepaymentHistory(returns);
+      : renderInvestorTypedReturnLedger(returns);
 
     const investorBalanceEl = document.getElementById('investor-available-balance');
     if (investorBalanceEl) {
