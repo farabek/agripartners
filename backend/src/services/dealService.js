@@ -7,7 +7,48 @@ const {
 } = require('./financialService');
 
 function normalizeReturnAmount(value) {
-  return formatYoctoToNear(parseNearToYocto(value));
+  const amountYocto = parseNearToYocto(value);
+  if (amountYocto <= 0n) throw new Error('amount_near must be positive');
+  return formatYoctoToNear(amountYocto);
+}
+
+const RETURN_ENTRY_TYPES = new Set(['principal', 'profit', 'fee']);
+const CLIENT_PROTECTED_RETURN_FIELDS = [
+  'payment_status',
+  'currency',
+  'recorded_by',
+  'transaction_hash',
+  'reconciled_at',
+  'reconciled_by',
+  'reconciliation_metadata',
+];
+
+function normalizeReturnEntryType(value) {
+  if (value === null || value === undefined || String(value).trim() === '') return null;
+  const entryType = String(value).trim().toLowerCase();
+  if (entryType === 'correction') {
+    throw new Error('entry_type correction is not supported');
+  }
+  if (!RETURN_ENTRY_TYPES.has(entryType)) {
+    throw new Error('entry_type must be principal, profit, or fee');
+  }
+  return entryType;
+}
+
+function toReturnDto(row) {
+  const entryType = row.entry_type ?? null;
+  return {
+    ...row,
+    entry_type: entryType,
+    legacyUntyped: entryType === null,
+    payment_status: row.payment_status ?? 'recorded',
+    currency: row.currency ?? 'NEAR',
+    recorded_by: row.recorded_by ?? null,
+    transaction_hash: row.transaction_hash ?? null,
+    reconciled_at: row.reconciled_at ?? null,
+    reconciled_by: row.reconciled_by ?? null,
+    reconciliation_metadata: row.reconciliation_metadata ?? null,
+  };
 }
 
 async function getAllDeals() {
@@ -118,19 +159,27 @@ async function getDealReturns(dealId) {
     'SELECT * FROM deal_returns WHERE deal_id = $1 ORDER BY created_at ASC',
     [dealId]
   );
-  return rows;
+  return rows.map(toReturnDto);
 }
 
-async function createDealReturn(dealId, repayment) {
+async function createDealReturn(dealId, repayment, recordedBy = null) {
+  const protectedField = CLIENT_PROTECTED_RETURN_FIELDS.find(
+    (field) => Object.prototype.hasOwnProperty.call(repayment, field)
+  );
+  if (protectedField) throw new Error(`${protectedField} cannot be set by client`);
+
   const amountNear = normalizeReturnAmount(repayment.amount_near);
   const note = String(repayment.note ?? '').trim() || null;
+  const entryType = normalizeReturnEntryType(repayment.entry_type);
   const { rows } = await pool.query(
-    `INSERT INTO deal_returns (deal_id, amount_near, note)
-     VALUES ($1, $2, $3)
+    `INSERT INTO deal_returns (
+       deal_id, amount_near, note, entry_type, payment_status, currency, recorded_by
+     )
+     VALUES ($1, $2, $3, $4, 'recorded', 'NEAR', $5)
      RETURNING *`,
-    [dealId, amountNear, note]
+    [dealId, amountNear, note, entryType, recordedBy]
   );
-  return rows[0];
+  return toReturnDto(rows[0]);
 }
 
 async function getDealReturnSummary(deal) {

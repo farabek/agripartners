@@ -83,6 +83,15 @@ beforeEach(() => {
     amount_near: '0.05',
     note: 'First repayment',
     created_at: '2026-06-10T00:00:00Z',
+    entry_type: null,
+    legacyUntyped: true,
+    payment_status: 'recorded',
+    currency: 'NEAR',
+    recorded_by: 'admin',
+    transaction_hash: null,
+    reconciled_at: null,
+    reconciled_by: null,
+    reconciliation_metadata: null,
   }]);
   dealService.getDealEvents.mockResolvedValue([]);
   dealService.getFarmerDealCycles.mockResolvedValue([{
@@ -385,8 +394,27 @@ test('GET /api/investor/deals/:id/returns returns repayment history for owned de
       amount_near: '0.05',
       note: 'First repayment',
       created_at: '2026-06-10T00:00:00Z',
+      entry_type: null,
+      legacyUntyped: true,
+      payment_status: 'recorded',
+      currency: 'NEAR',
+      recorded_by: 'admin',
+      transaction_hash: null,
+      reconciled_at: null,
+      reconciled_by: null,
+      reconciliation_metadata: null,
     }),
   ]);
+});
+
+test('POST /api/investor/deals/:id/returns is not an investor write route', async () => {
+  const res = await request(app)
+    .post('/api/investor/deals/1/returns')
+    .set('Authorization', `Bearer ${walletToken}`)
+    .send({ amount_near: '1', entry_type: 'principal' });
+
+  expect(res.status).toBe(404);
+  expect(dealService.createDealReturn).not.toHaveBeenCalled();
 });
 
 test('GET /api/investor/deals/:id/returns returns 404 for non-owned deal', async () => {

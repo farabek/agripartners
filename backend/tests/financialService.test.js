@@ -44,6 +44,27 @@ test('deal summary floors projected outstanding at zero', () => {
   expect(summary.projectedOutstanding).toBe('0.00');
 });
 
+test('deal summary includes legacy, principal, and profit entries but excludes fees', () => {
+  const summary = calculateDealFinancialSummary({
+    investmentAmountYocto: nearToYocto(100),
+    projectedRoiPct: '20',
+    returns: [
+      { amount_near: '10' },
+      { amount_near: '15', entry_type: 'principal' },
+      { amount_near: '5', entry_type: 'profit' },
+      { amount_near: '40', entry_type: 'fee' },
+    ],
+  });
+
+  expect(summary).toEqual(expect.objectContaining({
+    recordedReturns: '30.00',
+    projectedOutstanding: '90.00',
+    returnStatus: 'partial',
+  }));
+  expect(summary).not.toHaveProperty('realizedProfit');
+  expect(summary).not.toHaveProperty('realizedRoi');
+});
+
 test.each([
   [{ investmentAmountYocto: null, projectedRoiPct: '20' }, { investmentAmount: null, projectedRoi: 20 }],
   [{ investmentAmountYocto: nearToYocto(100), projectedRoiPct: null }, { investmentAmount: '100.00', projectedRoi: null }],

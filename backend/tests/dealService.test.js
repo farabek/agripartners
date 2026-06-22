@@ -215,7 +215,18 @@ test('getDealReturns returns repayment history ordered by creation time', async 
     'SELECT * FROM deal_returns WHERE deal_id = $1 ORDER BY created_at ASC',
     [1]
   );
-  expect(result).toBe(returns);
+  expect(result).toEqual([expect.objectContaining({
+    ...returns[0],
+    entry_type: null,
+    legacyUntyped: true,
+    payment_status: 'recorded',
+    currency: 'NEAR',
+    recorded_by: null,
+    transaction_hash: null,
+    reconciled_at: null,
+    reconciled_by: null,
+    reconciliation_metadata: null,
+  })]);
 });
 
 test('createDealReturn inserts normalized repayment amount', async () => {
@@ -227,8 +238,63 @@ test('createDealReturn inserts normalized repayment amount', async () => {
 
   const [sql, params] = pool.query.mock.calls[0];
   expect(sql).toContain('INSERT INTO deal_returns');
-  expect(params).toEqual([1, '0.05', 'First repayment']);
+  expect(params).toEqual([1, '0.05', 'First repayment', null, null]);
   expect(result.amount_near).toBe('0.05');
+  expect(result.legacyUntyped).toBe(true);
+  expect(result.payment_status).toBe('recorded');
+  expect(result.currency).toBe('NEAR');
+});
+
+test.each(['principal', 'profit', 'fee'])('createDealReturn accepts typed %s entries', async (entryType) => {
+  pool.query.mockResolvedValue({
+    rows: [{
+      id: 2,
+      deal_id: 1,
+      amount_near: '1.00',
+      entry_type: entryType,
+      payment_status: 'recorded',
+      currency: 'NEAR',
+      recorded_by: 'admin.testnet',
+    }],
+  });
+
+  const result = await createDealReturn(
+    1,
+    { amount_near: '1', entry_type: entryType },
+    'admin.testnet'
+  );
+
+  expect(pool.query.mock.calls[0][1]).toEqual([1, '1.00', null, entryType, 'admin.testnet']);
+  expect(result).toEqual(expect.objectContaining({
+    entry_type: entryType,
+    legacyUntyped: false,
+    payment_status: 'recorded',
+    currency: 'NEAR',
+    recorded_by: 'admin.testnet',
+  }));
+});
+
+test('createDealReturn rejects correction and invalid entry types', async () => {
+  await expect(createDealReturn(1, { amount_near: '1', entry_type: 'correction' }))
+    .rejects.toThrow('entry_type correction is not supported');
+  await expect(createDealReturn(1, { amount_near: '1', entry_type: 'bonus' }))
+    .rejects.toThrow('entry_type must be principal, profit, or fee');
+  expect(pool.query).not.toHaveBeenCalled();
+});
+
+test.each(['approved', 'paid', 'reconciled'])(
+  'createDealReturn rejects client payment_status %s',
+  async (paymentStatus) => {
+    await expect(createDealReturn(1, { amount_near: '1', payment_status: paymentStatus }))
+      .rejects.toThrow('payment_status cannot be set by client');
+    expect(pool.query).not.toHaveBeenCalled();
+  }
+);
+
+test('createDealReturn rejects zero return amounts', async () => {
+  await expect(createDealReturn(1, { amount_near: '0' }))
+    .rejects.toThrow('amount_near must be positive');
+  expect(pool.query).not.toHaveBeenCalled();
 });
 
 test('getDealReturnSummary marks partial return when returned amount is below expected return', async () => {

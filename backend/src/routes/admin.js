@@ -281,14 +281,33 @@ router.post('/deals/:id/returns', async (req, res) => {
   if (!deal) return res.status(404).json({ error: 'Deal not found' });
 
   try {
-    const repayment = await dealService.createDealReturn(deal.id, {
+    const protectedFields = [
+      'payment_status',
+      'currency',
+      'recorded_by',
+      'transaction_hash',
+      'reconciled_at',
+      'reconciled_by',
+      'reconciliation_metadata',
+    ];
+    const protectedField = protectedFields.find(
+      (field) => Object.prototype.hasOwnProperty.call(req.body, field)
+    );
+    if (protectedField) throw new Error(`${protectedField} cannot be set by client`);
+
+    const recordedBy = req.user?.account_id || req.user?.near_account || req.user?.username || null;
+    const repaymentInput = {
       amount_near: req.body.amount_near,
       note: req.body.note,
-    });
+    };
+    if (Object.prototype.hasOwnProperty.call(req.body, 'entry_type')) {
+      repaymentInput.entry_type = req.body.entry_type;
+    }
+    const repayment = await dealService.createDealReturn(deal.id, repaymentInput, recordedBy);
     const summary = await dealService.getDealReturnSummary(deal);
     res.status(201).json({ ok: true, repayment, summary });
   } catch (err) {
-    const status = /amount_near/.test(err.message) ? 400 : 500;
+    const status = /amount_near|entry_type|cannot be set by client/.test(err.message) ? 400 : 500;
     res.status(status).json({ error: err.message });
   }
 });

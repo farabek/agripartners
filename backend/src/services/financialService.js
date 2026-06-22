@@ -54,10 +54,15 @@ function financialReturnStatus(recordedYocto, projectedPayoutYocto) {
   return 'completed';
 }
 
+function countsTowardRecordedReturns(entry) {
+  const entryType = entry.entry_type ?? null;
+  return entryType === null || entryType === 'principal' || entryType === 'profit';
+}
+
 function calculateDealFinancialSummary({ investmentAmountYocto, projectedRoiPct, returns = [] }) {
   const investmentYocto = parseStoredYocto(investmentAmountYocto);
   const projectedRoiScaled = parseProjectedRoiPct(projectedRoiPct);
-  const recordedYocto = returns.reduce(
+  const recordedYocto = returns.filter(countsTowardRecordedReturns).reduce(
     (sum, entry) => sum + parseNearToYocto(entry.amount_near),
     0n
   );

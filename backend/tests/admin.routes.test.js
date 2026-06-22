@@ -63,6 +63,15 @@ beforeEach(() => {
     amount_near: '0.05',
     note: 'First repayment',
     created_at: '2026-06-10T00:00:00Z',
+    entry_type: null,
+    legacyUntyped: true,
+    payment_status: 'recorded',
+    currency: 'NEAR',
+    recorded_by: 'admin',
+    transaction_hash: null,
+    reconciled_at: null,
+    reconciled_by: null,
+    reconciliation_metadata: null,
   });
   dealService.getDealReturnSummary.mockResolvedValue({
     amount: '0.10',
@@ -80,6 +89,15 @@ beforeEach(() => {
     amount_near: '0.05',
     note: 'First repayment',
     created_at: '2026-06-10T00:00:00Z',
+    entry_type: null,
+    legacyUntyped: true,
+    payment_status: 'recorded',
+    currency: 'NEAR',
+    recorded_by: 'admin',
+    transaction_hash: null,
+    reconciled_at: null,
+    reconciled_by: null,
+    reconciliation_metadata: null,
   }]);
   dealService.getFarmerDealCycles.mockResolvedValue([{
     id: 1,
@@ -350,7 +368,7 @@ test('POST /api/admin/deals/:id/returns creates repayment and returns updated su
   expect(dealService.createDealReturn).toHaveBeenCalledWith(1, {
     amount_near: '0.05',
     note: 'First repayment',
-  });
+  }, 'admin');
   expect(dealService.getDealReturnSummary).toHaveBeenCalledWith(mockDeal);
   expect(res.body).toEqual(expect.objectContaining({
     ok: true,
@@ -365,6 +383,51 @@ test('POST /api/admin/deals/:id/returns creates repayment and returns updated su
     }),
   }));
 });
+
+test.each(['principal', 'profit', 'fee'])(
+  'POST /api/admin/deals/:id/returns accepts typed %s entry',
+  async (entryType) => {
+    const res = await request(app)
+      .post('/api/admin/deals/1/returns')
+      .set('Authorization', `Bearer ${adminWalletToken}`)
+      .send({ amount_near: '0.05', note: 'Typed return', entry_type: entryType });
+
+    expect(res.status).toBe(201);
+    expect(dealService.createDealReturn).toHaveBeenCalledWith(1, {
+      amount_near: '0.05',
+      note: 'Typed return',
+      entry_type: entryType,
+    }, 'farab.testnet');
+  }
+);
+
+test('POST /api/admin/deals/:id/returns rejects correction entries', async () => {
+  dealService.createDealReturn.mockRejectedValueOnce(
+    new Error('entry_type correction is not supported')
+  );
+
+  const res = await request(app)
+    .post('/api/admin/deals/1/returns')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ amount_near: '0.05', entry_type: 'correction' });
+
+  expect(res.status).toBe(400);
+  expect(res.body.error).toBe('entry_type correction is not supported');
+});
+
+test.each(['approved', 'paid', 'reconciled'])(
+  'POST /api/admin/deals/:id/returns rejects client status %s',
+  async (paymentStatus) => {
+    const res = await request(app)
+      .post('/api/admin/deals/1/returns')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ amount_near: '0.05', payment_status: paymentStatus });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('payment_status cannot be set by client');
+    expect(dealService.createDealReturn).not.toHaveBeenCalled();
+  }
+);
 
 test('GET /api/admin/deals/:id/return-summary returns admin ROI summary', async () => {
   const res = await request(app)
@@ -410,6 +473,10 @@ test('GET /api/admin/deals/:id/returns lists admin return ledger', async () => {
     returns: [expect.objectContaining({
       amount_near: '0.05',
       note: 'First repayment',
+      entry_type: null,
+      legacyUntyped: true,
+      payment_status: 'recorded',
+      currency: 'NEAR',
     })],
   }));
 });
