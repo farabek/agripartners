@@ -222,6 +222,8 @@ function loadLiveFundingHelper() {
   expect(start).toBeGreaterThanOrEqual(0);
   expect(end).toBeGreaterThan(start);
   const helpers = `
+    function escapeHtml(value) { return String(value ?? ''); }
+    function renderFundingProgressBar(value) { return '<progress>' + value + '</progress>'; }
     function numericReturnAmount(value) {
       const amount = Number(String(value ?? '').replace(/[^0-9.-]/g, ''));
       return Number.isFinite(amount) ? amount : 0;
@@ -230,7 +232,33 @@ function loadLiveFundingHelper() {
       return currency === 'USD' ? \`$\${value}\` : \`\${value.toFixed(2)} NEAR\`;
     }
     ${appJs.slice(start, end)}
-    module.exports = { liveFundingProgressMetrics };
+    module.exports = { liveFundingProgressMetrics, renderLiveFundingProgressCompact };
+  `;
+  const module = { exports: {} };
+  Function('module', helpers)(module);
+  return module.exports;
+}
+
+function loadInvestorDealCardHelpers() {
+  const stateStart = appJs.indexOf('function investorDealPerformanceState');
+  const stateEnd = appJs.indexOf('function renderProjectProfile');
+  const cardStart = appJs.indexOf('function renderInvestorDealCard');
+  const cardEnd = appJs.indexOf('function investorDemoCycles');
+  expect(stateStart).toBeGreaterThanOrEqual(0);
+  expect(stateEnd).toBeGreaterThan(stateStart);
+  expect(cardStart).toBeGreaterThan(stateEnd);
+  expect(cardEnd).toBeGreaterThan(cardStart);
+  const helpers = `
+    function escapeHtml(value) { return String(value ?? ''); }
+    function investorPilotLabel(deal) { return deal.title || ('Deal #' + deal.id); }
+    function formatNearDisplay(value) { return value == null ? 'Unavailable' : value + ' NEAR'; }
+    function formatAddress(value) { return value || 'Unknown'; }
+    function renderLiveFundingProgressCompact(deal) {
+      return deal.funding_percentage == null ? 'Funding progress: Not available' : 'Funding progress: ' + deal.funding_percentage + '%';
+    }
+    ${appJs.slice(stateStart, stateEnd)}
+    ${appJs.slice(cardStart, cardEnd)}
+    module.exports = { investorDealPerformanceState, investorDealReportsState, renderInvestorDealCard };
   `;
   const module = { exports: {} };
   Function('module', helpers)(module);
@@ -750,7 +778,7 @@ test('investor home dashboard renders MVP metrics and preserves its sections', (
   expect(appJs).toContain('Hissar Sheep Breeding Project');
   expect(appJs).toContain('21.9%');
   expect(appJs).toContain('21.1%');
-  expect(appJs).toContain("const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI'");
+  expect(appJs).toContain('function investorDealPerformanceState');
   expect(appJs).not.toContain('Greenhouse Project');
   expect(appJs).not.toContain('Poultry Farm');
   expect(appJs).not.toContain('Cotton Farm');
@@ -919,6 +947,81 @@ test('investor deal detail renders full funding progress panel', () => {
   expect(panel).toContain('Funding Percentage');
   expect(panel).toContain('Investor Count');
   expect(panel).toContain('Days Remaining');
+});
+
+test('live deal card prioritizes title, performance, three financial KPIs and View Deal', () => {
+  const { renderInvestorDealCard } = loadInvestorDealCardHelpers();
+  const html = renderInvestorDealCard({
+    id: 7,
+    title: 'Live Orchard',
+    amount: '100',
+    returned_amount: '25',
+    outstanding_amount: '95',
+    status: { status: 'CycleActive', current_cycle: 2 },
+    farmer: 'farmer.testnet',
+    contract_address: 'deal.testnet',
+  });
+
+  const orderedLabels = ['Live Orchard', 'Active', 'Total Invested', 'Total Cash Returned', 'Outstanding Payout', 'View Deal'];
+  const positions = orderedLabels.map(label => html.indexOf(label));
+  expect(positions.every(position => position >= 0)).toBe(true);
+  expect(positions).toEqual([...positions].sort((a, b) => a - b));
+  expect(html).toContain('href="#investor/deals/7"');
+  expect(html).not.toContain('Projected Total Payout');
+  expect(html).not.toContain('Projected ROI');
+  expect(html).not.toContain('Return Status');
+});
+
+test('deal card secondary information is visually de-emphasized and missing values stay unknown', () => {
+  const { renderInvestorDealCard } = loadInvestorDealCardHelpers();
+  const html = renderInvestorDealCard({ id: 8, title: 'Sparse Deal', status: null });
+  const secondaryStart = html.indexOf('border-t border-slate-700 text-xs text-slate-500');
+
+  expect(secondaryStart).toBeGreaterThan(-1);
+  expect(html.indexOf('Farmer:', secondaryStart)).toBeGreaterThan(secondaryStart);
+  expect(html.indexOf('Contract:', secondaryStart)).toBeGreaterThan(secondaryStart);
+  expect(html.indexOf('Current cycle:', secondaryStart)).toBeGreaterThan(secondaryStart);
+  expect(html.indexOf('Reports:', secondaryStart)).toBeGreaterThan(secondaryStart);
+  expect(html).toContain('Awaiting data');
+  expect(html).toContain('Unavailable');
+  expect(html).toContain('Unknown');
+});
+
+test('performance state is neutral and never infers attention from outstanding payout', () => {
+  const { investorDealPerformanceState } = loadInvestorDealCardHelpers();
+
+  expect(investorDealPerformanceState({ status: { status: 'Completed' } }).label).toBe('Completed');
+  expect(investorDealPerformanceState({ status: { status: 'CycleActive' } }).label).toBe('Active');
+  expect(investorDealPerformanceState({ status: null }).label).toBe('Awaiting data');
+  expect(investorDealPerformanceState({ status: { status: 'CycleActive' }, outstanding_amount: '999' }).label).toBe('Active');
+  expect(investorDealPerformanceState({ status: { status: 'CycleActive' }, attention_required: true }).label).toBe('Attention required');
+  expect(investorDealPerformanceState({ status: { status: 'Terminated' } }).label).toBe('Attention required');
+});
+
+test('live compact funding progress requires an authoritative percentage', () => {
+  const { renderLiveFundingProgressCompact } = loadLiveFundingHelper();
+
+  const unavailable = renderLiveFundingProgressCompact({ amount: '50' });
+  expect(unavailable).toContain('Not available');
+  expect(unavailable).not.toContain('0%');
+
+  const available = renderLiveFundingProgressCompact({ amount: '50', funding_percentage: 40 });
+  expect(available).toContain('40.0%');
+  expect(available).toContain('<progress>40</progress>');
+});
+
+test('active and completed cards share the same financial and secondary structure', () => {
+  const { renderInvestorDealCard } = loadInvestorDealCardHelpers();
+  const base = { id: 9, title: 'Deal', amount: '100', returned_amount: '20', outstanding_amount: '100' };
+  const active = renderInvestorDealCard({ ...base, status: { status: 'Funded', current_cycle: 0 } });
+  const completed = renderInvestorDealCard({ ...base, status: { status: 'Completed', current_cycle: 3 } });
+
+  for (const label of ['Total Invested', 'Total Cash Returned', 'Outstanding Payout', 'Farmer:', 'Contract:', 'Current cycle:', 'Reports:', 'View Deal']) {
+    expect(active).toContain(label);
+    expect(completed).toContain(label);
+  }
+  expect(active).toContain('Active');
+  expect(completed).toContain('Completed');
 });
 
 test('investor portfolio metrics calculate profit and percentages safely', () => {
@@ -1172,7 +1275,6 @@ test('investor demo financial metrics render in USD instead of NEAR', () => {
   expect(appJs).toContain('displayReturned: allUsd && totals.returned != null ? formatUsdAmount(totals.returned) : null');
   expect(appJs).toContain('displayOutstanding: allUsd && totals.outstanding != null ? formatUsdAmount(totals.outstanding) : null');
   expect(appJs).toContain('const invested = deal.display_amount || formatNearDisplay(deal.amount)');
-  expect(appJs).toContain('const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return)');
   expect(appJs).toContain('const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount)');
   expect(appJs).toContain("['Invested', deal.display_amount || formatOptionalNearDisplay(deal.invested_amount ?? deal.amount)]");
   expect(appJs).toContain("['Projected Total Payout', deal.display_expected_return || formatOptionalNearDisplay(deal.expected_return)]");

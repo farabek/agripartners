@@ -2720,6 +2720,22 @@ function liveFundingProgressMetrics(deal = {}) {
   };
 }
 
+function renderLiveFundingProgressCompact(deal) {
+  const funding = liveFundingProgressMetrics(deal);
+  if (funding.percentage == null) {
+    return '<p class="text-xs text-slate-500 mt-3">Funding progress: <span class="text-slate-400">Not available</span></p>';
+  }
+  return `
+    <div class="mt-3">
+      <div class="flex items-center justify-between gap-3 text-xs">
+        <span class="text-slate-500">Funding progress</span>
+        <span class="text-slate-300">${escapeHtml(funding.displayPercentage)}</span>
+      </div>
+      ${renderFundingProgressBar(funding.percentage)}
+    </div>
+  `;
+}
+
 function renderLiveFundingProgressPanel(deal) {
   const funding = liveFundingProgressMetrics(deal);
   const rows = [
@@ -3323,6 +3339,25 @@ function investorProjectProfile(deal = {}, status) {
   };
 }
 
+function investorDealPerformanceState(deal = {}) {
+  const status = deal.status?.status || (typeof deal.status === 'string' ? deal.status : null);
+  if (deal.attention_required === true || deal.action_required === true || status === 'Terminated') {
+    return { label: 'Attention required', className: 'bg-amber-950 text-amber-200 border-amber-800' };
+  }
+  if (status === 'Completed') {
+    return { label: 'Completed', className: 'bg-green-950 text-green-200 border-green-800' };
+  }
+  if (!status || status === 'Unknown') {
+    return { label: 'Awaiting data', className: 'bg-slate-900 text-slate-300 border-slate-700' };
+  }
+  return { label: 'Active', className: 'bg-blue-950 text-blue-200 border-blue-800' };
+}
+
+function investorDealReportsState(deal = {}) {
+  const value = deal.report_status ?? deal.reports_status;
+  return value == null || value === '' ? 'Unavailable' : String(value);
+}
+
 function renderProjectProfile(deal, status, statusError = null) {
   const profile = investorProjectProfile(deal, status);
   const profileBadge = deal.isDemoPilot ? 'Pilot Profile' : `Deal #${deal.id}`;
@@ -3358,58 +3393,53 @@ function renderProjectProfile(deal, status, statusError = null) {
 }
 
 function renderInvestorDealCard(deal) {
-  const status = deal.status?.status || 'Unknown';
   const pilotLabel = investorPilotLabel(deal);
   const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`;
   const dealHref = deal.isDemoPilot ? `#investor/pilots/${deal.pilot_key}` : `#investor/deals/${deal.id}`;
   const invested = deal.display_amount || formatNearDisplay(deal.amount);
-  const expected = deal.display_expected_return || formatNearDisplay(deal.expected_return);
   const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount);
   const outstanding = deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount);
-  const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI';
-  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent;
-  const currentCycle = deal.status?.current_cycle ?? '—';
+  const performance = investorDealPerformanceState(deal);
+  const currentCycle = deal.status?.current_cycle ?? 'Unknown';
+  const farmer = deal.farmer ? formatAddress(deal.farmer) : 'Unknown';
+  const contract = deal.contract_address ? formatAddress(deal.contract_address) : 'Unknown';
+  const reportsState = investorDealReportsState(deal);
   return `
-    <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div class="space-y-1 min-w-0">
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">${escapeHtml(dealBadge)}</span>
-          ${statusBadge(status)}
-          <span class="text-xs text-slate-500">Cycle ${currentCycle}</span>
-        </div>
-        <h3 class="text-lg font-semibold text-slate-100">${escapeHtml(pilotLabel)}</h3>
-        <p class="text-sm text-slate-400">Contract: <span class="text-slate-200 font-mono">${escapeHtml(formatAddress(deal.contract_address))}</span></p>
-        <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${escapeHtml(formatAddress(deal.farmer))}</span></p>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-6 gap-3 pt-2">
-          <div>
-            <span class="block text-xs text-slate-500">Invested</span>
-            <span class="text-sm text-slate-100 font-mono">${escapeHtml(invested)}</span>
-          </div>
-          <div>
-            <span class="block text-xs text-slate-500">Projected Total Payout</span>
-            <span class="text-sm text-slate-100 font-mono">${escapeHtml(expected)}</span>
-          </div>
-          <div>
-            <span class="block text-xs text-slate-500">Total Cash Returned</span>
-            <span class="text-sm text-green-300 font-mono">${escapeHtml(returned)}</span>
-          </div>
-          <div>
-            <span class="block text-xs text-slate-500">Outstanding Payout</span>
-            <span class="text-sm text-slate-100 font-mono">${escapeHtml(outstanding)}</span>
-          </div>
-          <div>
-            <span class="block text-xs text-slate-500">${escapeHtml(roiLabel)}</span>
-            <span class="text-sm text-slate-100 font-mono">${projectedRoi == null ? 'Unknown' : `${escapeHtml(projectedRoi)}%`}</span>
-          </div>
-          <div>
-            <span class="block text-xs text-slate-500">Return Status</span>
-            <span class="text-sm text-slate-100">${escapeHtml(returnStatusLabel(deriveReturnStatus(deal)))}</span>
+    <article class="bg-slate-800 rounded-xl p-5">
+      <div class="min-w-0">
+        <div class="min-w-0 flex-1">
+          <h3 class="text-lg font-semibold text-slate-100">${escapeHtml(pilotLabel)}</h3>
+          <div class="flex flex-wrap items-center gap-2 mt-2">
+            <span class="text-xs font-semibold border px-2 py-0.5 rounded ${performance.className}">${escapeHtml(performance.label)}</span>
+            <span class="text-xs text-slate-500">${escapeHtml(dealBadge)}</span>
           </div>
         </div>
-        ${renderFundingProgressCompact(deal)}
       </div>
-      <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
-    </div>
+      <div class="grid sm:grid-cols-3 gap-3 mt-4">
+        <div>
+          <span class="block text-xs text-slate-500">Total Invested</span>
+          <span class="text-sm text-slate-100 font-mono">${escapeHtml(invested)}</span>
+        </div>
+        <div>
+          <span class="block text-xs text-slate-500">Total Cash Returned</span>
+          <span class="text-sm text-green-300 font-mono">${escapeHtml(returned)}</span>
+        </div>
+        <div>
+          <span class="block text-xs text-slate-500">Outstanding Payout</span>
+          <span class="text-sm text-slate-100 font-mono">${escapeHtml(outstanding)}</span>
+        </div>
+      </div>
+      <div class="flex justify-end mt-4">
+        <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mt-4 pt-3 border-t border-slate-700 text-xs text-slate-500">
+        <span>Farmer: <span class="text-slate-300">${escapeHtml(farmer)}</span></span>
+        <span>Contract: <span class="text-slate-300 font-mono">${escapeHtml(contract)}</span></span>
+        <span>Current cycle: <span class="text-slate-300">${escapeHtml(currentCycle)}</span></span>
+        <span>Reports: <span class="text-slate-300">${escapeHtml(reportsState)}</span></span>
+      </div>
+      ${renderLiveFundingProgressCompact(deal)}
+    </article>
   `;
 }
 
