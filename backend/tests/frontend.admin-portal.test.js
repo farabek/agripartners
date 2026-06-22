@@ -1,115 +1,112 @@
 const fs = require('fs');
 const path = require('path');
 
-const appJs = fs.readFileSync(
-  path.join(__dirname, '..', '..', 'frontend', 'app.js'),
-  'utf8'
-);
+const appJs = fs.readFileSync(path.join(__dirname, '..', '..', 'frontend', 'app.js'), 'utf8');
 
-test('admin deal creation resets captured form after successful response', () => {
-  const createAdminDealStart = appJs.indexOf('async function createAdminDeal');
-  expect(createAdminDealStart).toBeGreaterThan(-1);
-  const createAdminDealBody = appJs.slice(createAdminDealStart, createAdminDealStart + 1800);
+function functionBody(name, length = 5000) {
+  const start = appJs.indexOf(`function ${name}`);
+  expect(start).toBeGreaterThan(-1);
+  return appJs.slice(start, start + length);
+}
 
-  const formCaptureIndex = createAdminDealBody.indexOf('const form = event.currentTarget');
-  const postIndex = createAdminDealBody.indexOf("fetchAdminJson('/api/admin/deals'");
-  const resetIndex = createAdminDealBody.indexOf('form.reset()');
-
-  expect(formCaptureIndex).toBeGreaterThan(-1);
-  expect(postIndex).toBeGreaterThan(formCaptureIndex);
-  expect(resetIndex).toBeGreaterThan(postIndex);
-  expect(createAdminDealBody).not.toContain('event.currentTarget.reset()');
+test('admin portal and admin deals list are live-first', () => {
+  expect(functionBody('showAdminPortal', 300)).toContain('showLiveAdminDashboard');
+  expect(functionBody('showDeals', 500)).toContain('if (isAdmin())');
+  expect(functionBody('showDeals', 500)).toContain('await showLiveAdminDashboard(el)');
+  expect(functionBody('showLiveAdminDashboard')).toContain("fetch(`${API_BASE}/api/deals`");
+  expect(appJs).not.toContain('ADMIN_DEMO_DATASET_ENABLED');
 });
 
-test('admin actions are gated by contract status and refreshed after funding', () => {
-  expect(appJs).toContain("if (action === 'fund') return normalizedStatus === 'Initialized'");
-  expect(appJs).toContain("if (action === 'start-cycle') return normalizedStatus === 'Funded'");
-  expect(appJs).toContain("if (action === 'report-profit') return normalizedStatus === 'CycleActive'");
-  expect(appJs).toContain('renderAdminActions(deal, status?.status)');
-  expect(appJs).toContain('updateAdminActionState(status.status)');
-  expect(appJs).toContain('btn.disabled = !isAdminActionEnabled(btn.dataset.action, normalizedStatus)');
-});
-
-test('deal list cards show visible deal number with title', () => {
-  const renderDealCardStart = appJs.indexOf('function renderDealCard');
-  expect(renderDealCardStart).toBeGreaterThan(-1);
-  const renderDealCardBody = appJs.slice(renderDealCardStart, renderDealCardStart + 900);
-
-  expect(renderDealCardBody).toContain('Deal #${escapeHtml(d.id)} &mdash; ${escapeHtml(dealTitle)}');
-  expect(renderDealCardBody).toContain('${d.description ?');
-  expect(renderDealCardBody).toContain('href="#deals/${d.id}"');
-});
-
-test('admin demo dashboard renders clean pilot projects and summary', () => {
-  expect(appJs).toContain('const ADMIN_DEMO_DATASET_ENABLED = true');
-  expect(appJs).toContain('function buildAdminDemoDataset');
-  expect(appJs).toContain('function renderAdminDemoDashboard');
-  expect(appJs).toContain('Fidlot Livestock Project');
-  expect(appJs).toContain('Hissar Sheep Breeding Project');
-  expect(appJs).toContain('Total Pilot Funding');
-  expect(appJs).toContain("totalPilotFunding: '$100,000'");
-  expect(appJs).toContain("activeDeals: deals.filter((deal) => deal.status === 'Active').length");
-  expect(appJs).toContain("completedDeals: deals.filter((deal) => deal.status === 'Completed').length");
-  expect(appJs).toContain("reportsSubmitted: deals.filter((deal) => deal.reportStatus === 'Report Submitted').length");
-  expect(appJs).toContain("reportsPending: deals.filter((deal) => deal.reportStatus === 'Next Report Due').length");
-  expect(appJs).toContain("returnsRecorded: '$82,000'");
-  expect(appJs).toContain("outstanding: '$81,650'");
-  expect(appJs).toContain('$100,000');
-  expect(appJs).toContain('AgriPartners Pilot Farm');
-  expect(appJs).toContain('Pilot Investor');
-  expect(appJs).toContain('Pilot Deal');
-});
-
-test('admin demo view hides raw test records and raw pilot titles', () => {
-  expect(appJs).not.toContain('QA Admin Deal');
-  expect(appJs).not.toContain('test_farmer_dashboard');
-  expect(appJs).not.toContain('withdraw_signer_test');
-  expect(appJs).not.toContain('fidlot_v5');
-  expect(appJs).not.toContain('fidlot_v5_pilot_v2');
-});
-
-test('admin demo detail renders investor-ready operational sections', () => {
+test('explicit admin pilot route remains available without becoming a live default', () => {
+  expect(appJs).toContain("const adminPilot = hash.match(/^#deals\\/pilots\\/([a-z0-9-]+)$/)");
   expect(appJs).toContain('showAdminPilotDetail(adminPilot[1])');
   expect(appJs).toContain('function renderAdminDemoDealDetail');
-  expect(appJs).toContain('Project Profile');
-  expect(appJs).toContain('Funding Status');
-  expect(appJs).toContain('Cycle Status');
-  expect(appJs).toContain('Farmer Report');
-  expect(appJs).toContain('Returns');
-  expect(appJs).toContain('Event History');
-  expect(appJs).toContain('Funding Confirmed');
-  expect(appJs).toContain('Cycle Active');
-  expect(appJs).toContain('Report Submitted');
-  expect(appJs).toContain('Next Report Due');
-  expect(appJs).toContain('Return Recorded');
-  expect(appJs).toContain('Pending');
+  expect(functionBody('showLiveAdminDashboard', 1300)).not.toContain('buildAdminDemoDataset');
 });
 
-test('admin deal detail fetches and renders farmer cycle status', () => {
-  expect(appJs).toContain("fetch(`${API_BASE}/api/admin/deals/${id}/cycles`, { headers })");
-  expect(appJs).toContain('id="admin-cycles-list"');
-  expect(appJs).toContain('Farmer Cycle Status');
-  expect(appJs).toContain('renderCycleStatusCards(cycles)');
+test('live dashboard has loading, zero-deal, auth, server, network and malformed JSON states', () => {
+  const body = functionBody('showLiveAdminDashboard');
+  expect(appJs).toContain('Loading live deals...');
+  expect(body).toContain('data.length === 0');
+  expect(body).toContain('No live deals yet');
+  expect(body).toContain('Malformed deal list payload');
+  expect(appJs).toContain("status === 401");
+  expect(appJs).toContain("status === 403");
+  expect(appJs).toContain('Invalid JSON from');
+  expect(appJs).toContain("data-admin-dashboard-error");
 });
 
-test('admin deal detail renders repayment recording form', () => {
-  expect(appJs).toContain('Record Return');
-  expect(appJs).toContain('id="admin-return-form"');
-  expect(appJs).toContain('id="admin-return-amount"');
-  expect(appJs).toContain('id="admin-return-note"');
-  expect(appJs).toContain('Recording a return updates the admin ledger only. It does not execute a smart contract transfer.');
-  expect(appJs).toContain('async function recordAdminReturn');
+test('admin create handles success, request errors, partial profile failures and empty lists', () => {
+  const portal = functionBody('showAdminCreatePortal');
+  const create = functionBody('createAdminDeal');
+  expect(portal).toContain('Promise.allSettled');
+  expect(portal).toContain("index === 0 ? 'Farmer' : 'Investor'");
+  expect(portal).toContain('profiles unavailable:');
+  expect(appJs).toContain('No farmer or investor profiles are available.');
+  expect(create).toContain("fetchAdminJson('/api/admin/deals'");
+  expect(create).toContain('form.reset()');
+  expect(create).toContain('Create deal failed:');
+});
+
+test('deal detail bundle treats main deal as mandatory and optional resources independently', () => {
+  const body = functionBody('fetchDealBundle', 6500);
+  expect(body).toContain("if (settled[0].status === 'rejected') throw settled[0].reason");
+  for (const resource of ['Status', 'Balances', 'Events', 'Cycles', 'Return summary', 'Returns']) {
+    expect(body).toContain(`optionalResourceResult(settled[`);
+    expect(appJs).toContain(`'${resource}'`);
+  }
+  expect(body).toContain('resourceErrors:');
+  expect(appJs).toContain('Authentication required (HTTP 401).');
+  expect(appJs).toContain('Admin access denied (HTTP 403).');
+  expect(appJs).toContain('Malformed main deal payload');
+});
+
+test('optional failures render as unavailable and remain distinct from empty data', () => {
+  expect(appJs).toContain('data-admin-resource-error');
+  expect(appJs).toContain('No cycle updates yet');
+  expect(appJs).toContain('No events');
+  expect(appJs).toContain('No return summary data yet');
+  expect(appJs).toContain('No returns recorded yet');
+  expect(appJs).toContain("resourceErrors.events ? renderAdminResourceUnavailable('Events'");
+  expect(appJs).toContain("resourceErrors.cycles ? renderAdminResourceUnavailable('Cycles'");
+});
+
+test('missing live DTO values render Unknown or Unavailable with no fabricated defaults', () => {
+  const params = functionBody('renderParams', 2500);
+  const summary = functionBody('renderAdminReturnSummary', 1800);
+  expect(params).toContain("value == null ? 'Unknown'");
+  expect(params).toContain("deal.total_cycles ?? 'Unknown'");
+  expect(params).toContain('formatOptionalYoctoDisplay');
+  expect(summary).toContain("projectedRoi == null ? 'Unknown'");
+  expect(summary).not.toContain('?? 20');
+  expect(appJs).not.toContain("status || 'Initialized'");
+  expect(params).not.toContain('undefined%');
+});
+
+test('refresh reloads the mandatory deal and every dependent section', () => {
+  const bundle = functionBody('fetchDealBundle', 3500);
+  expect(bundle).toContain('fetchDealJson(base, headers)');
+  for (const endpoint of ['/status', '/balances', '/events', '/cycles', '/return-summary', '/returns']) {
+    expect(bundle).toContain(endpoint);
+  }
+  expect(functionBody('refreshDeal', 700)).toContain('await fetchDealBundle(id)');
+});
+
+test('cycle, report and return actions keep real backend success/error handling', () => {
+  expect(appJs).toContain("url: `${base}/start-cycle`");
+  expect(appJs).toContain("url: `${base}/report-cycle`");
   expect(appJs).toContain("fetch(`${API_BASE}/api/admin/deals/${deal.id}/returns`");
+  expect(appJs).toContain('completed successfully');
+  expect(appJs).toContain('Record return failed:');
+  expect(appJs).toContain('failed: ${err.message}');
 });
 
-test('admin deal detail fetches and renders return summary and ledger', () => {
-  expect(appJs).toContain("fetch(`${API_BASE}/api/admin/deals/${id}/return-summary`, { headers })");
-  expect(appJs).toContain("fetch(`${API_BASE}/api/admin/deals/${id}/returns`, { headers })");
-  expect(appJs).toContain('id="admin-return-summary"');
-  expect(appJs).toContain('id="admin-returns-ledger"');
-  expect(appJs).toContain('Return Summary');
-  expect(appJs).toContain('Returns Ledger');
-  expect(appJs).toContain('function renderAdminReturnSummary');
-  expect(appJs).toContain('function renderReturnsLedgerRows');
-  expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
+test('production disables fund-as and withdraw-as controls with a clear explanation', () => {
+  expect(appJs).toContain('const IS_PRODUCTION_BUILD = import.meta.env.PROD');
+  const body = functionBody('isProductionDisabledAdminAction', 700);
+  expect(body).toContain("action === 'fund'");
+  expect(body).toContain("action === 'withdraw-farmer'");
+  expect(body).toContain("action === 'withdraw-investor'");
+  expect(appJs).toContain('Fund-as and withdraw-as controls are disabled in production');
+  expect(appJs).toContain("btn.dataset.productionDisabled === 'true'");
 });

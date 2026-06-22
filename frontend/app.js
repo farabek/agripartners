@@ -1,4 +1,5 @@
 const API_BASE = 'https://agripartners-zlp2.onrender.com';
+const IS_PRODUCTION_BUILD = import.meta.env.PROD;
 const NEAR_WALLET_NETWORK = 'testnet';
 const MY_NEAR_WALLET_URL = 'https://testnet.mynearwallet.com';
 const WALLET_AUTH_CHALLENGE_KEY = 'ap_wallet_auth_challenge';
@@ -287,7 +288,7 @@ function formatAddress(addr) {
 }
 
 function statusBadge(status) {
-  if (!status) return '<span class="badge badge-Initialized">—</span>';
+  if (!status) return '<span class="badge badge-Unknown">Unknown</span>';
   return `<span class="badge badge-${status}">${status}</span>`;
 }
 
@@ -639,11 +640,8 @@ function renderProfileOptions(profiles) {
 }
 
 async function showAdminPortal() {
-  if (ADMIN_DEMO_DATASET_ENABLED) {
-    showAdminDemoPortal();
-    return;
-  }
-  showAdminCreatePortal();
+  showView('view-admin');
+  await showLiveAdminDashboard(document.getElementById('view-admin'));
 }
 
 async function showAdminCreatePortal() {
@@ -664,14 +662,20 @@ async function showAdminCreatePortal() {
   `;
 
   const contentEl = document.getElementById('admin-create-content');
-  try {
-    const [farmersData, investorsData] = await Promise.all([
+  const profileResults = await Promise.allSettled([
       fetchAdminJson('/api/admin/farmers'),
       fetchAdminJson('/api/admin/investors'),
-    ]);
-    renderAdminCreateForm(contentEl, farmersData.farmers || [], investorsData.investors || []);
-  } catch (err) {
-    contentEl.innerHTML = `<div class="bg-red-900 text-red-200 px-4 py-3 rounded">Admin Portal unavailable: ${escapeHtml(err.message)}</div>`;
+  ]);
+  const farmers = profileResults[0].status === 'fulfilled' && Array.isArray(profileResults[0].value.farmers)
+    ? profileResults[0].value.farmers : [];
+  const investors = profileResults[1].status === 'fulfilled' && Array.isArray(profileResults[1].value.investors)
+    ? profileResults[1].value.investors : [];
+  renderAdminCreateForm(contentEl, farmers, investors);
+  const failures = profileResults
+    .map((result, index) => result.status === 'rejected' ? `${index === 0 ? 'Farmer' : 'Investor'} profiles unavailable: ${result.reason.message}` : null)
+    .filter(Boolean);
+  if (failures.length) {
+    contentEl.insertAdjacentHTML('afterbegin', `<div class="bg-amber-950 border border-amber-800 text-amber-100 px-4 py-3 rounded mb-4">${failures.map(escapeHtml).join('<br>')}</div>`);
   }
 }
 
@@ -738,7 +742,7 @@ function renderAdminCreateForm(el, farmers, investors) {
         class="bg-green-600 hover:bg-green-500 disabled:bg-slate-700 disabled:text-slate-400 text-white px-4 py-2 rounded-lg font-medium transition">
         Create Deal
       </button>
-      ${hasProfiles ? '' : '<p class="text-sm text-slate-400">Add at least one farmer and one investor profile before creating a deal.</p>'}
+      ${hasProfiles ? '' : `<p class="text-sm text-slate-400">${farmers.length === 0 && investors.length === 0 ? 'No farmer or investor profiles are available.' : farmers.length === 0 ? 'No farmer profiles are available.' : 'No investor profiles are available.'} Add the missing profile before creating a deal.</p>`}
     </form>
   `;
 
@@ -799,8 +803,8 @@ async function createAdminDeal(event) {
 async function showDeals() {
   showView('view-list');
   const el = document.getElementById('view-list');
-  if (isAdmin() && ADMIN_DEMO_DATASET_ENABLED) {
-    renderAdminDemoDashboard(el);
+  if (isAdmin()) {
+    await showLiveAdminDashboard(el);
     return;
   }
   el.innerHTML = `
@@ -833,16 +837,66 @@ async function showDeals() {
   }
 }
 
+function renderAdminDashboardShell(el) {
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Dashboard</h1>
+        <p class="text-slate-400">Live deals from the AgriPartners backend.</p>
+      </div>
+      <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Deal</a>
+    </div>
+    <div id="admin-dashboard-state" role="status" aria-live="polite">
+      <div class="spinner"></div>
+      <p class="text-slate-400 text-sm mt-3">Loading live deals...</p>
+    </div>
+  `;
+}
+
+function adminDashboardErrorMessage(status, message) {
+  if (status === 401) return 'Authentication required. Please sign in again.';
+  if (status === 403) return 'Admin access is required to load this dashboard.';
+  return message || 'The live admin dashboard is unavailable.';
+}
+
+async function showLiveAdminDashboard(el) {
+  renderAdminDashboardShell(el);
+  const stateEl = document.getElementById('admin-dashboard-state');
+  try {
+    const res = await fetch(`${API_BASE}/api/deals`, { headers: authHeaders() });
+    const data = await readJsonResponse(res);
+    if (!res.ok) throw Object.assign(new Error(data.error || `HTTP ${res.status}`), { status: res.status });
+    if (!Array.isArray(data)) throw new Error('Malformed deal list payload');
+    if (data.length === 0) {
+      stateEl.innerHTML = `
+        <div class="bg-slate-800 rounded-xl p-6 text-center" data-admin-empty-state>
+          <h2 class="text-lg font-semibold text-slate-200">No live deals yet</h2>
+          <p class="text-slate-400 text-sm mt-1">Create a deal to start live admin operations.</p>
+        </div>
+      `;
+      return;
+    }
+    stateEl.innerHTML = `<div class="grid gap-4">${data.map(renderDealCard).join('')}</div>`;
+  } catch (err) {
+    stateEl.innerHTML = `
+      <div class="bg-red-900 text-red-200 px-4 py-3 rounded" data-admin-dashboard-error="${escapeHtml(err.status || 'network')}">
+        ${escapeHtml(adminDashboardErrorMessage(err.status, err.message))}
+      </div>
+    `;
+  }
+}
+
 function renderDealCard(d) {
-  const dealTitle = d.title || d.deal_type;
+  const dealTitle = d.title || d.deal_type || 'Unknown';
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex justify-between items-center gap-4">
       <div class="space-y-1 min-w-0">
         <h2 class="text-lg font-semibold text-slate-100 truncate">Deal #${escapeHtml(d.id)} &mdash; ${escapeHtml(dealTitle)}</h2>
         ${d.description ? `<p class="text-sm text-slate-300">${escapeHtml(d.description)}</p>` : ''}
-        <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${formatAddress(d.farmer)}</span></p>
-        <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${formatAddress(d.investor)}</span></p>
-        <p class="text-sm text-slate-500">${d.total_cycles} cycle(s) × ${d.cycle_duration_days} days  ·  ${yoctoToNear(d.investment_amount)}</p>
+        <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${d.farmer ? formatAddress(d.farmer) : 'Unknown'}</span></p>
+        <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${d.investor ? formatAddress(d.investor) : 'Unknown'}</span></p>
+        <p class="text-sm text-slate-500">${d.total_cycles ?? 'Unknown'} cycle(s) × ${d.cycle_duration_days == null ? 'Unknown' : escapeHtml(d.cycle_duration_days)} days  ·  ${formatOptionalYoctoDisplay(d.investment_amount)}</p>
       </div>
       <a href="#deals/${d.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open →</a>
     </div>
@@ -2817,8 +2871,6 @@ const INVESTOR_DEMO_PILOTS = [
 ];
 
 const FEATURED_PILOT_DEALS = INVESTOR_DEMO_PILOTS;
-const ADMIN_DEMO_DATASET_ENABLED = true;
-
 function pilotKeyFromText(value) {
   const text = String(value || '').toLowerCase();
   if (text.includes('fidlot')) return 'fidlot';
@@ -3493,7 +3545,7 @@ function renderInvestorDealCard(deal) {
   const returned = deal.display_returned_amount || formatNearDisplay(deal.returned_amount);
   const outstanding = deal.display_outstanding_amount || formatNearDisplay(deal.outstanding_amount);
   const roiLabel = status === 'Completed' ? 'ROI' : 'Projected ROI';
-  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent ?? 20;
+  const projectedRoi = deal.projected_roi_pct ?? deal.roi_percent;
   const currentCycle = deal.status?.current_cycle ?? '—';
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -3525,7 +3577,7 @@ function renderInvestorDealCard(deal) {
           </div>
           <div>
             <span class="block text-xs text-slate-500">${escapeHtml(roiLabel)}</span>
-            <span class="text-sm text-slate-100 font-mono">${escapeHtml(projectedRoi)}%</span>
+            <span class="text-sm text-slate-100 font-mono">${projectedRoi == null ? 'Unknown' : `${escapeHtml(projectedRoi)}%`}</span>
           </div>
           <div>
             <span class="block text-xs text-slate-500">Return Status</span>
@@ -3938,6 +3990,11 @@ function formatOptionalYoctoDisplay(value) {
   }
 }
 
+function formatOptionalYoctoNear(value) {
+  if (value == null || value === '') return 'Unavailable';
+  try { return yoctoToNear(value); } catch { return 'Unavailable'; }
+}
+
 function renderInvestorResourceUnavailable(label, message) {
   return `
     <div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 mt-3 text-sm text-amber-100" data-investor-resource-error="${escapeHtml(label)}">
@@ -4330,6 +4387,112 @@ async function refreshInvestorDeal(id) {
 
 // --- Deal detail ---
 
+async function fetchDealJson(url, headers) {
+  const response = await fetch(url, { headers });
+  let data;
+  try {
+    data = await readJsonResponse(response);
+  } catch (err) {
+    err.status = response.status;
+    throw err;
+  }
+  if (!response.ok) {
+    throw Object.assign(new Error(data.error || `HTTP ${response.status}`), { status: response.status });
+  }
+  return data;
+}
+
+function optionalResourceResult(result, label, select, validate = () => true) {
+  if (result.status === 'rejected') {
+    const status = result.reason?.status;
+    const authMessage = status === 401
+      ? 'Authentication required (HTTP 401).'
+      : status === 403 ? 'Admin access denied (HTTP 403).' : null;
+    return { data: null, error: authMessage || result.reason?.message || `${label} request failed` };
+  }
+  try {
+    const data = select(result.value);
+    if (!validate(data)) throw new Error(`Malformed ${label.toLowerCase()} payload`);
+    return { data, error: null };
+  } catch (err) {
+    return { data: null, error: err.message };
+  }
+}
+
+function isObjectList(value) {
+  return Array.isArray(value) && value.every(item => item && typeof item === 'object' && !Array.isArray(item));
+}
+
+function isBalancePayload(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  return ['farmer', 'investor', 'platform', 'escrow'].every(key => {
+    if (value[key] == null) return true;
+    try { BigInt(value[key]); return true; } catch { return false; }
+  });
+}
+
+function hasCompleteBalanceData(value) {
+  return isBalancePayload(value) && ['farmer', 'investor', 'platform', 'escrow'].every(key => value[key] != null);
+}
+
+async function fetchDealBundle(id) {
+  const headers = authHeaders();
+  const base = `${API_BASE}/api/deals/${id}`;
+  const requests = [
+    fetchDealJson(base, headers),
+    fetchDealJson(`${base}/status`, headers),
+    fetchDealJson(`${base}/balances`, headers),
+    fetchDealJson(`${base}/events`, headers),
+  ];
+  if (isAdmin()) {
+    requests.push(
+      fetchDealJson(`${API_BASE}/api/admin/deals/${id}/cycles`, headers),
+      fetchDealJson(`${API_BASE}/api/admin/deals/${id}/return-summary`, headers),
+      fetchDealJson(`${API_BASE}/api/admin/deals/${id}/returns`, headers),
+    );
+  }
+
+  const settled = await Promise.allSettled(requests);
+  if (settled[0].status === 'rejected') throw settled[0].reason;
+  const deal = settled[0].value;
+  if (!deal || typeof deal !== 'object' || Array.isArray(deal)) throw new Error('Malformed main deal payload');
+
+  const status = optionalResourceResult(settled[1], 'Status', value => value, value => value && typeof value === 'object');
+  const balances = optionalResourceResult(settled[2], 'Balances', value => value, isBalancePayload);
+  const events = optionalResourceResult(settled[3], 'Events', value => value, isObjectList);
+  const cycles = isAdmin()
+    ? optionalResourceResult(settled[4], 'Cycles', value => value.cycles, isObjectList)
+    : { data: [], error: null };
+  const returnSummary = isAdmin()
+    ? optionalResourceResult(settled[5], 'Return summary', value => value.summary, value => value == null || typeof value === 'object')
+    : { data: null, error: null };
+  const returns = isAdmin()
+    ? optionalResourceResult(settled[6], 'Returns', value => value.returns, isObjectList)
+    : { data: [], error: null };
+
+  return {
+    deal,
+    status: status.data,
+    balances: balances.data,
+    events: events.data,
+    cycles: cycles.data,
+    returnSummary: returnSummary.data,
+    adminReturns: returns.data,
+    resourceErrors: {
+      status: status.error,
+      balances: balances.error,
+      events: events.error,
+      cycles: cycles.error,
+      returnSummary: returnSummary.error,
+      returns: returns.error,
+    },
+  };
+}
+
+function renderAdminResourceUnavailable(label, message) {
+  return `<div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 text-sm text-amber-100" data-admin-resource-error="${escapeHtml(label)}"><span class="font-semibold">${escapeHtml(label)} unavailable.</span> ${escapeHtml(message)}</div>`;
+}
+
 async function showDeal(id) {
   showView('view-detail');
   const el = document.getElementById('view-detail');
@@ -4339,53 +4502,23 @@ async function showDeal(id) {
     <div class="spinner"></div>
   `;
 
-  const headers = authHeaders();
-  const [dealRes, statusRes, balancesRes, eventsRes, cyclesRes, returnSummaryRes, adminReturnsRes] = await Promise.allSettled([
-    fetch(`${API_BASE}/api/deals/${id}`, { headers }),
-    fetch(`${API_BASE}/api/deals/${id}/status`, { headers }),
-    fetch(`${API_BASE}/api/deals/${id}/balances`, { headers }),
-    fetch(`${API_BASE}/api/deals/${id}/events`, { headers }),
-    isAdmin()
-      ? fetch(`${API_BASE}/api/admin/deals/${id}/cycles`, { headers })
-      : Promise.resolve(new Response(JSON.stringify({ cycles: [] }), { status: 200, headers: { 'content-type': 'application/json' } })),
-    isAdmin()
-      ? fetch(`${API_BASE}/api/admin/deals/${id}/return-summary`, { headers })
-      : Promise.resolve(new Response(JSON.stringify({ summary: null }), { status: 200, headers: { 'content-type': 'application/json' } })),
-    isAdmin()
-      ? fetch(`${API_BASE}/api/admin/deals/${id}/returns`, { headers })
-      : Promise.resolve(new Response(JSON.stringify({ returns: [] }), { status: 200, headers: { 'content-type': 'application/json' } }))
-  ]);
-
-  el.querySelector('.spinner')?.remove();
-
-  if (dealRes.status === 'rejected' || !dealRes.value.ok) {
-    const code = dealRes.value?.status;
-    el.innerHTML += code === 404
-      ? '<p class="text-slate-400 mt-8 text-center">Deal not found</p>'
-      : '<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend unavailable</div>';
-    return;
+  try {
+    const bundle = await fetchDealBundle(id);
+    renderDealDetail(el, bundle);
+  } catch (err) {
+    el.querySelector('.spinner')?.remove();
+    const message = err.status === 404 ? 'Deal not found'
+      : err.status === 401 ? 'Authentication required to load this deal.'
+      : err.status === 403 ? 'Access denied while loading this deal.'
+      : `Deal unavailable: ${err.message || 'Network request failed'}`;
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4" data-main-deal-error>${escapeHtml(message)}</div>`;
   }
-
-  const deal = await dealRes.value.json();
-  const status = statusRes.status === 'fulfilled' && statusRes.value.ok
-    ? await statusRes.value.json() : null;
-  const balances = balancesRes.status === 'fulfilled' && balancesRes.value.ok
-    ? await balancesRes.value.json() : null;
-  const events = eventsRes.status === 'fulfilled' && eventsRes.value.ok
-    ? await eventsRes.value.json() : [];
-  const cycles = cyclesRes.status === 'fulfilled' && cyclesRes.value.ok
-    ? (await cyclesRes.value.json()).cycles || [] : [];
-  const returnSummary = returnSummaryRes.status === 'fulfilled' && returnSummaryRes.value.ok
-    ? (await returnSummaryRes.value.json()).summary || null : null;
-  const adminReturns = adminReturnsRes.status === 'fulfilled' && adminReturnsRes.value.ok
-    ? (await adminReturnsRes.value.json()).returns || [] : [];
-
-  renderDealDetail(el, deal, status, balances, events, cycles, returnSummary, adminReturns);
 }
 
-function renderDealDetail(el, deal, status, balances, events, cycles = [], returnSummary = null, adminReturns = []) {
-  const dealTitle = deal.title || deal.deal_type;
-  const cycleText = status ? `· Cycle ${status.current_cycle}` : '';
+function renderDealDetail(el, bundle) {
+  const { deal, status, balances, events, cycles, returnSummary, adminReturns, resourceErrors = {} } = bundle;
+  const dealTitle = deal.title || deal.deal_type || 'Unknown';
+  const cycleText = resourceErrors.status ? '· Cycle Unavailable' : `· Cycle ${status?.current_cycle ?? 'Unknown'}`;
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
@@ -4396,47 +4529,48 @@ function renderDealDetail(el, deal, status, balances, events, cycles = [], retur
       <span id="cycle-text" class="text-slate-400 text-sm">${cycleText}</span>
       <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
+    ${resourceErrors.status ? renderAdminResourceUnavailable('Status', resourceErrors.status) : ''}
     ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
         ${renderParams(deal)}
       </div>
       <div class="bg-slate-800 rounded-xl p-5 flex flex-col items-center justify-center" id="chart-col">
-        ${balances
+        ${resourceErrors.balances ? renderAdminResourceUnavailable('Balances', resourceErrors.balances) : hasCompleteBalanceData(balances)
           ? `<canvas id="balances-chart" width="240" height="240"></canvas>
              <div id="balances-summary" class="w-full mt-4 space-y-2">
                ${renderBalancesSummary(balances)}
              </div>`
-          : '<p class="text-slate-500 text-sm">Balances unavailable</p>'}
+          : balances ? `<div id="balances-summary" class="w-full space-y-2">${renderBalancesSummary(balances)}</div>` : '<p class="text-slate-500 text-sm">Balances unavailable</p>'}
       </div>
     </div>
     ${isAdmin() ? renderAdminActions(deal, status?.status) : ''}
-    ${isAdmin() ? renderAdminReturnSummaryPanel(returnSummary) : ''}
-    ${isAdmin() ? renderAdminReturnsLedger(adminReturns) : ''}
+    ${isAdmin() ? renderAdminReturnSummaryPanel(returnSummary, resourceErrors.returnSummary) : ''}
+    ${isAdmin() ? renderAdminReturnsLedger(adminReturns, resourceErrors.returns) : ''}
     ${isAdmin() ? `
       <div class="bg-slate-800 rounded-xl p-5 mb-6">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Cycle Status</h3>
-        <div id="admin-cycles-list">${renderCycleStatusCards(cycles)}</div>
+        <div id="admin-cycles-list">${resourceErrors.cycles ? renderAdminResourceUnavailable('Cycles', resourceErrors.cycles) : renderCycleStatusCards(cycles)}</div>
       </div>
     ` : ''}
     <div class="bg-slate-800 rounded-xl p-5">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
-      <div id="events-list">${renderEvents(events)}</div>
+      <div id="events-list">${resourceErrors.events ? renderAdminResourceUnavailable('Events', resourceErrors.events) : renderEvents(events)}</div>
     </div>
   `;
 
-  if (balances) renderBalancesChart(balances);
+  if (hasCompleteBalanceData(balances)) renderBalancesChart(balances);
 
   document.getElementById('btn-refresh').addEventListener('click', () => refreshDeal(deal.id));
   if (isAdmin()) bindAdminActions(deal);
 }
 
-function renderAdminReturnSummaryPanel(summary) {
+function renderAdminReturnSummaryPanel(summary, error = null) {
   return `
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Return Summary</h3>
       <div id="admin-return-summary">
-        ${renderAdminReturnSummary(summary)}
+        ${error ? renderAdminResourceUnavailable('Return summary', error) : renderAdminReturnSummary(summary)}
       </div>
       ${returnDisclaimer()}
     </div>
@@ -4444,15 +4578,15 @@ function renderAdminReturnSummaryPanel(summary) {
 }
 
 function renderAdminReturnSummary(summary) {
-  if (!summary) return '<p class="text-slate-500 text-sm">Return summary unavailable</p>';
-  const projectedRoi = summary.projected_roi_pct ?? summary.roi_percent ?? 20;
+  if (!summary) return '<p class="text-slate-500 text-sm">No return summary data yet</p>';
+  const projectedRoi = summary.projected_roi_pct ?? summary.roi_percent;
   const rows = [
-    ['Invested', formatNearDisplay(summary.invested_amount || summary.amount)],
-    ['Projected ROI', `${escapeHtml(projectedRoi)}%`],
-    ['Projected Return', formatNearDisplay(summary.expected_return)],
-    ['Returned Amount', formatNearDisplay(summary.returned_amount)],
-    ['Outstanding Return', formatNearDisplay(summary.outstanding_amount)],
-    ['Return Status', escapeHtml(returnStatusLabel(summary.return_status))],
+    ['Invested', formatOptionalNearDisplay(summary.invested_amount ?? summary.amount)],
+    ['Projected ROI', projectedRoi == null ? 'Unknown' : `${escapeHtml(projectedRoi)}%`],
+    ['Projected Return', formatOptionalNearDisplay(summary.expected_return)],
+    ['Returned Amount', formatOptionalNearDisplay(summary.returned_amount)],
+    ['Outstanding Return', formatOptionalNearDisplay(summary.outstanding_amount)],
+    ['Return Status', summary.return_status == null ? 'Unknown' : escapeHtml(returnStatusLabel(summary.return_status))],
   ];
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -4466,12 +4600,12 @@ function renderAdminReturnSummary(summary) {
   `;
 }
 
-function renderAdminReturnsLedger(returns) {
+function renderAdminReturnsLedger(returns, error = null) {
   return `
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
       <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns Ledger</h3>
       <div id="admin-returns-ledger">
-        ${renderReturnsLedgerRows(returns)}
+        ${error ? renderAdminResourceUnavailable('Returns', error) : renderReturnsLedgerRows(returns)}
       </div>
     </div>
   `;
@@ -4495,7 +4629,7 @@ function renderReturnsLedgerRows(returns) {
             <tr class="border-b border-slate-700 last:border-0">
               <td class="py-2 pr-3 text-slate-300">${entry.created_at ? escapeHtml(new Date(entry.created_at).toLocaleDateString('en-US')) : 'Recorded'}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.cycle_num ?? entry.cycle_id ?? '-')}</td>
-              <td class="py-2 pr-3 text-green-300 font-mono">${formatNearDisplay(entry.amount_near)}</td>
+              <td class="py-2 pr-3 text-green-300 font-mono">${formatOptionalNearDisplay(entry.amount_near)}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.status || entry.note || 'Recorded')}</td>
             </tr>
           `).join('')}
@@ -4506,18 +4640,19 @@ function renderReturnsLedgerRows(returns) {
 }
 
 function renderParams(deal) {
+  const optionalPercent = value => value == null ? 'Unknown' : `${escapeHtml(value)}%`;
   const rows = [
-    ['Farmer',             formatAddress(deal.farmer)],
-    ['Investor',           formatAddress(deal.investor)],
-    ['Administrator',      formatAddress(deal.admin)],
-    ['Platform',           formatAddress(deal.platform)],
-    ['Split',              `${deal.farmer_split_pct}% / ${deal.investor_split_pct}%`],
-    ['Escrow',             `${deal.escrow_pct}%`],
-    ['Performance Fee',    `${deal.performance_fee_pct}%`],
-    ['Cycle duration',     `${deal.cycle_duration_days} days`],
-    ['Total cycles',       deal.total_cycles],
-    ['Investment',         yoctoToNear(deal.investment_amount)],
-    ['Capital return',     yoctoToNear(deal.capital_return_near)],
+    ['Farmer',             deal.farmer ? formatAddress(deal.farmer) : 'Unknown'],
+    ['Investor',           deal.investor ? formatAddress(deal.investor) : 'Unknown'],
+    ['Administrator',      deal.admin ? formatAddress(deal.admin) : 'Unknown'],
+    ['Platform',           deal.platform ? formatAddress(deal.platform) : 'Unknown'],
+    ['Split',              deal.farmer_split_pct == null && deal.investor_split_pct == null ? 'Unknown' : `${optionalPercent(deal.farmer_split_pct)} / ${optionalPercent(deal.investor_split_pct)}`],
+    ['Escrow',             optionalPercent(deal.escrow_pct)],
+    ['Performance Fee',    optionalPercent(deal.performance_fee_pct)],
+    ['Cycle duration',     deal.cycle_duration_days == null ? 'Unknown' : `${escapeHtml(deal.cycle_duration_days)} days`],
+    ['Total cycles',       deal.total_cycles ?? 'Unknown'],
+    ['Investment',         formatOptionalYoctoDisplay(deal.investment_amount)],
+    ['Capital return',     formatOptionalYoctoDisplay(deal.capital_return_near)],
   ];
   return rows.map(([k, v]) => `
     <div class="flex justify-between text-sm gap-2">
@@ -4539,25 +4674,32 @@ function renderBalancesSummary(balances) {
     <div class="balance-row">
       <span class="balance-label">${label}</span>
       <span class="balance-values">
-        <span class="balance-near">${yoctoToNear(raw)}</span>
-        <span class="balance-raw">${formatYoctoRaw(raw)}</span>
+        <span class="balance-near">${raw == null ? 'Unavailable' : yoctoToNear(raw)}</span>
+        <span class="balance-raw">${raw == null ? 'Unavailable' : formatYoctoRaw(raw)}</span>
       </span>
     </div>
   `).join('');
 }
 
 function isAdminActionEnabled(action, status) {
-  const normalizedStatus = status || 'Initialized';
+  const normalizedStatus = status || 'Unknown';
   if (action === 'fund') return normalizedStatus === 'Initialized';
   if (action === 'start-cycle') return normalizedStatus === 'Funded';
   if (action === 'report-profit') return normalizedStatus === 'CycleActive';
   return true;
 }
 
-function renderAdminActionButton(action, label, status, className = '') {
-  const enabled = isAdminActionEnabled(action, status);
+function isProductionDisabledAdminAction(action, deal) {
+  if (!IS_PRODUCTION_BUILD) return false;
+  if (action === 'fund' || action === 'withdraw-farmer' || action === 'withdraw-investor') return true;
+  return action === 'withdraw-platform' && deal.platform !== deal.admin;
+}
+
+function renderAdminActionButton(action, label, status, deal, className = '') {
+  const productionDisabled = isProductionDisabledAdminAction(action, deal);
+  const enabled = !productionDisabled && isAdminActionEnabled(action, status);
   return `
-    <button type="button" class="admin-action-btn ${className}" data-action="${action}" ${enabled ? '' : 'disabled'}>
+    <button type="button" class="admin-action-btn ${className}" data-action="${action}" data-production-disabled="${productionDisabled}" ${enabled ? '' : 'disabled'} title="${productionDisabled ? 'Unavailable in production: this workflow requires a non-production signer endpoint.' : ''}">
       ${label}
     </button>
   `;
@@ -4565,19 +4707,20 @@ function renderAdminActionButton(action, label, status, className = '') {
 
 function renderAdminActions(deal, status) {
   return `
-    <div id="admin-actions" data-status="${escapeHtml(status || 'Initialized')}" class="bg-slate-800 rounded-xl p-5 mb-6">
+    <div id="admin-actions" data-status="${escapeHtml(status || 'Unknown')}" class="bg-slate-800 rounded-xl p-5 mb-6">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Admin Actions</h3>
         <span class="text-xs text-slate-500">Blockchain transactions require confirmation</span>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-        ${renderAdminActionButton('fund', 'Fund', status, 'action-fund')}
-        ${renderAdminActionButton('start-cycle', 'Start Cycle', status)}
-        ${renderAdminActionButton('report-profit', 'Report Profit', status)}
-        ${renderAdminActionButton('withdraw-farmer', 'Withdraw Farmer', status)}
-        ${renderAdminActionButton('withdraw-investor', 'Withdraw Investor', status)}
-        ${renderAdminActionButton('withdraw-platform', 'Withdraw Platform', status)}
+        ${renderAdminActionButton('fund', 'Fund', status, deal, 'action-fund')}
+        ${renderAdminActionButton('start-cycle', 'Start Cycle', status, deal)}
+        ${renderAdminActionButton('report-profit', 'Report Profit', status, deal)}
+        ${renderAdminActionButton('withdraw-farmer', 'Withdraw Farmer', status, deal)}
+        ${renderAdminActionButton('withdraw-investor', 'Withdraw Investor', status, deal)}
+        ${renderAdminActionButton('withdraw-platform', 'Withdraw Platform', status, deal)}
       </div>
+      ${IS_PRODUCTION_BUILD ? '<p class="text-xs text-amber-300 mt-3">Fund-as and withdraw-as controls are disabled in production because those backend endpoints are non-production workflows.</p>' : ''}
       <form id="admin-return-form" class="mt-5 border-t border-slate-700 pt-4 space-y-3">
         <h4 class="text-sm font-semibold text-slate-300">Record Return</h4>
         <p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2">
@@ -4617,10 +4760,10 @@ function setAdminActionBusy(isBusy) {
 function updateAdminActionState(status) {
   const actionsEl = document.getElementById('admin-actions');
   if (!actionsEl) return;
-  const normalizedStatus = status || 'Initialized';
+  const normalizedStatus = status || 'Unknown';
   actionsEl.dataset.status = normalizedStatus;
   actionsEl.querySelectorAll('.admin-action-btn').forEach(btn => {
-    btn.disabled = !isAdminActionEnabled(btn.dataset.action, normalizedStatus);
+    btn.disabled = btn.dataset.productionDisabled === 'true' || !isAdminActionEnabled(btn.dataset.action, normalizedStatus);
   });
 }
 
@@ -4717,9 +4860,13 @@ function adminActionConfig(deal, action) {
 }
 
 async function runAdminAction(deal, action) {
+  if (isProductionDisabledAdminAction(action, deal)) {
+    showAdminActionResult('error', 'This action is unavailable in production because it requires a non-production signer endpoint.');
+    return;
+  }
   const currentStatus = document.getElementById('admin-actions')?.dataset.status;
   if (!isAdminActionEnabled(action, currentStatus)) {
-    showAdminActionResult('success', `${action} is not available while deal status is ${currentStatus || 'Initialized'}.`);
+    showAdminActionResult('error', `${action} is not available while deal status is ${currentStatus || 'Unknown'}.`);
     return;
   }
 
@@ -4798,17 +4945,18 @@ function renderEvents(events) {
   if (!events.length) return '<p class="text-slate-500 text-sm">No events</p>';
   return events.map(e => {
     const profitHtml = e.profit_near
-      ? `<span class="text-green-400 ml-2">+${yoctoToNear(e.profit_near)}</span>` : '';
+      ? `<span class="text-green-400 ml-2">+${formatOptionalYoctoNear(e.profit_near)}</span>` : '';
     const lossHtml = e.losses_near && e.losses_near !== '0'
-      ? `<span class="text-red-400 ml-2">−${yoctoToNear(e.losses_near)}</span>` : '';
+      ? `<span class="text-red-400 ml-2">−${formatOptionalYoctoNear(e.losses_near)}</span>` : '';
     const txHtml = e.tx_hash
       ? `<a href="https://testnet.nearblocks.io/txns/${e.tx_hash}" target="_blank" class="text-blue-400 hover:underline font-mono">${formatAddress(e.tx_hash)}</a>`
       : '';
-    const date = new Date(e.created_at).toLocaleDateString('en-US');
+    const parsedDate = e.created_at ? new Date(e.created_at) : null;
+    const date = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toLocaleDateString('en-US') : 'Unknown';
     return `
       <div class="flex justify-between items-start text-sm py-2.5 border-b border-slate-700 last:border-0 gap-2">
         <div>
-          <span class="text-slate-200 font-medium">${e.event_type}</span>
+          <span class="text-slate-200 font-medium">${escapeHtml(e.event_type || 'Unknown')}</span>
           ${e.cycle_num != null ? `<span class="text-slate-400 ml-2">cycle ${e.cycle_num}</span>` : ''}
           ${profitHtml}${lossHtml}
         </div>
@@ -4824,69 +4972,11 @@ function renderEvents(events) {
 async function refreshDeal(id) {
   const btn = document.getElementById('btn-refresh');
   if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
-
-  const headers = authHeaders();
-  const [statusRes, balancesRes, eventsRes, cyclesRes, returnSummaryRes, adminReturnsRes] = await Promise.allSettled([
-    fetch(`${API_BASE}/api/deals/${id}/status`, { headers }),
-    fetch(`${API_BASE}/api/deals/${id}/balances`, { headers }),
-    fetch(`${API_BASE}/api/deals/${id}/events`, { headers }),
-    isAdmin()
-      ? fetch(`${API_BASE}/api/admin/deals/${id}/cycles`, { headers })
-      : Promise.resolve(new Response(JSON.stringify({ cycles: [] }), { status: 200, headers: { 'content-type': 'application/json' } })),
-    isAdmin()
-      ? fetch(`${API_BASE}/api/admin/deals/${id}/return-summary`, { headers })
-      : Promise.resolve(new Response(JSON.stringify({ summary: null }), { status: 200, headers: { 'content-type': 'application/json' } })),
-    isAdmin()
-      ? fetch(`${API_BASE}/api/admin/deals/${id}/returns`, { headers })
-      : Promise.resolve(new Response(JSON.stringify({ returns: [] }), { status: 200, headers: { 'content-type': 'application/json' } }))
-  ]);
-
-  const status = statusRes.status === 'fulfilled' && statusRes.value.ok
-    ? await statusRes.value.json() : null;
-  const balances = balancesRes.status === 'fulfilled' && balancesRes.value.ok
-    ? await balancesRes.value.json() : null;
-  const events = eventsRes.status === 'fulfilled' && eventsRes.value.ok
-    ? await eventsRes.value.json() : null;
-  const cycles = cyclesRes.status === 'fulfilled' && cyclesRes.value.ok
-    ? (await cyclesRes.value.json()).cycles || [] : null;
-  const returnSummary = returnSummaryRes.status === 'fulfilled' && returnSummaryRes.value.ok
-    ? (await returnSummaryRes.value.json()).summary || null : null;
-  const adminReturns = adminReturnsRes.status === 'fulfilled' && adminReturnsRes.value.ok
-    ? (await adminReturnsRes.value.json()).returns || [] : null;
-
-  if (status) {
-    const badgeEl = document.getElementById('status-badge');
-    const cycleEl = document.getElementById('cycle-text');
-    if (badgeEl) badgeEl.innerHTML = statusBadge(status.status);
-    updateAdminActionState(status.status);
-    if (cycleEl) cycleEl.textContent = `· Cycle ${status.current_cycle}`;
+  try {
+    const bundle = await fetchDealBundle(id);
+    renderDealDetail(document.getElementById('view-detail'), bundle);
+  } catch (err) {
+    showAdminActionResult('error', `Refresh failed: ${err.message || 'Network request failed'}`);
+    if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
   }
-  if (balances) renderBalancesChart(balances);
-
-  if (balances) {
-    const summaryEl = document.getElementById('balances-summary');
-    if (summaryEl) summaryEl.innerHTML = renderBalancesSummary(balances);
-  }
-
-  if (events) {
-    const eventsEl = document.getElementById('events-list');
-    if (eventsEl) eventsEl.innerHTML = renderEvents(events);
-  }
-
-  if (cycles) {
-    const cyclesEl = document.getElementById('admin-cycles-list');
-    if (cyclesEl) cyclesEl.innerHTML = renderCycleStatusCards(cycles);
-  }
-
-  if (returnSummary) {
-    const summaryEl = document.getElementById('admin-return-summary');
-    if (summaryEl) summaryEl.innerHTML = renderAdminReturnSummary(returnSummary);
-  }
-
-  if (adminReturns) {
-    const ledgerEl = document.getElementById('admin-returns-ledger');
-    if (ledgerEl) ledgerEl.innerHTML = renderReturnsLedgerRows(adminReturns);
-  }
-
-  if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
 }
