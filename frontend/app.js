@@ -302,6 +302,13 @@ function showView(viewId) {
 
 // --- Presentation Mode ---
 
+const PRESENTATION_SETTINGS_KEY = 'ap_presentation_settings';
+const DEFAULT_PRESENTATION_SETTINGS = {
+  presenterMode: true,
+  showTimeline: true,
+  showProgress: true,
+};
+
 const PRESENTATION_PROFILES = {
   investor: {
     id: 'investor',
@@ -341,7 +348,7 @@ const PRESENTATION_PROFILES = {
             targetLabel: 'Open Hissar Pilot',
             presenterNote: 'Use Hissar first because it is active and makes the progress story easier to understand.',
             nextLabel: 'Next: Follow farmer progress',
-            topics: ['Projected ROI', 'Investment amount', 'Pilot cycles'],
+            topics: ['Projected Return', 'Investment amount', 'Pilot cycles'],
           },
           {
             title: 'Farmer Progress',
@@ -356,7 +363,7 @@ const PRESENTATION_PROFILES = {
           {
             title: 'Returns Recorded',
             audienceQuestion: 'How do I see what has been returned or remains outstanding?',
-            keyMessage: 'The completed Feedlot/Fidlot pilot shows recorded returns, projected payout, outstanding amount, and ROI progress.',
+            keyMessage: 'The completed Feedlot/Fidlot pilot shows recorded returns, projected payout, outstanding amount, and return progress.',
             targetRoute: '#/investor/pilots/fidlot',
             targetLabel: 'Open Feedlot/Fidlot Returns',
             presenterNote: 'Say recorded and projected carefully. Do not describe Alpha records as guaranteed production settlement.',
@@ -371,7 +378,7 @@ const PRESENTATION_PROFILES = {
             targetLabel: 'Open Treasury Dashboard',
             presenterNote: 'If not signed in as admin, stay on this card and explain the concept without forcing login.',
             nextLabel: 'Next: Discuss withdrawal readiness',
-            topics: ['Treasury Shadow Mode', 'Append-only ledger', 'Idempotency'],
+            topics: ['Treasury Shadow Mode', 'Append-only trail', 'Duplicate-safe records'],
           },
           {
             title: 'Withdrawal Readiness',
@@ -400,6 +407,141 @@ const PRESENTATION_PROFILES = {
 };
 
 let activePresentationStepIndex = 0;
+let presentationSettings = loadPresentationSettings();
+
+const PRESENTATION_STEP_DETAILS = {
+  Welcome: {
+    icon: 'AP',
+    shortDescription: 'Set the Alpha Demo frame.',
+    whyItMatters: 'The investor starts with the business story before any technical detail.',
+    transition: 'Next: compare the pilot opportunities prepared for investor review.',
+    metrics: ['Alpha Demo', 'NEAR Testnet', '~5 minutes'],
+    speakingTips: ['Say Alpha Demo early and calmly.', 'Do not open with blockchain mechanics.'],
+    expectedQuestions: ['Is this production?', 'Is live money involved?'],
+    reminders: ['Use demo-safe language throughout.'],
+    technicalAppendixLinks: [{ label: 'Landing', route: '#home' }],
+  },
+  Opportunity: {
+    icon: 'OP',
+    shortDescription: 'Compare flagship pilot models.',
+    whyItMatters: 'Investors need comparable terms before they care about workflow depth.',
+    transition: 'Next: open the active Hissar pilot and review the investment terms.',
+    metrics: ['$50,000 Investment', '2 Pilot Models', '~63-64% Projected Return'],
+    speakingTips: ['Name both pilots.', 'Keep returns framed as projected unless discussing the completed demo story.'],
+    expectedQuestions: ['Are these real pilots?', 'Why these two models?'],
+    reminders: ['Avoid saying guaranteed return.'],
+    technicalAppendixLinks: [{ label: 'Marketplace', route: '#/marketplace' }],
+  },
+  'Investment Terms': {
+    icon: '$',
+    shortDescription: 'Review amount, cycles, and projected return.',
+    whyItMatters: 'Clear terms create confidence before the investor follows capital into operations.',
+    transition: 'Next: see how the farmer uses invested capital.',
+    metrics: ['$50,000 Investment', '6 Cycles', '63.3% Projected Return'],
+    speakingTips: ['Point to investment size first.', 'Use Projected Return, not realized return.'],
+    expectedQuestions: ['How is projected return calculated?', 'What is the cycle length?'],
+    reminders: ['Do not change or reinterpret financial formulas.'],
+    technicalAppendixLinks: [{ label: 'Hissar investor pilot', route: '#/investor/pilots/hissar' }],
+  },
+  'Farmer Progress': {
+    icon: 'FR',
+    shortDescription: 'Follow funding and operating progress.',
+    whyItMatters: 'The platform links capital to production activity, not just a static investment card.',
+    transition: 'Next: review the completed pilot return record.',
+    metrics: ['Funding Confirmed', 'Cycle Active', 'Farmer Report'],
+    speakingTips: ['Present the farmer view as operational context.', 'Keep wallet IDs out of the story.'],
+    expectedQuestions: ['Who validates reports?', 'Can farmers upload evidence?'],
+    reminders: ['Reports are Alpha records, not verified oracle data.'],
+    technicalAppendixLinks: [{ label: 'Farmer pilot view', route: '#farmer/pilots/hissar' }],
+  },
+  'Returns Recorded': {
+    icon: 'RT',
+    shortDescription: 'Show recorded return activity.',
+    whyItMatters: 'Investors need to see outcomes without confusing recorded activity with production settlement.',
+    transition: 'Next: show the Treasury transparency layer behind recorded returns.',
+    metrics: ['$82,000 Recorded Return', '64% Return', '7 Cycles'],
+    speakingTips: ['Use Recorded Return and Projected Return consistently.', 'Explain Paid Return and Reconciled Return as future maturity states when asked.'],
+    expectedQuestions: ['Is this paid?', 'Is this reconciled on-chain?'],
+    reminders: ['Recorded Return is not automatically Paid Return or Reconciled Return.'],
+    technicalAppendixLinks: [{ label: 'Feedlot/Fidlot investor pilot', route: '#/investor/pilots/fidlot' }],
+  },
+  'Treasury Transparency': {
+    icon: 'TR',
+    shortDescription: 'Explain the accounting trail.',
+    whyItMatters: 'Treasury shows the path toward auditability while keeping Alpha Demo claims conservative.',
+    transition: 'Next: explain what must be true before withdrawal is ready.',
+    metrics: ['Treasury Transparency', 'Shadow Mode', 'Append-only Trail'],
+    speakingTips: ['Describe Treasury as the accounting trail.', 'Avoid account codes unless the audience asks.'],
+    expectedQuestions: ['Does Treasury control payouts now?', 'What does Shadow Mode mean?'],
+    reminders: ['Shadow Mode observes and records; it does not enforce payouts yet.'],
+    technicalAppendixLinks: [{ label: 'Admin Treasury route', route: '#admin/treasury' }],
+  },
+  'Withdrawal Readiness': {
+    icon: 'WD',
+    shortDescription: 'Clarify payout readiness.',
+    whyItMatters: 'The investor should understand payout maturity without assuming production custody is live.',
+    transition: 'Next: summarize the complete investment story.',
+    metrics: ['Withdrawal Ready Path', 'Paid Return', 'Reconciled Return'],
+    speakingTips: ['Separate availability from production payout authority.', 'Use the roadmap if asked about mainnet.'],
+    expectedQuestions: ['Can I withdraw today?', 'What controls are missing for production?'],
+    reminders: ['No production payout claim in Alpha Demo.'],
+    technicalAppendixLinks: [{ label: 'Investor portal', route: '#investor' }],
+  },
+  'Summary / Next Steps': {
+    icon: 'NX',
+    shortDescription: 'Close with the investment story.',
+    whyItMatters: 'The closing ties product clarity to the Beta path: trust, reconciliation, and production readiness.',
+    transition: 'Next: restart the quick demo or open the marketplace for discussion.',
+    metrics: ['1 Guided Story', '2 Pilot Models', 'Beta Readiness'],
+    speakingTips: ['Summarize the capital journey in one sentence.', 'Invite questions by audience type.'],
+    expectedQuestions: ['What is next for Beta?', 'What would make this production-ready?'],
+    reminders: ['End with confidence and clear next steps.'],
+    technicalAppendixLinks: [{ label: 'Marketplace discussion point', route: '#/marketplace' }],
+  },
+};
+
+function loadPresentationSettings() {
+  try {
+    const raw = localStorage.getItem(PRESENTATION_SETTINGS_KEY);
+    if (!raw) return { ...DEFAULT_PRESENTATION_SETTINGS };
+    return { ...DEFAULT_PRESENTATION_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    return { ...DEFAULT_PRESENTATION_SETTINGS };
+  }
+}
+
+function savePresentationSettings(settings) {
+  presentationSettings = { ...DEFAULT_PRESENTATION_SETTINGS, ...settings };
+  try {
+    localStorage.setItem(PRESENTATION_SETTINGS_KEY, JSON.stringify(presentationSettings));
+  } catch {}
+  return presentationSettings;
+}
+
+function enrichedPresentationStep(step) {
+  return { ...step, ...(PRESENTATION_STEP_DETAILS[step.title] || {}) };
+}
+
+function presentationProgress(flow, stepIndex) {
+  const total = flow.steps.length;
+  const completionPercent = Math.round(((stepIndex + 1) / total) * 100);
+  const remainingSteps = flow.steps.slice(stepIndex + 1).map(enrichedPresentationStep);
+  const remainingMinutes = remainingSteps.reduce((sum, step) => {
+    const value = step.estimatedMinutes ?? (PRESENTATION_STEP_DETAILS[step.title] ? 0.6 : 0.5);
+    return sum + value;
+  }, 0);
+  return {
+    label: `Step ${stepIndex + 1} of ${total}`,
+    completionPercent,
+    remainingLabel: remainingMinutes <= 0 ? 'Wrap-up' : `approx ${Math.max(1, Math.round(remainingMinutes))} minutes remaining`,
+  };
+}
+
+function presentationStepStatus(index, activeIndex) {
+  if (index < activeIndex) return 'completed';
+  if (index === activeIndex) return 'current';
+  return 'upcoming';
+}
 
 function investorQuickDemoFlow() {
   return PRESENTATION_PROFILES.investor.flows.quickDemo;
@@ -414,30 +556,34 @@ function showInvestorPresentation(stepIndex = activePresentationStepIndex) {
 }
 
 function renderInvestorPresentationShell(el, flow, stepIndex) {
-  const step = flow.steps[stepIndex];
+  const step = enrichedPresentationStep(flow.steps[stepIndex]);
+  const settings = presentationSettings;
+  const progress = presentationProgress(flow, stepIndex);
   el.innerHTML = `
     ${renderNav()}
     <section class="bg-slate-950 border border-green-900 rounded-xl overflow-hidden">
       <div class="bg-green-950/70 border-b border-green-900 px-4 py-3 text-sm font-semibold text-green-100">
-        ${escapeHtml(flow.banner)}
+        Investor Quick Demo | Alpha v1.1 | NEAR Testnet | Demo-safe
       </div>
-      <div class="grid lg:grid-cols-[280px_1fr]">
-        <aside class="border-b lg:border-b-0 lg:border-r border-slate-800 p-4 bg-slate-900/70">
+      <div class="grid lg:grid-cols-[320px_1fr]">
+        <aside class="${settings.showTimeline ? '' : 'hidden'} border-b lg:border-b-0 lg:border-r border-slate-800 p-4 bg-slate-900/70">
           <div class="mb-4">
             <p class="text-xs uppercase tracking-wide text-slate-500">Presentation Mode</p>
             <h1 class="text-xl font-bold text-slate-50">${escapeHtml(flow.title)}</h1>
             <p class="text-sm text-slate-400">${escapeHtml(flow.duration)}</p>
           </div>
-          ${renderPresentationStepper(flow.steps, stepIndex)}
+          ${renderPresentationTimeline(flow.steps.map(enrichedPresentationStep), stepIndex)}
         </aside>
         <main class="p-5 md:p-7">
           <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div>
-              <p class="text-sm text-slate-400" data-presentation-progress>Step ${stepIndex + 1} of ${flow.steps.length}</p>
+              ${settings.showProgress ? renderPresentationProgress(progress) : ''}
               <h2 class="text-3xl font-bold text-green-300 mt-1">${escapeHtml(step.title)}</h2>
+              <p class="text-sm text-slate-400 mt-2 max-w-2xl">${escapeHtml(step.shortDescription || '')}</p>
             </div>
             <a href="${escapeHtml(step.targetRoute)}" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2 rounded-lg text-sm font-medium transition">${escapeHtml(step.targetLabel)}</a>
           </div>
+          ${renderPresentationSettings(settings)}
           ${renderPresentationStepContent(step, stepIndex)}
           ${renderPresentationNavigation(flow.steps, stepIndex)}
         </main>
@@ -447,20 +593,62 @@ function renderInvestorPresentationShell(el, flow, stepIndex) {
   bindPresentationControls(flow);
 }
 
-function renderPresentationStepper(steps, activeIndex) {
+function renderPresentationProgress(progress) {
   return `
-    <nav aria-label="Investor Quick Demo steps" class="space-y-2" data-presentation-stepper>
+    <div class="flex flex-wrap items-center gap-3 text-sm" data-presentation-progress>
+      <span class="text-slate-300">${escapeHtml(progress.label)}</span>
+      <span class="text-green-300 font-semibold" data-presentation-percent>${escapeHtml(progress.completionPercent)}%</span>
+      <span class="text-slate-500" data-presentation-remaining>${escapeHtml(progress.remainingLabel)}</span>
+    </div>
+  `;
+}
+
+function renderPresentationTimeline(steps, activeIndex) {
+  return `
+    <nav aria-label="Investor Quick Demo timeline" class="presentation-timeline" data-presentation-timeline data-presentation-stepper>
       ${steps.map((step, index) => `
         <button
           type="button"
           data-presentation-jump="${index}"
-          class="w-full text-left rounded-lg border px-3 py-2 transition ${index === activeIndex ? 'border-green-700 bg-green-950 text-green-100' : 'border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-600'}"
+          data-presentation-status="${presentationStepStatus(index, activeIndex)}"
+          class="presentation-timeline-step ${presentationStepStatus(index, activeIndex)}"
         >
-          <span class="block text-xs text-slate-500">Step ${index + 1}</span>
-          <span class="block text-sm font-semibold">${escapeHtml(step.title)}</span>
+          <span class="presentation-timeline-icon" aria-hidden="true">${escapeHtml(step.icon || String(index + 1))}</span>
+          <span class="presentation-timeline-copy">
+            <span class="presentation-timeline-status">${escapeHtml(presentationStepStatus(index, activeIndex))}</span>
+            <span class="presentation-timeline-title">${escapeHtml(step.title)}</span>
+            <span class="presentation-timeline-description">${escapeHtml(step.shortDescription || '')}</span>
+          </span>
         </button>
       `).join('')}
     </nav>
+  `;
+}
+
+function renderPresentationSettings(settings) {
+  return `
+    <form id="presentation-settings" class="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-6" data-presentation-settings>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="text-sm font-semibold text-slate-100">Presentation Settings</p>
+          <p class="text-xs text-slate-500">Stored locally on this browser only.</p>
+        </div>
+        <div class="flex flex-wrap gap-3 text-sm">
+          ${renderPresentationSettingToggle('presenterMode', 'Presenter Mode', settings.presenterMode)}
+          ${renderPresentationSettingToggle('showTimeline', 'Show Timeline', settings.showTimeline)}
+          ${renderPresentationSettingToggle('showProgress', 'Show Progress', settings.showProgress)}
+        </div>
+      </div>
+    </form>
+  `;
+}
+
+function renderPresentationSettingToggle(name, label, checked) {
+  return `
+    <label class="inline-flex items-center gap-2 text-slate-300">
+      <input type="checkbox" name="${escapeHtml(name)}" ${checked ? 'checked' : ''} class="presentation-setting-input">
+      <span>${escapeHtml(label)}</span>
+    </label>
   `;
 }
 
@@ -470,6 +658,7 @@ function renderPresentationStepContent(step, stepIndex) {
     : '';
   return `
     <div class="grid gap-4 mb-6">
+      ${renderPresentationMetrics(step)}
       <article class="bg-slate-800 border border-slate-700 rounded-xl p-5">
         <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Audience question</p>
         <p class="text-xl font-semibold text-slate-50">${escapeHtml(step.audienceQuestion)}</p>
@@ -479,10 +668,15 @@ function renderPresentationStepContent(step, stepIndex) {
         <p class="text-lg text-slate-200">${escapeHtml(step.keyMessage)}</p>
         ${treasuryFallback}
       </article>
-      <article class="bg-slate-900 border border-slate-700 rounded-xl p-5">
-        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Presenter note</p>
-        <p class="text-sm text-slate-300">${escapeHtml(step.presenterNote)}</p>
+      <article class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Why it matters</p>
+        <p class="text-base text-slate-200">${escapeHtml(step.whyItMatters || '')}</p>
       </article>
+      <article class="bg-slate-900 border border-slate-700 rounded-xl p-5">
+        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">What comes next</p>
+        <p class="text-base text-slate-200">${escapeHtml(step.transition || step.nextLabel)}</p>
+      </article>
+      ${presentationSettings.presenterMode ? renderPresenterNotesPanel(step) : ''}
       <article class="bg-slate-900 border border-slate-700 rounded-xl p-5">
         <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Conversation topics</p>
         <div class="flex flex-wrap gap-2" data-presentation-topics="${stepIndex}">
@@ -493,9 +687,61 @@ function renderPresentationStepContent(step, stepIndex) {
   `;
 }
 
+function renderPresentationMetrics(step) {
+  const metrics = Array.isArray(step.metrics) ? step.metrics.slice(0, 3) : [];
+  if (!metrics.length) return '';
+  return `
+    <div class="grid sm:grid-cols-3 gap-3" data-presentation-metrics>
+      ${metrics.map(metric => `
+        <div class="presentation-metric">
+          <span>${escapeHtml(metric)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderPresenterNotesPanel(step) {
+  return `
+    <details class="bg-slate-900 border border-amber-800 rounded-xl p-5" data-presenter-notes open>
+      <summary class="cursor-pointer text-sm font-semibold text-amber-100">Presenter Notes</summary>
+      <div class="grid md:grid-cols-2 gap-4 mt-4 text-sm">
+        ${renderPresenterNoteList('Speaking tips', step.speakingTips)}
+        ${renderPresenterNoteList('Expected audience questions', step.expectedQuestions)}
+        ${renderPresenterNoteList('Reminders', step.reminders)}
+        ${renderPresenterAppendixLinks(step.technicalAppendixLinks)}
+      </div>
+      <p class="text-sm text-slate-300 mt-4">${escapeHtml(step.presenterNote)}</p>
+    </details>
+  `;
+}
+
+function renderPresenterNoteList(title, items = []) {
+  return `
+    <div>
+      <h3 class="text-xs uppercase tracking-wide text-slate-500 mb-2">${escapeHtml(title)}</h3>
+      <ul class="space-y-1 text-slate-300">
+        ${items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+function renderPresenterAppendixLinks(links = []) {
+  return `
+    <div>
+      <h3 class="text-xs uppercase tracking-wide text-slate-500 mb-2">Technical appendix links</h3>
+      <div class="space-y-1">
+        ${links.map(link => `<a class="block text-green-300 hover:underline" href="${escapeHtml(link.route)}">${escapeHtml(link.label)}</a>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
 function renderPresentationNavigation(steps, activeIndex) {
   const previousDisabled = activeIndex === 0 ? 'disabled' : '';
-  const nextLabel = steps[activeIndex].nextLabel;
+  const currentStep = enrichedPresentationStep(steps[activeIndex]);
+  const nextLabel = currentStep.nextLabel;
   return `
     <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-5">
       <button type="button" id="presentation-prev" ${previousDisabled} class="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-100 px-4 py-2 rounded-lg text-sm font-medium transition">Previous</button>
@@ -515,6 +761,31 @@ function bindPresentationControls(flow) {
   document.querySelectorAll('[data-presentation-jump]').forEach(button => {
     button.addEventListener('click', () => showInvestorPresentation(Number(button.dataset.presentationJump)));
   });
+  document.getElementById('presentation-settings')?.addEventListener('change', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+    savePresentationSettings({
+      ...presentationSettings,
+      [target.name]: target.checked,
+    });
+    showInvestorPresentation(activePresentationStepIndex);
+  });
+  document.removeEventListener('keydown', handlePresentationKeyboardNavigation);
+  document.addEventListener('keydown', handlePresentationKeyboardNavigation);
+}
+
+function handlePresentationKeyboardNavigation(event) {
+  const presentationView = document.getElementById('view-presentation');
+  if (!presentationView || presentationView.classList.contains('hidden')) return;
+  if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+  const flow = investorQuickDemoFlow();
+  event.preventDefault();
+  if (event.key === 'ArrowRight') {
+    const nextIndex = activePresentationStepIndex + 1 >= flow.steps.length ? 0 : activePresentationStepIndex + 1;
+    showInvestorPresentation(nextIndex);
+  } else {
+    showInvestorPresentation(activePresentationStepIndex - 1);
+  }
 }
 
 async function redirectAuthenticatedUser() {

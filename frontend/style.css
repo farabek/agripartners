@@ -221,6 +221,155 @@
   color: #cbd5e1;
 }
 
+.presentation-timeline {
+  display: grid;
+  gap: 10px;
+  position: relative;
+}
+
+.presentation-timeline::before {
+  background-color: #1e293b;
+  bottom: 20px;
+  content: "";
+  left: 18px;
+  position: absolute;
+  top: 20px;
+  width: 2px;
+}
+
+.presentation-timeline-step {
+  align-items: flex-start;
+  background-color: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  color: #cbd5e1;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 36px 1fr;
+  padding: 12px;
+  position: relative;
+  text-align: left;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  width: 100%;
+}
+
+.presentation-timeline-step:hover {
+  border-color: #475569;
+}
+
+.presentation-timeline-step:focus-visible,
+.presentation-setting-input:focus-visible {
+  outline: 3px solid #86efac;
+  outline-offset: 3px;
+}
+
+.presentation-timeline-step.current {
+  background-color: #052e16;
+  border-color: #22c55e;
+}
+
+.presentation-timeline-step.completed {
+  border-color: #166534;
+}
+
+.presentation-timeline-icon {
+  align-items: center;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 9999px;
+  color: #f8fafc;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 800;
+  height: 36px;
+  justify-content: center;
+  letter-spacing: 0;
+  position: relative;
+  width: 36px;
+  z-index: 1;
+}
+
+.presentation-timeline-step.current .presentation-timeline-icon {
+  background-color: #16a34a;
+  border-color: #86efac;
+  color: #ffffff;
+}
+
+.presentation-timeline-step.completed .presentation-timeline-icon {
+  background-color: #14532d;
+  border-color: #22c55e;
+  color: #bbf7d0;
+}
+
+.presentation-timeline-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.presentation-timeline-status {
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.presentation-timeline-title {
+  color: #f8fafc;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.presentation-timeline-description {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.presentation-metric {
+  background: linear-gradient(135deg, #063a1d 0%, #0f172a 100%);
+  border: 1px solid #166534;
+  border-radius: 8px;
+  min-height: 72px;
+  padding: 16px;
+}
+
+.presentation-metric span {
+  color: #dcfce7;
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.presentation-setting-input {
+  accent-color: #22c55e;
+}
+
+@media (max-width: 1023px) {
+  .presentation-timeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .presentation-timeline::before {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .presentation-timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .presentation-timeline-step {
+    grid-template-columns: 32px 1fr;
+  }
+
+  .presentation-timeline-icon {
+    height: 32px;
+    width: 32px;
+  }
+}
+
 .balance-row {
   display: flex;
   justify-content: space-between;
