@@ -13,6 +13,7 @@ function normalizeReturnAmount(value) {
 }
 
 const RETURN_ENTRY_TYPES = new Set(['principal', 'profit', 'fee']);
+const RETURN_PAYMENT_STATUSES = new Set(['recorded', 'approved', 'paid', 'reconciled']);
 const CLIENT_PROTECTED_RETURN_FIELDS = [
   'payment_status',
   'currency',
@@ -33,6 +34,18 @@ function normalizeReturnEntryType(value) {
     throw new Error('entry_type must be principal, profit, or fee');
   }
   return entryType;
+}
+
+function normalizeReturnPaymentStatus(value, fieldName) {
+  if (value === null || value === undefined || String(value).trim() === '') {
+    if (fieldName === 'from_status') return null;
+    throw new Error(`${fieldName} is required`);
+  }
+  const status = String(value).trim().toLowerCase();
+  if (!RETURN_PAYMENT_STATUSES.has(status)) {
+    throw new Error(`${fieldName} must be recorded, approved, paid, or reconciled`);
+  }
+  return status;
 }
 
 function toReturnDto(row) {
@@ -162,6 +175,42 @@ async function getDealReturns(dealId) {
   return rows.map(toReturnDto);
 }
 
+async function createReturnStatusEvent({
+  returnId,
+  fromStatus = null,
+  toStatus,
+  changedBy = null,
+  note = null,
+  evidenceMetadata = null,
+}) {
+  const normalizedFromStatus = normalizeReturnPaymentStatus(fromStatus, 'from_status');
+  const normalizedToStatus = normalizeReturnPaymentStatus(toStatus, 'to_status');
+  const { rows } = await pool.query(
+    `INSERT INTO return_status_events (
+       return_id, from_status, to_status, changed_by, note, evidence_metadata
+     )
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING *`,
+    [
+      returnId,
+      normalizedFromStatus,
+      normalizedToStatus,
+      changedBy,
+      note,
+      evidenceMetadata,
+    ]
+  );
+  return rows[0];
+}
+
+async function getReturnStatusEvents(returnId) {
+  const { rows } = await pool.query(
+    'SELECT * FROM return_status_events WHERE return_id = $1 ORDER BY changed_at ASC, id ASC',
+    [returnId]
+  );
+  return rows;
+}
+
 async function createDealReturn(dealId, repayment, recordedBy = null) {
   const protectedField = CLIENT_PROTECTED_RETURN_FIELDS.find(
     (field) => Object.prototype.hasOwnProperty.call(repayment, field)
@@ -179,7 +228,15 @@ async function createDealReturn(dealId, repayment, recordedBy = null) {
      RETURNING *`,
     [dealId, amountNear, note, entryType, recordedBy]
   );
-  return toReturnDto(rows[0]);
+  const repaymentDto = toReturnDto(rows[0]);
+  await createReturnStatusEvent({
+    returnId: repaymentDto.id,
+    fromStatus: null,
+    toStatus: 'recorded',
+    changedBy: repaymentDto.recorded_by,
+    note: 'Return recorded',
+  });
+  return repaymentDto;
 }
 
 async function getDealReturnSummary(deal) {
@@ -366,6 +423,8 @@ module.exports = {
   getFarmerDealCycles,
   getFarmerReports,
   getDealReturns,
+  createReturnStatusEvent,
+  getReturnStatusEvents,
   createDealReturn,
   getDealReturnSummary,
   getInvestorPortfolioFinancialSummary,

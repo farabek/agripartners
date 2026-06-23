@@ -492,6 +492,16 @@ test('GET /api/admin/deals/:id/returns returns 404 when deal not found', async (
   expect(dealService.getDealReturns).not.toHaveBeenCalled();
 });
 
+test('POST /api/admin/returns/:returnId/approve is not exposed yet', async () => {
+  const res = await request(app)
+    .post('/api/admin/returns/1/approve')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ note: 'Approve payment' });
+
+  expect(res.status).toBe(404);
+  expect(dealService.createDealReturn).not.toHaveBeenCalled();
+});
+
 test('POST /api/admin/deals/:id/returns returns 404 when deal not found', async () => {
   dealService.getDealById.mockResolvedValueOnce(null);
 

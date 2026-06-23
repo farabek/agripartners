@@ -14,6 +14,8 @@ const {
   getFarmerDealCycles,
   getFarmerReports,
   getDealReturns,
+  createReturnStatusEvent,
+  getReturnStatusEvents,
   createDealReturn,
   getDealReturnSummary,
   getInvestorPortfolioFinancialSummary,
@@ -230,15 +232,28 @@ test('getDealReturns returns repayment history ordered by creation time', async 
 });
 
 test('createDealReturn inserts normalized repayment amount', async () => {
-  pool.query.mockResolvedValue({
+  pool.query
+    .mockResolvedValueOnce({
     rows: [{ id: 1, deal_id: 1, amount_near: '0.05', note: 'First repayment' }],
-  });
+    })
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 1,
+        return_id: 1,
+        from_status: null,
+        to_status: 'recorded',
+        changed_by: null,
+        note: 'Return recorded',
+      }],
+    });
 
   const result = await createDealReturn(1, { amount_near: '0.050', note: 'First repayment' });
 
   const [sql, params] = pool.query.mock.calls[0];
   expect(sql).toContain('INSERT INTO deal_returns');
   expect(params).toEqual([1, '0.05', 'First repayment', null, null]);
+  expect(pool.query.mock.calls[1][0]).toContain('INSERT INTO return_status_events');
+  expect(pool.query.mock.calls[1][1]).toEqual([1, null, 'recorded', null, 'Return recorded', null]);
   expect(result.amount_near).toBe('0.05');
   expect(result.legacyUntyped).toBe(true);
   expect(result.payment_status).toBe('recorded');
@@ -246,17 +261,28 @@ test('createDealReturn inserts normalized repayment amount', async () => {
 });
 
 test.each(['principal', 'profit', 'fee'])('createDealReturn accepts typed %s entries', async (entryType) => {
-  pool.query.mockResolvedValue({
-    rows: [{
-      id: 2,
-      deal_id: 1,
-      amount_near: '1.00',
-      entry_type: entryType,
-      payment_status: 'recorded',
-      currency: 'NEAR',
-      recorded_by: 'admin.testnet',
-    }],
-  });
+  pool.query
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 2,
+        deal_id: 1,
+        amount_near: '1.00',
+        entry_type: entryType,
+        payment_status: 'recorded',
+        currency: 'NEAR',
+        recorded_by: 'admin.testnet',
+      }],
+    })
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 2,
+        return_id: 2,
+        from_status: null,
+        to_status: 'recorded',
+        changed_by: 'admin.testnet',
+        note: 'Return recorded',
+      }],
+    });
 
   const result = await createDealReturn(
     1,
@@ -265,6 +291,7 @@ test.each(['principal', 'profit', 'fee'])('createDealReturn accepts typed %s ent
   );
 
   expect(pool.query.mock.calls[0][1]).toEqual([1, '1.00', null, entryType, 'admin.testnet']);
+  expect(pool.query.mock.calls[1][1]).toEqual([2, null, 'recorded', 'admin.testnet', 'Return recorded', null]);
   expect(result).toEqual(expect.objectContaining({
     entry_type: entryType,
     legacyUntyped: false,
@@ -272,6 +299,114 @@ test.each(['principal', 'profit', 'fee'])('createDealReturn accepts typed %s ent
     currency: 'NEAR',
     recorded_by: 'admin.testnet',
   }));
+});
+
+test('createDealReturn creates an initial recorded status event with server-derived actor', async () => {
+  pool.query
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 3,
+        deal_id: 1,
+        amount_near: '2.00',
+        entry_type: 'profit',
+        payment_status: 'recorded',
+        currency: 'NEAR',
+        recorded_by: 'admin.testnet',
+      }],
+    })
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 1,
+        return_id: 3,
+        from_status: null,
+        to_status: 'recorded',
+        changed_by: 'admin.testnet',
+        note: 'Return recorded',
+      }],
+    });
+
+  await createDealReturn(
+    1,
+    { amount_near: '2', entry_type: 'profit' },
+    'admin.testnet'
+  );
+
+  expect(pool.query.mock.calls[1][0]).toContain('INSERT INTO return_status_events');
+  expect(pool.query.mock.calls[1][1]).toEqual([
+    3,
+    null,
+    'recorded',
+    'admin.testnet',
+    'Return recorded',
+    null,
+  ]);
+});
+
+test('createReturnStatusEvent inserts status history row', async () => {
+  pool.query.mockResolvedValue({
+    rows: [{
+      id: 1,
+      return_id: 3,
+      from_status: 'recorded',
+      to_status: 'approved',
+      changed_by: 'reviewer.testnet',
+      note: 'Approved for payment',
+      evidence_metadata: { source: 'manual-review' },
+    }],
+  });
+
+  const event = await createReturnStatusEvent({
+    returnId: 3,
+    fromStatus: 'recorded',
+    toStatus: 'approved',
+    changedBy: 'reviewer.testnet',
+    note: 'Approved for payment',
+    evidenceMetadata: { source: 'manual-review' },
+  });
+
+  expect(pool.query).toHaveBeenCalledWith(
+    expect.stringContaining('INSERT INTO return_status_events'),
+    [3, 'recorded', 'approved', 'reviewer.testnet', 'Approved for payment', { source: 'manual-review' }]
+  );
+  expect(event.to_status).toBe('approved');
+});
+
+test('getReturnStatusEvents lists events chronologically', async () => {
+  const statusEvents = [
+    { id: 1, return_id: 3, to_status: 'recorded', changed_at: '2026-06-10T00:00:00Z' },
+    { id: 2, return_id: 3, from_status: 'recorded', to_status: 'approved', changed_at: '2026-06-11T00:00:00Z' },
+  ];
+  pool.query.mockResolvedValue({ rows: statusEvents });
+
+  const result = await getReturnStatusEvents(3);
+
+  expect(pool.query).toHaveBeenCalledWith(
+    'SELECT * FROM return_status_events WHERE return_id = $1 ORDER BY changed_at ASC, id ASC',
+    [3]
+  );
+  expect(result).toBe(statusEvents);
+});
+
+test('getReturnStatusEvents safely returns empty list for legacy returns without events', async () => {
+  pool.query.mockResolvedValue({ rows: [] });
+
+  await expect(getReturnStatusEvents(99)).resolves.toEqual([]);
+});
+
+test('createReturnStatusEvent rejects invalid statuses', async () => {
+  await expect(createReturnStatusEvent({
+    returnId: 3,
+    fromStatus: 'recorded',
+    toStatus: 'voided',
+  })).rejects.toThrow('to_status must be recorded, approved, paid, or reconciled');
+
+  await expect(createReturnStatusEvent({
+    returnId: 3,
+    fromStatus: 'pending',
+    toStatus: 'recorded',
+  })).rejects.toThrow('from_status must be recorded, approved, paid, or reconciled');
+
+  expect(pool.query).not.toHaveBeenCalled();
 });
 
 test('createDealReturn rejects correction and invalid entry types', async () => {
