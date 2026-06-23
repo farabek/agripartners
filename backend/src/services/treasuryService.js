@@ -184,7 +184,7 @@ async function insertTreasuryTransaction(queryable, input, normalizedEntries, cu
   return { ...transaction, entries: ledgerEntries };
 }
 
-async function createTreasuryTransaction(input) {
+async function createTreasuryTransaction(input, queryableOverride = null) {
   const transactionInput = input || {};
   const currency = normalizeCurrency(transactionInput.currency);
   const idempotencyKey = normalizeIdempotencyKey(transactionInput.idempotency_key);
@@ -201,6 +201,10 @@ async function createTreasuryTransaction(input) {
     const validAccountCodes = await getActiveAccountCodes(queryable);
     const normalizedEntries = validateBalancedEntries(normalizedTransactionInput.entries, currency, validAccountCodes);
     return insertTreasuryTransaction(queryable, normalizedTransactionInput, normalizedEntries, currency);
+  }
+
+  if (queryableOverride) {
+    return runCreate(queryableOverride);
   }
 
   if (typeof pool.connect !== 'function') {

@@ -5,6 +5,7 @@ const {
   calculateDealFinancialSummary,
   calculatePortfolioFinancialSummary,
 } = require('./financialService');
+const { createTreasuryTransaction } = require('./treasuryService');
 
 function normalizeReturnAmount(value) {
   const amountYocto = parseNearToYocto(value);
@@ -289,6 +290,48 @@ async function transitionReturnStatus(returnId, toStatus, {
   }
 }
 
+async function createTreasuryTransactionForReturn(repaymentDto, queryable = pool) {
+  const returnId = repaymentDto.id;
+  const dealId = repaymentDto.deal_id;
+  const metadata = {
+    deal_id: dealId,
+    return_id: returnId,
+    entry_type: repaymentDto.entry_type,
+    payment_status: repaymentDto.payment_status,
+    note: repaymentDto.note ?? null,
+    legacyUntyped: repaymentDto.legacyUntyped,
+    source: 'admin_return_recording',
+  };
+
+  return createTreasuryTransaction({
+    transaction_type: 'admin_return_recording',
+    currency: 'NEAR',
+    description: `Recorded off-chain return ${returnId}`,
+    related_deal_id: dealId,
+    metadata,
+    created_by: repaymentDto.recorded_by,
+    source_type: 'deal_return',
+    source_id: returnId,
+    idempotency_key: `deal_return:${returnId}`,
+    entries: [
+      {
+        account_code: 'RECORDED_OFFCHAIN_RETURNS',
+        direction: 'debit',
+        amount: repaymentDto.amount_near,
+        currency: 'NEAR',
+        related_deal_id: dealId,
+      },
+      {
+        account_code: 'TREASURY_SUSPENSE',
+        direction: 'credit',
+        amount: repaymentDto.amount_near,
+        currency: 'NEAR',
+        related_deal_id: dealId,
+      },
+    ],
+  }, queryable);
+}
+
 async function createDealReturn(dealId, repayment, recordedBy = null) {
   const protectedField = CLIENT_PROTECTED_RETURN_FIELDS.find(
     (field) => Object.prototype.hasOwnProperty.call(repayment, field)
@@ -298,23 +341,44 @@ async function createDealReturn(dealId, repayment, recordedBy = null) {
   const amountNear = normalizeReturnAmount(repayment.amount_near);
   const note = String(repayment.note ?? '').trim() || null;
   const entryType = normalizeReturnEntryType(repayment.entry_type);
-  const { rows } = await pool.query(
-    `INSERT INTO deal_returns (
-       deal_id, amount_near, note, entry_type, payment_status, currency, recorded_by
-     )
-     VALUES ($1, $2, $3, $4, 'recorded', 'NEAR', $5)
-     RETURNING *`,
-    [dealId, amountNear, note, entryType, recordedBy]
-  );
-  const repaymentDto = toReturnDto(rows[0]);
-  await createReturnStatusEvent({
-    returnId: repaymentDto.id,
-    fromStatus: null,
-    toStatus: 'recorded',
-    changedBy: repaymentDto.recorded_by,
-    note: 'Return recorded',
-  });
-  return repaymentDto;
+
+  async function runCreate(queryable) {
+    const { rows } = await queryable.query(
+      `INSERT INTO deal_returns (
+         deal_id, amount_near, note, entry_type, payment_status, currency, recorded_by
+       )
+       VALUES ($1, $2, $3, $4, 'recorded', 'NEAR', $5)
+       RETURNING *`,
+      [dealId, amountNear, note, entryType, recordedBy]
+    );
+    const repaymentDto = toReturnDto(rows[0]);
+    await insertReturnStatusEvent(queryable, {
+      returnId: repaymentDto.id,
+      fromStatus: null,
+      toStatus: 'recorded',
+      changedBy: repaymentDto.recorded_by,
+      note: 'Return recorded',
+    });
+    await createTreasuryTransactionForReturn(repaymentDto, queryable);
+    return repaymentDto;
+  }
+
+  if (typeof pool.connect !== 'function') {
+    return runCreate(pool);
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const repaymentDto = await runCreate(client);
+    await client.query('COMMIT');
+    return repaymentDto;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 async function getDealReturnSummary(deal) {
@@ -502,6 +566,7 @@ module.exports = {
   getFarmerReports,
   getDealReturns,
   createReturnStatusEvent,
+  createTreasuryTransactionForReturn,
   getReturnStatusEvents,
   transitionReturnStatus,
   createDealReturn,

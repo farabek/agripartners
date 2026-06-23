@@ -18,6 +18,7 @@ const {
   getReturnStatusEvents,
   transitionReturnStatus,
   createDealReturn,
+  createTreasuryTransactionForReturn,
   getDealReturnSummary,
   getInvestorPortfolioFinancialSummary,
   createFarmerReport,
@@ -46,7 +47,52 @@ const sampleDeal = {
   capital_return_near: '20400000000000000000000000'
 };
 
-beforeEach(() => jest.clearAllMocks());
+const treasuryAccountRows = [
+  { account_code: 'RECORDED_OFFCHAIN_RETURNS' },
+  { account_code: 'TREASURY_SUSPENSE' },
+];
+
+function mockTreasuryTransaction(returnId, dealId = 1, amount = '0.05', metadata = {}) {
+  pool.query
+    .mockResolvedValueOnce({ rows: [] })
+    .mockResolvedValueOnce({ rows: treasuryAccountRows })
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 100 + Number(returnId),
+        transaction_type: 'admin_return_recording',
+        related_deal_id: dealId,
+        related_investor: null,
+        related_farmer: null,
+        source_type: 'deal_return',
+        source_id: String(returnId),
+        idempotency_key: `deal_return:${returnId}`,
+        metadata,
+      }],
+    })
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 200 + Number(returnId),
+        transaction_id: 100 + Number(returnId),
+        account_code: 'RECORDED_OFFCHAIN_RETURNS',
+        direction: 'debit',
+        amount,
+      }],
+    })
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 300 + Number(returnId),
+        transaction_id: 100 + Number(returnId),
+        account_code: 'TREASURY_SUSPENSE',
+        direction: 'credit',
+        amount,
+      }],
+    });
+}
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  delete pool.connect;
+});
 
 test('getAllDeals calls pool.query and returns rows', async () => {
   pool.query.mockResolvedValue({ rows: [{ id: 1, ...sampleDeal }] });
@@ -247,6 +293,7 @@ test('createDealReturn inserts normalized repayment amount', async () => {
         note: 'Return recorded',
       }],
     });
+  mockTreasuryTransaction(1, 1, '0.05');
 
   const result = await createDealReturn(1, { amount_near: '0.050', note: 'First repayment' });
 
@@ -255,6 +302,53 @@ test('createDealReturn inserts normalized repayment amount', async () => {
   expect(params).toEqual([1, '0.05', 'First repayment', null, null]);
   expect(pool.query.mock.calls[1][0]).toContain('INSERT INTO return_status_events');
   expect(pool.query.mock.calls[1][1]).toEqual([1, null, 'recorded', null, 'Return recorded', null]);
+  expect(pool.query.mock.calls[2]).toEqual([
+    'SELECT * FROM treasury_transactions WHERE idempotency_key = $1',
+    ['deal_return:1'],
+  ]);
+  expect(pool.query.mock.calls[4][0]).toContain('INSERT INTO treasury_transactions');
+  expect(pool.query.mock.calls[4][1]).toEqual([
+    'admin_return_recording',
+    'NEAR',
+    'Recorded off-chain return 1',
+    1,
+    null,
+    null,
+    null,
+    {
+      deal_id: 1,
+      return_id: 1,
+      entry_type: null,
+      payment_status: 'recorded',
+      note: 'First repayment',
+      legacyUntyped: true,
+      source: 'admin_return_recording',
+    },
+    null,
+    'deal_return',
+    '1',
+    'deal_return:1',
+  ]);
+  expect(pool.query.mock.calls[5][1]).toEqual([
+    101,
+    'RECORDED_OFFCHAIN_RETURNS',
+    'debit',
+    '0.05',
+    'NEAR',
+    1,
+    null,
+    null,
+  ]);
+  expect(pool.query.mock.calls[6][1]).toEqual([
+    101,
+    'TREASURY_SUSPENSE',
+    'credit',
+    '0.05',
+    'NEAR',
+    1,
+    null,
+    null,
+  ]);
   expect(result.amount_near).toBe('0.05');
   expect(result.legacyUntyped).toBe(true);
   expect(result.payment_status).toBe('recorded');
@@ -284,6 +378,7 @@ test.each(['principal', 'profit', 'fee'])('createDealReturn accepts typed %s ent
         note: 'Return recorded',
       }],
     });
+  mockTreasuryTransaction(2, 1, '1.00');
 
   const result = await createDealReturn(
     1,
@@ -293,6 +388,36 @@ test.each(['principal', 'profit', 'fee'])('createDealReturn accepts typed %s ent
 
   expect(pool.query.mock.calls[0][1]).toEqual([1, '1.00', null, entryType, 'admin.testnet']);
   expect(pool.query.mock.calls[1][1]).toEqual([2, null, 'recorded', 'admin.testnet', 'Return recorded', null]);
+  expect(pool.query.mock.calls[4][1]).toEqual(expect.arrayContaining([
+    expect.objectContaining({
+      deal_id: 1,
+      return_id: 2,
+      entry_type: entryType,
+      payment_status: 'recorded',
+      legacyUntyped: false,
+      source: 'admin_return_recording',
+    }),
+  ]));
+  expect(pool.query.mock.calls[5][1]).toEqual([
+    102,
+    'RECORDED_OFFCHAIN_RETURNS',
+    'debit',
+    '1.00',
+    'NEAR',
+    1,
+    null,
+    null,
+  ]);
+  expect(pool.query.mock.calls[6][1]).toEqual([
+    102,
+    'TREASURY_SUSPENSE',
+    'credit',
+    '1.00',
+    'NEAR',
+    1,
+    null,
+    null,
+  ]);
   expect(result).toEqual(expect.objectContaining({
     entry_type: entryType,
     legacyUntyped: false,
@@ -325,6 +450,7 @@ test('createDealReturn creates an initial recorded status event with server-deri
         note: 'Return recorded',
       }],
     });
+  mockTreasuryTransaction(3, 1, '2.00');
 
   await createDealReturn(
     1,
@@ -341,6 +467,83 @@ test('createDealReturn creates an initial recorded status event with server-deri
     'Return recorded',
     null,
   ]);
+  expect(pool.query.mock.calls[2][1]).toEqual(['deal_return:3']);
+});
+
+test('createTreasuryTransactionForReturn is idempotent for repeated return integration', async () => {
+  pool.query
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 88,
+        source_type: 'deal_return',
+        source_id: '9',
+        idempotency_key: 'deal_return:9',
+      }],
+    })
+    .mockResolvedValueOnce({
+      rows: [
+        { id: 881, transaction_id: 88, account_code: 'RECORDED_OFFCHAIN_RETURNS' },
+        { id: 882, transaction_id: 88, account_code: 'TREASURY_SUSPENSE' },
+      ],
+    });
+
+  const result = await createTreasuryTransactionForReturn({
+    id: 9,
+    deal_id: 1,
+    amount_near: '3.00',
+    note: 'Existing return',
+    entry_type: 'profit',
+    legacyUntyped: false,
+    payment_status: 'recorded',
+    recorded_by: 'admin.testnet',
+  });
+
+  expect(result.id).toBe(88);
+  expect(result.entries).toHaveLength(2);
+  expect(pool.query).toHaveBeenCalledTimes(2);
+  expect(pool.query.mock.calls.some((call) => call[0].includes('INSERT INTO treasury_transactions'))).toBe(false);
+  expect(pool.query.mock.calls.some((call) => call[0].includes('INSERT INTO treasury_ledger_entries'))).toBe(false);
+});
+
+test('createDealReturn rolls back when treasury creation fails', async () => {
+  const client = {
+    query: jest.fn()
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({
+        rows: [{
+          id: 4,
+          deal_id: 1,
+          amount_near: '4.00',
+          note: 'Treasury failure',
+          entry_type: 'profit',
+          payment_status: 'recorded',
+          currency: 'NEAR',
+          recorded_by: 'admin.testnet',
+        }],
+      })
+      .mockResolvedValueOnce({
+        rows: [{ id: 4, return_id: 4, to_status: 'recorded' }],
+      })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: treasuryAccountRows })
+      .mockRejectedValueOnce(new Error('treasury insert failed'))
+      .mockResolvedValueOnce({ rows: [] }),
+    release: jest.fn(),
+  };
+  pool.connect = jest.fn().mockResolvedValue(client);
+
+  await expect(createDealReturn(
+    1,
+    { amount_near: '4', entry_type: 'profit', note: 'Treasury failure' },
+    'admin.testnet'
+  )).rejects.toThrow('treasury insert failed');
+
+  expect(client.query.mock.calls[0]).toEqual(['BEGIN']);
+  expect(client.query.mock.calls.some((call) => call[0].includes('INSERT INTO deal_returns'))).toBe(true);
+  expect(client.query.mock.calls.some((call) => call[0].includes('INSERT INTO return_status_events'))).toBe(true);
+  expect(client.query.mock.calls.some((call) => call[0] === 'ROLLBACK')).toBe(true);
+  expect(client.query.mock.calls.some((call) => call[0] === 'COMMIT')).toBe(false);
+  expect(client.release).toHaveBeenCalled();
 });
 
 test('createReturnStatusEvent inserts status history row', async () => {
