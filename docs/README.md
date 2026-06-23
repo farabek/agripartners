@@ -53,6 +53,7 @@ Admins monitor pilot funding, deal status, farmer reporting, repayment status, a
 - [Farmer Portal](farmer-portal.md)
 - [Admin Dashboard](admin-dashboard.md)
 - [NEAR Testnet](near-testnet.md)
+- [Alpha v1.1 Release Review](releases/alpha-v1.1-release-review.md)
 - [Typed Return Model Design and Migration Specification](design/typed-return-model-spec.md)
 - [Reconciliation Engine Design Specification](design/reconciliation-engine-spec.md)
 - [Treasury Engine Architecture Specification](design/treasury-engine-spec.md)
