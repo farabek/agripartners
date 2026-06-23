@@ -57,6 +57,7 @@ Admins monitor pilot funding, deal status, farmer reporting, repayment status, a
 - [Reconciliation Engine Design Specification](design/reconciliation-engine-spec.md)
 - [Treasury Engine Architecture Specification](design/treasury-engine-spec.md)
 - [Treasury Accounting Model Specification](design/treasury-accounting-model.md)
+- [Treasury Operating Modes Specification](design/treasury-operating-modes-spec.md)
 - [ADR-001 — Live-first Architecture](architecture/ADR-001-live-first-architecture.md)
 - [ADR-002 — Financial Semantics](architecture/ADR-002-financial-semantics.md)
 
