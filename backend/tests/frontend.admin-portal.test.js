@@ -126,7 +126,7 @@ test('admin return submit includes a selected type and preserves untyped payload
 });
 
 test('admin return ledger renders typed metadata and safe legacy labels', () => {
-  const ledger = functionBody('renderReturnsLedgerRows', 3600);
+  const ledger = functionBody('renderReturnsLedgerRows', 6000);
   const typeLabels = functionBody('adminReturnTypeLabel', 700);
   const statusLabels = functionBody('adminReturnStatusLabel', 700);
   const evidence = functionBody('renderAdminReturnEvidence', 900);
@@ -134,6 +134,8 @@ test('admin return ledger renders typed metadata and safe legacy labels', () => 
   expect(ledger).toContain('Status');
   expect(ledger).toContain('Recorded By');
   expect(ledger).toContain('Evidence / Transaction Hash');
+  expect(ledger).toContain('Actions');
+  expect(ledger).toContain('Status History');
   expect(ledger).toContain('entry.entry_type');
   expect(ledger).toContain('entry.payment_status');
   expect(ledger).toContain('entry.recorded_by');
@@ -141,12 +143,67 @@ test('admin return ledger renders typed metadata and safe legacy labels', () => 
   expect(typeLabels).toContain("'Legacy / Untyped'");
   expect(statusLabels).toContain("recorded: 'Recorded off-chain'");
   expect(evidence).toContain('testnet.nearblocks.io/txns/');
+  expect(evidence).toContain('Reference only; not proof of payment or reconciliation');
+});
+
+test('admin return ledger exposes only contextual status transition actions', () => {
+  const action = functionBody('adminReturnTransitionAction', 900);
+  const controls = functionBody('renderAdminReturnTransitionControls', 1800);
+  expect(action).toContain("recorded: { action: 'approve', label: 'Approve', endpoint: 'approve' }");
+  expect(action).toContain("approved: { action: 'mark-paid', label: 'Mark Paid', endpoint: 'mark-paid' }");
+  expect(action).toContain("paid: { action: 'reconcile', label: 'Reconcile', endpoint: 'reconcile' }");
+  expect(action).not.toContain('reconciled:');
+  expect(controls).toContain('No action');
+  expect(controls).toContain('data-return-endpoint');
+  expect(controls).toContain('Optional note');
+  expect(controls).toContain('Evidence / Reference');
+});
+
+test('admin return transition posts note and evidence metadata to backend endpoints', () => {
+  const payload = functionBody('getAdminReturnTransitionPayload', 1200);
+  const run = functionBody('runAdminReturnTransition', 2200);
+  expect(payload).toContain('payload.note = note');
+  expect(payload).toContain('payload.evidence_metadata');
+  expect(payload).toContain('transaction_hash: evidenceReference');
+  expect(run).toContain('fetch(`${API_BASE}/api/admin/returns/${returnId}/${endpoint}`');
+  expect(run).toContain("method: 'POST'");
+  expect(run).toContain('jsonAuthHeaders()');
+  expect(run).toContain('await refreshDeal(deal.id)');
+  expect(run).toContain('Evidence / Reference remains unverified metadata');
+  expect(run).toContain('failed: ${err.message}');
+});
+
+test('admin return status history fetches and renders explicit unavailable states', () => {
+  const render = functionBody('renderAdminReturnStatusHistory', 1800);
+  const load = functionBody('loadAdminReturnStatusHistory', 1800);
+  expect(render).toContain('Status History unavailable until loaded.');
+  expect(render).toContain('Status History unavailable.');
+  expect(render).toContain('event.from_status');
+  expect(render).toContain('event.to_status');
+  expect(render).toContain('event.changed_by');
+  expect(render).toContain('event.changed_at');
+  expect(render).toContain('event.note');
+  expect(load).toContain('fetch(`${API_BASE}/api/admin/returns/${returnId}/status-events`');
+  expect(load).toContain('Malformed status history payload');
+  expect(load).toContain('Status History unavailable:');
+});
+
+test('admin action binding includes return transitions and status history without breaking typed form', () => {
+  const bind = functionBody('bindAdminActions', 1100);
+  const form = functionBody('renderAdminActions', 6500);
+  expect(bind).toContain('admin-return-transition-btn');
+  expect(bind).toContain('runAdminReturnTransition(deal, btn)');
+  expect(bind).toContain('admin-return-history-btn');
+  expect(bind).toContain('loadAdminReturnStatusHistory');
+  expect(bind).toContain('recordAdminReturn(event, deal)');
+  expect(form).toContain('id="admin-return-type"');
 });
 
 test('typed return UI does not alter explicit admin demo detail', () => {
   const demo = functionBody('renderAdminDemoDealDetail', 5000);
   expect(demo).not.toContain('admin-return-type');
   expect(demo).not.toContain('entry_type');
+  expect(demo).not.toContain('admin-return-transition-btn');
   expect(demo).toContain('Returns History');
 });
 

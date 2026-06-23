@@ -4183,7 +4183,7 @@ function renderInvestorTypedReturnLedger(returns) {
 
 function renderRepaymentHistory(returns) {
   if (!returns.length) return '<p class="text-slate-500 text-sm">No returns recorded yet.</p>';
-  return renderReturnsLedgerRows(returns);
+  return renderInvestorTypedReturnLedger(returns);
 }
 
 function renderInvestorReports(reports) {
@@ -4629,7 +4629,61 @@ function adminReturnStatusLabel(paymentStatus) {
 function renderAdminReturnEvidence(transactionHash) {
   if (!transactionHash) return '<span class="text-slate-500">None</span>';
   const transactionUrlHash = encodeURIComponent(transactionHash);
-  return `<a href="https://testnet.nearblocks.io/txns/${transactionUrlHash}" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline font-mono">${escapeHtml(formatAddress(transactionHash))}</a>`;
+  return `<a href="https://testnet.nearblocks.io/txns/${transactionUrlHash}" target="_blank" rel="noopener noreferrer" title="Reference only; not proof of payment or reconciliation" class="text-blue-400 hover:underline font-mono">${escapeHtml(formatAddress(transactionHash))}</a>`;
+}
+
+function adminReturnTransitionAction(paymentStatus) {
+  return {
+    recorded: { action: 'approve', label: 'Approve', endpoint: 'approve' },
+    approved: { action: 'mark-paid', label: 'Mark Paid', endpoint: 'mark-paid' },
+    paid: { action: 'reconcile', label: 'Reconcile', endpoint: 'reconcile' },
+  }[paymentStatus] || null;
+}
+
+function renderAdminReturnTransitionControls(entry) {
+  const transition = adminReturnTransitionAction(entry.payment_status);
+  if (!transition) return '<span class="text-slate-500 text-xs">No action</span>';
+  const evidenceInput = transition.action === 'approve' ? '' : `
+    <input type="text" data-return-evidence="${escapeHtml(entry.id)}" placeholder="Evidence / Reference"
+      class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-green-500" />
+  `;
+  return `
+    <div class="min-w-[180px] space-y-2">
+      <input type="text" data-return-note="${escapeHtml(entry.id)}" placeholder="Optional note"
+        class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-green-500" />
+      ${evidenceInput}
+      <button type="button" class="admin-return-transition-btn admin-action-btn text-xs px-2 py-1"
+        data-return-id="${escapeHtml(entry.id)}"
+        data-return-action="${escapeHtml(transition.action)}"
+        data-return-endpoint="${escapeHtml(transition.endpoint)}"
+        data-return-label="${escapeHtml(transition.label)}">
+        ${escapeHtml(transition.label)}
+      </button>
+    </div>
+  `;
+}
+
+function renderAdminReturnStatusHistory(events = null) {
+  if (!Array.isArray(events)) {
+    return '<p class="text-slate-500 text-xs">Status History unavailable until loaded.</p>';
+  }
+  if (!events.length) return '<p class="text-slate-500 text-xs">Status History unavailable.</p>';
+  return `
+    <div class="space-y-1 text-xs">
+      ${events.map(event => `
+        <div class="border-b border-slate-700 last:border-0 py-1">
+          <div class="text-slate-300">
+            ${escapeHtml(adminReturnStatusLabel(event.from_status))} -> ${escapeHtml(adminReturnStatusLabel(event.to_status))}
+          </div>
+          <div class="text-slate-500">
+            ${event.changed_by ? escapeHtml(event.changed_by) : 'Unknown actor'}
+            ${event.changed_at ? ` &middot; ${escapeHtml(new Date(event.changed_at).toLocaleString('en-US'))}` : ''}
+          </div>
+          ${event.note ? `<div class="text-slate-400">${escapeHtml(event.note)}</div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `;
 }
 
 function renderReturnsLedgerRows(returns) {
@@ -4646,6 +4700,8 @@ function renderReturnsLedgerRows(returns) {
             <th class="text-left py-2 pr-3">Recorded By</th>
             <th class="text-left py-2 pr-3">Evidence / Transaction Hash</th>
             <th class="text-left py-2 pr-3">Note</th>
+            <th class="text-left py-2 pr-3">Actions</th>
+            <th class="text-left py-2 pr-3">Status History</th>
           </tr>
         </thead>
         <tbody>
@@ -4658,12 +4714,25 @@ function renderReturnsLedgerRows(returns) {
               <td class="py-2 pr-3 text-slate-300 font-mono">${entry.recorded_by ? escapeHtml(entry.recorded_by) : 'Unavailable'}</td>
               <td class="py-2 pr-3 text-slate-300">${renderAdminReturnEvidence(entry.transaction_hash)}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.note || 'No note')}</td>
+              <td class="py-2 pr-3 text-slate-300">${renderAdminReturnTransitionControls(entry)}</td>
+              <td class="py-2 pr-3 text-slate-300 min-w-[220px]">
+                <button type="button" class="admin-return-history-btn text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 rounded px-2 py-1 mb-2"
+                  data-return-id="${escapeHtml(entry.id)}">Status History</button>
+                <div id="return-status-history-${escapeHtml(entry.id)}" data-return-status-history="${escapeHtml(entry.id)}">
+                  ${renderAdminReturnStatusHistory()}
+                </div>
+              </td>
             </tr>
           `).join('')}
         </tbody>
       </table>
     </div>
   `;
+}
+
+function findAdminReturnElement(attribute, returnId) {
+  return [...document.querySelectorAll(`[${attribute}]`)]
+    .find(el => el.getAttribute(attribute) === String(returnId)) || null;
 }
 
 function renderParams(deal) {
@@ -4776,8 +4845,15 @@ function renderAdminActions(deal, status) {
 
 function bindAdminActions(deal) {
   document.querySelectorAll('.admin-action-btn').forEach(btn => {
+    if (btn.classList.contains('admin-return-transition-btn')) return;
     if (btn.type === 'submit') return;
     btn.addEventListener('click', () => runAdminAction(deal, btn.dataset.action));
+  });
+  document.querySelectorAll('.admin-return-transition-btn').forEach(btn => {
+    btn.addEventListener('click', () => runAdminReturnTransition(deal, btn));
+  });
+  document.querySelectorAll('.admin-return-history-btn').forEach(btn => {
+    btn.addEventListener('click', () => loadAdminReturnStatusHistory(btn.dataset.returnId));
   });
   document.getElementById('admin-return-form')?.addEventListener('submit', (event) => recordAdminReturn(event, deal));
 }
@@ -4842,6 +4918,70 @@ async function recordAdminReturn(event, deal) {
     showAdminActionResult('error', `Record return failed: ${err.message}`);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Record Return'; }
+  }
+}
+
+function getAdminReturnTransitionPayload(returnId) {
+  const note = findAdminReturnElement('data-return-note', returnId)?.value.trim();
+  const evidenceReference = findAdminReturnElement('data-return-evidence', returnId)?.value.trim();
+  const payload = {};
+  if (note) payload.note = note;
+  if (evidenceReference) {
+    payload.evidence_metadata = {
+      transaction_hash: evidenceReference,
+      reference: evidenceReference,
+      label: 'Evidence / Reference',
+    };
+  }
+  return payload;
+}
+
+async function runAdminReturnTransition(deal, button) {
+  const returnId = button.dataset.returnId;
+  const endpoint = button.dataset.returnEndpoint;
+  const label = button.dataset.returnLabel || 'Transition';
+  if (!returnId || !endpoint) {
+    showAdminActionResult('error', 'Return transition failed: missing return action metadata.');
+    return;
+  }
+
+  button.disabled = true;
+  showAdminActionResult('success', `${label} submitted...`);
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/returns/${returnId}/${endpoint}`, {
+      method: 'POST',
+      headers: jsonAuthHeaders(),
+      body: JSON.stringify(getAdminReturnTransitionPayload(returnId)),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+
+    const message = `${label} completed successfully. Evidence / Reference remains unverified metadata.`;
+    await refreshDeal(deal.id);
+    showAdminActionResult('success', message);
+  } catch (err) {
+    showAdminActionResult('error', `${label} failed: ${err.message}`);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function loadAdminReturnStatusHistory(returnId) {
+  const container = findAdminReturnElement('data-return-status-history', returnId);
+  if (!container) return;
+  container.innerHTML = '<p class="text-slate-500 text-xs">Loading Status History...</p>';
+  try {
+    const res = await fetch(`${API_BASE}/api/admin/returns/${returnId}/status-events`, {
+      headers: authHeaders(),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) { clearAuth(); location.hash = '#login'; return; }
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    if (!Array.isArray(data.statusEvents)) throw new Error('Malformed status history payload');
+    container.innerHTML = renderAdminReturnStatusHistory(data.statusEvents);
+  } catch (err) {
+    container.innerHTML = `<p class="text-red-300 text-xs">Status History unavailable: ${escapeHtml(err.message || 'Network request failed')}</p>`;
   }
 }
 

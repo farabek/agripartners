@@ -1494,6 +1494,10 @@ test('investor detail fetches and renders repayment history', () => {
   expect(appJs).toContain('function renderInvestorTypedReturnLedger');
   expect(appJs).toContain('amount_near');
   expect(appJs).toContain('renderInvestorTypedReturnLedger(returns)');
+  const ledgerStart = appJs.indexOf('function renderInvestorTypedReturnLedger');
+  const ledgerEnd = appJs.indexOf('function renderRepaymentHistory');
+  expect(appJs.slice(ledgerStart, ledgerEnd)).not.toContain('admin-return-transition-btn');
+  expect(appJs).not.toContain('/api/investor/returns/${returnId}');
 });
 
 test('investor detail refresh updates every bundle-dependent live section', async () => {
