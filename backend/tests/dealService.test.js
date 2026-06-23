@@ -16,6 +16,7 @@ const {
   getDealReturns,
   createReturnStatusEvent,
   getReturnStatusEvents,
+  transitionReturnStatus,
   createDealReturn,
   getDealReturnSummary,
   getInvestorPortfolioFinancialSummary,
@@ -407,6 +408,157 @@ test('createReturnStatusEvent rejects invalid statuses', async () => {
   })).rejects.toThrow('from_status must be recorded, approved, paid, or reconciled');
 
   expect(pool.query).not.toHaveBeenCalled();
+});
+
+test.each([
+  ['recorded', 'approved'],
+  ['approved', 'paid'],
+  ['paid', 'reconciled'],
+])('transitionReturnStatus allows %s to %s', async (fromStatus, toStatus) => {
+  pool.query
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 5,
+        deal_id: 1,
+        amount_near: '1.00',
+        entry_type: 'profit',
+        payment_status: fromStatus,
+        currency: 'NEAR',
+        recorded_by: 'admin.testnet',
+      }],
+    })
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 5,
+        deal_id: 1,
+        amount_near: '1.00',
+        entry_type: 'profit',
+        payment_status: toStatus,
+        currency: 'NEAR',
+        recorded_by: 'admin.testnet',
+        reconciled_at: toStatus === 'reconciled' ? '2026-06-23T10:00:00Z' : null,
+        reconciled_by: toStatus === 'reconciled' ? 'reviewer.testnet' : null,
+      }],
+    })
+    .mockResolvedValueOnce({
+      rows: [{
+        id: 7,
+        return_id: 5,
+        from_status: fromStatus,
+        to_status: toStatus,
+        changed_by: 'reviewer.testnet',
+        note: 'Status transition',
+      }],
+    });
+
+  const result = await transitionReturnStatus(5, toStatus, {
+    changedBy: 'reviewer.testnet',
+    note: 'Status transition',
+    evidenceMetadata: { source: 'manual' },
+  });
+
+  expect(pool.query.mock.calls[0]).toEqual([
+    'SELECT * FROM deal_returns WHERE id = $1',
+    [5],
+  ]);
+  expect(pool.query.mock.calls[1][0]).toContain('UPDATE deal_returns');
+  expect(pool.query.mock.calls[1][1]).toEqual([
+    5,
+    toStatus,
+    toStatus === 'reconciled' ? 'reviewer.testnet' : null,
+  ]);
+  expect(pool.query.mock.calls[2][0]).toContain('INSERT INTO return_status_events');
+  expect(pool.query.mock.calls[2][1]).toEqual([
+    5,
+    fromStatus,
+    toStatus,
+    'reviewer.testnet',
+    'Status transition',
+    { source: 'manual' },
+  ]);
+  expect(result).toEqual(expect.objectContaining({
+    id: 5,
+    payment_status: toStatus,
+    amount_near: '1.00',
+    entry_type: 'profit',
+    recorded_by: 'admin.testnet',
+  }));
+});
+
+test('transitionReturnStatus treats legacy missing payment_status as recorded', async () => {
+  pool.query
+    .mockResolvedValueOnce({
+      rows: [{ id: 6, deal_id: 1, amount_near: '1.00', payment_status: null }],
+    })
+    .mockResolvedValueOnce({
+      rows: [{ id: 6, deal_id: 1, amount_near: '1.00', payment_status: 'approved' }],
+    })
+    .mockResolvedValueOnce({
+      rows: [{ id: 9, return_id: 6, from_status: 'recorded', to_status: 'approved' }],
+    });
+
+  await expect(transitionReturnStatus(6, 'approved', { changedBy: 'admin.testnet' }))
+    .resolves.toEqual(expect.objectContaining({ payment_status: 'approved' }));
+  expect(pool.query.mock.calls[2][1]).toEqual([
+    6,
+    'recorded',
+    'approved',
+    'admin.testnet',
+    null,
+    null,
+  ]);
+});
+
+test.each([
+  ['recorded', 'paid'],
+  ['recorded', 'reconciled'],
+  ['approved', 'reconciled'],
+  ['paid', 'approved'],
+  ['reconciled', 'approved'],
+  ['reconciled', 'paid'],
+])('transitionReturnStatus rejects invalid %s to %s transition', async (fromStatus, toStatus) => {
+  pool.query.mockResolvedValueOnce({
+    rows: [{
+      id: 5,
+      deal_id: 1,
+      amount_near: '1.00',
+      payment_status: fromStatus,
+    }],
+  });
+
+  await expect(transitionReturnStatus(5, toStatus, { changedBy: 'admin.testnet' }))
+    .rejects.toThrow(`Invalid return status transition: ${fromStatus} -> ${toStatus}`);
+  expect(pool.query).toHaveBeenCalledTimes(1);
+});
+
+test('transitionReturnStatus rejects unknown source and target statuses', async () => {
+  pool.query.mockResolvedValueOnce({
+    rows: [{ id: 5, deal_id: 1, amount_near: '1.00', payment_status: 'voided' }],
+  });
+
+  await expect(transitionReturnStatus(5, 'approved'))
+    .rejects.toThrow('from_status must be recorded, approved, paid, or reconciled');
+  expect(pool.query).toHaveBeenCalledTimes(1);
+
+  pool.query.mockClear();
+  pool.query.mockResolvedValueOnce({
+    rows: [{ id: 5, deal_id: 1, amount_near: '1.00', payment_status: 'recorded' }],
+  });
+
+  await expect(transitionReturnStatus(5, 'voided'))
+    .rejects.toThrow('to_status must be recorded, approved, paid, or reconciled');
+  expect(pool.query).toHaveBeenCalledTimes(1);
+});
+
+test('transitionReturnStatus returns not found for missing return', async () => {
+  pool.query.mockResolvedValue({ rows: [] });
+
+  await expect(transitionReturnStatus(999, 'approved'))
+    .rejects.toThrow('Return not found');
+  expect(pool.query).toHaveBeenCalledWith(
+    'SELECT * FROM deal_returns WHERE id = $1',
+    [999]
+  );
 });
 
 test('createDealReturn rejects correction and invalid entry types', async () => {

@@ -73,6 +73,32 @@ beforeEach(() => {
     reconciled_by: null,
     reconciliation_metadata: null,
   });
+  dealService.transitionReturnStatus.mockResolvedValue({
+    id: 1,
+    deal_id: 1,
+    amount_near: '0.05',
+    note: 'First repayment',
+    created_at: '2026-06-10T00:00:00Z',
+    entry_type: null,
+    legacyUntyped: true,
+    payment_status: 'approved',
+    currency: 'NEAR',
+    recorded_by: 'admin',
+    transaction_hash: null,
+    reconciled_at: null,
+    reconciled_by: null,
+    reconciliation_metadata: null,
+  });
+  dealService.getReturnStatusEvents.mockResolvedValue([{
+    id: 1,
+    return_id: 1,
+    from_status: null,
+    to_status: 'recorded',
+    changed_by: 'admin',
+    changed_at: '2026-06-10T00:00:00Z',
+    note: 'Return recorded',
+    evidence_metadata: null,
+  }]);
   dealService.getDealReturnSummary.mockResolvedValue({
     amount: '0.10',
     invested_amount: '0.10',
@@ -492,14 +518,127 @@ test('GET /api/admin/deals/:id/returns returns 404 when deal not found', async (
   expect(dealService.getDealReturns).not.toHaveBeenCalled();
 });
 
-test('POST /api/admin/returns/:returnId/approve is not exposed yet', async () => {
+test('POST /api/admin/returns/:returnId/approve transitions return to approved', async () => {
   const res = await request(app)
     .post('/api/admin/returns/1/approve')
     .set('Authorization', `Bearer ${adminToken}`)
     .send({ note: 'Approve payment' });
 
+  expect(res.status).toBe(200);
+  expect(dealService.transitionReturnStatus).toHaveBeenCalledWith('1', 'approved', {
+    changedBy: 'admin',
+    note: 'Approve payment',
+    evidenceMetadata: null,
+  });
+  expect(res.body).toEqual(expect.objectContaining({
+    ok: true,
+    repayment: expect.objectContaining({ payment_status: 'approved' }),
+  }));
+});
+
+test('POST /api/admin/returns/:returnId/mark-paid transitions return to paid with evidence metadata', async () => {
+  dealService.transitionReturnStatus.mockResolvedValueOnce({
+    id: 1,
+    payment_status: 'paid',
+    reconciled_at: null,
+    reconciled_by: null,
+  });
+
+  const res = await request(app)
+    .post('/api/admin/returns/1/mark-paid')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({
+      note: 'Marked paid',
+      evidence_metadata: { source: 'manual', transaction_hash: 'tx123' },
+    });
+
+  expect(res.status).toBe(200);
+  expect(dealService.transitionReturnStatus).toHaveBeenCalledWith('1', 'paid', {
+    changedBy: 'admin',
+    note: 'Marked paid',
+    evidenceMetadata: { source: 'manual', transaction_hash: 'tx123' },
+  });
+  expect(res.body.repayment.payment_status).toBe('paid');
+});
+
+test('POST /api/admin/returns/:returnId/reconcile transitions return to reconciled without making realized metrics authoritative', async () => {
+  dealService.transitionReturnStatus.mockResolvedValueOnce({
+    id: 1,
+    payment_status: 'reconciled',
+    reconciled_at: '2026-06-23T10:00:00Z',
+    reconciled_by: 'admin',
+  });
+
+  const res = await request(app)
+    .post('/api/admin/returns/1/reconcile')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ note: 'Manual reconciliation' });
+
+  expect(res.status).toBe(200);
+  expect(dealService.transitionReturnStatus).toHaveBeenCalledWith('1', 'reconciled', {
+    changedBy: 'admin',
+    note: 'Manual reconciliation',
+    evidenceMetadata: null,
+  });
+  expect(res.body.repayment).toEqual(expect.objectContaining({
+    payment_status: 'reconciled',
+    reconciled_by: 'admin',
+  }));
+  expect(dealService.getDealReturnSummary).not.toHaveBeenCalled();
+});
+
+test('GET /api/admin/returns/:returnId/status-events lists status history', async () => {
+  const res = await request(app)
+    .get('/api/admin/returns/1/status-events')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(200);
+  expect(dealService.getReturnStatusEvents).toHaveBeenCalledWith('1');
+  expect(res.body).toEqual({
+    ok: true,
+    returnId: '1',
+    statusEvents: [expect.objectContaining({
+      return_id: 1,
+      to_status: 'recorded',
+      note: 'Return recorded',
+    })],
+  });
+});
+
+test('POST /api/admin/returns/:returnId/approve rejects invalid transitions as conflict', async () => {
+  dealService.transitionReturnStatus.mockRejectedValueOnce(
+    new Error('Invalid return status transition: paid -> approved')
+  );
+
+  const res = await request(app)
+    .post('/api/admin/returns/1/approve')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ note: 'Approve payment' });
+
+  expect(res.status).toBe(409);
+  expect(res.body.error).toBe('Invalid return status transition: paid -> approved');
+});
+
+test('POST /api/admin/returns/:returnId/approve returns 404 for missing return', async () => {
+  dealService.transitionReturnStatus.mockRejectedValueOnce(new Error('Return not found'));
+
+  const res = await request(app)
+    .post('/api/admin/returns/999/approve')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ note: 'Approve payment' });
+
   expect(res.status).toBe(404);
-  expect(dealService.createDealReturn).not.toHaveBeenCalled();
+  expect(res.body.error).toBe('Return not found');
+});
+
+test('POST /api/admin/returns/:returnId/approve forbids non-admin', async () => {
+  const res = await request(app)
+    .post('/api/admin/returns/1/approve')
+    .set('Authorization', `Bearer ${farmerToken}`)
+    .send({ note: 'Approve payment' });
+
+  expect(res.status).toBe(403);
+  expect(dealService.transitionReturnStatus).not.toHaveBeenCalled();
 });
 
 test('POST /api/admin/deals/:id/returns returns 404 when deal not found', async () => {

@@ -417,6 +417,16 @@ test('POST /api/investor/deals/:id/returns is not an investor write route', asyn
   expect(dealService.createDealReturn).not.toHaveBeenCalled();
 });
 
+test('POST /api/investor/returns/:returnId/approve is not an investor transition route', async () => {
+  const res = await request(app)
+    .post('/api/investor/returns/1/approve')
+    .set('Authorization', `Bearer ${walletToken}`)
+    .send({ note: 'Approve payment' });
+
+  expect(res.status).toBe(404);
+  expect(dealService.transitionReturnStatus).not.toHaveBeenCalled();
+});
+
 test('GET /api/investor/deals/:id/returns returns 404 for non-owned deal', async () => {
   dealService.getInvestorDealById.mockResolvedValue(null);
 

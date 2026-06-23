@@ -66,6 +66,26 @@ function normalizeRequiredString(value, fieldName, maxLength) {
   return normalized;
 }
 
+function getRequestActor(req) {
+  return req.user?.account_id || req.user?.near_account || req.user?.username || null;
+}
+
+function getTransitionPayload(req) {
+  return {
+    changedBy: getRequestActor(req),
+    note: String(req.body?.note ?? '').trim() || null,
+    evidenceMetadata: Object.prototype.hasOwnProperty.call(req.body || {}, 'evidence_metadata')
+      ? req.body.evidence_metadata
+      : null,
+  };
+}
+
+function transitionErrorStatus(message) {
+  if (message === 'Return not found') return 404;
+  if (/Invalid return status transition|_status must be|to_status is required/.test(message)) return 409;
+  return 500;
+}
+
 function normalizeDealPayload(body) {
   const isPortalPayload = Boolean(body.farmer_wallet || body.investor_wallet || body.amount || body.title);
   if (!isPortalPayload) {
@@ -129,6 +149,57 @@ router.get('/investors', async (req, res) => {
   try {
     const investors = await profileService.getProfilesByRole('investor');
     res.json({ ok: true, investors });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/returns/:returnId/approve', async (req, res) => {
+  try {
+    const repayment = await dealService.transitionReturnStatus(
+      req.params.returnId,
+      'approved',
+      getTransitionPayload(req)
+    );
+    res.json({ ok: true, repayment });
+  } catch (err) {
+    res.status(transitionErrorStatus(err.message)).json({ error: err.message });
+  }
+});
+
+router.post('/returns/:returnId/mark-paid', async (req, res) => {
+  try {
+    const repayment = await dealService.transitionReturnStatus(
+      req.params.returnId,
+      'paid',
+      getTransitionPayload(req)
+    );
+    res.json({ ok: true, repayment });
+  } catch (err) {
+    res.status(transitionErrorStatus(err.message)).json({ error: err.message });
+  }
+});
+
+router.post('/returns/:returnId/reconcile', async (req, res) => {
+  try {
+    const repayment = await dealService.transitionReturnStatus(
+      req.params.returnId,
+      'reconciled',
+      getTransitionPayload(req)
+    );
+    res.json({ ok: true, repayment });
+  } catch (err) {
+    res.status(transitionErrorStatus(err.message)).json({ error: err.message });
+  }
+});
+
+router.get('/returns/:returnId/status-events', async (req, res) => {
+  try {
+    res.json({
+      ok: true,
+      returnId: req.params.returnId,
+      statusEvents: await dealService.getReturnStatusEvents(req.params.returnId),
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -295,7 +366,7 @@ router.post('/deals/:id/returns', async (req, res) => {
     );
     if (protectedField) throw new Error(`${protectedField} cannot be set by client`);
 
-    const recordedBy = req.user?.account_id || req.user?.near_account || req.user?.username || null;
+    const recordedBy = getRequestActor(req);
     const repaymentInput = {
       amount_near: req.body.amount_near,
       note: req.body.note,

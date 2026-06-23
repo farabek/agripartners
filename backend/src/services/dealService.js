@@ -14,6 +14,11 @@ function normalizeReturnAmount(value) {
 
 const RETURN_ENTRY_TYPES = new Set(['principal', 'profit', 'fee']);
 const RETURN_PAYMENT_STATUSES = new Set(['recorded', 'approved', 'paid', 'reconciled']);
+const ALLOWED_RETURN_STATUS_TRANSITIONS = {
+  recorded: 'approved',
+  approved: 'paid',
+  paid: 'reconciled',
+};
 const CLIENT_PROTECTED_RETURN_FIELDS = [
   'payment_status',
   'currency',
@@ -175,7 +180,7 @@ async function getDealReturns(dealId) {
   return rows.map(toReturnDto);
 }
 
-async function createReturnStatusEvent({
+async function insertReturnStatusEvent(queryable, {
   returnId,
   fromStatus = null,
   toStatus,
@@ -185,7 +190,7 @@ async function createReturnStatusEvent({
 }) {
   const normalizedFromStatus = normalizeReturnPaymentStatus(fromStatus, 'from_status');
   const normalizedToStatus = normalizeReturnPaymentStatus(toStatus, 'to_status');
-  const { rows } = await pool.query(
+  const { rows } = await queryable.query(
     `INSERT INTO return_status_events (
        return_id, from_status, to_status, changed_by, note, evidence_metadata
      )
@@ -203,12 +208,85 @@ async function createReturnStatusEvent({
   return rows[0];
 }
 
+async function createReturnStatusEvent(event) {
+  return insertReturnStatusEvent(pool, event);
+}
+
 async function getReturnStatusEvents(returnId) {
   const { rows } = await pool.query(
     'SELECT * FROM return_status_events WHERE return_id = $1 ORDER BY changed_at ASC, id ASC',
     [returnId]
   );
   return rows;
+}
+
+function assertAllowedReturnStatusTransition(fromStatus, toStatus) {
+  const normalizedFromStatus = normalizeReturnPaymentStatus(fromStatus, 'from_status');
+  const normalizedToStatus = normalizeReturnPaymentStatus(toStatus, 'to_status');
+  const allowedToStatus = ALLOWED_RETURN_STATUS_TRANSITIONS[normalizedFromStatus];
+  if (allowedToStatus !== normalizedToStatus) {
+    throw new Error(`Invalid return status transition: ${normalizedFromStatus} -> ${normalizedToStatus}`);
+  }
+  return { fromStatus: normalizedFromStatus, toStatus: normalizedToStatus };
+}
+
+async function transitionReturnStatus(returnId, toStatus, {
+  changedBy = null,
+  note = null,
+  evidenceMetadata = null,
+} = {}) {
+  async function runTransition(queryable) {
+    const { rows: existingRows } = await queryable.query(
+      'SELECT * FROM deal_returns WHERE id = $1',
+      [returnId]
+    );
+    const existing = existingRows[0];
+    if (!existing) throw new Error('Return not found');
+
+    const { fromStatus, toStatus: normalizedToStatus } = assertAllowedReturnStatusTransition(
+      existing.payment_status ?? 'recorded',
+      toStatus
+    );
+    const shouldReconcile = normalizedToStatus === 'reconciled';
+    const { rows: updatedRows } = await queryable.query(
+      `UPDATE deal_returns
+       SET payment_status = $2,
+           reconciled_at = CASE WHEN $2 = 'reconciled' THEN COALESCE(reconciled_at, NOW()) ELSE reconciled_at END,
+           reconciled_by = CASE WHEN $2 = 'reconciled' THEN COALESCE(reconciled_by, $3) ELSE reconciled_by END
+       WHERE id = $1
+       RETURNING *`,
+      [returnId, normalizedToStatus, shouldReconcile ? changedBy : null]
+    );
+    const updated = toReturnDto(updatedRows[0]);
+
+    await insertReturnStatusEvent(queryable, {
+      returnId: updated.id,
+      fromStatus,
+      toStatus: normalizedToStatus,
+      changedBy,
+      note,
+      evidenceMetadata,
+    });
+
+    return updated;
+  }
+
+  if (typeof pool.connect !== 'function') {
+    return runTransition(pool);
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const updated = await runTransition(client);
+    await client.query('COMMIT');
+    return updated;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 async function createDealReturn(dealId, repayment, recordedBy = null) {
@@ -425,6 +503,7 @@ module.exports = {
   getDealReturns,
   createReturnStatusEvent,
   getReturnStatusEvents,
+  transitionReturnStatus,
   createDealReturn,
   getDealReturnSummary,
   getInvestorPortfolioFinancialSummary,
