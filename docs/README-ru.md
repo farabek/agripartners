@@ -1,51 +1,51 @@
 # Документация AgriPartners Pilot MVP
 
-AgriPartners — пилотная платформа для прозрачных сельскохозяйственных инвестиционных процессов на NEAR. Текущий MVP показывает, как капитал, фермерские операции, отчетность и возвраты могут быть представлены через отдельные порталы для инвестора, фермера и администратора.
+AgriPartners - пилотная платформа для прозрачных сельскохозяйственных инвестиционных процессов на NEAR. Текущий MVP показывает, как капитал, фермерские операции, отчетность и возвраты могут быть представлены через отдельные порталы для инвесторов, фермеров и администраторов.
 
 ## Обзор проекта
 
-Pilot MVP сфокусирован на двух пилотных проектах:
+Pilot MVP сфокусирован на двух сельскохозяйственных пилотных проектах:
 
-- Fidlot Livestock Project — завершенный пилот по откорму скота.
-- Hissar Sheep Breeding Project — активный пилот по разведению гиссарских овец.
+- Fidlot Livestock Project - завершенный пилот по откорму скота.
+- Hissar Sheep Breeding Project - активный пилот по разведению гиссарских овец.
 
-Демо показывает чистый операционный вид этих проектов, при этом тестовые данные и рабочие testnet-процессы могут оставаться в системе. Цель этого пакета документации — помочь инвесторам, партнерам и команде понять продуктовый опыт без необходимости читать код или разбирать технические записи.
+Демо показывает чистый операционный вид этих проектов, сохраняя при этом testnet-данные и product-development workflows в системе. Цель этого пакета документации - помочь инвесторам, партнерам и внутренним стейкхолдерам понять продуктовый опыт без необходимости читать исходный код или разбирать сырые тестовые данные.
 
 ## Видение AgriPartners
 
-AgriPartners создается как мост между сельскохозяйственными операторами и прозрачным инвестиционным капиталом. Долгосрочная цель — сделать финансирование фермерских проектов более понятным, контролируемым и доверительным.
+AgriPartners создается для соединения сельскохозяйственных операторов с прозрачным инвестиционным капиталом. Долгосрочная цель - сделать финансирование фермерских проектов более понятным, контролируемым и доверительным.
 
 Платформа объединяет:
 
 - операционную отчетность для фермеров;
 - портфельную прозрачность для инвесторов;
 - мониторинг проектов для администраторов;
-- инфраструктуру смарт-контрактов и кошельков NEAR.
+- NEAR-based contract и wallet infrastructure.
 
 ## Архитектура Pilot MVP
 
-MVP построен как role-based веб-приложение:
+MVP организован как простое role-based web application:
 
-- Frontend-порталы показывают dashboard, проекты и отчетность.
-- Backend API управляют профилями, сделками, отчетами и testnet-интеграциями.
-- Смарт-контракты NEAR Testnet поддерживают жизненный цикл сделок.
-- Wallet authentication ограничивает доступ к порталам по ролям.
+- Frontend-порталы показывают dashboard, project и reporting views.
+- Backend APIs управляют profile, deal, reporting и testnet integration flows.
+- NEAR Testnet smart contracts поддерживают deal lifecycle operations.
+- Wallet authentication контролирует доступ к role-specific portal views.
 
-Текущий demo presentation layer показывает чистые пилотные проекты для скриншотов и investor walkthrough. Реальные testnet-данные и development-записи могут оставаться в системе, но демо-вид фокусируется на двух пилотах.
+Текущий demo presentation layer показывает чистые пилотные проекты для screenshots и investor walkthroughs. Реальные testnet и development data могут оставаться в системе, пока demo experience фокусируется на двух пилотных проектах.
 
 ## Роли пользователей
 
 ### Investor
 
-Инвестор видит пилотные проекты, сводку инвестиций, активные и завершенные сделки, прогнозируемый или фактический ROI и возвраты.
+Инвесторы просматривают pilot opportunities, investment summaries, active and completed deals, projected или recorded ROI и returns.
 
 ### Farmer
 
-Фермер видит профиль пилотной фермы, подтверждение финансирования, статус циклов, отчетность и назначенные проекты.
+Фермеры видят профиль пилотной фермы, funding confirmation, cycle status, reporting status и assigned project cards.
 
 ### Admin
 
-Администратор отслеживает финансирование пилотов, статус сделок, farmer reports, возвраты и event history по портфелю.
+Администраторы отслеживают pilot funding, deal status, farmer reporting, repayment status и event history по pilot portfolio.
 
 ## Страницы документации
 
@@ -53,6 +53,14 @@ MVP построен как role-based веб-приложение:
 - [Farmer Portal](farmer-portal-ru.md)
 - [Admin Dashboard](admin-dashboard-ru.md)
 - [NEAR Testnet](near-testnet-ru.md)
+- [Обзор релиза Alpha v1.1](releases/alpha-v1.1-release-review-ru.md)
+- [Typed Return Model Design and Migration Specification](design/typed-return-model-spec.md)
+- [Reconciliation Engine Design Specification](design/reconciliation-engine-spec.md)
+- [Treasury Engine Architecture Specification](design/treasury-engine-spec.md)
+- [Treasury Accounting Model Specification](design/treasury-accounting-model.md)
+- [Treasury Operating Modes Specification](design/treasury-operating-modes-spec.md)
+- [ADR-001 - Live-first Architecture](architecture/ADR-001-live-first-architecture.md)
+- [ADR-002 - Financial Semantics](architecture/ADR-002-financial-semantics.md)
 
 ## Дополнительные папки
 
@@ -62,4 +70,3 @@ MVP построен как role-based веб-приложение:
 - [Business Model](business-model/)
 - [Workflows](workflows/)
 - [Demo Guide](demo-guide/)
-
