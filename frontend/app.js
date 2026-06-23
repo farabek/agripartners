@@ -313,6 +313,13 @@ const PRESENTATION_PROFILES = {
   investor: {
     id: 'investor',
     title: 'Investor',
+    description: 'A guided capital journey for investment opportunity, farmer transparency, return lifecycle, and withdrawal readiness.',
+    audience: 'Private investors, funds, angels, and pilot backers',
+    objective: 'Help investors understand exactly what happened to their investment from opportunity to recorded return.',
+    estimatedDuration: '~5 minutes',
+    defaultFlow: 'quickDemo',
+    focus: ['Investment opportunity', 'Projected Return', 'Farmer transparency', 'Return lifecycle', 'Withdrawal readiness'],
+    stepOverrides: {},
     flows: {
       quickDemo: {
         id: 'quickDemo',
@@ -406,7 +413,147 @@ const PRESENTATION_PROFILES = {
   },
 };
 
+PRESENTATION_PROFILES.near = {
+  id: 'near',
+  title: 'NEAR Foundation',
+  description: 'A Testnet and architecture-focused version for ecosystem reviewers.',
+  audience: 'NEAR ecosystem, grants, developer relations, and infrastructure reviewers',
+  objective: 'Show how AgriPartners uses NEAR Testnet, wallet access, blockchain evidence, and Treasury roadmap discipline.',
+  estimatedDuration: '~7 minutes',
+  defaultFlow: 'quickDemo',
+  focus: ['Wallet authentication', 'NEAR Testnet', 'Blockchain evidence', 'Architecture', 'Treasury roadmap'],
+  stepOverrides: {
+    Welcome: {
+      audienceQuestion: 'What real-world workflow is AgriPartners validating on NEAR Testnet?',
+      keyMessage: 'AgriPartners uses NEAR Testnet to validate agricultural investment workflows before production settlement.',
+      presenterNote: 'Lead with business utility, then explain why NEAR is useful as evidence and access infrastructure.',
+      transition: 'Next: show the pilot marketplace that gives the Testnet workflow a real use case.',
+    },
+    Opportunity: {
+      keyMessage: 'The pilot marketplace gives NEAR activity a concrete agricultural finance use case instead of an abstract demo.',
+      presenterNote: 'Point out that the same screens are reused; the NEAR profile changes emphasis, not functionality.',
+    },
+    'Investment Terms': {
+      audienceQuestion: 'Where does wallet-linked investor context meet pilot investment terms?',
+      keyMessage: 'The investor pilot screen connects deal economics to a wallet-aware application flow on NEAR Testnet.',
+      transition: 'Next: follow the off-chain operating workflow that surrounds the Testnet references.',
+    },
+    'Farmer Progress': {
+      keyMessage: 'Farmer reports show the real-world activity that blockchain references alone cannot explain.',
+      presenterNote: 'Use this step to separate blockchain evidence from agricultural operating evidence.',
+    },
+    'Returns Recorded': {
+      keyMessage: 'Recorded Return visibility shows how AgriPartners avoids overstating blockchain evidence before reconciliation.',
+      presenterNote: 'Emphasize conservative semantics: recorded is not automatically paid or reconciled.',
+    },
+    'Treasury Transparency': {
+      audienceQuestion: 'How does the architecture prepare for reliable settlement and reconciliation?',
+      keyMessage: 'Treasury Shadow Mode creates an append-only accounting trail that can later be reconciled with blockchain evidence.',
+      presenterNote: 'This is the key NEAR Foundation architecture moment. Keep it high level unless asked for details.',
+      transition: 'Next: connect Treasury discipline to future withdrawal readiness.',
+    },
+    'Withdrawal Readiness': {
+      keyMessage: 'Withdrawal readiness depends on payment status, reconciliation, and future production signer/custody decisions.',
+    },
+    'Summary / Next Steps': {
+      keyMessage: 'The NEAR story is applied infrastructure: wallet access, Testnet validation, evidence references, and a Treasury roadmap.',
+      presenterNote: 'Close by asking for feedback on Testnet evidence, indexer/reconciliation strategy, and grant fit.',
+    },
+  },
+};
+
+PRESENTATION_PROFILES.accelerator = {
+  id: 'accelerator',
+  title: 'Accelerator',
+  description: 'A product maturity and startup execution version for accelerator evaluators.',
+  audience: 'Accelerator reviewers, mentors, demo day judges, and startup program teams',
+  objective: 'Show a working Alpha with clear market problem, pilot validation, product maturity, and Beta roadmap.',
+  estimatedDuration: '~6 minutes',
+  defaultFlow: 'quickDemo',
+  focus: ['Market problem', 'Product maturity', 'Pilot validation', 'Roadmap', 'Team execution'],
+  stepOverrides: {
+    Welcome: {
+      audienceQuestion: 'What problem is this startup solving?',
+      keyMessage: 'AgriPartners makes agricultural investment workflows understandable, trackable, and demo-ready for stakeholders.',
+      presenterNote: 'Keep this crisp: problem, product, traction signal, roadmap.',
+    },
+    Opportunity: {
+      audienceQuestion: 'Is there a clear market wedge?',
+      keyMessage: 'Two pilot models show a focused wedge: structured agricultural capital workflows with comparable investment terms.',
+    },
+    'Investment Terms': {
+      keyMessage: 'The product already presents investment terms, projected return, and pilot context in a structured Alpha experience.',
+      transition: 'Next: show that this is not only a pitch deck; farmer workflow exists too.',
+    },
+    'Farmer Progress': {
+      keyMessage: 'Farmer progress shows product depth across both sides of the marketplace.',
+      presenterNote: 'This is a strong execution signal: investor and farmer surfaces both exist.',
+    },
+    'Returns Recorded': {
+      keyMessage: 'Recorded Return visibility shows a mature approach to financial language and investor trust.',
+    },
+    'Treasury Transparency': {
+      keyMessage: 'Treasury Transparency gives the roadmap credibility beyond a lightweight marketplace UI.',
+    },
+    'Withdrawal Readiness': {
+      keyMessage: 'Withdrawal readiness is framed honestly as Alpha/Testnet workflow maturity, not premature production payout.',
+    },
+    'Summary / Next Steps': {
+      audienceQuestion: 'Why is this team ready for the next stage?',
+      keyMessage: 'AgriPartners has working Alpha surfaces, pilot economics, reporting, returns visibility, and a practical Beta roadmap.',
+      presenterNote: 'Close on execution: current product exists, next work is presentation polish and trust depth.',
+    },
+  },
+};
+
+PRESENTATION_PROFILES.enterprise = {
+  id: 'enterprise',
+  title: 'Enterprise Partner',
+  description: 'An operations, reporting, auditability, and integration-focused version for strategic partners.',
+  audience: 'Agribusiness partners, cooperatives, banks, operators, and enterprise innovation teams',
+  objective: 'Show how AgriPartners can support operational transparency, reporting, Treasury controls, and future integrations.',
+  estimatedDuration: '~8 minutes',
+  defaultFlow: 'quickDemo',
+  focus: ['Operational workflows', 'Auditability', 'Reporting', 'Treasury controls', 'Future integrations'],
+  stepOverrides: {
+    Welcome: {
+      audienceQuestion: 'How could this support an enterprise agricultural finance workflow?',
+      keyMessage: 'AgriPartners organizes capital, farmer operations, reports, returns, and Treasury visibility into one workflow.',
+      presenterNote: 'Frame the demo as partner-operating infrastructure, not a retail investor app.',
+    },
+    Opportunity: {
+      keyMessage: 'Pilot opportunities show how partner-backed agricultural programs can be packaged and reviewed consistently.',
+    },
+    'Investment Terms': {
+      keyMessage: 'Structured terms make enterprise review easier: investment amount, cycles, projected return, and status are explicit.',
+    },
+    'Farmer Progress': {
+      audienceQuestion: 'Can operators see what is happening in the field?',
+      keyMessage: 'Farmer progress and reporting create an operating layer for partner oversight.',
+      presenterNote: 'Spend more time here for enterprise audiences than for investors.',
+    },
+    'Returns Recorded': {
+      keyMessage: 'Recorded Return status gives partners a controlled way to discuss outcomes without overstating settlement.',
+    },
+    'Treasury Transparency': {
+      audienceQuestion: 'Where do auditability and Treasury controls fit?',
+      keyMessage: 'Treasury Transparency is the bridge from operational workflow to auditable financial controls.',
+      presenterNote: 'This is the enterprise anchor. Avoid raw account codes unless asked.',
+    },
+    'Withdrawal Readiness': {
+      keyMessage: 'Withdrawal readiness highlights the need for partner-specific controls, reconciliation, and production integrations.',
+    },
+    'Summary / Next Steps': {
+      keyMessage: 'The enterprise opportunity is a repeatable operating layer for agricultural capital, reporting, Treasury, and integrations.',
+      presenterNote: 'Close by asking which partner systems, reports, and approval workflows matter most.',
+    },
+  },
+};
+
+const PRESENTATION_PROFILE_ORDER = ['investor', 'near', 'accelerator', 'enterprise'];
+
 let activePresentationStepIndex = 0;
+let activePresentationProfileId = 'investor';
 let presentationSettings = loadPresentationSettings();
 
 const PRESENTATION_STEP_DETAILS = {
@@ -518,14 +665,35 @@ function savePresentationSettings(settings) {
   return presentationSettings;
 }
 
-function enrichedPresentationStep(step) {
-  return { ...step, ...(PRESENTATION_STEP_DETAILS[step.title] || {}) };
+function presentationProfile(profileId = activePresentationProfileId) {
+  return PRESENTATION_PROFILES[profileId] || PRESENTATION_PROFILES.investor;
 }
 
-function presentationProgress(flow, stepIndex) {
+function presentationProfileUrl(profileId) {
+  return `#demo/presentation/${profileId}`;
+}
+
+function presentationFlow(profileId = activePresentationProfileId) {
+  const profile = presentationProfile(profileId);
+  const baseFlow = PRESENTATION_PROFILES.investor.flows.quickDemo;
+  return {
+    ...baseFlow,
+    title: `${profile.title} Quick Demo`,
+    duration: profile.estimatedDuration,
+    profileId: profile.id,
+  };
+}
+
+function enrichedPresentationStep(step, profileId = activePresentationProfileId) {
+  const profile = presentationProfile(profileId);
+  const overrides = profile.stepOverrides?.[step.title] || {};
+  return { ...step, ...(PRESENTATION_STEP_DETAILS[step.title] || {}), ...overrides };
+}
+
+function presentationProgress(flow, stepIndex, profileId = activePresentationProfileId) {
   const total = flow.steps.length;
   const completionPercent = Math.round(((stepIndex + 1) / total) * 100);
-  const remainingSteps = flow.steps.slice(stepIndex + 1).map(enrichedPresentationStep);
+  const remainingSteps = flow.steps.slice(stepIndex + 1).map(step => enrichedPresentationStep(step, profileId));
   const remainingMinutes = remainingSteps.reduce((sum, step) => {
     const value = step.estimatedMinutes ?? (PRESENTATION_STEP_DETAILS[step.title] ? 0.6 : 0.5);
     return sum + value;
@@ -544,21 +712,23 @@ function presentationStepStatus(index, activeIndex) {
 }
 
 function investorQuickDemoFlow() {
-  return PRESENTATION_PROFILES.investor.flows.quickDemo;
+  return presentationFlow('investor');
 }
 
-function showInvestorPresentation(stepIndex = activePresentationStepIndex) {
+function showInvestorPresentation(stepIndex = activePresentationStepIndex, profileId = activePresentationProfileId) {
   showView('view-presentation');
   const el = document.getElementById('view-presentation');
-  const flow = investorQuickDemoFlow();
+  const profile = presentationProfile(profileId);
+  const flow = presentationFlow(profile.id);
+  activePresentationProfileId = profile.id;
   activePresentationStepIndex = Math.max(0, Math.min(flow.steps.length - 1, stepIndex));
-  renderInvestorPresentationShell(el, flow, activePresentationStepIndex);
+  renderInvestorPresentationShell(el, flow, activePresentationStepIndex, profile);
 }
 
-function renderInvestorPresentationShell(el, flow, stepIndex) {
-  const step = enrichedPresentationStep(flow.steps[stepIndex]);
+function renderInvestorPresentationShell(el, flow, stepIndex, profile = presentationProfile()) {
+  const step = enrichedPresentationStep(flow.steps[stepIndex], profile.id);
   const settings = presentationSettings;
-  const progress = presentationProgress(flow, stepIndex);
+  const progress = presentationProgress(flow, stepIndex, profile.id);
   el.innerHTML = `
     ${renderNav()}
     <section class="bg-slate-950 border border-green-900 rounded-xl overflow-hidden">
@@ -572,7 +742,7 @@ function renderInvestorPresentationShell(el, flow, stepIndex) {
             <h1 class="text-xl font-bold text-slate-50">${escapeHtml(flow.title)}</h1>
             <p class="text-sm text-slate-400">${escapeHtml(flow.duration)}</p>
           </div>
-          ${renderPresentationTimeline(flow.steps.map(enrichedPresentationStep), stepIndex)}
+          ${renderPresentationTimeline(flow.steps.map(item => enrichedPresentationStep(item, profile.id)), stepIndex)}
         </aside>
         <main class="p-5 md:p-7">
           <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -583,14 +753,55 @@ function renderInvestorPresentationShell(el, flow, stepIndex) {
             </div>
             <a href="${escapeHtml(step.targetRoute)}" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2 rounded-lg text-sm font-medium transition">${escapeHtml(step.targetLabel)}</a>
           </div>
+          ${renderPresentationAudienceSelector(profile)}
+          ${renderPresentationAudienceSummary(profile)}
           ${renderPresentationSettings(settings)}
           ${renderPresentationStepContent(step, stepIndex)}
-          ${renderPresentationNavigation(flow.steps, stepIndex)}
+          ${renderPresentationNavigation(flow.steps, stepIndex, profile.id)}
         </main>
       </div>
     </section>
   `;
   bindPresentationControls(flow);
+}
+
+function renderPresentationAudienceSelector(activeProfile) {
+  return `
+    <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 mb-6" data-presentation-audience-selector>
+      <p class="text-sm font-semibold text-slate-100 mb-3">Presentation Audience</p>
+      <div class="grid sm:grid-cols-2 xl:grid-cols-4 gap-2" role="radiogroup" aria-label="Presentation Audience">
+        ${PRESENTATION_PROFILE_ORDER.map(profileId => {
+          const profile = presentationProfile(profileId);
+          return `
+            <label class="bg-slate-950 border ${profile.id === activeProfile.id ? 'border-green-700 text-green-100' : 'border-slate-800 text-slate-300'} rounded-lg px-3 py-2 text-sm cursor-pointer">
+              <input type="radio" name="presentation-profile" value="${escapeHtml(profile.id)}" ${profile.id === activeProfile.id ? 'checked' : ''} class="presentation-setting-input mr-2">
+              <span>${escapeHtml(profile.title)}</span>
+            </label>
+          `;
+        }).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function renderPresentationAudienceSummary(profile) {
+  return `
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-6" data-presentation-audience-summary>
+      <div class="grid lg:grid-cols-[1fr_1.2fr] gap-4">
+        <div>
+          <p class="text-xs uppercase tracking-wide text-slate-500">Audience</p>
+          <h2 class="text-xl font-bold text-slate-50">${escapeHtml(profile.title)}</h2>
+          <p class="text-sm text-slate-400 mt-1">${escapeHtml(profile.description)}</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-wide text-slate-500">Today's focus</p>
+          <div class="flex flex-wrap gap-2 mt-2">
+            ${profile.focus.map(item => `<span class="text-xs bg-slate-900 border border-slate-700 text-slate-300 px-2 py-1 rounded">${escapeHtml(item)}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
 }
 
 function renderPresentationProgress(progress) {
@@ -702,9 +913,24 @@ function renderPresentationMetrics(step) {
 }
 
 function renderPresenterNotesPanel(step) {
+  const profile = presentationProfile();
   return `
     <details class="bg-slate-900 border border-amber-800 rounded-xl p-5" data-presenter-notes open>
       <summary class="cursor-pointer text-sm font-semibold text-amber-100">Presenter Notes</summary>
+      <div class="grid md:grid-cols-3 gap-3 mt-4 mb-4 text-sm">
+        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+          <span class="block text-xs uppercase tracking-wide text-slate-500">Current audience</span>
+          <span class="text-slate-100 font-semibold">${escapeHtml(profile.title)}</span>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+          <span class="block text-xs uppercase tracking-wide text-slate-500">Estimated total duration</span>
+          <span class="text-slate-100 font-semibold">${escapeHtml(profile.estimatedDuration)}</span>
+        </div>
+        <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+          <span class="block text-xs uppercase tracking-wide text-slate-500">Profile objective</span>
+          <span class="text-slate-100 font-semibold">${escapeHtml(profile.objective)}</span>
+        </div>
+      </div>
       <div class="grid md:grid-cols-2 gap-4 mt-4 text-sm">
         ${renderPresenterNoteList('Speaking tips', step.speakingTips)}
         ${renderPresenterNoteList('Expected audience questions', step.expectedQuestions)}
@@ -738,9 +964,9 @@ function renderPresenterAppendixLinks(links = []) {
   `;
 }
 
-function renderPresentationNavigation(steps, activeIndex) {
+function renderPresentationNavigation(steps, activeIndex, profileId = activePresentationProfileId) {
   const previousDisabled = activeIndex === 0 ? 'disabled' : '';
-  const currentStep = enrichedPresentationStep(steps[activeIndex]);
+  const currentStep = enrichedPresentationStep(steps[activeIndex], profileId);
   const nextLabel = currentStep.nextLabel;
   return `
     <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-5">
@@ -752,14 +978,22 @@ function renderPresentationNavigation(steps, activeIndex) {
 
 function bindPresentationControls(flow) {
   document.getElementById('presentation-prev')?.addEventListener('click', () => {
-    showInvestorPresentation(activePresentationStepIndex - 1);
+    showInvestorPresentation(activePresentationStepIndex - 1, activePresentationProfileId);
   });
   document.getElementById('presentation-next')?.addEventListener('click', () => {
     const nextIndex = activePresentationStepIndex + 1 >= flow.steps.length ? 0 : activePresentationStepIndex + 1;
-    showInvestorPresentation(nextIndex);
+    showInvestorPresentation(nextIndex, activePresentationProfileId);
   });
   document.querySelectorAll('[data-presentation-jump]').forEach(button => {
-    button.addEventListener('click', () => showInvestorPresentation(Number(button.dataset.presentationJump)));
+    button.addEventListener('click', () => showInvestorPresentation(Number(button.dataset.presentationJump), activePresentationProfileId));
+  });
+  document.querySelectorAll('input[name="presentation-profile"]').forEach(input => {
+    input.addEventListener('change', (event) => {
+      const profileId = event.target.value;
+      if (!PRESENTATION_PROFILES[profileId]) return;
+      window.history.replaceState({}, document.title, `${window.location.pathname}${presentationProfileUrl(profileId)}`);
+      showInvestorPresentation(0, profileId);
+    });
   });
   document.getElementById('presentation-settings')?.addEventListener('change', (event) => {
     const target = event.target;
@@ -768,7 +1002,7 @@ function bindPresentationControls(flow) {
       ...presentationSettings,
       [target.name]: target.checked,
     });
-    showInvestorPresentation(activePresentationStepIndex);
+    showInvestorPresentation(activePresentationStepIndex, activePresentationProfileId);
   });
   document.removeEventListener('keydown', handlePresentationKeyboardNavigation);
   document.addEventListener('keydown', handlePresentationKeyboardNavigation);
@@ -778,13 +1012,13 @@ function handlePresentationKeyboardNavigation(event) {
   const presentationView = document.getElementById('view-presentation');
   if (!presentationView || presentationView.classList.contains('hidden')) return;
   if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
-  const flow = investorQuickDemoFlow();
+  const flow = presentationFlow(activePresentationProfileId);
   event.preventDefault();
   if (event.key === 'ArrowRight') {
     const nextIndex = activePresentationStepIndex + 1 >= flow.steps.length ? 0 : activePresentationStepIndex + 1;
-    showInvestorPresentation(nextIndex);
+    showInvestorPresentation(nextIndex, activePresentationProfileId);
   } else {
-    showInvestorPresentation(activePresentationStepIndex - 1);
+    showInvestorPresentation(activePresentationStepIndex - 1, activePresentationProfileId);
   }
 }
 
@@ -846,8 +1080,9 @@ function route() {
     return;
   }
 
-  if (hash === '#demo/presentation/investor') {
-    showInvestorPresentation(0);
+  const presentationMatch = hash.match(/^#demo\/presentation\/(investor|near|accelerator|enterprise)$/);
+  if (presentationMatch) {
+    showInvestorPresentation(0, presentationMatch[1]);
     return;
   }
 
