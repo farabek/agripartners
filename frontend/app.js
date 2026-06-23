@@ -294,10 +294,227 @@ function statusBadge(status) {
 // --- Router ---
 
 function showView(viewId) {
-  ['view-home', 'view-login', 'view-list', 'view-detail', 'view-marketplace', 'view-investor', 'view-farmer', 'view-admin', 'view-onboarding'].forEach(id => {
+  ['view-home', 'view-login', 'view-list', 'view-detail', 'view-marketplace', 'view-presentation', 'view-investor', 'view-farmer', 'view-admin', 'view-onboarding'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   document.getElementById(viewId).classList.remove('hidden');
+}
+
+// --- Presentation Mode ---
+
+const PRESENTATION_PROFILES = {
+  investor: {
+    id: 'investor',
+    title: 'Investor',
+    flows: {
+      quickDemo: {
+        id: 'quickDemo',
+        title: 'Investor Quick Demo',
+        duration: '~5 minutes',
+        banner: 'Investor Quick Demo · Alpha v1.1 · NEAR Testnet · Demo-safe',
+        steps: [
+          {
+            title: 'Welcome',
+            audienceQuestion: 'What is AgriPartners, and what am I about to see?',
+            keyMessage: 'AgriPartners turns agricultural pilot investments into a guided, transparent capital journey.',
+            targetRoute: '#home',
+            targetLabel: 'Open Landing',
+            presenterNote: 'Frame this as Alpha/Testnet presentation mode, not production investor onboarding.',
+            nextLabel: 'Next: See opportunities',
+            topics: ['Alpha v1.1', 'NEAR Testnet', 'Demo-safe workflow'],
+          },
+          {
+            title: 'Opportunity',
+            audienceQuestion: 'Which pilot opportunities can I compare?',
+            keyMessage: 'The marketplace presents two flagship $50,000 pilot models: Hissar Sheep and Feedlot/Fidlot livestock.',
+            targetRoute: '#/marketplace',
+            targetLabel: 'Open Marketplace',
+            presenterNote: 'Keep the focus on comparable investment terms: amount, cycles, projected ROI, and status.',
+            nextLabel: 'Next: Review investment terms',
+            topics: ['Pilot marketplace', 'Feedlot/Fidlot', 'Hissar Sheep'],
+          },
+          {
+            title: 'Investment Terms',
+            audienceQuestion: 'What exactly would I be investing in?',
+            keyMessage: 'The Hissar pilot shows the investment amount, projected payout, cycles, status, and farmer-facing context.',
+            targetRoute: '#/investor/pilots/hissar',
+            targetLabel: 'Open Hissar Pilot',
+            presenterNote: 'Use Hissar first because it is active and makes the progress story easier to understand.',
+            nextLabel: 'Next: Follow farmer progress',
+            topics: ['Projected ROI', 'Investment amount', 'Pilot cycles'],
+          },
+          {
+            title: 'Farmer Progress',
+            audienceQuestion: 'What happens after capital reaches the farmer workflow?',
+            keyMessage: 'Farmer progress connects the investment to cycle status, funding confirmation, and operating updates.',
+            targetRoute: '#farmer/pilots/hissar',
+            targetLabel: 'Open Farmer Progress',
+            presenterNote: 'Avoid technical identity details. Explain that this is the operating side of the same investment story.',
+            nextLabel: 'Next: Show recorded returns',
+            topics: ['Farmer reports', 'Funding confirmation', 'Production cycle'],
+          },
+          {
+            title: 'Returns Recorded',
+            audienceQuestion: 'How do I see what has been returned or remains outstanding?',
+            keyMessage: 'The completed Feedlot/Fidlot pilot shows recorded returns, projected payout, outstanding amount, and ROI progress.',
+            targetRoute: '#/investor/pilots/fidlot',
+            targetLabel: 'Open Feedlot/Fidlot Returns',
+            presenterNote: 'Say recorded and projected carefully. Do not describe Alpha records as guaranteed production settlement.',
+            nextLabel: 'Next: Explain Treasury transparency',
+            topics: ['Projected vs Recorded', 'Recorded returns', 'Outstanding payout'],
+          },
+          {
+            title: 'Treasury Transparency',
+            audienceQuestion: 'What accounting trail exists behind a recorded return?',
+            keyMessage: 'Treasury Shadow Mode records an append-only accounting trail without yet controlling production payouts.',
+            targetRoute: '#admin/treasury',
+            targetLabel: 'Open Treasury Dashboard',
+            presenterNote: 'If not signed in as admin, stay on this card and explain the concept without forcing login.',
+            nextLabel: 'Next: Discuss withdrawal readiness',
+            topics: ['Treasury Shadow Mode', 'Append-only ledger', 'Idempotency'],
+          },
+          {
+            title: 'Withdrawal Readiness',
+            audienceQuestion: 'When can an investor withdraw?',
+            keyMessage: 'Withdrawal readiness depends on available balance, payment status, and future reconciliation controls.',
+            targetRoute: '#investor',
+            targetLabel: 'Open Investor Portal',
+            presenterNote: 'Position withdrawal as Alpha/Testnet workflow readiness, not production payout authority.',
+            nextLabel: 'Next: Summarize the story',
+            topics: ['Recorded vs Paid', 'Reconciliation', 'Investor withdrawal'],
+          },
+          {
+            title: 'Summary / Next Steps',
+            audienceQuestion: 'What should I remember from this demo?',
+            keyMessage: 'AgriPartners already connects opportunity, farmer progress, recorded returns, and Treasury-ready accounting in one guided story.',
+            targetRoute: '#/marketplace',
+            targetLabel: 'Return to Marketplace',
+            presenterNote: 'Close with Beta focus: clarity, trust, reconciliation, and production readiness.',
+            nextLabel: 'Restart demo',
+            topics: ['Beta roadmap', 'Investor trust', 'Production readiness'],
+          },
+        ],
+      },
+    },
+  },
+};
+
+let activePresentationStepIndex = 0;
+
+function investorQuickDemoFlow() {
+  return PRESENTATION_PROFILES.investor.flows.quickDemo;
+}
+
+function showInvestorPresentation(stepIndex = activePresentationStepIndex) {
+  showView('view-presentation');
+  const el = document.getElementById('view-presentation');
+  const flow = investorQuickDemoFlow();
+  activePresentationStepIndex = Math.max(0, Math.min(flow.steps.length - 1, stepIndex));
+  renderInvestorPresentationShell(el, flow, activePresentationStepIndex);
+}
+
+function renderInvestorPresentationShell(el, flow, stepIndex) {
+  const step = flow.steps[stepIndex];
+  el.innerHTML = `
+    ${renderNav()}
+    <section class="bg-slate-950 border border-green-900 rounded-xl overflow-hidden">
+      <div class="bg-green-950/70 border-b border-green-900 px-4 py-3 text-sm font-semibold text-green-100">
+        ${escapeHtml(flow.banner)}
+      </div>
+      <div class="grid lg:grid-cols-[280px_1fr]">
+        <aside class="border-b lg:border-b-0 lg:border-r border-slate-800 p-4 bg-slate-900/70">
+          <div class="mb-4">
+            <p class="text-xs uppercase tracking-wide text-slate-500">Presentation Mode</p>
+            <h1 class="text-xl font-bold text-slate-50">${escapeHtml(flow.title)}</h1>
+            <p class="text-sm text-slate-400">${escapeHtml(flow.duration)}</p>
+          </div>
+          ${renderPresentationStepper(flow.steps, stepIndex)}
+        </aside>
+        <main class="p-5 md:p-7">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <div>
+              <p class="text-sm text-slate-400" data-presentation-progress>Step ${stepIndex + 1} of ${flow.steps.length}</p>
+              <h2 class="text-3xl font-bold text-green-300 mt-1">${escapeHtml(step.title)}</h2>
+            </div>
+            <a href="${escapeHtml(step.targetRoute)}" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 px-4 py-2 rounded-lg text-sm font-medium transition">${escapeHtml(step.targetLabel)}</a>
+          </div>
+          ${renderPresentationStepContent(step, stepIndex)}
+          ${renderPresentationNavigation(flow.steps, stepIndex)}
+        </main>
+      </div>
+    </section>
+  `;
+  bindPresentationControls(flow);
+}
+
+function renderPresentationStepper(steps, activeIndex) {
+  return `
+    <nav aria-label="Investor Quick Demo steps" class="space-y-2" data-presentation-stepper>
+      ${steps.map((step, index) => `
+        <button
+          type="button"
+          data-presentation-jump="${index}"
+          class="w-full text-left rounded-lg border px-3 py-2 transition ${index === activeIndex ? 'border-green-700 bg-green-950 text-green-100' : 'border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-600'}"
+        >
+          <span class="block text-xs text-slate-500">Step ${index + 1}</span>
+          <span class="block text-sm font-semibold">${escapeHtml(step.title)}</span>
+        </button>
+      `).join('')}
+    </nav>
+  `;
+}
+
+function renderPresentationStepContent(step, stepIndex) {
+  const treasuryFallback = step.title === 'Treasury Transparency' && !isAdmin()
+    ? '<p class="text-sm text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2 mt-4">Treasury Dashboard is admin-authenticated. For non-admin demos, use this step as the plain-language Treasury explanation.</p>'
+    : '';
+  return `
+    <div class="grid gap-4 mb-6">
+      <article class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Audience question</p>
+        <p class="text-xl font-semibold text-slate-50">${escapeHtml(step.audienceQuestion)}</p>
+      </article>
+      <article class="bg-slate-800 border border-slate-700 rounded-xl p-5">
+        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Key message</p>
+        <p class="text-lg text-slate-200">${escapeHtml(step.keyMessage)}</p>
+        ${treasuryFallback}
+      </article>
+      <article class="bg-slate-900 border border-slate-700 rounded-xl p-5">
+        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Presenter note</p>
+        <p class="text-sm text-slate-300">${escapeHtml(step.presenterNote)}</p>
+      </article>
+      <article class="bg-slate-900 border border-slate-700 rounded-xl p-5">
+        <p class="text-xs uppercase tracking-wide text-slate-500 mb-2">Conversation topics</p>
+        <div class="flex flex-wrap gap-2" data-presentation-topics="${stepIndex}">
+          ${step.topics.map(topic => `<span class="text-xs bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded">${escapeHtml(topic)}</span>`).join('')}
+        </div>
+      </article>
+    </div>
+  `;
+}
+
+function renderPresentationNavigation(steps, activeIndex) {
+  const previousDisabled = activeIndex === 0 ? 'disabled' : '';
+  const nextLabel = steps[activeIndex].nextLabel;
+  return `
+    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-5">
+      <button type="button" id="presentation-prev" ${previousDisabled} class="bg-slate-800 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-100 px-4 py-2 rounded-lg text-sm font-medium transition">Previous</button>
+      <button type="button" id="presentation-next" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">${escapeHtml(nextLabel)}</button>
+    </div>
+  `;
+}
+
+function bindPresentationControls(flow) {
+  document.getElementById('presentation-prev')?.addEventListener('click', () => {
+    showInvestorPresentation(activePresentationStepIndex - 1);
+  });
+  document.getElementById('presentation-next')?.addEventListener('click', () => {
+    const nextIndex = activePresentationStepIndex + 1 >= flow.steps.length ? 0 : activePresentationStepIndex + 1;
+    showInvestorPresentation(nextIndex);
+  });
+  document.querySelectorAll('[data-presentation-jump]').forEach(button => {
+    button.addEventListener('click', () => showInvestorPresentation(Number(button.dataset.presentationJump)));
+  });
 }
 
 async function redirectAuthenticatedUser() {
@@ -355,6 +572,11 @@ function route() {
 
   if (hash === '#demo/admin') {
     showAdminDemoPortal();
+    return;
+  }
+
+  if (hash === '#demo/presentation/investor') {
+    showInvestorPresentation(0);
     return;
   }
 
