@@ -294,7 +294,7 @@ function statusBadge(status) {
 // --- Router ---
 
 function showView(viewId) {
-  ['view-login', 'view-list', 'view-detail', 'view-marketplace', 'view-investor', 'view-farmer', 'view-admin', 'view-onboarding'].forEach(id => {
+  ['view-home', 'view-login', 'view-list', 'view-detail', 'view-marketplace', 'view-investor', 'view-farmer', 'view-admin', 'view-onboarding'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   document.getElementById(viewId).classList.remove('hidden');
@@ -323,31 +323,54 @@ function route() {
   const auth = getAuth();
   const hash = location.hash;
 
+  if (!hash || hash === '#' || hash === '#home' || hash === '#/') {
+    if (auth) { redirectAuthenticatedUser(); return; }
+    showHome();
+    return;
+  }
+
   if (hash === '#login') {
     if (auth) { redirectAuthenticatedUser(); return; }
     showLogin();
     return;
   }
 
-  if (!auth) {
-    location.hash = '#login';
-    return;
-  }
-
-  if (hash === '#/onboarding' || hash === '#onboarding') {
-    showOnboarding();
-    return;
-  }
-
-  const farmerDeal = hash.match(/^#farmer\/deals\/(\d+)$/);
-  if (farmerDeal) {
-    showFarmerDeal(farmerDeal[1]);
+  const investorPilot = hash.match(/^#\/?investor\/pilots\/([a-z0-9-]+)$/);
+  if (investorPilot) {
+    showInvestorPilotProfile(investorPilot[1]);
     return;
   }
 
   const farmerPilot = hash.match(/^#farmer\/pilots\/([a-z0-9-]+)$/);
   if (farmerPilot) {
     showFarmerPilotProfile(farmerPilot[1]);
+    return;
+  }
+
+  const adminPilot = hash.match(/^#deals\/pilots\/([a-z0-9-]+)$/);
+  if (adminPilot) {
+    showAdminPilotDetail(adminPilot[1]);
+    return;
+  }
+
+  if (hash === '#demo/admin') {
+    showAdminDemoPortal();
+    return;
+  }
+
+  if (hash === '#/marketplace' || hash === '#marketplace') {
+    showMarketplace();
+    return;
+  }
+
+  if (!auth) {
+    location.hash = '#home';
+    return;
+  }
+
+  const farmerDeal = hash.match(/^#farmer\/deals\/(\d+)$/);
+  if (farmerDeal) {
+    showFarmerDeal(farmerDeal[1]);
     return;
   }
 
@@ -362,14 +385,8 @@ function route() {
     return;
   }
 
-  const investorPilot = hash.match(/^#\/?investor\/pilots\/([a-z0-9-]+)$/);
-  if (investorPilot) {
-    showInvestorPilotProfile(investorPilot[1]);
-    return;
-  }
-
-  if (hash === '#/marketplace' || hash === '#marketplace') {
-    showMarketplace();
+  if (hash === '#/onboarding' || hash === '#onboarding') {
+    showOnboarding();
     return;
   }
 
@@ -396,16 +413,6 @@ function route() {
     return;
   }
 
-  const adminPilot = hash.match(/^#deals\/pilots\/([a-z0-9-]+)$/);
-  if (adminPilot) {
-    if (!isAdmin()) {
-      location.hash = portalHashForRole(auth.user.role);
-      return;
-    }
-    showAdminPilotDetail(adminPilot[1]);
-    return;
-  }
-
   const m = hash.match(/^#deals\/(\d+)$/);
   if (m) {
     showDeal(m[1]);
@@ -425,7 +432,7 @@ async function initializeApp() {
     if (auth) {
       await redirectAuthenticatedUser();
     } else {
-      location.hash = '#login';
+      location.hash = '#home';
     }
   } else {
     route();
@@ -440,6 +447,84 @@ if (document.readyState === 'loading') {
 }
 
 // --- Login ---
+
+function showHome() {
+  showView('view-home');
+  const el = document.getElementById('view-home');
+  el.innerHTML = `
+    <header class="landing-nav">
+      <a href="#home" class="landing-brand">AgriPartners</a>
+      <div class="landing-nav-actions">
+        <a href="#/marketplace">Marketplace</a>
+        <a href="#login">Login</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="landing-hero">
+        <div class="landing-hero-copy">
+          <div class="landing-badges" aria-label="Environment">
+            <span>Alpha v1.1</span>
+            <span>NEAR Testnet</span>
+            <span>Demo / Live separation</span>
+          </div>
+          <h1>Agricultural investment workflows with farmer reporting, investor visibility, and treasury-ready accounting.</h1>
+          <p>
+            AgriPartners is an Alpha platform for transparent agricultural finance on NEAR. It connects investors,
+            farmers, and platform operators through live testnet workflows, structured reporting, typed return records,
+            reconciliation-safe status labels, and a growing Treasury Ledger foundation.
+          </p>
+          <div class="landing-actions" aria-label="Primary actions">
+            <a class="landing-btn landing-btn-primary" href="#/investor/pilots/fidlot">Explore Investor Demo</a>
+            <a class="landing-btn" href="#farmer/pilots/hissar">Explore Farmer Demo</a>
+            <a class="landing-btn" href="#demo/admin">Explore Admin Demo</a>
+            <button type="button" id="home-login-wallet" class="landing-btn landing-btn-wallet">Login with NEAR Wallet</button>
+          </div>
+          <p class="landing-note">
+            Demo pages use safe pilot profiles. Live portal routes require authentication and wallet-linked access.
+          </p>
+        </div>
+      </section>
+
+      <section class="landing-section" aria-label="Who AgriPartners serves">
+        <div class="landing-section-heading">
+          <span>What AgriPartners is</span>
+          <h2>One operating view for the whole agricultural capital cycle</h2>
+        </div>
+        <div class="landing-card-grid">
+          <article class="landing-card">
+            <h3>Investors</h3>
+            <p>Review pilot deals, projected payouts, recorded off-chain returns, farmer reports, cycle history, and testnet references without treating provisional data as realized performance.</p>
+          </article>
+          <article class="landing-card">
+            <h3>Farmers</h3>
+            <p>Track assigned deals, confirm funding receipt, submit cycle reports, and maintain an operational history that investors and platform teams can inspect.</p>
+          </article>
+          <article class="landing-card">
+            <h3>Admin / Platform Operators</h3>
+            <p>Create deals, monitor lifecycle events, record typed returns, transition return statuses, and inspect the foundation for append-only Treasury accounting.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="landing-section" aria-label="What the Alpha demonstrates">
+        <div class="landing-section-heading">
+          <span>Alpha demonstration</span>
+          <h2>What is ready to show</h2>
+        </div>
+        <div class="landing-feature-list">
+          <div><strong>Live testnet workflows</strong><span>Wallet authentication, deal contracts, status checks, and transaction references on NEAR Testnet.</span></div>
+          <div><strong>Farmer reporting</strong><span>Funding confirmation, report submission, cycle history, and farmer-facing operational state.</span></div>
+          <div><strong>Investor visibility</strong><span>Portfolio summary, marketplace pilots, deal detail, reports, events, and return ledger visibility.</span></div>
+          <div><strong>Typed returns</strong><span>Principal, profit, and fee classification with recorded, approved, paid, and reconciled status language.</span></div>
+          <div><strong>Treasury foundation</strong><span>Append-only double-entry ledger services with idempotent source references for future workflow integrations.</span></div>
+        </div>
+      </section>
+    </main>
+  `;
+
+  document.getElementById('home-login-wallet')?.addEventListener('click', handleWalletLogin);
+}
 
 function showLogin() {
   showView('view-login');
@@ -562,17 +647,35 @@ async function handleLogin(username, password) {
 async function handleWalletLogin() {
   const errEl = document.getElementById('login-error');
   const btn = document.getElementById('login-near-wallet');
-  errEl.classList.add('hidden');
-  btn.disabled = true;
-  btn.textContent = 'Opening wallet...';
+  const homeBtn = document.getElementById('home-login-wallet');
+  errEl?.classList.add('hidden');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Opening wallet...';
+  }
+  if (homeBtn) {
+    homeBtn.disabled = true;
+    homeBtn.textContent = 'Opening wallet...';
+  }
 
   try {
     await loginWithNearWallet();
   } catch (err) {
-    errEl.textContent = err.message || 'Wallet login failed';
-    errEl.classList.remove('hidden');
-    btn.disabled = false;
-    btn.textContent = 'Login with NEAR Wallet';
+    if (errEl) {
+      errEl.textContent = err.message || 'Wallet login failed';
+      errEl.classList.remove('hidden');
+    } else {
+      sessionStorage.setItem('ap_login_error', err.message || 'Wallet login failed');
+      location.hash = '#login';
+    }
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Login with NEAR Wallet';
+    }
+    if (homeBtn) {
+      homeBtn.disabled = false;
+      homeBtn.textContent = 'Login with NEAR Wallet';
+    }
   }
 }
 
