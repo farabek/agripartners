@@ -10,6 +10,15 @@ const migrationPath = path.join(
   '013_treasury_ledger_foundation.sql'
 );
 const migration = fs.readFileSync(migrationPath, 'utf8');
+const idempotencyMigrationPath = path.join(
+  __dirname,
+  '..',
+  'src',
+  'db',
+  'migrations',
+  '014_treasury_transaction_idempotency.sql'
+);
+const idempotencyMigration = fs.readFileSync(idempotencyMigrationPath, 'utf8');
 
 test('treasury ledger migration creates additive foundation tables', () => {
   expect(migration).toContain('CREATE TABLE IF NOT EXISTS treasury_accounts');
@@ -49,4 +58,21 @@ test('treasury ledger migration seeds initial logical accounts', () => {
     expect(migration).toContain(accountCode);
   }
   expect(migration).toContain('ON CONFLICT (account_code) DO NOTHING');
+});
+
+test('treasury idempotency migration adds source reference fields additively', () => {
+  expect(idempotencyMigration).toContain('ALTER TABLE treasury_transactions');
+  expect(idempotencyMigration).toContain('ADD COLUMN IF NOT EXISTS source_type TEXT');
+  expect(idempotencyMigration).toContain('ADD COLUMN IF NOT EXISTS source_id TEXT');
+  expect(idempotencyMigration).toContain('ADD COLUMN IF NOT EXISTS idempotency_key TEXT');
+  expect(idempotencyMigration).not.toMatch(/DROP\s+(COLUMN|TABLE)/i);
+  expect(idempotencyMigration).not.toMatch(/RENAME\s+(COLUMN|TO)/i);
+});
+
+test('treasury idempotency migration constrains duplicate non-null keys', () => {
+  expect(idempotencyMigration).toContain('treasury_transactions_idempotency_key_nonempty_check');
+  expect(idempotencyMigration).toContain('idempotency_key IS NULL OR BTRIM(idempotency_key) <>');
+  expect(idempotencyMigration).toContain('CREATE UNIQUE INDEX IF NOT EXISTS treasury_transactions_idempotency_key_unique');
+  expect(idempotencyMigration).toContain('ON treasury_transactions (idempotency_key)');
+  expect(idempotencyMigration).toContain('WHERE idempotency_key IS NOT NULL');
 });

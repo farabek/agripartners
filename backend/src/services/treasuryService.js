@@ -95,15 +95,51 @@ async function getActiveAccountCodes(queryable = pool) {
   return new Set(rows.map((row) => row.account_code));
 }
 
+async function getTreasuryTransactionById(queryable, id) {
+  const { rows } = await queryable.query(
+    'SELECT * FROM treasury_transactions WHERE id = $1',
+    [id]
+  );
+  const transaction = rows[0];
+  if (!transaction) return null;
+  const { rows: entries } = await queryable.query(
+    'SELECT * FROM treasury_ledger_entries WHERE transaction_id = $1 ORDER BY id ASC',
+    [id]
+  );
+  return { ...transaction, entries };
+}
+
+async function getTreasuryTransactionByIdempotencyKey(queryable, idempotencyKey) {
+  const { rows } = await queryable.query(
+    'SELECT * FROM treasury_transactions WHERE idempotency_key = $1',
+    [idempotencyKey]
+  );
+  const transaction = rows[0];
+  if (!transaction) return null;
+  const { rows: entries } = await queryable.query(
+    'SELECT * FROM treasury_ledger_entries WHERE transaction_id = $1 ORDER BY id ASC',
+    [transaction.id]
+  );
+  return { ...transaction, entries };
+}
+
+function normalizeIdempotencyKey(value) {
+  if (value === undefined || value === null) return null;
+  const normalized = String(value).trim();
+  if (!normalized) throw new Error('idempotency_key must be non-empty when supplied');
+  return normalized;
+}
+
 async function insertTreasuryTransaction(queryable, input, normalizedEntries, currency) {
   const transactionType = normalizeOptionalText(input.transaction_type);
   if (!transactionType) throw new Error('transaction_type is required');
   const { rows } = await queryable.query(
     `INSERT INTO treasury_transactions (
        transaction_type, currency, description, related_deal_id, related_investor,
-       related_farmer, blockchain_reference, metadata, created_by
+       related_farmer, blockchain_reference, metadata, created_by,
+       source_type, source_id, idempotency_key
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      RETURNING *`,
     [
       transactionType,
@@ -115,6 +151,9 @@ async function insertTreasuryTransaction(queryable, input, normalizedEntries, cu
       normalizeOptionalText(input.blockchain_reference),
       input.metadata ?? null,
       normalizeOptionalText(input.created_by),
+      normalizeOptionalText(input.source_type),
+      normalizeOptionalText(input.source_id),
+      input.idempotency_key,
     ]
   );
   const transaction = rows[0];
@@ -148,11 +187,20 @@ async function insertTreasuryTransaction(queryable, input, normalizedEntries, cu
 async function createTreasuryTransaction(input) {
   const transactionInput = input || {};
   const currency = normalizeCurrency(transactionInput.currency);
+  const idempotencyKey = normalizeIdempotencyKey(transactionInput.idempotency_key);
+  const normalizedTransactionInput = {
+    ...transactionInput,
+    idempotency_key: idempotencyKey,
+  };
 
   async function runCreate(queryable) {
+    if (idempotencyKey) {
+      const existing = await getTreasuryTransactionByIdempotencyKey(queryable, idempotencyKey);
+      if (existing) return existing;
+    }
     const validAccountCodes = await getActiveAccountCodes(queryable);
-    const normalizedEntries = validateBalancedEntries(transactionInput.entries, currency, validAccountCodes);
-    return insertTreasuryTransaction(queryable, transactionInput, normalizedEntries, currency);
+    const normalizedEntries = validateBalancedEntries(normalizedTransactionInput.entries, currency, validAccountCodes);
+    return insertTreasuryTransaction(queryable, normalizedTransactionInput, normalizedEntries, currency);
   }
 
   if (typeof pool.connect !== 'function') {
@@ -167,6 +215,10 @@ async function createTreasuryTransaction(input) {
     return transaction;
   } catch (err) {
     await client.query('ROLLBACK');
+    if (idempotencyKey && err?.code === '23505') {
+      const existing = await getTreasuryTransactionByIdempotencyKey(pool, idempotencyKey);
+      if (existing) return existing;
+    }
     throw err;
   } finally {
     client.release();
@@ -174,17 +226,7 @@ async function createTreasuryTransaction(input) {
 }
 
 async function getTreasuryTransaction(id) {
-  const { rows } = await pool.query(
-    'SELECT * FROM treasury_transactions WHERE id = $1',
-    [id]
-  );
-  const transaction = rows[0];
-  if (!transaction) return null;
-  const { rows: entries } = await pool.query(
-    'SELECT * FROM treasury_ledger_entries WHERE transaction_id = $1 ORDER BY id ASC',
-    [id]
-  );
-  return { ...transaction, entries };
+  return getTreasuryTransactionById(pool, id);
 }
 
 function addLedgerFilter(clauses, params, field, value) {
