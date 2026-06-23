@@ -54,6 +54,7 @@ Admins monitor pilot funding, deal status, farmer reporting, repayment status, a
 - [Admin Dashboard](admin-dashboard.md)
 - [NEAR Testnet](near-testnet.md)
 - [Typed Return Model Design and Migration Specification](design/typed-return-model-spec.md)
+- [Reconciliation Engine Design Specification](design/reconciliation-engine-spec.md)
 - [ADR-001 — Live-first Architecture](architecture/ADR-001-live-first-architecture.md)
 - [ADR-002 — Financial Semantics](architecture/ADR-002-financial-semantics.md)
 
