@@ -2,6 +2,7 @@ const router = require('express').Router();
 const dealService = require('../services/dealService');
 const nearService = require('../services/nearService');
 const profileService = require('../services/profileService');
+const treasuryService = require('../services/treasuryService');
 
 const YOCTO_PER_NEAR = BigInt('1000000000000000000000000');
 
@@ -149,6 +150,38 @@ router.get('/investors', async (req, res) => {
   try {
     const investors = await profileService.getProfilesByRole('investor');
     res.json({ ok: true, investors });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/treasury/accounts', async (req, res) => {
+  try {
+    res.json({
+      ok: true,
+      accounts: await treasuryService.listTreasuryAccounts(),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/treasury/transactions/:id', async (req, res) => {
+  try {
+    const transaction = await treasuryService.getTreasuryTransaction(req.params.id);
+    if (!transaction) return res.status(404).json({ error: 'Treasury transaction not found' });
+    return res.json({ ok: true, transaction });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/treasury/ledger', async (req, res) => {
+  try {
+    res.json({
+      ok: true,
+      ledgerEntries: await treasuryService.listTreasuryLedgerEntries(req.query),
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

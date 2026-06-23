@@ -6,6 +6,7 @@ process.env.NEAR_ADMIN_PRIVATE_KEY = 'ed25519:test';
 jest.mock('../src/services/dealService');
 jest.mock('../src/services/nearService');
 jest.mock('../src/services/profileService');
+jest.mock('../src/services/treasuryService');
 
 const request = require('supertest');
 const express = require('express');
@@ -15,6 +16,7 @@ const adminRouter = require('../src/routes/admin');
 const dealService = require('../src/services/dealService');
 const nearService = require('../src/services/nearService');
 const profileService = require('../src/services/profileService');
+const treasuryService = require('../src/services/treasuryService');
 
 const app = express();
 app.use(express.json());
@@ -152,6 +154,27 @@ beforeEach(() => {
       displayName: `${role} profile`,
     },
   ]));
+  treasuryService.listTreasuryAccounts.mockResolvedValue([
+    {
+      account_code: 'PLATFORM_TREASURY_CASH',
+      account_name: 'Platform Treasury Cash',
+      account_type: 'asset',
+      currency: 'NEAR',
+      is_active: true,
+    },
+  ]);
+  treasuryService.getTreasuryTransaction.mockResolvedValue({
+    id: 1,
+    transaction_type: 'investor_deposit',
+    currency: 'NEAR',
+    entries: [
+      { id: 11, transaction_id: 1, account_code: 'PLATFORM_TREASURY_CASH', direction: 'debit', amount: '10' },
+      { id: 12, transaction_id: 1, account_code: 'INVESTOR_LIABILITY', direction: 'credit', amount: '10' },
+    ],
+  });
+  treasuryService.listTreasuryLedgerEntries.mockResolvedValue([
+    { id: 11, transaction_id: 1, account_code: 'PLATFORM_TREASURY_CASH', direction: 'debit', amount: '10' },
+  ]);
 });
 
 afterEach(() => {
@@ -235,6 +258,82 @@ test('GET /api/admin/investors returns investor profiles', async () => {
   expect(res.body.investors).toEqual([
     expect.objectContaining({ walletAccountId: 'investor.testnet', role: 'investor' }),
   ]);
+});
+
+test('GET /api/admin/treasury/accounts returns treasury account catalog for admin', async () => {
+  const res = await request(app)
+    .get('/api/admin/treasury/accounts')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(200);
+  expect(treasuryService.listTreasuryAccounts).toHaveBeenCalled();
+  expect(res.body).toEqual({
+    ok: true,
+    accounts: [expect.objectContaining({
+      account_code: 'PLATFORM_TREASURY_CASH',
+      account_type: 'asset',
+      currency: 'NEAR',
+    })],
+  });
+});
+
+test('GET /api/admin/treasury/transactions/:id returns treasury transaction with entries', async () => {
+  const res = await request(app)
+    .get('/api/admin/treasury/transactions/1')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(200);
+  expect(treasuryService.getTreasuryTransaction).toHaveBeenCalledWith('1');
+  expect(res.body).toEqual({
+    ok: true,
+    transaction: expect.objectContaining({
+      id: 1,
+      transaction_type: 'investor_deposit',
+      entries: expect.arrayContaining([
+        expect.objectContaining({ direction: 'debit' }),
+        expect.objectContaining({ direction: 'credit' }),
+      ]),
+    }),
+  });
+});
+
+test('GET /api/admin/treasury/transactions/:id returns 404 when missing', async () => {
+  treasuryService.getTreasuryTransaction.mockResolvedValueOnce(null);
+
+  const res = await request(app)
+    .get('/api/admin/treasury/transactions/999')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(404);
+  expect(res.body.error).toBe('Treasury transaction not found');
+});
+
+test('GET /api/admin/treasury/ledger returns filtered ledger entries for admin', async () => {
+  const res = await request(app)
+    .get('/api/admin/treasury/ledger?account_code=PLATFORM_TREASURY_CASH&currency=NEAR')
+    .set('Authorization', `Bearer ${adminToken}`);
+
+  expect(res.status).toBe(200);
+  expect(treasuryService.listTreasuryLedgerEntries).toHaveBeenCalledWith(expect.objectContaining({
+    account_code: 'PLATFORM_TREASURY_CASH',
+    currency: 'NEAR',
+  }));
+  expect(res.body).toEqual({
+    ok: true,
+    ledgerEntries: [expect.objectContaining({
+      account_code: 'PLATFORM_TREASURY_CASH',
+      direction: 'debit',
+    })],
+  });
+});
+
+test('GET /api/admin/treasury/accounts forbids non-admin', async () => {
+  const res = await request(app)
+    .get('/api/admin/treasury/accounts')
+    .set('Authorization', `Bearer ${farmerToken}`);
+
+  expect(res.status).toBe(403);
+  expect(treasuryService.listTreasuryAccounts).not.toHaveBeenCalled();
 });
 
 test('POST /api/admin/deals accepts admin portal payload', async () => {
