@@ -413,6 +413,15 @@ function route() {
     return;
   }
 
+  if (hash === '#admin/treasury') {
+    if (!isAdmin()) {
+      location.hash = portalHashForRole(auth.user.role);
+      return;
+    }
+    showAdminTreasuryDashboard();
+    return;
+  }
+
   const m = hash.match(/^#deals\/(\d+)$/);
   if (m) {
     showDeal(m[1]);
@@ -703,6 +712,7 @@ function renderNav() {
         <a href="#farmer" class="text-sm text-slate-400 hover:text-green-400 transition">Farmer Portal</a>
         ${isAdmin() ? '<a href="#admin" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Portal</a>' : ''}
         ${isAdmin() ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Dashboard</a>' : ''}
+        ${isAdmin() ? '<a href="#admin/treasury" class="text-sm text-slate-400 hover:text-green-400 transition">Treasury</a>' : ''}
         <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
       </div>
     </div>
@@ -779,6 +789,389 @@ async function showAdminCreatePortal() {
   if (failures.length) {
     contentEl.insertAdjacentHTML('afterbegin', `<div class="bg-amber-950 border border-amber-800 text-amber-100 px-4 py-3 rounded mb-4">${failures.map(escapeHtml).join('<br>')}</div>`);
   }
+}
+
+async function showAdminTreasuryDashboard() {
+  showView('view-admin');
+  const el = document.getElementById('view-admin');
+  renderAdminTreasuryShell(el);
+
+  const [accountsResult, ledgerResult] = await Promise.allSettled([
+    fetchAdminJson('/api/admin/treasury/accounts'),
+    fetchAdminJson('/api/admin/treasury/ledger'),
+  ]);
+
+  const accountsError = accountsResult.status === 'rejected' ? accountsResult.reason.message : null;
+  const ledgerError = ledgerResult.status === 'rejected' ? ledgerResult.reason.message : null;
+  const accounts = accountsResult.status === 'fulfilled' && Array.isArray(accountsResult.value.accounts)
+    ? accountsResult.value.accounts
+    : [];
+  const ledgerEntries = ledgerResult.status === 'fulfilled' && Array.isArray(ledgerResult.value.ledgerEntries)
+    ? ledgerResult.value.ledgerEntries
+    : [];
+
+  renderAdminTreasuryContent({ accounts, ledgerEntries, accountsError, ledgerError });
+}
+
+function renderAdminTreasuryShell(el) {
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div>
+        <div class="flex flex-wrap gap-2 mb-3" aria-label="Treasury environment">
+          <span class="text-xs font-semibold bg-emerald-950 text-emerald-200 border border-emerald-800 px-2 py-1 rounded">Alpha Shadow Treasury</span>
+          <span class="text-xs font-semibold bg-slate-800 text-slate-200 border border-slate-700 px-2 py-1 rounded">NEAR Testnet</span>
+          <span class="text-xs font-semibold bg-slate-800 text-slate-200 border border-slate-700 px-2 py-1 rounded">Append-only Ledger</span>
+          <span class="text-xs font-semibold bg-amber-950 text-amber-200 border border-amber-800 px-2 py-1 rounded">Derived balances</span>
+        </div>
+        <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Treasury Dashboard</h1>
+        <p class="text-slate-400 max-w-3xl">Treasury records are shown for Alpha visibility. Balances are derived from ledger entries and are not production settlement balances.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a href="#deals" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Admin Dashboard</a>
+        <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Deal</a>
+      </div>
+    </div>
+    <div id="admin-treasury-content" role="status" aria-live="polite">
+      <div class="spinner"></div>
+      <p class="text-slate-400 text-sm mt-3">Loading Treasury records...</p>
+    </div>
+  `;
+}
+
+function renderAdminTreasuryContent({ accounts, ledgerEntries, accountsError, ledgerError }) {
+  const contentEl = document.getElementById('admin-treasury-content');
+  if (!contentEl) return;
+  const filteredEntries = filterTreasuryLedgerEntries(ledgerEntries);
+  contentEl.innerHTML = `
+    ${renderAdminTreasuryOverview(accounts, ledgerEntries)}
+    ${renderAdminTreasuryShadowPanel()}
+    <section class="bg-slate-800 rounded-xl p-5 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-100">Treasury Accounts</h2>
+          <p class="text-sm text-slate-400">Logical accounting accounts, not necessarily separate wallets.</p>
+        </div>
+      </div>
+      <div id="admin-treasury-accounts">
+        ${accountsError ? renderAdminTreasuryError('account fetch error', accountsError, 'data-admin-treasury-accounts-error') : renderAdminTreasuryAccounts(accounts, ledgerEntries)}
+      </div>
+    </section>
+    <section class="bg-slate-800 rounded-xl p-5 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-100">Ledger Entries</h2>
+          <p class="text-sm text-slate-400">Append-only debit and credit rows from the Treasury Ledger.</p>
+        </div>
+      </div>
+      <div id="admin-treasury-ledger">
+        ${ledgerError ? renderAdminTreasuryError('ledger fetch error', ledgerError, 'data-admin-treasury-ledger-error') : `
+          ${renderAdminTreasuryFilters(accounts)}
+          <div id="admin-treasury-ledger-table">${renderAdminTreasuryLedger(filteredEntries)}</div>
+        `}
+      </div>
+    </section>
+    <section class="bg-slate-800 rounded-xl p-5">
+      <h2 class="text-xl font-semibold text-slate-100 mb-2">Transaction Detail</h2>
+      <div id="admin-treasury-transaction-detail" class="text-sm text-slate-400">Select a transaction id from the ledger to inspect source metadata and double-entry rows.</div>
+    </section>
+  `;
+
+  window.adminTreasuryLedgerEntries = ledgerEntries;
+  bindAdminTreasuryInteractions();
+}
+
+function renderAdminTreasuryOverview(accounts, ledgerEntries) {
+  const transactionIds = new Set(ledgerEntries.map(entry => entry.transaction_id).filter(value => value !== null && value !== undefined));
+  const suspenseEntries = ledgerEntries.filter(entry => entry.account_code === 'TREASURY_SUSPENSE');
+  const cards = [
+    ['Total accounts', accounts.length],
+    ['Ledger entries', ledgerEntries.length],
+    ['Recent transactions', transactionIds.size],
+    ['Suspense activity', suspenseEntries.length],
+  ];
+  return `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      ${cards.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${escapeHtml(label)}</span>
+          <span class="metric-value">${escapeHtml(value)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderAdminTreasuryShadowPanel() {
+  return `
+    <section class="bg-slate-800 border border-amber-800 rounded-xl p-5 mb-6">
+      <h2 class="text-lg font-semibold text-amber-100 mb-2">Shadow Mode Status</h2>
+      <div class="grid md:grid-cols-3 gap-3 text-sm text-slate-300">
+        <p>Treasury currently runs as Alpha/shadow visibility.</p>
+        <p>Ledger entries help audit platform flows.</p>
+        <p>Treasury does not yet drive payouts or realized ROI.</p>
+      </div>
+    </section>
+  `;
+}
+
+function treasuryAmountUnits(value) {
+  const raw = String(value ?? '').trim();
+  if (!/^[0-9]+(\.[0-9]{1,24})?$/.test(raw)) return 0n;
+  const [whole, fraction = ''] = raw.split('.');
+  return BigInt(whole) * 10n ** 24n + BigInt(fraction.padEnd(24, '0'));
+}
+
+function formatTreasuryUnits(units, currency = 'NEAR') {
+  const sign = units < 0n ? '-' : '';
+  const absolute = units < 0n ? -units : units;
+  const whole = absolute / 10n ** 24n;
+  const fraction = (absolute % 10n ** 24n).toString().padStart(24, '0').replace(/0+$/, '').slice(0, 6);
+  return `${sign}${whole.toString()}${fraction ? `.${fraction}` : ''} ${currency}`;
+}
+
+function derivedActivityForAccount(accountCode, ledgerEntries, currency = 'NEAR') {
+  return ledgerEntries
+    .filter(entry => entry.account_code === accountCode && (entry.currency || 'NEAR') === currency)
+    .reduce((sum, entry) => sum + treasuryAmountUnits(entry.amount), 0n);
+}
+
+function renderAdminTreasuryAccounts(accounts, ledgerEntries) {
+  if (!accounts.length) {
+    return `
+      <div class="bg-slate-900 border border-slate-700 rounded-lg p-5 text-center" data-admin-treasury-empty-accounts>
+        <h3 class="font-semibold text-slate-200">No Treasury accounts</h3>
+        <p class="text-sm text-slate-400 mt-1">The account catalog is unavailable or has not been seeded yet.</p>
+      </div>
+    `;
+  }
+  return `
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left text-slate-400 border-b border-slate-700">
+          <tr>
+            <th class="py-2 pr-3">Account code</th>
+            <th class="py-2 pr-3">Account name</th>
+            <th class="py-2 pr-3">Type</th>
+            <th class="py-2 pr-3">Currency</th>
+            <th class="py-2 pr-3">Active</th>
+            <th class="py-2 pr-3">Derived activity</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${accounts.map(account => `
+            <tr class="border-b border-slate-700/60">
+              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${escapeHtml(account.account_code)}</td>
+              <td class="py-2 pr-3 text-slate-200">${escapeHtml(account.account_name || 'Unknown')}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(account.account_type || 'Unknown')}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(account.currency || 'NEAR')}</td>
+              <td class="py-2 pr-3 text-slate-300">${account.is_active === false ? 'Inactive' : 'Active'}</td>
+              <td class="py-2 pr-3 font-mono text-xs text-amber-100">${escapeHtml(formatTreasuryUnits(derivedActivityForAccount(account.account_code, ledgerEntries, account.currency || 'NEAR'), account.currency || 'NEAR'))}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderAdminTreasuryFilters(accounts) {
+  const accountOptions = accounts.map(account => `<option value="${escapeHtml(account.account_code)}">${escapeHtml(account.account_code)}</option>`).join('');
+  return `
+    <form id="admin-treasury-filters" class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
+      <label class="text-xs text-slate-400">Account
+        <select id="treasury-filter-account" class="mt-1 w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100">
+          <option value="">All accounts</option>
+          ${accountOptions}
+        </select>
+      </label>
+      <label class="text-xs text-slate-400">Currency
+        <input id="treasury-filter-currency" class="mt-1 w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100" placeholder="NEAR" />
+      </label>
+      <label class="text-xs text-slate-400">Deal id
+        <input id="treasury-filter-deal" class="mt-1 w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100" placeholder="7" />
+      </label>
+      <label class="text-xs text-slate-400">Investor
+        <input id="treasury-filter-investor" class="mt-1 w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100" placeholder="investor.testnet" />
+      </label>
+      <label class="text-xs text-slate-400">Farmer
+        <input id="treasury-filter-farmer" class="mt-1 w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100" placeholder="farmer.testnet" />
+      </label>
+    </form>
+  `;
+}
+
+function treasuryFilterValue(id) {
+  return String(document.getElementById(id)?.value || '').trim().toLowerCase();
+}
+
+function filterTreasuryLedgerEntries(ledgerEntries) {
+  const account = treasuryFilterValue('treasury-filter-account');
+  const currency = treasuryFilterValue('treasury-filter-currency');
+  const deal = treasuryFilterValue('treasury-filter-deal');
+  const investor = treasuryFilterValue('treasury-filter-investor');
+  const farmer = treasuryFilterValue('treasury-filter-farmer');
+  return ledgerEntries.filter(entry => {
+    if (account && String(entry.account_code || '').toLowerCase() !== account) return false;
+    if (currency && String(entry.currency || '').toLowerCase() !== currency) return false;
+    if (deal && String(entry.related_deal_id || '').toLowerCase() !== deal) return false;
+    if (investor && !String(entry.related_investor || '').toLowerCase().includes(investor)) return false;
+    if (farmer && !String(entry.related_farmer || '').toLowerCase().includes(farmer)) return false;
+    return true;
+  });
+}
+
+function renderAdminTreasuryLedger(ledgerEntries) {
+  if (!ledgerEntries.length) {
+    return `
+      <div class="bg-slate-900 border border-slate-700 rounded-lg p-5 text-center" data-admin-treasury-empty-ledger>
+        <h3 class="font-semibold text-slate-200">No ledger entries</h3>
+        <p class="text-sm text-slate-400 mt-1">No Treasury ledger rows match the current view.</p>
+      </div>
+    `;
+  }
+  return `
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left text-slate-400 border-b border-slate-700">
+          <tr>
+            <th class="py-2 pr-3">Date</th>
+            <th class="py-2 pr-3">Transaction id</th>
+            <th class="py-2 pr-3">Account</th>
+            <th class="py-2 pr-3">Direction</th>
+            <th class="py-2 pr-3">Amount</th>
+            <th class="py-2 pr-3">Currency</th>
+            <th class="py-2 pr-3">Related deal</th>
+            <th class="py-2 pr-3">Related investor</th>
+            <th class="py-2 pr-3">Related farmer</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${ledgerEntries.map(entry => `
+            <tr class="border-b border-slate-700/60">
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(formatDateTime(entry.created_at))}</td>
+              <td class="py-2 pr-3">
+                <button type="button" class="admin-treasury-transaction-link text-green-300 hover:text-green-200 underline font-mono" data-transaction-id="${escapeHtml(entry.transaction_id)}">${escapeHtml(entry.transaction_id || 'Unknown')}</button>
+              </td>
+              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${escapeHtml(entry.account_code || 'Unknown')}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.direction || 'Unknown')}</td>
+              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${escapeHtml(entry.amount || '0')}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.currency || 'NEAR')}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.related_deal_id ?? 'None')}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.related_investor || 'None')}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.related_farmer || 'None')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderAdminTreasuryError(label, message, attributeName) {
+  return `
+    <div class="bg-red-900 text-red-100 px-4 py-3 rounded" ${attributeName}>
+      <strong>${escapeHtml(label)}:</strong> ${escapeHtml(message)}
+    </div>
+  `;
+}
+
+function bindAdminTreasuryInteractions() {
+  const filters = document.getElementById('admin-treasury-filters');
+  if (filters) {
+    filters.addEventListener('input', refreshAdminTreasuryLedgerFilters);
+    filters.addEventListener('change', refreshAdminTreasuryLedgerFilters);
+  }
+  bindAdminTreasuryTransactionLinks();
+}
+
+function refreshAdminTreasuryLedgerFilters() {
+  const target = document.getElementById('admin-treasury-ledger-table');
+  if (!target) return;
+  target.innerHTML = renderAdminTreasuryLedger(filterTreasuryLedgerEntries(window.adminTreasuryLedgerEntries || []));
+  bindAdminTreasuryTransactionLinks();
+}
+
+function bindAdminTreasuryTransactionLinks() {
+  document.querySelectorAll('.admin-treasury-transaction-link').forEach(button => {
+    button.addEventListener('click', () => loadAdminTreasuryTransactionDetail(button.dataset.transactionId));
+  });
+}
+
+async function loadAdminTreasuryTransactionDetail(transactionId) {
+  const target = document.getElementById('admin-treasury-transaction-detail');
+  if (!target || !transactionId) return;
+  target.innerHTML = '<p class="text-slate-400">Loading transaction detail...</p>';
+  try {
+    const data = await fetchAdminJson(`/api/admin/treasury/transactions/${encodeURIComponent(transactionId)}`);
+    if (!data.transaction || typeof data.transaction !== 'object') throw new Error('Malformed treasury transaction payload');
+    target.innerHTML = renderAdminTreasuryTransactionDetail(data.transaction);
+  } catch (err) {
+    target.innerHTML = renderAdminTreasuryError('transaction detail fetch error', err.message, 'data-admin-treasury-transaction-error');
+  }
+}
+
+function renderAdminTreasuryTransactionDetail(transaction) {
+  const entries = Array.isArray(transaction.entries) ? transaction.entries : [];
+  return `
+    <div class="space-y-4">
+      <div class="grid md:grid-cols-2 gap-3 text-sm">
+        ${renderTreasuryDetailRow('Transaction type', transaction.transaction_type)}
+        ${renderTreasuryDetailRow('Created at', formatDateTime(transaction.created_at))}
+        ${renderTreasuryDetailRow('Created by', transaction.created_by)}
+        ${renderTreasuryDetailRow('Description', transaction.description)}
+        ${renderTreasuryDetailRow('source_type', transaction.source_type)}
+        ${renderTreasuryDetailRow('source_id', transaction.source_id)}
+        ${renderTreasuryDetailRow('idempotency_key', transaction.idempotency_key)}
+        ${renderTreasuryDetailRow('Reference', transaction.blockchain_reference)}
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold text-slate-200 mb-2">Double-entry rows</h3>
+        ${renderAdminTreasuryTransactionEntries(entries)}
+      </div>
+      <div>
+        <h3 class="text-sm font-semibold text-slate-200 mb-2">Metadata</h3>
+        <pre class="bg-slate-900 border border-slate-700 rounded-lg p-3 overflow-x-auto text-xs text-slate-300">${escapeHtml(JSON.stringify(transaction.metadata || {}, null, 2))}</pre>
+      </div>
+    </div>
+  `;
+}
+
+function renderTreasuryDetailRow(label, value) {
+  return `
+    <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
+      <div class="text-xs text-slate-500">${escapeHtml(label)}</div>
+      <div class="text-slate-200 break-all">${escapeHtml(value || 'None')}</div>
+    </div>
+  `;
+}
+
+function renderAdminTreasuryTransactionEntries(entries) {
+  if (!entries.length) return '<p class="text-sm text-slate-400">No ledger entries returned for this transaction.</p>';
+  return `
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-left text-slate-400 border-b border-slate-700">
+          <tr>
+            <th class="py-2 pr-3">Account</th>
+            <th class="py-2 pr-3">Debit</th>
+            <th class="py-2 pr-3">Credit</th>
+            <th class="py-2 pr-3">Currency</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${entries.map(entry => `
+            <tr class="border-b border-slate-700/60">
+              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${escapeHtml(entry.account_code || 'Unknown')}</td>
+              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${entry.direction === 'debit' ? escapeHtml(entry.amount || '0') : ''}</td>
+              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${entry.direction === 'credit' ? escapeHtml(entry.amount || '0') : ''}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.currency || 'NEAR')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 function showAdminDemoPortal() {
@@ -947,7 +1340,10 @@ function renderAdminDashboardShell(el) {
         <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Dashboard</h1>
         <p class="text-slate-400">Live deals from the AgriPartners backend.</p>
       </div>
-      <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Deal</a>
+      <div class="flex flex-wrap gap-2">
+        <a href="#admin/treasury" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Treasury Dashboard</a>
+        <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Deal</a>
+      </div>
     </div>
     <div id="admin-dashboard-state" role="status" aria-live="polite">
       <div class="spinner"></div>
