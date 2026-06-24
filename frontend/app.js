@@ -325,7 +325,7 @@ const PRESENTATION_PROFILES = {
         id: 'quickDemo',
         title: 'Investor Quick Demo',
         duration: '~5 minutes',
-        banner: 'Investor Quick Demo · Alpha v1.1 · NEAR Testnet · Demo-safe',
+        banner: 'Investor Quick Demo · Alpha v1.2 · NEAR Testnet · Demo-safe',
         steps: [
           {
             title: 'Welcome',
@@ -335,7 +335,7 @@ const PRESENTATION_PROFILES = {
             targetLabel: 'Open Landing',
             presenterNote: 'Frame this as Alpha/Testnet presentation mode, not production investor onboarding.',
             nextLabel: 'Next: See opportunities',
-            topics: ['Alpha v1.1', 'NEAR Testnet', 'Demo-safe workflow'],
+            topics: ['Alpha v1.2', 'NEAR Testnet', 'Demo-safe workflow'],
           },
           {
             title: 'Opportunity',
@@ -733,7 +733,7 @@ function renderInvestorPresentationShell(el, flow, stepIndex, profile = presenta
     ${renderNav()}
     <section class="bg-slate-950 border border-green-900 rounded-xl overflow-hidden">
       <div class="bg-green-950/70 border-b border-green-900 px-4 py-3 text-sm font-semibold text-green-100">
-        Investor Quick Demo | Alpha v1.1 | NEAR Testnet | Demo-safe
+        Investor Quick Demo | Alpha v1.2 | NEAR Testnet | Demo-safe
       </div>
       <div class="grid lg:grid-cols-[320px_1fr]">
         <aside class="${settings.showTimeline ? '' : 'hidden'} border-b lg:border-b-0 lg:border-r border-slate-800 p-4 bg-slate-900/70">
@@ -1201,7 +1201,7 @@ function showHome() {
       <section class="landing-hero">
         <div class="landing-hero-copy">
           <div class="landing-badges" aria-label="Environment">
-            <span>Alpha v1.1</span>
+            <span>Alpha v1.2</span>
             <span>NEAR Testnet</span>
             <span>Demo / Live separation</span>
           </div>
