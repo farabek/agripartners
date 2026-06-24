@@ -1,72 +1,118 @@
-# Документация AgriPartners Pilot MVP
+# Индекс документации AgriPartners
 
-AgriPartners - пилотная платформа для прозрачных сельскохозяйственных инвестиционных процессов на NEAR. Текущий MVP показывает, как капитал, фермерские операции, отчетность и возвраты могут быть представлены через отдельные порталы для инвесторов, фермеров и администраторов.
+AgriPartners Alpha v1.2 - рабочая Alpha-платформа для прозрачных сельскохозяйственных инвестиционных процессов на NEAR Testnet. Этот файл является главным индексом документации для reviewer'ов, ecosystem partners, инвесторов и внутренних участников проекта.
 
-## Обзор проекта
+Alpha v1.2 не является production investment, custody, payout, settlement или Mainnet-системой. Документацию нужно читать с учетом этого ограничения.
 
-Pilot MVP сфокусирован на двух сельскохозяйственных пилотных проектах:
+## Рекомендуемый порядок чтения
 
-- Fidlot Livestock Project - завершенный пилот по откорму скота.
-- Hissar Sheep Breeding Project - активный пилот по разведению гиссарских овец.
+1. [Root README](../README.md)
+2. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
+3. [NEAR Executive One Pager](near/executive-one-pager.md)
+4. [NEAR Ecosystem One Pager](near/near-ecosystem-one-pager.md)
+5. [Investor Executive One Pager](investors/investor-executive-one-pager.md)
+6. [Developer Review Overview](developer-review/README.md)
+7. [Public Deployment Plan](deployment/01-public-deployment-plan.md)
 
-Демо показывает чистый операционный вид этих проектов, сохраняя при этом testnet-данные и product-development workflows в системе. Цель этого пакета документации - помочь инвесторам, партнерам и внутренним стейкхолдерам понять продуктовый опыт без необходимости читать исходный код или разбирать сырые тестовые данные.
+## Обзор продукта
 
-## Видение AgriPartners
+AgriPartners объединяет opportunity review, farmer reporting, return records, Treasury visibility и guided demos в один role-based product experience.
 
-AgriPartners создается для соединения сельскохозяйственных операторов с прозрачным инвестиционным капиталом. Долгосрочная цель - сделать финансирование фермерских проектов более понятным, контролируемым и доверительным.
+Текущие модули Alpha v1.2:
 
-Платформа объединяет:
+- Public Landing и Marketplace.
+- Investor Portal.
+- Farmer Portal.
+- Admin Portal.
+- Treasury Dashboard.
+- Presentation Mode.
+- Wallet Authentication.
+- NEAR Testnet Integration.
+- Treasury Shadow Accounting.
 
-- операционную отчетность для фермеров;
-- портфельную прозрачность для инвесторов;
-- мониторинг проектов для администраторов;
-- NEAR-based contract и wallet infrastructure.
+## Документация по ролям
 
-## Архитектура Pilot MVP
+- [Investor Portal](investor-portal.md)
+- [Investor Portal RU](investor-portal-ru.md)
+- [Farmer Portal](farmer-portal.md)
+- [Farmer Portal RU](farmer-portal-ru.md)
+- [Admin Dashboard](admin-dashboard.md)
+- [Admin Dashboard RU](admin-dashboard-ru.md)
+- [Investor Executive One Pager](investors/investor-executive-one-pager.md)
+- [Investor Executive One Pager RU](investors/investor-executive-one-pager-ru.md)
 
-MVP организован как простое role-based web application:
+## Материалы для NEAR ecosystem
 
-- Frontend-порталы показывают dashboard, project и reporting views.
-- Backend APIs управляют profile, deal, reporting и testnet integration flows.
-- NEAR Testnet smart contracts поддерживают deal lifecycle operations.
-- Wallet authentication контролирует доступ к role-specific portal views.
+- [NEAR Executive One Pager](near/executive-one-pager.md)
+- [NEAR Executive One Pager RU](near/executive-one-pager-ru.md)
+- [NEAR Ecosystem One Pager](near/near-ecosystem-one-pager.md)
+- [NEAR Ecosystem One Pager RU](near/near-ecosystem-one-pager-ru.md)
+- [NEAR Ecosystem CRM](near/near-ecosystem-crm.md)
+- [NEAR Outreach Kit](near/near-outreach-kit.md)
+- [NEAR Track Roadmap](near/near-track-roadmap.md)
+- [NEAR Testnet Status](near-testnet.md)
+- [NEAR Testnet Status RU](near-testnet-ru.md)
 
-Текущий demo presentation layer показывает чистые пилотные проекты для screenshots и investor walkthroughs. Реальные testnet и development data могут оставаться в системе, пока demo experience фокусируется на двух пилотных проектах.
+## Релизы и готовность
 
-## Роли пользователей
+- [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
+- [Alpha v1.1 Release Review](releases/alpha-v1.1-release-review.md)
+- [Alpha v1.1 Release Review RU](releases/alpha-v1.1-release-review-ru.md)
+- [Alpha v1 Full Repository Audit](audits/01-alpha-v1-full-repository-audit.md)
+- [Alpha v1 Full Repository Audit RU](audits/11-alpha-v1-full-repository-audit-ru.md)
+- [Launch Kit](LAUNCH_KIT.md)
+- [Launch Kit RU](LAUNCH_KIT_RU.md)
 
-### Investor
+## Technical review
 
-Инвесторы просматривают pilot opportunities, investment summaries, active and completed deals, projected или recorded ROI и returns.
+- [Developer Review Overview](developer-review/README.md)
+- [Technical Overview](developer-review/01-technical-overview.md)
+- [Architecture](developer-review/02-architecture.md)
+- [Testnet Validation](developer-review/03-testnet-validation.md)
+- [Smart Contract Status](developer-review/04-smart-contract-status.md)
+- [API Overview](developer-review/05-api-overview.md)
+- [Open Source Roadmap](developer-review/06-open-source-roadmap.md)
+- [Review Questions](developer-review/07-review-questions.md)
+- [Testnet Evidence Packet](developer-review/08-testnet-evidence-packet.md)
 
-### Farmer
+## Архитектура и дизайн
 
-Фермеры видят профиль пилотной фермы, funding confirmation, cycle status, reporting status и assigned project cards.
-
-### Admin
-
-Администраторы отслеживают pilot funding, deal status, farmer reporting, repayment status и event history по pilot portfolio.
-
-## Страницы документации
-
-- [Investor Portal](investor-portal-ru.md)
-- [Farmer Portal](farmer-portal-ru.md)
-- [Admin Dashboard](admin-dashboard-ru.md)
-- [NEAR Testnet](near-testnet-ru.md)
-- [Обзор релиза Alpha v1.1](releases/alpha-v1.1-release-review-ru.md)
+- [ADR-001 - Live-first Architecture](architecture/ADR-001-live-first-architecture.md)
+- [ADR-002 - Financial Semantics](architecture/ADR-002-financial-semantics.md)
 - [Typed Return Model Design and Migration Specification](design/typed-return-model-spec.md)
 - [Reconciliation Engine Design Specification](design/reconciliation-engine-spec.md)
 - [Treasury Engine Architecture Specification](design/treasury-engine-spec.md)
 - [Treasury Accounting Model Specification](design/treasury-accounting-model.md)
 - [Treasury Operating Modes Specification](design/treasury-operating-modes-spec.md)
-- [ADR-001 - Live-first Architecture](architecture/ADR-001-live-first-architecture.md)
-- [ADR-002 - Financial Semantics](architecture/ADR-002-financial-semantics.md)
 
-## Дополнительные папки
+## Demo и presentation материалы
 
+- [Demo Readiness](demo-readiness/01-demo-scenario.md)
+- [Presentation Readiness](presentation-readiness/01-executive-summary.md)
+- [Pitch Deck Index](pitch-deck/README.md)
+- [Investor Package](investor-package/investor-readiness-review.md)
+- [Investor Pack](investor-pack/README.md)
 - [Screenshots](screenshots/)
-- [Architecture](architecture/)
-- [Investor Deck](investor-deck/)
-- [Business Model](business-model/)
-- [Workflows](workflows/)
-- [Demo Guide](demo-guide/)
+- [Screenshot Checklist](investor-package/screenshot-checklist.md)
+
+## Outreach материалы
+
+- [NEAR Outreach](near-outreach/01-readme.md)
+- [NEAR Outreach Toolkit](near-outreach-toolkit/01-readme.md)
+- [NEAR Ecosystem](near-ecosystem/01-readme.md)
+- [NEAR Execution](near-execution/01-readme.md)
+- [Outreach Research](outreach/01-near-horizon-research.md)
+
+## Планируемые или legacy разделы
+
+Следующие папки сейчас являются placeholder'ами или legacy planning areas. Они сохранены для контекста репозитория, но не должны считаться polished public entry points до наполнения или удаления:
+
+- `business-model/` - planned или legacy business-model materials.
+- `demo-guide/` - planned или legacy demo-guide materials.
+- `investor-deck/` - planned или legacy deck materials.
+- `workflows/` - planned или legacy workflow materials.
+- `superpowers/` - internal sprint planning и implementation notes.
+
+## English index
+
+- [English Documentation Index](README.md)

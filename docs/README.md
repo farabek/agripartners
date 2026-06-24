@@ -1,85 +1,115 @@
-# AgriPartners Pilot MVP Documentation
+# AgriPartners Documentation Index
 
-AgriPartners is a pilot platform for transparent agricultural investment workflows on NEAR. The current MVP demonstrates how capital, farm operations, reporting, and returns can be presented through role-specific portals for investors, farmers, and administrators.
+AgriPartners Alpha v1.2 is a working Alpha platform for transparent agricultural investment workflows on NEAR Testnet. This documentation index is the main entry point for reviewers, ecosystem partners, investors, and internal contributors.
 
-## Project Overview
+Alpha v1.2 is not a production investment, custody, payout, settlement, or Mainnet system. Documentation should be read with that boundary in mind.
 
-The Pilot MVP focuses on two agricultural project profiles:
+## Recommended Reading Order
 
-- Fidlot Livestock Project, a completed livestock fattening pilot.
-- Hissar Sheep Breeding Project, an active sheep breeding pilot.
+1. [Root README](../README.md)
+2. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
+3. [NEAR Executive One Pager](near/executive-one-pager.md)
+4. [NEAR Ecosystem One Pager](near/near-ecosystem-one-pager.md)
+5. [Investor Executive One Pager](investors/investor-executive-one-pager.md)
+6. [Developer Review Overview](developer-review/README.md)
+7. [Public Deployment Plan](deployment/01-public-deployment-plan.md)
 
-The demo shows a clean operating view of these projects while preserving the underlying testnet and product-development workflows. The purpose of this documentation pack is to help investors, partners, and internal stakeholders understand the product experience without needing to inspect source code or raw test data.
+## Product Overview
 
-## AgriPartners Vision
+AgriPartners brings opportunity review, farmer reporting, return records, Treasury visibility, and guided demos into one role-based product experience.
 
-AgriPartners is designed to connect agricultural operators with transparent investment capital. The long-term vision is to make farm financing easier to monitor, easier to report, and easier to trust.
+Current Alpha v1.2 modules include:
 
-The platform combines:
+- Public Landing and Marketplace.
+- Investor Portal.
+- Farmer Portal.
+- Admin Portal.
+- Treasury Dashboard.
+- Presentation Mode.
+- Wallet Authentication.
+- NEAR Testnet Integration.
+- Treasury Shadow Accounting.
 
-- Farmer-facing operational reporting.
-- Investor-facing portfolio visibility.
-- Admin-facing project monitoring.
-- NEAR-based contract and wallet infrastructure.
-
-## Pilot MVP Architecture
-
-The MVP is organized around a simple role-based web application:
-
-- Frontend portals provide dashboard, project, and reporting views.
-- Backend APIs manage profile, deal, reporting, and testnet integration flows.
-- NEAR Testnet smart contracts support deal lifecycle operations.
-- Wallet authentication controls access to role-specific portal views.
-
-The current demo presentation layer shows clean pilot projects for screenshots and investor walkthroughs. Real testnet and development data can remain in the system while the demo experience presents the two pilot projects in a focused way.
-
-## User Roles
-
-### Investor
-
-Investors review pilot opportunities, track investment summaries, monitor active and completed deals, and view projected or realized ROI and returns.
-
-### Farmer
-
-Farmers see their pilot farm profile, funding confirmation, cycle status, reporting status, and assigned project cards.
-
-### Admin
-
-Admins monitor pilot funding, deal status, farmer reporting, repayment status, and event history across the pilot portfolio.
-
-## Investor Documentation
-
-- [Investor Executive One Pager](investors/investor-executive-one-pager.md)
-- [Investor Executive One Pager RU](investors/investor-executive-one-pager-ru.md)
-
-## Documentation Pages
+## Role Documentation
 
 - [Investor Portal](investor-portal.md)
 - [Farmer Portal](farmer-portal.md)
 - [Admin Dashboard](admin-dashboard.md)
-- [NEAR Testnet](near-testnet.md)
-- [Executive One Pager](near/executive-one-pager.md)
-- [Executive One Pager RU](near/executive-one-pager-ru.md)
+- [Investor Executive One Pager](investors/investor-executive-one-pager.md)
+- [Investor Executive One Pager RU](investors/investor-executive-one-pager-ru.md)
+
+## NEAR Ecosystem Materials
+
+- [NEAR Executive One Pager](near/executive-one-pager.md)
+- [NEAR Executive One Pager RU](near/executive-one-pager-ru.md)
 - [NEAR Ecosystem One Pager](near/near-ecosystem-one-pager.md)
 - [NEAR Ecosystem One Pager RU](near/near-ecosystem-one-pager-ru.md)
 - [NEAR Ecosystem CRM](near/near-ecosystem-crm.md)
 - [NEAR Outreach Kit](near/near-outreach-kit.md)
 - [NEAR Track Roadmap](near/near-track-roadmap.md)
+- [NEAR Testnet Status](near-testnet.md)
+- [NEAR Testnet Status RU](near-testnet-ru.md)
+
+## Release And Readiness
+
+- [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
 - [Alpha v1.1 Release Review](releases/alpha-v1.1-release-review.md)
 - [Alpha v1.1 Release Review RU](releases/alpha-v1.1-release-review-ru.md)
+- [Alpha v1 Full Repository Audit](audits/01-alpha-v1-full-repository-audit.md)
+- [Alpha v1 Full Repository Audit RU](audits/11-alpha-v1-full-repository-audit-ru.md)
+- [Launch Kit](LAUNCH_KIT.md)
+- [Launch Kit RU](LAUNCH_KIT_RU.md)
+
+## Technical Review
+
+- [Developer Review Overview](developer-review/README.md)
+- [Technical Overview](developer-review/01-technical-overview.md)
+- [Architecture](developer-review/02-architecture.md)
+- [Testnet Validation](developer-review/03-testnet-validation.md)
+- [Smart Contract Status](developer-review/04-smart-contract-status.md)
+- [API Overview](developer-review/05-api-overview.md)
+- [Open Source Roadmap](developer-review/06-open-source-roadmap.md)
+- [Review Questions](developer-review/07-review-questions.md)
+- [Testnet Evidence Packet](developer-review/08-testnet-evidence-packet.md)
+
+## Architecture And Design
+
+- [ADR-001 - Live-first Architecture](architecture/ADR-001-live-first-architecture.md)
+- [ADR-002 - Financial Semantics](architecture/ADR-002-financial-semantics.md)
 - [Typed Return Model Design and Migration Specification](design/typed-return-model-spec.md)
 - [Reconciliation Engine Design Specification](design/reconciliation-engine-spec.md)
 - [Treasury Engine Architecture Specification](design/treasury-engine-spec.md)
 - [Treasury Accounting Model Specification](design/treasury-accounting-model.md)
 - [Treasury Operating Modes Specification](design/treasury-operating-modes-spec.md)
-- [ADR-001 — Live-first Architecture](architecture/ADR-001-live-first-architecture.md)
-- [ADR-002 — Financial Semantics](architecture/ADR-002-financial-semantics.md)
 
-## Supporting Folders
+## Demo And Presentation Materials
 
+- [Demo Readiness](demo-readiness/01-demo-scenario.md)
+- [Presentation Readiness](presentation-readiness/01-executive-summary.md)
+- [Pitch Deck Index](pitch-deck/README.md)
+- [Investor Package](investor-package/investor-readiness-review.md)
+- [Investor Pack](investor-pack/README.md)
 - [Screenshots](screenshots/)
-- [Architecture](architecture/)
-- [Investor Deck](investor-deck/)
-- [Business Model](business-model/)
-- [Workflows](workflows/)
-- [Demo Guide](demo-guide/)
+- [Screenshot Checklist](investor-package/screenshot-checklist.md)
+
+## Outreach Materials
+
+- [NEAR Outreach](near-outreach/01-readme.md)
+- [NEAR Outreach Toolkit](near-outreach-toolkit/01-readme.md)
+- [NEAR Ecosystem](near-ecosystem/01-readme.md)
+- [NEAR Execution](near-execution/01-readme.md)
+- [Outreach Research](outreach/01-near-horizon-research.md)
+
+## Planned Or Legacy Sections
+
+The following folders are currently placeholders or legacy planning areas. They are kept for repository continuity and should not be treated as polished public entry points until populated or retired:
+
+- `business-model/` - planned or legacy business-model materials.
+- `demo-guide/` - planned or legacy demo-guide materials.
+- `investor-deck/` - planned or legacy deck materials.
+- `workflows/` - planned or legacy workflow materials.
+- `superpowers/` - internal sprint planning and implementation notes.
+
+## Russian Index
+
+- [Russian Documentation Index](README-ru.md)
