@@ -1,248 +1,220 @@
 # AgriPartners
 
-**Blockchain-powered agricultural investment platform on NEAR Protocol**
+**Transparent agricultural investment workflows on NEAR Protocol**
 
+[![Alpha](https://img.shields.io/badge/status-Alpha%20v1.2-2d6a4f?style=flat-square)](#current-product-status)
+[![NEAR](https://img.shields.io/badge/NEAR-Testnet-black?style=flat-square)](#why-near)
 [![Live Demo](https://img.shields.io/badge/demo-agripartners.vercel.app-2d6a4f?style=flat-square)](https://agripartners.vercel.app)
-[![API](https://img.shields.io/badge/api-agripartners.onrender.com-2d6a4f?style=flat-square)](https://agripartners.onrender.com)
-[![NEAR](https://img.shields.io/badge/NEAR-testnet-black?style=flat-square)](https://testnet.nearblocks.io)
-[![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 
-AgriPartners tokenizes livestock investment deals as NEAR smart contracts. Investors get transparent, on-chain returns. Farmers get working capital with **zero upfront cost**. Every payment, cycle, and payout is recorded on-chain.
+AgriPartners is an Alpha-stage platform for transparent agricultural investment workflows. It helps investors review pilot opportunities, helps farmers report operating progress, and helps platform operators track deals, returns, treasury activity, and lifecycle events. The current product uses NEAR Testnet for wallet-linked workflows and smart contract experimentation while remaining clear that it is not a production investment, custody, payout, or Mainnet settlement system.
 
----
+## What Is AgriPartners?
 
-## The Problem
+AgriPartners is built around a simple trust problem: once agricultural capital leaves the investor's view, reporting and return visibility often become fragmented. The platform brings opportunity review, farmer reporting, return records, treasury visibility, and guided demos into one role-based product experience.
 
-500M+ smallholder livestock farmers in emerging markets have no access to working capital. Banks require collateral they don't have. Investment deals are handled on paper — slow, opaque, and open to fraud.
+The Alpha v1.2 product focuses on:
 
-## The Solution
+- **Investor transparency:** investors can review pilot profiles, projected economics, recorded returns, and withdrawal-readiness context.
+- **Farmer reporting:** farmers can track funding status, production cycles, reporting tasks, and project progress.
+- **Operational workflows:** admins can manage deal lifecycle, reporting, return records, and oversight views.
+- **Treasury Shadow Accounting:** treasury activity is shown as an Alpha transparency layer before production enforcement.
+- **Presentation Mode:** guided demo flows explain the product to investors, NEAR ecosystem reviewers, accelerators, and strategic partners.
 
-A NEAR smart contract replaces the paper agreement. Every deal term — profit split, cycle schedule, payout amounts — lives on-chain. Payouts to investor and farmer execute automatically at the end of each cycle.
+## Current Product Status
 
----
+AgriPartners Alpha v1.2 currently includes:
 
-## Investment Model — Fidlot v5.9
-
-| Parameter | Value |
+| Module | Status |
 | --- | --- |
-| Investment size | $50,000 per deal |
-| Split | 60% farmer / 40% investor |
-| Platform fee | 20% of investor share only |
-| Cycle duration | 5 months |
-| Total cycles | 7 |
-| Total duration | 35 months |
+| Public Landing | Implemented |
+| Marketplace | Implemented |
+| Investor Portal | Implemented |
+| Farmer Portal | Implemented |
+| Admin Portal | Implemented |
+| Treasury Dashboard | Implemented |
+| Presentation Mode | Implemented |
+| Wallet Authentication | Implemented |
+| NEAR Testnet Integration | Implemented |
+| Treasury Shadow Accounting | Alpha / non-authoritative |
+| Mainnet Launch | Not started |
+| Production Investment Offering | Not active |
 
-**Returns:**
-- **Investor:** $50,000 → ~$82,000 · ROI **+64%** · APR **~21.9%**
-- **Farmer:** $0 invested → $96,250 cash + $18,000 feedlot asset = **$114,250 total**
+## Explore The Demo
 
----
+The fastest way to understand AgriPartners is Presentation Mode. It is a guided walkthrough and does not require backend setup, database access, wallet setup, or testnet funds.
+
+- Investor demo: [agripartners.vercel.app/#demo/presentation/investor](https://agripartners.vercel.app/#demo/presentation/investor)
+- NEAR ecosystem demo: [agripartners.vercel.app/#demo/presentation/near](https://agripartners.vercel.app/#demo/presentation/near)
+- Accelerator demo: [agripartners.vercel.app/#demo/presentation/accelerator](https://agripartners.vercel.app/#demo/presentation/accelerator)
+- Enterprise partner demo: [agripartners.vercel.app/#demo/presentation/enterprise](https://agripartners.vercel.app/#demo/presentation/enterprise)
+
+Local frontend preview:
+
+```bash
+cd frontend
+npm install
+npm run dev:wallet-poc
+# Open http://127.0.0.1:5173/#demo/presentation/investor
+```
+
+## Product Highlights
+
+### Investor Experience
+
+The Investor Portal presents pilot deal context, projected economics, portfolio visibility, recorded returns, and withdrawal-readiness framing. The goal is to make agricultural opportunities easier to understand and compare without overstating Alpha-stage financial certainty.
+
+### Farmer Workflow
+
+The Farmer Portal gives farmers a structured place to see funding status, production cycles, operational progress, and reporting tasks. It supports the product goal of connecting capital to real-world agricultural activity.
+
+### Returns Tracking
+
+AgriPartners separates projected, recorded, paid, and reconciled language. This matters because Alpha return records are useful for workflow validation, but they should not be presented as audited or production-settled performance.
+
+### Treasury Visibility
+
+The Treasury Dashboard and Treasury Shadow Accounting layer show how capital activity, return records, and operational events can become more transparent. In Alpha v1.2, this is a visibility and discipline layer, not production treasury enforcement.
+
+### Presentation Mode
+
+Presentation Mode turns the product into a guided demo with audience-specific profiles for investors, NEAR ecosystem reviewers, accelerators, and enterprise partners. It is the recommended first entry point for external review.
+
+## Demonstration Models
+
+AgriPartners currently uses two livestock demonstration models to validate workflows and product experience. These are demonstration profiles, not production investment offerings.
+
+| Model | Status | Purpose |
+| --- | --- | --- |
+| Feedlot / Fidlot | Completed demo | Shows completed workflow, investment terms, reports, recorded returns, return progress, and treasury visibility. |
+| Hissar Sheep | Active demo | Shows active opportunity review, farmer progress, reporting context, and projected return visibility. |
+
+## Why NEAR?
+
+NEAR is used as the Alpha testnet environment for wallet-linked workflows, smart contract experimentation, and future transparent workflow patterns. AgriPartners is evaluating how NEAR can support:
+
+- wallet-first access for investors, farmers, and operators;
+- testnet validation before production or Mainnet decisions;
+- transaction references for lifecycle events and future reconciliation;
+- developer-friendly smart contract experimentation;
+- clearer audit trails for real-world agricultural workflows.
+
+Mainnet evaluation should follow stronger security, custody, reconciliation, treasury enforcement, monitoring, and compliance preparation.
 
 ## Architecture
 
-```
-agripartners/
-├── contract/          # Rust smart contract (NEAR Protocol)
-│   └── src/lib.rs     # State machine: Initialized → Funded → CycleActive → Completed
-├── backend/           # Node.js REST API
-│   └── src/
-│       ├── routes/    # deals.js (public) · admin.js (JWT protected)
-│       ├── services/  # dealService.js · nearService.js
-│       ├── middleware/ # auth.js (JWT verification)
-│       ├── near/      # client.js (NEAR RPC)
-│       └── db/        # PostgreSQL migrations
-├── frontend/          # Vanilla JS dashboard
-│   ├── index.html
-│   ├── app.js         # Hash router · farmer/investor portals
-│   └── style.css
-└── docs/              # One-pager, pitch deck, PDF contracts
+```text
+Users
+  |
+  |-- Public Landing / Marketplace
+  |-- Investor Portal
+  |-- Farmer Portal
+  |-- Admin Portal
+  |-- Presentation Mode
+        |
+        v
+Frontend (Vanilla JS + Vite)
+        |
+        v
+Backend API (Node.js + Express)
+        |
+        |-- PostgreSQL data model
+        |-- Auth and role-scoped routes
+        |-- Deal, profile, reporting, return, and treasury services
+        |
+        v
+NEAR Testnet integration
+        |
+        v
+Rust smart contract experiments
 ```
 
----
-
-## Tech Stack
+## Technology Stack
 
 | Layer | Technology |
 | --- | --- |
-| Smart Contract | Rust · near-sdk 5.7.0 · WASM |
-| Blockchain | NEAR Protocol (testnet / mainnet) |
-| Backend | Node.js · Express.js · PostgreSQL (Neon) |
-| Auth | JWT · roles: farmer / investor / admin |
-| Frontend | Vanilla JS · Tailwind CSS · Chart.js |
-| Hosting | Render (API) · Vercel (UI) |
+| Frontend | Vanilla JavaScript, Vite, Tailwind CSS, Chart.js |
+| Backend | Node.js, Express.js |
+| Database | PostgreSQL |
+| Authentication | JWT, wallet authentication, role-scoped access |
+| Blockchain | NEAR Protocol Testnet |
+| Smart Contract | Rust, near-sdk, WASM |
+| Hosting | Vercel frontend, Render backend |
+| Documentation | Markdown docs, investor and NEAR outreach materials |
 
----
+## Repository Structure
 
-## Smart Contract
-
-The contract implements a state machine with five states:
-
-```
-Initialized → Funded → CycleActive → CycleSettlement → Completed
-                                                      ↘ Terminated
-```
-
-**Methods:**
-- `new(...)` — Initialize contract with all deal parameters
-- `fund()` — Investor deposits the investment amount
-- `start_cycle()` — Admin starts a new livestock cycle
-- `report_cycle(losses_near)` — Admin reports cycle results
-- `withdraw()` — Pull-payment for farmer / investor / platform
-- `get_status()` → current state + cycle number
-- `get_balances()` → pending withdrawals for all parties
-
-**Build:**
-```bash
-cd contract
-cargo build --target wasm32-unknown-unknown --release
-wasm-opt -Oz --strip-debug --mvp-features \
-  -o target/wasm32-unknown-unknown/release/agripartners.wasm \
-     target/wasm32-unknown-unknown/release/agripartners.wasm
+```text
+agripartners/
+  backend/       Node.js API, services, routes, tests, migrations
+  contract/      Rust NEAR smart contract
+  docs/          NEAR, investor, release, design, demo, and product docs
+  frontend/      Vite frontend application and wallet-auth proof of concept
+  outputs/       Generated/local output artifacts
+  screenshots/   Local screenshot assets
+  scripts/       Utility scripts
+  demo.ps1       Legacy full-lifecycle testnet demo script
+  render.yaml    Render deployment configuration
 ```
 
-> Requires Rust **1.86** (pinned). NEAR testnet deployment fails on Rust 1.87+.
+## Documentation
 
----
+Useful public entry points:
 
-## Backend API
+- [NEAR materials](docs/near/)
+- [Investor materials](docs/investors/)
+- [Release notes](docs/releases/)
+- [Main docs index](docs/README.md)
 
-**Base URL:** `https://agripartners.onrender.com`
+Recommended reading order:
 
-### Public endpoints (no auth required)
+1. [NEAR executive one-pager](docs/near/executive-one-pager.md)
+2. [NEAR ecosystem one-pager](docs/near/near-ecosystem-one-pager.md)
+3. [Investor executive one-pager](docs/investors/investor-executive-one-pager.md)
+4. [Alpha v1.1 release review](docs/releases/alpha-v1.1-release-review.md)
 
-| Method | Endpoint | Description |
-| --- | --- | --- |
-| GET | `/api/deals` | List all deals |
-| GET | `/api/deals/:id` | Deal parameters |
-| GET | `/api/deals/:id/status` | On-chain status + cycle |
-| GET | `/api/deals/:id/balances` | On-chain balances |
-| GET | `/api/deals/:id/events` | Event history |
+## Roadmap
 
-### Protected endpoints (JWT required)
+### Current: Alpha v1.2
 
-| Method | Endpoint | Description |
-| --- | --- | --- |
-| POST | `/api/auth/login` | Get JWT token |
-| GET | `/api/me/deals` | Deals for logged-in user |
-| POST | `/api/admin/deals` | Deploy new contract + create deal |
-| POST | `/api/admin/deals/:id/fund` | Fund the contract |
-| POST | `/api/admin/deals/:id/start-cycle` | Start next cycle |
-| POST | `/api/admin/deals/:id/report-cycle` | Report cycle results |
+- Working role-based product.
+- Marketplace, Investor Portal, Farmer Portal, Admin Portal.
+- Presentation Mode for guided stakeholder demos.
+- Treasury Dashboard and Treasury Shadow Accounting.
+- Wallet authentication and NEAR Testnet integration.
 
-**Login example:**
-```bash
-curl -X POST https://agripartners.onrender.com/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username": "admin", "password": "your_password"}'
-```
+### Next: Beta
 
----
+- Sharper product boundaries between demo, live, recorded, paid, and reconciled states.
+- Stronger reconciliation visibility.
+- Better public demo packaging.
+- More structured technical review and ecosystem feedback.
+- Improved operational readiness for controlled pilot conversations.
 
-## Local Development
+### Future
 
-### Prerequisites
-- Node.js 18+
-- PostgreSQL (or [Neon](https://neon.tech) free tier)
-- Rust 1.86 + `wasm32-unknown-unknown` target
+- Production pilot preparation.
+- Treasury enforcement for selected workflows.
+- Stronger custody, compliance, monitoring, and audit controls.
+- Mainnet evaluation.
+- Partner-specific reporting and integration paths.
 
-### Backend
+## Screenshots
 
-```bash
-cd backend
-cp .env.example .env
-# Fill in .env: DATABASE_URL, NEAR_ADMIN_ACCOUNT, NEAR_ADMIN_PRIVATE_KEY, JWT_SECRET
-npm install
-npm start
-```
+TODO: Refresh and embed current Alpha v1.2 screenshots before using screenshots as public evidence. Existing screenshot assets may reflect earlier demo states and should be reviewed before being promoted in the public README.
 
-### Frontend
+## Contributing
 
-```bash
-# Serve frontend locally (any static server)
-npx serve frontend -p 5500
-# Open http://localhost:5500
-```
+AgriPartners is currently founder-led and in Alpha. External feedback is welcome, especially around:
 
-### Environment variables
+- NEAR ecosystem fit;
+- wallet UX;
+- treasury and reconciliation design;
+- farmer reporting workflows;
+- investor presentation clarity;
+- Beta and Mainnet-readiness expectations.
 
-```env
-DATABASE_URL=postgresql://...
-NEAR_NETWORK=testnet
-NEAR_ADMIN_ACCOUNT=your-account.testnet
-NEAR_ADMIN_PRIVATE_KEY=ed25519:...
-JWT_SECRET=your-secret-key
-ADMIN_PASSWORD=your-admin-password
-```
-
----
-
-## Running the Demo
-
-The demo script runs a full lifecycle: deploy → fund → 3 cycles → Completed.
-
-```powershell
-# Terminal 1: start backend
-cd backend; npm start
-
-# Terminal 2: serve frontend
-npx serve frontend -p 5500
-
-# Terminal 3: run interactive demo (press Enter at each pause)
-.\demo.ps1
-
-# Open browser: http://localhost:5500
-```
-
-> **Testnet balance:** deploying a contract costs ~2 NEAR. Replenish at [testnet.mynearwallet.com](https://testnet.mynearwallet.com).
-
----
-
-## Tests
-
-```bash
-# Backend (38 tests)
-cd backend && npm test
-
-# Smart contract unit tests (21 tests)
-cd contract && cargo test
-
-# Integration tests (Linux/CI only)
-cd contract && cargo test --features integration
-```
-
----
-
-## Status
-
-| Component | Status |
-| --- | --- |
-| Smart contract | ✅ Deployed on testnet |
-| Backend API | ✅ Live on Render |
-| Frontend dashboard | ✅ Live on Vercel |
-| Full lifecycle demo | ✅ Completed |
-| Security audit | ⏳ Pending (required for mainnet) |
-| Mainnet launch | ⏳ Pending audit |
-
-**Traction:** Real farmer ready to sign 2 deals × $50,000 = **$100,000** pending mainnet launch.
-
----
-
-## Funding
-
-We are seeking a **$40,000 seed grant** to cover:
-- Smart contract security audit — $10,000
-- Infrastructure (2 years) — $3,000
-- Legal & first deal — $5,000
-- Developer salary (6 months) — $18,000
-- AI development tools — $1,000
-- Operational reserve — $3,000
-
-This unlocks $100,000 in signed deals immediately after mainnet launch.
-
-**Contact:** farhodmuhamadiev4@gmail.com
-
----
+For discussion or collaboration, contact: `farhodmuhamadiev4@gmail.com`.
 
 ## License
 
-MIT
+No standalone `LICENSE` file is currently present in this repository. Add or confirm the project license before treating the repository as open-source for reuse.
