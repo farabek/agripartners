@@ -47,6 +47,11 @@ Farmers see their pilot farm profile, funding confirmation, cycle status, report
 
 Admins monitor pilot funding, deal status, farmer reporting, repayment status, and event history across the pilot portfolio.
 
+## Investor Documentation
+
+- [Investor Executive One Pager](investors/investor-executive-one-pager.md)
+- [Investor Executive One Pager RU](investors/investor-executive-one-pager-ru.md)
+
 ## Documentation Pages
 
 - [Investor Portal](investor-portal.md)
