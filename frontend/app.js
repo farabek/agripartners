@@ -1206,8 +1206,8 @@ function showHome() {
     <header class="landing-nav">
       <a href="#home" class="landing-brand">AgriPartners</a>
       <div class="landing-nav-actions">
-        <a href="#/marketplace">Marketplace</a>
         <a href="#/whitepaper">White Paper</a>
+        <a href="#/marketplace">Marketplace</a>
         <a href="#login">Login</a>
       </div>
     </header>

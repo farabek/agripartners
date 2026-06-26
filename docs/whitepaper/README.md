@@ -7,10 +7,12 @@ This folder contains official AgriPartners white paper and position paper materi
 ### AgriPartners Platform Explained
 
 English:
+
 - AGRIPARTNERS_PLATFORM_EXPLAINED_EN.docx
 - AGRIPARTNERS_PLATFORM_EXPLAINED_EN.pdf
 
 Russian:
+
 - AGRIPARTNERS_PLATFORM_EXPLAINED_RU.docx
 - AGRIPARTNERS_PLATFORM_EXPLAINED_RU.pdf
 
@@ -24,6 +26,7 @@ Russian:
 ## Usage
 
 Use these documents for:
+
 - NEAR ecosystem conversations;
 - investor and partner outreach;
 - strategic introductions;
@@ -35,6 +38,7 @@ Use these documents for:
 AgriPartners is currently an Alpha platform on NEAR Testnet.
 
 It should not be described as:
+
 - a production investment platform;
 - a custody provider;
 - a live payout or settlement system;
