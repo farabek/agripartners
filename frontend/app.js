@@ -1314,11 +1314,16 @@ function showLogin() {
             Public demos do not require registration. Use wallet login only when you want to create a live testnet profile.
           </p>
         </div>
-        <ol class="space-y-2 text-sm text-slate-300">
-          <li><span class="font-semibold text-green-300">1.</span> Explore the public demo pages first if you only want to review the project.</li>
-          <li><span class="font-semibold text-green-300">2.</span> Create or import a NEAR testnet wallet if you want to join the live testnet portal.</li>
-          <li><span class="font-semibold text-green-300">3.</span> Return here, click Login with NEAR Wallet, then create your Farmer or Investor profile.</li>
-        </ol>
+        <details class="rounded-lg border border-slate-700 bg-slate-950/50 p-3">
+          <summary class="cursor-pointer text-sm font-semibold text-green-300">
+            Need help? Show step-by-step guide
+          </summary>
+          <ol class="mt-3 space-y-2 text-sm text-slate-300">
+            <li><span class="font-semibold text-green-300">1.</span> Explore the public demo pages first if you only want to review the project.</li>
+            <li><span class="font-semibold text-green-300">2.</span> Create or import a NEAR testnet wallet if you want to join the live testnet portal.</li>
+            <li><span class="font-semibold text-green-300">3.</span> Return here, click Login with NEAR Wallet, then create your Farmer or Investor profile.</li>
+          </ol>
+        </details>
         <div class="grid gap-2 sm:grid-cols-2">
           <a href="https://testnet.mynearwallet.com/create" target="_blank" rel="noopener noreferrer"
             class="text-center bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition">
