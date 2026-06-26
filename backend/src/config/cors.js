@@ -5,6 +5,7 @@ const LOCAL_ORIGINS = [
 ];
 
 const PRODUCTION_ORIGINS = [
+  'https://agripartners.vercel.app',
   'https://frontend-omega-woad-90.vercel.app',
 ];
 
