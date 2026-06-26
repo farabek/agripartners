@@ -445,7 +445,7 @@ test('marketplace route and navigation are rendered', () => {
   expect(appJs).toContain("'view-marketplace'");
   expect(appJs).toContain("hash === '#/marketplace'");
   expect(appJs).toContain('showMarketplace();');
-  expect(marketplaceBody).toContain('href="#home"');
+  expect(marketplaceBody).toContain('href="/"');
   expect(marketplaceBody).toContain('text-lg leading-none');
   expect(marketplaceBody).toContain('Back home');
   expect(appJs).toContain('href="#/marketplace"');

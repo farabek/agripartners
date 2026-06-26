@@ -48,7 +48,7 @@ test('login screen links back to the home page', () => {
   const loginStart = appJs.indexOf('function showLogin()');
   expect(loginStart).toBeGreaterThan(-1);
   const loginBody = appJs.slice(loginStart, loginStart + 1200);
-  expect(loginBody).toContain('href="#home"');
+  expect(loginBody).toContain('href="/"');
   expect(loginBody).toContain('text-lg leading-none');
   expect(loginBody).toContain('Back home');
 });
