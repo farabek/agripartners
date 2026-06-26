@@ -1046,7 +1046,6 @@ function route() {
   const hash = location.hash;
 
   if (!hash || hash === '#' || hash === '#home' || hash === '#/') {
-    if (auth) { redirectAuthenticatedUser(); return; }
     showHome();
     return;
   }

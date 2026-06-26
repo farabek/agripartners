@@ -18,6 +18,15 @@ test('unauthenticated public landing route renders before login', () => {
   expect(appJs).toContain("showView('view-home')");
 });
 
+test('home route stays public for authenticated users', () => {
+  const homeRouteStart = appJs.indexOf("if (!hash || hash === '#' || hash === '#home' || hash === '#/') {");
+  expect(homeRouteStart).toBeGreaterThan(-1);
+  const homeRouteSource = appJs.slice(homeRouteStart, appJs.indexOf("if (hash === '#login')", homeRouteStart));
+
+  expect(homeRouteSource).toContain('showHome()');
+  expect(homeRouteSource).not.toContain('redirectAuthenticatedUser()');
+});
+
 test('landing explains product audience and Alpha testnet context', () => {
   expect(appJs).toContain('What AgriPartners is');
   expect(appJs).toContain('Investors');
