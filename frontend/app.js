@@ -1280,9 +1280,47 @@ function showLogin() {
   el.innerHTML = `
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-green-400">AgriPartners</h1>
-      <p class="text-slate-400 mt-1">New users should create or import a NEAR Testnet wallet first. Existing platform users can sign in below.</p>
+      <p class="text-slate-400 mt-1">New users start with a NEAR Testnet wallet. Platform accounts are admin-provided.</p>
     </div>
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
+      <div class="bg-slate-900 border border-green-900 rounded-lg p-4 space-y-3">
+        <div>
+          <h2 class="text-sm font-semibold text-green-200">New to AgriPartners?</h2>
+          <p class="text-sm text-slate-400 mt-1">
+            Public demos do not require registration. Use wallet login only when you want to create a live testnet profile.
+          </p>
+        </div>
+        <button type="button" id="login-near-wallet"
+          class="w-full bg-slate-100 hover:bg-white text-slate-950 py-2 rounded-lg font-medium transition">
+          Login with NEAR Wallet
+        </button>
+        <details class="rounded-lg border border-slate-700 bg-slate-950/50 p-3">
+          <summary class="cursor-pointer text-sm font-semibold text-green-300">
+            Need help? Show step-by-step guide
+          </summary>
+          <ol class="mt-3 space-y-2 text-sm text-slate-300">
+            <li><span class="font-semibold text-green-300">1.</span> Explore the public demo pages first if you only want to review the project.</li>
+            <li><span class="font-semibold text-green-300">2.</span> Create or import a NEAR testnet wallet if you want to join the live testnet portal.</li>
+            <li><span class="font-semibold text-green-300">3.</span> Return here, click Login with NEAR Wallet, then create your Farmer or Investor profile.</li>
+          </ol>
+        </details>
+        <div class="grid gap-2 sm:grid-cols-2">
+          <a href="https://testnet.mynearwallet.com/create" target="_blank" rel="noopener noreferrer"
+            class="text-center bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition">
+            Create NEAR Testnet Wallet
+          </a>
+          <a href="https://testnet.mynearwallet.com/recover-account" target="_blank" rel="noopener noreferrer"
+            class="text-center bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition">
+            Import Existing Wallet
+          </a>
+        </div>
+      </div>
+      <div id="login-error" class="hidden bg-red-900 text-red-200 px-3 py-2 rounded text-sm"></div>
+      <div class="flex items-center gap-3 py-1">
+        <span class="h-px flex-1 bg-slate-700"></span>
+        <span class="text-xs uppercase tracking-wide text-slate-500">Platform account access</span>
+        <span class="h-px flex-1 bg-slate-700"></span>
+      </div>
       <div class="bg-green-950/40 border border-green-800 rounded-lg px-4 py-3">
         <p class="text-sm font-semibold text-green-200">Admin-provided access only</p>
         <p class="text-sm text-slate-300 mt-1">
@@ -1305,48 +1343,10 @@ function showLogin() {
           </button>
         </div>
       </div>
-      <div id="login-error" class="hidden bg-red-900 text-red-200 px-3 py-2 rounded text-sm"></div>
       <button type="submit"
         class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-medium transition">
         Sign In
       </button>
-      <div class="flex items-center gap-3 py-1">
-        <span class="h-px flex-1 bg-slate-700"></span>
-        <span class="text-xs uppercase tracking-wide text-slate-500">or</span>
-        <span class="h-px flex-1 bg-slate-700"></span>
-      </div>
-      <button type="button" id="login-near-wallet"
-        class="w-full bg-slate-100 hover:bg-white text-slate-950 py-2 rounded-lg font-medium transition">
-        Login with NEAR Wallet
-      </button>
-      <div class="bg-slate-900 border border-slate-700 rounded-lg p-4 space-y-3">
-        <div>
-          <h2 class="text-sm font-semibold text-slate-100">New to AgriPartners?</h2>
-          <p class="text-sm text-slate-400 mt-1">
-            Public demos do not require registration. Use wallet login only when you want to create a live testnet profile.
-          </p>
-        </div>
-        <details class="rounded-lg border border-slate-700 bg-slate-950/50 p-3">
-          <summary class="cursor-pointer text-sm font-semibold text-green-300">
-            Need help? Show step-by-step guide
-          </summary>
-          <ol class="mt-3 space-y-2 text-sm text-slate-300">
-            <li><span class="font-semibold text-green-300">1.</span> Explore the public demo pages first if you only want to review the project.</li>
-            <li><span class="font-semibold text-green-300">2.</span> Create or import a NEAR testnet wallet if you want to join the live testnet portal.</li>
-            <li><span class="font-semibold text-green-300">3.</span> Return here, click Login with NEAR Wallet, then create your Farmer or Investor profile.</li>
-          </ol>
-        </details>
-        <div class="grid gap-2 sm:grid-cols-2">
-          <a href="https://testnet.mynearwallet.com/create" target="_blank" rel="noopener noreferrer"
-            class="text-center bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition">
-            Create NEAR Testnet Wallet
-          </a>
-          <a href="https://testnet.mynearwallet.com/recover-account" target="_blank" rel="noopener noreferrer"
-            class="text-center bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition">
-            Import Existing Wallet
-          </a>
-        </div>
-      </div>
     </form>
   `;
   if (pendingLoginError) {
