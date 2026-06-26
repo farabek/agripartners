@@ -2037,6 +2037,12 @@ function showAdminDemoPortal() {
   const deals = buildAdminDemoDataset();
   el.innerHTML = `
     ${renderNav()}
+    <div class="mb-6">
+      <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+        <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
+        Back home
+      </a>
+    </div>
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
       <div>
         <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Portal</h1>
@@ -2333,7 +2339,14 @@ function showAdminPilotDetail(key) {
   if (!pilot) {
     el.innerHTML = `
       ${renderNav()}
-      <a href="#deals" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Admin Dashboard</a>
+      <div class="flex flex-wrap items-center gap-3 mb-6">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+          <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
+          Back home
+        </a>
+        <span class="text-slate-600">|</span>
+        <a href="#deals" class="text-slate-400 hover:text-white text-sm">Back to Admin Dashboard</a>
+      </div>
       <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot profile unavailable</div>
     `;
     return;
@@ -2345,6 +2358,11 @@ function renderAdminDemoDealDetail(el, deal) {
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
+      <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+        <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
+        Back home
+      </a>
+      <span class="text-slate-600">|</span>
       <a href="#deals" class="text-slate-400 hover:text-white text-sm">Back to Admin Dashboard</a>
       <span class="text-slate-600">|</span>
       <span class="font-semibold">${escapeHtml(deal.title)}</span>
