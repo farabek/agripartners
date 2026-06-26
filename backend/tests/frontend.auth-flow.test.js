@@ -39,6 +39,7 @@ test('frontend uses browser-safe wallet redirect and the Render API', () => {
 
 test('login copy explains platform credentials are admin-provided', () => {
   expect(appJs).toContain('New users should create or import a NEAR Testnet wallet first.');
-  expect(appJs).toContain('Username and password access is for pre-created platform accounts provided by a platform admin.');
+  expect(appJs).toContain('Admin-provided access only');
+  expect(appJs).toContain('Username and password credentials are created and provided by a platform admin.');
   expect(appJs).toContain('Need help? Show step-by-step guide');
 });

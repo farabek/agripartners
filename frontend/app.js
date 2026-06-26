@@ -1283,9 +1283,12 @@ function showLogin() {
       <p class="text-slate-400 mt-1">New users should create or import a NEAR Testnet wallet first. Existing platform users can sign in below.</p>
     </div>
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
-      <p class="text-xs text-slate-500">
-        Username and password access is for pre-created platform accounts provided by a platform admin.
-      </p>
+      <div class="bg-green-950/40 border border-green-800 rounded-lg px-4 py-3">
+        <p class="text-sm font-semibold text-green-200">Admin-provided access only</p>
+        <p class="text-sm text-slate-300 mt-1">
+          Username and password credentials are created and provided by a platform admin.
+        </p>
+      </div>
       <div>
         <label class="block text-sm text-slate-400 mb-1">Username</label>
         <input id="login-username" type="text" autocomplete="username"
