@@ -1271,7 +1271,7 @@ function showLogin() {
   el.innerHTML = `
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-green-400">AgriPartners</h1>
-      <p class="text-slate-400 mt-1">New users should use NEAR Wallet. Existing platform users can sign in below.</p>
+      <p class="text-slate-400 mt-1">New users should create or import a NEAR Testnet wallet first. Existing platform users can sign in below.</p>
     </div>
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
       <p class="text-xs text-slate-500">
