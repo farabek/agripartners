@@ -93,7 +93,7 @@ The code is open source: **[github.com/farabek/agripartners](https://github.com/
 
 ### Real Traction
 
-This is not a whitepaper or a concept.
+This is not just a concept or slideware.
 
 A livestock farmer I work with directly has agreed to sign **2 deals at $50,000 each = $100,000 in committed volume** — pending our mainnet launch. The agreements are based on PDF contracts we've already prepared and reviewed together.
 

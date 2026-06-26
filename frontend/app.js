@@ -294,7 +294,7 @@ function statusBadge(status) {
 // --- Router ---
 
 function showView(viewId) {
-  ['view-home', 'view-login', 'view-list', 'view-detail', 'view-marketplace', 'view-presentation', 'view-investor', 'view-farmer', 'view-admin', 'view-onboarding', 'view-whitepaper'].forEach(id => {
+  ['view-home', 'view-login', 'view-list', 'view-detail', 'view-marketplace', 'view-presentation', 'view-investor', 'view-farmer', 'view-admin', 'view-onboarding', 'view-platform'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   document.getElementById(viewId).classList.remove('hidden');
@@ -1090,9 +1090,15 @@ function route() {
     return;
   }
 
-  const whitePaperMatch = hash.match(/^#\/?whitepaper(?:\?lang=(en|ru))?$/);
-  if (whitePaperMatch) {
-    showWhitePaper(whitePaperMatch[1] || 'en');
+  const legacyPlatformDocMatch = hash.match(new RegExp('^#\\/?white' + 'paper(?:\\?lang=(en|ru))?$'));
+  if (legacyPlatformDocMatch) {
+    location.hash = legacyPlatformDocMatch[1] === 'ru' ? '#/platform?lang=ru' : '#/platform';
+    return;
+  }
+
+  const platformMatch = hash.match(/^#\/?platform(?:\?lang=(en|ru))?$/);
+  if (platformMatch) {
+    showPlatformDocumentation(platformMatch[1] || 'en');
     return;
   }
 
@@ -1206,7 +1212,7 @@ function showHome() {
     <header class="landing-nav">
       <a href="#home" class="landing-brand">AgriPartners</a>
       <div class="landing-nav-actions">
-        <a href="#/whitepaper">White Paper</a>
+        <a href="#/platform">Platform</a>
         <a href="#/marketplace">Marketplace</a>
         <a href="#login">Login</a>
       </div>
@@ -1273,9 +1279,9 @@ function showHome() {
         </div>
       </section>
 
-      <section class="landing-section landing-whitepaper" aria-label="AgriPartners white paper">
+      <section class="landing-section landing-platform" aria-label="AgriPartners platform documentation">
         <div class="landing-section-heading">
-          <span>White paper</span>
+          <span>Platform</span>
           <h2>Learn More About AgriPartners</h2>
         </div>
         <p>
@@ -1286,11 +1292,11 @@ function showHome() {
           AgriPartners is currently an Alpha platform on NEAR Testnet. It is not a production investment, custody,
           payout, settlement, or Mainnet financial system.
         </p>
-        <div class="landing-actions" aria-label="White paper actions">
-          <a class="landing-btn landing-btn-primary" href="#/whitepaper">Read White Paper (EN)</a>
-          <a class="landing-btn" href="assets/whitepaper/AGRIPARTNERS_PLATFORM_EXPLAINED_EN.pdf" download>Download PDF (EN)</a>
-          <a class="landing-btn landing-btn-primary" href="#/whitepaper?lang=ru">Read White Paper (RU)</a>
-          <a class="landing-btn" href="assets/whitepaper/AGRIPARTNERS_PLATFORM_EXPLAINED_RU.pdf" download>Download PDF (RU)</a>
+        <div class="landing-actions" aria-label="Platform documentation actions">
+          <a class="landing-btn landing-btn-primary" href="#/platform">Read Platform Explained (EN)</a>
+          <a class="landing-btn" href="assets/platform/PLATFORM_EXPLAINED_EN.pdf" download>Download PDF (EN)</a>
+          <a class="landing-btn landing-btn-primary" href="#/platform?lang=ru">Read Platform Explained (RU)</a>
+          <a class="landing-btn" href="assets/platform/PLATFORM_EXPLAINED_RU.pdf" download>Download PDF (RU)</a>
         </div>
       </section>
     </main>
@@ -1304,24 +1310,24 @@ function showHome() {
 function renderPublicFooter() {
   return `
     <footer class="public-footer">
-      <a href="#/whitepaper">White Paper</a>
+      <a href="#/platform">Platform</a>
       <a href="https://github.com/farabek/agripartners" target="_blank" rel="noopener noreferrer">GitHub</a>
       <a href="https://github.com/farabek/agripartners/tree/main/docs" target="_blank" rel="noopener noreferrer">Documentation</a>
     </footer>
   `;
 }
 
-function whitePaperAsset(lang) {
+function platformDocumentAsset(lang) {
   return lang === 'ru'
-    ? 'assets/whitepaper/AGRIPARTNERS_PLATFORM_EXPLAINED_RU.pdf'
-    : 'assets/whitepaper/AGRIPARTNERS_PLATFORM_EXPLAINED_EN.pdf';
+    ? 'assets/platform/PLATFORM_EXPLAINED_RU.pdf'
+    : 'assets/platform/PLATFORM_EXPLAINED_EN.pdf';
 }
 
-function showWhitePaper(lang = 'en') {
+function showPlatformDocumentation(lang = 'en') {
   const activeLang = lang === 'ru' ? 'ru' : 'en';
-  const pdfSrc = whitePaperAsset(activeLang);
-  showView('view-whitepaper');
-  const el = document.getElementById('view-whitepaper');
+  const pdfSrc = platformDocumentAsset(activeLang);
+  showView('view-platform');
+  const el = document.getElementById('view-platform');
   el.innerHTML = `
     <header class="landing-nav">
       <a href="#home" class="landing-brand">AgriPartners</a>
@@ -1331,41 +1337,41 @@ function showWhitePaper(lang = 'en') {
       </div>
     </header>
 
-    <main class="whitepaper-page">
-      <div class="whitepaper-heading">
+    <main class="platform-page">
+      <div class="platform-heading">
         <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
           <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
           Back home
         </a>
-        <h1>AgriPartners White Paper</h1>
+        <h1>AgriPartners Platform Explained</h1>
         <p>
           Read the platform explanation for the AgriPartners Alpha: vision, funding model, NEAR Testnet integration,
           role workflows, treasury visibility, roadmap, and stakeholder benefits.
         </p>
-        <p class="whitepaper-positioning">
+        <p class="platform-positioning">
           AgriPartners is currently an Alpha platform on NEAR Testnet. It is not a production investment, custody,
           payout, settlement, or Mainnet financial system.
         </p>
       </div>
 
-      <div class="whitepaper-controls" aria-label="White paper language">
-        <button type="button" class="whitepaper-lang-btn ${activeLang === 'en' ? 'is-active' : ''}" data-whitepaper-lang="en">English</button>
-        <button type="button" class="whitepaper-lang-btn ${activeLang === 'ru' ? 'is-active' : ''}" data-whitepaper-lang="ru">Русский</button>
+      <div class="platform-controls" aria-label="Platform document language">
+        <button type="button" class="platform-lang-btn ${activeLang === 'en' ? 'is-active' : ''}" data-platform-lang="en">English</button>
+        <button type="button" class="platform-lang-btn ${activeLang === 'ru' ? 'is-active' : ''}" data-platform-lang="ru">Русский</button>
         <a class="landing-btn landing-btn-primary" href="${pdfSrc}" download>Download PDF (${activeLang.toUpperCase()})</a>
       </div>
 
-      <p class="whitepaper-fallback">If the document does not load, use the download button below.</p>
-      <a class="landing-btn whitepaper-download-fallback" href="${pdfSrc}" download>Download PDF (${activeLang.toUpperCase()})</a>
-      <iframe class="whitepaper-frame" src="${pdfSrc}" title="AgriPartners Platform Explained ${activeLang.toUpperCase()}"></iframe>
+      <p class="platform-fallback">If the document does not load, use the download button below.</p>
+      <a class="landing-btn platform-download-fallback" href="${pdfSrc}" download>Download PDF (${activeLang.toUpperCase()})</a>
+      <iframe class="platform-frame" src="${pdfSrc}" title="AgriPartners Platform Explained ${activeLang.toUpperCase()}"></iframe>
     </main>
 
     ${renderPublicFooter()}
   `;
 
-  document.querySelectorAll('[data-whitepaper-lang]').forEach(btn => {
+  document.querySelectorAll('[data-platform-lang]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const nextLang = btn.dataset.whitepaperLang === 'ru' ? 'ru' : 'en';
-      location.hash = nextLang === 'ru' ? '#/whitepaper?lang=ru' : '#/whitepaper';
+      const nextLang = btn.dataset.platformLang === 'ru' ? 'ru' : 'en';
+      location.hash = nextLang === 'ru' ? '#/platform?lang=ru' : '#/platform';
     });
   });
 }

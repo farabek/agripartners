@@ -221,21 +221,21 @@
   color: #cbd5e1;
 }
 
-.landing-whitepaper {
+.landing-platform {
   background-color: #142033;
   border: 1px solid #334155;
   border-radius: 8px;
   padding: 22px;
 }
 
-.landing-whitepaper p {
+.landing-platform p {
   color: #cbd5e1;
   line-height: 1.6;
   max-width: 860px;
 }
 
 .landing-safe-positioning,
-.whitepaper-positioning {
+.platform-positioning {
   background-color: #0f172a;
   border: 1px solid #475569;
   border-radius: 8px;
@@ -264,37 +264,37 @@
   color: #4ade80;
 }
 
-.whitepaper-page {
+.platform-page {
   display: grid;
   gap: 20px;
 }
 
-.whitepaper-heading {
+.platform-heading {
   display: grid;
   gap: 14px;
 }
 
-.whitepaper-heading h1 {
+.platform-heading h1 {
   color: #f8fafc;
   font-size: 2.35rem;
   font-weight: 800;
   line-height: 1.1;
 }
 
-.whitepaper-heading p {
+.platform-heading p {
   color: #cbd5e1;
   line-height: 1.65;
   max-width: 860px;
 }
 
-.whitepaper-controls {
+.platform-controls {
   align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-.whitepaper-lang-btn {
+.platform-lang-btn {
   background-color: #1e293b;
   border: 1px solid #475569;
   border-radius: 8px;
@@ -306,22 +306,22 @@
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.whitepaper-lang-btn:hover {
+.platform-lang-btn:hover {
   background-color: #334155;
   border-color: #94a3b8;
 }
 
-.whitepaper-lang-btn.is-active {
+.platform-lang-btn.is-active {
   background-color: #16a34a;
   border-color: #22c55e;
 }
 
-.whitepaper-fallback {
+.platform-fallback {
   color: #94a3b8;
   font-size: 0.875rem;
 }
 
-.whitepaper-frame {
+.platform-frame {
   background-color: #0f172a;
   border: 1px solid #334155;
   border-radius: 8px;
@@ -907,22 +907,22 @@
   }
 
   .public-footer,
-  .whitepaper-controls {
+  .platform-controls {
     align-items: stretch;
     flex-direction: column;
   }
 
   .public-footer a,
-  .whitepaper-controls .landing-btn,
-  .whitepaper-lang-btn {
+  .platform-controls .landing-btn,
+  .platform-lang-btn {
     width: 100%;
   }
 
-  .whitepaper-heading h1 {
+  .platform-heading h1 {
     font-size: 2rem;
   }
 
-  .whitepaper-frame {
+  .platform-frame {
     min-height: 560px;
   }
 
