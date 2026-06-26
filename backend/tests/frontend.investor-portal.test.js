@@ -1575,6 +1575,19 @@ test('investor demo dataset hides test records and renders clean pilot routes', 
   expect(appJs).not.toContain('test_farmer_dashboard');
 });
 
+test('investor pilot demo pages link back to public home', () => {
+  const demoStart = appJs.indexOf('function renderInvestorDemoDealDetail');
+  const demoEnd = appJs.indexOf('async function showInvestorDeal');
+  expect(demoStart).toBeGreaterThan(-1);
+  expect(demoEnd).toBeGreaterThan(demoStart);
+  const demoSource = appJs.slice(demoStart, demoEnd);
+
+  expect(demoSource).toContain('href="/"');
+  expect(demoSource).toContain('text-lg leading-none');
+  expect(demoSource).toContain('Back home');
+  expect(demoSource).not.toContain('Back to Investor Portal');
+});
+
 test('investor demo financial metrics render in USD instead of NEAR', () => {
   expect(appJs).toContain("displayAmount: '$50,000'");
   expect(appJs).toContain("displayExpectedReturn: '$82,000'");

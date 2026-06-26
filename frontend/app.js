@@ -4948,7 +4948,10 @@ function showInvestorPilotProfile(key) {
   if (!pilot) {
     el.innerHTML = `
       ${renderNav()}
-      <a href="#investor" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Investor Portal</a>
+      <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition mb-6">
+        <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
+        Back home
+      </a>
       <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot profile unavailable</div>
     `;
     return;
@@ -4971,7 +4974,10 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
-      <a href="#investor" class="text-slate-400 hover:text-white text-sm">Back to Investor Portal</a>
+      <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+        <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
+        Back home
+      </a>
       <span class="text-slate-600">|</span>
       <span class="font-semibold">${escapeHtml(profile.title)}</span>
       <span class="text-xs text-slate-500">Pilot Profile</span>
