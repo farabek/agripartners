@@ -448,6 +448,19 @@ test('explicit farmer demo pilot route remains available', () => {
   expect(appJs).toContain('const dealHref = deal.isDemoPilot ? `#farmer/pilots/${deal.pilot_key}`');
 });
 
+test('farmer pilot demo pages link back to public home', () => {
+  const demoStart = appJs.indexOf('function renderFarmerDemoDealDetail');
+  const demoEnd = appJs.indexOf('function renderFarmerProjectProfile');
+  expect(demoStart).toBeGreaterThan(-1);
+  expect(demoEnd).toBeGreaterThan(demoStart);
+  const demoSource = appJs.slice(demoStart, demoEnd);
+
+  expect(demoSource).toContain('href="/"');
+  expect(demoSource).toContain('text-lg leading-none');
+  expect(demoSource).toContain('Back home');
+  expect(demoSource).not.toContain('Back to Farmer Portal');
+});
+
 test('farmer withdrawal success refreshes detail and preserves success state', async () => {
   const fetchImpl = jest.fn().mockResolvedValue({ tx_hash: 'tx-farmer-1' });
   const { withdrawFarmerWithWallet, showDeal, actionResult } = loadWithdrawFarmer(fetchImpl);
