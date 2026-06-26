@@ -1308,9 +1308,14 @@ function showLogin() {
         <div>
           <h2 class="text-sm font-semibold text-slate-100">New to AgriPartners?</h2>
           <p class="text-sm text-slate-400 mt-1">
-            Create or import a NEAR testnet wallet first, then return here and click Login with NEAR Wallet.
+            Public demos do not require registration. Use wallet login only when you want to create a live testnet profile.
           </p>
         </div>
+        <ol class="space-y-2 text-sm text-slate-300">
+          <li><span class="font-semibold text-green-300">1.</span> Explore the public demo pages first if you only want to review the project.</li>
+          <li><span class="font-semibold text-green-300">2.</span> Create or import a NEAR testnet wallet if you want to join the live testnet portal.</li>
+          <li><span class="font-semibold text-green-300">3.</span> Return here, click Login with NEAR Wallet, then create your Farmer or Investor profile.</li>
+        </ol>
         <div class="grid gap-2 sm:grid-cols-2">
           <a href="https://testnet.mynearwallet.com/create" target="_blank" rel="noopener noreferrer"
             class="text-center bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition">
