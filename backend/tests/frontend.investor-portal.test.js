@@ -437,10 +437,17 @@ function loadFundingProgressHelpers() {
 }
 
 test('marketplace route and navigation are rendered', () => {
+  const marketplaceStart = appJs.indexOf('function showMarketplace');
+  expect(marketplaceStart).toBeGreaterThan(-1);
+  const marketplaceBody = appJs.slice(marketplaceStart, marketplaceStart + 1200);
+
   expect(indexHtml).toContain('id="view-marketplace"');
   expect(appJs).toContain("'view-marketplace'");
   expect(appJs).toContain("hash === '#/marketplace'");
   expect(appJs).toContain('showMarketplace();');
+  expect(marketplaceBody).toContain('href="#home"');
+  expect(marketplaceBody).toContain('text-lg leading-none');
+  expect(marketplaceBody).toContain('Back home');
   expect(appJs).toContain('href="#/marketplace"');
   expect(appJs).toContain('Investor Portal');
   expect(appJs).toContain('Marketplace');

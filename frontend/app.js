@@ -1280,7 +1280,7 @@ function showLogin() {
   el.innerHTML = `
     <div class="mb-6">
       <a href="#home" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
-        <span aria-hidden="true">&larr;</span>
+        <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
         Back home
       </a>
     </div>
@@ -4401,6 +4401,12 @@ function showMarketplace(filter = 'all') {
 
   el.innerHTML = `
     ${renderNav()}
+    <div class="mb-6">
+      <a href="#home" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+        <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
+        Back home
+      </a>
+    </div>
     <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
       <div>
         <h1 class="text-3xl font-bold text-green-400 mb-1">Marketplace</h1>
