@@ -2345,7 +2345,7 @@ function showAdminPilotDetail(key) {
           Back home
         </a>
         <span class="text-slate-600">|</span>
-        <a href="#deals" class="text-slate-400 hover:text-white text-sm">Back to Admin Dashboard</a>
+        <a href="#demo/admin" class="text-slate-400 hover:text-white text-sm">Back to Admin Dashboard</a>
       </div>
       <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot profile unavailable</div>
     `;
@@ -2363,7 +2363,7 @@ function renderAdminDemoDealDetail(el, deal) {
         Back home
       </a>
       <span class="text-slate-600">|</span>
-      <a href="#deals" class="text-slate-400 hover:text-white text-sm">Back to Admin Dashboard</a>
+      <a href="#demo/admin" class="text-slate-400 hover:text-white text-sm">Back to Admin Dashboard</a>
       <span class="text-slate-600">|</span>
       <span class="font-semibold">${escapeHtml(deal.title)}</span>
       <span class="text-xs text-slate-500">Pilot Deal</span>
