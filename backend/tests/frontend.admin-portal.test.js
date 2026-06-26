@@ -24,6 +24,14 @@ test('explicit admin pilot route remains available without becoming a live defau
   expect(functionBody('showLiveAdminDashboard', 1300)).not.toContain('buildAdminDemoDataset');
 });
 
+test('admin demo dashboard CTA stays inside public demo flow', () => {
+  const body = functionBody('showAdminDemoPortal', 1800);
+  expect(body).not.toContain('href="#deals"');
+  expect(body).toContain('id="admin-demo-pilot-deals-btn"');
+  expect(body).toContain('View Pilot Deals');
+  expect(body).toContain('scrollIntoView');
+});
+
 test('live dashboard has loading, zero-deal, auth, server, network and malformed JSON states', () => {
   const body = functionBody('showLiveAdminDashboard');
   expect(appJs).toContain('Loading live deals...');

@@ -2048,14 +2048,18 @@ function showAdminDemoPortal() {
         <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Portal</h1>
         <p class="text-slate-400">Pilot operations overview prepared for investor screenshots.</p>
       </div>
-      <a href="#deals" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open Dashboard</a>
+      <button type="button" id="admin-demo-pilot-deals-btn" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">View Pilot Deals</button>
     </div>
     ${renderAdminDemoSummary(adminDemoMetrics(deals))}
-    <h2 class="text-xl font-semibold mb-4">Pilot Deals</h2>
+    <h2 id="admin-demo-pilot-deals" class="text-xl font-semibold mb-4">Pilot Deals</h2>
     <div class="grid gap-4">
       ${deals.map(renderAdminDemoDealCard).join('')}
     </div>
   `;
+
+  document.getElementById('admin-demo-pilot-deals-btn')?.addEventListener('click', () => {
+    document.getElementById('admin-demo-pilot-deals')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 }
 
 function renderAdminCreateForm(el, farmers, investors) {
