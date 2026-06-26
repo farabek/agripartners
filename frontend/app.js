@@ -1141,6 +1141,15 @@ function route() {
     return;
   }
 
+  if (hash === '#admin/users') {
+    if (!isAdmin()) {
+      location.hash = portalHashForRole(auth.user.role);
+      return;
+    }
+    showAdminUsersPortal();
+    return;
+  }
+
   if (hash === '#admin/treasury') {
     if (!isAdmin()) {
       location.hash = portalHashForRole(auth.user.role);
@@ -1275,7 +1284,7 @@ function showLogin() {
     </div>
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
       <p class="text-xs text-slate-500">
-        Username and password access is for pre-created platform accounts only.
+        Username and password access is for pre-created platform accounts provided by a platform admin.
       </p>
       <div>
         <label class="block text-sm text-slate-400 mb-1">Username</label>
@@ -1453,6 +1462,7 @@ function renderNav() {
         <a href="#farmer" class="text-sm text-slate-400 hover:text-green-400 transition">Farmer Portal</a>
         ${isAdmin() ? '<a href="#admin" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Portal</a>' : ''}
         ${isAdmin() ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Dashboard</a>' : ''}
+        ${isAdmin() ? '<a href="#admin/users" class="text-sm text-slate-400 hover:text-green-400 transition">Users</a>' : ''}
         ${isAdmin() ? '<a href="#admin/treasury" class="text-sm text-slate-400 hover:text-green-400 transition">Treasury</a>' : ''}
         <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
       </div>
@@ -1529,6 +1539,104 @@ async function showAdminCreatePortal() {
     .filter(Boolean);
   if (failures.length) {
     contentEl.insertAdjacentHTML('afterbegin', `<div class="bg-amber-950 border border-amber-800 text-amber-100 px-4 py-3 rounded mb-4">${failures.map(escapeHtml).join('<br>')}</div>`);
+  }
+}
+
+function showAdminUsersPortal() {
+  showView('view-admin');
+  const el = document.getElementById('view-admin');
+  el.innerHTML = `
+    ${renderNav()}
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-green-400 mb-1">Platform Users</h1>
+        <p class="text-slate-400">Create username/password accounts for internal platform access.</p>
+      </div>
+      <a href="#deals" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open Dashboard</a>
+    </div>
+    <form id="admin-user-form" class="bg-slate-800 rounded-xl p-5 space-y-4 max-w-2xl">
+      <div class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-sm text-slate-300">
+        These credentials are for pre-created platform accounts. New public users should still use NEAR Wallet onboarding.
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1" for="admin-user-username">Username</label>
+          <input id="admin-user-username" name="username" type="text" autocomplete="off" required
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1" for="admin-user-email">Email</label>
+          <input id="admin-user-email" name="email" type="email" autocomplete="off" required
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        </div>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1" for="admin-user-password">Temporary password</label>
+          <input id="admin-user-password" name="password" type="password" autocomplete="new-password" required minlength="6"
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1" for="admin-user-role">Role</label>
+          <select id="admin-user-role" name="role" required
+            class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500">
+            <option value="investor">Investor</option>
+            <option value="farmer">Farmer</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm text-slate-400 mb-1" for="admin-user-near">NEAR account (optional)</label>
+        <input id="admin-user-near" name="near_account" type="text" autocomplete="off" placeholder="example.testnet"
+          class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
+      </div>
+      <div id="admin-user-result" class="hidden rounded-lg px-4 py-3 text-sm"></div>
+      <button id="admin-user-submit" type="submit"
+        class="w-full sm:w-auto bg-green-600 hover:bg-green-500 text-white px-5 py-2 rounded-lg font-medium transition">
+        Create Platform User
+      </button>
+    </form>
+  `;
+  document.getElementById('admin-user-form').addEventListener('submit', createPlatformUser);
+}
+
+function showAdminUserResult(type, message) {
+  const el = document.getElementById('admin-user-result');
+  if (!el) return;
+  el.className = type === 'success'
+    ? 'rounded-lg px-4 py-3 text-sm bg-green-950 border border-green-800 text-green-100'
+    : 'rounded-lg px-4 py-3 text-sm bg-red-900 text-red-200';
+  el.textContent = message;
+}
+
+async function createPlatformUser(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const btn = document.getElementById('admin-user-submit');
+  const nearAccount = document.getElementById('admin-user-near').value.trim();
+  const payload = {
+    username: document.getElementById('admin-user-username').value.trim(),
+    email: document.getElementById('admin-user-email').value.trim(),
+    password: document.getElementById('admin-user-password').value,
+    role: document.getElementById('admin-user-role').value,
+  };
+  if (nearAccount) payload.near_account = nearAccount;
+
+  btn.disabled = true;
+  btn.textContent = 'Creating...';
+  try {
+    const data = await fetchAdminJson('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    form.reset();
+    showAdminUserResult('success', `Created ${data.role} user: ${data.username}`);
+  } catch (err) {
+    showAdminUserResult('error', `Create user failed: ${err.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Create Platform User';
   }
 }
 
@@ -2083,6 +2191,7 @@ function renderAdminDashboardShell(el) {
       </div>
       <div class="flex flex-wrap gap-2">
         <a href="#admin/treasury" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Treasury Dashboard</a>
+        <a href="#admin/users" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create User</a>
         <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Deal</a>
       </div>
     </div>

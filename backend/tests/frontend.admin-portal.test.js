@@ -48,6 +48,22 @@ test('admin create handles success, request errors, partial profile failures and
   expect(create).toContain('Create deal failed:');
 });
 
+test('admin users screen creates pre-created platform accounts', () => {
+  const route = appJs.slice(appJs.indexOf("if (hash === '#admin/users')"), appJs.indexOf("if (hash === '#admin/treasury')"));
+  const screen = functionBody('showAdminUsersPortal', 5200);
+  const create = functionBody('createPlatformUser', 2200);
+  expect(route).toContain('showAdminUsersPortal()');
+  expect(appJs).toContain('href="#admin/users"');
+  expect(appJs).toContain('Create User');
+  expect(screen).toContain('id="admin-user-form"');
+  expect(screen).toContain('Create Platform User');
+  expect(screen).toContain('These credentials are for pre-created platform accounts');
+  expect(create).toContain("fetchAdminJson('/api/auth/register'");
+  expect(create).toContain('near_account');
+  expect(create).toContain('form.reset()');
+  expect(create).toContain('Create user failed:');
+});
+
 test('deal detail bundle treats main deal as mandatory and optional resources independently', () => {
   const body = functionBody('fetchDealBundle', 6500);
   expect(body).toContain("if (settled[0].status === 'rejected') throw settled[0].reason");
