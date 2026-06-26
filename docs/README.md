@@ -94,8 +94,9 @@ Current Alpha v1.2 modules include:
 
 ## Outreach Materials
 
-- [NEAR Directory](outreach/near-directory/SUMMARY.md) - verified ecosystem directory and contact knowledge base.
+- [Near Directory](outreach/near-directory/SUMMARY.md) - verified ecosystem directory and contact knowledge base.
 - [Outreach CRM](outreach/outreach-crm.md) - active CRM and working pipeline.
+- [Outreach Shortlist](outreach/outreach-shortlist.md) - daily clickable list for LinkedIn actions.
 - [Founder LinkedIn Profile Kit](outreach/founder-linkedin-profile-kit.md) - LinkedIn profile materials.
 - [NEAR Ecosystem CRM](outreach/near-ecosystem-crm.md)
 - [Outreach Playbook](outreach/outreach-playbook.md) - outreach methodology.

@@ -16,8 +16,6 @@ Preferred Contact Channel: X
 
 AgriPartners Relevance: ★★ Low — strategic visibility contact for NEAR direction, not a practical first-wave routing contact.
 
-Outreach Status: Not Contacted
-
 Outreach Goal: Follow for strategic context on NEAR's AI, chain abstraction, privacy, and ecosystem direction. Direct outreach should wait until AgriPartners has stronger ecosystem visibility.
 
 LinkedIn: https://pt.linkedin.com/in/illia-polosukhin-77b6538
@@ -54,11 +52,9 @@ Preferred Contact Channel: LinkedIn
 
 AgriPartners Relevance: ★★★★ High — useful routing contact if Founder Success or technical review needs escalation.
 
-Outreach Status: Not Contacted
-
 Outreach Goal: Route AgriPartners to the right NEAR Foundation team if Founder Success or technical review requires escalation.
 
-LinkedIn: https://pt.linkedin.com/in/mirzdame
+LinkedIn: https://www.linkedin.com/in/mirzdame/
 
 X / Twitter: Not listed in verification sources.
 
@@ -74,7 +70,43 @@ Reason for Inclusion: LinkedIn identifies David Mirzadeh as Chief of Staff at NE
 
 Suggested First Action: Keep as a routing contact after Founder Success outreach or after an accepted connection.
 
-Notes: Already present in the active invite log. Source trail: LinkedIn search result for `https://pt.linkedin.com/in/mirzdame`; NEAR ecosystem `nf_people.md` at `https://github.com/near/ecosystem/blob/main/nf_people.md`.
+Notes: Already present in the active invite log. Source trail: LinkedIn profile `https://www.linkedin.com/in/mirzdame/`; NEAR ecosystem `nf_people.md` at `https://github.com/near/ecosystem/blob/main/nf_people.md`.
+
+## Philipp Suarez
+
+Organization: NEAR Foundation
+
+Role: Head of Finance
+
+Category: NEAR Foundation
+
+Priority Tier: Tier 3
+
+Trust Level: Official LinkedIn; User-verified LinkedIn screenshot
+
+Preferred Contact Channel: LinkedIn
+
+AgriPartners Relevance: ★★★ Medium — relevant to finance, sustainability, treasury framing, and model-readiness questions after founder routing is clearer.
+
+Outreach Goal: Keep as a finance-track contact for later questions about sustainability, treasury transparency, and NEAR Foundation finance context.
+
+LinkedIn: https://www.linkedin.com/in/philipp-suarez-83ab4593/
+
+X / Twitter: Not listed in verification sources.
+
+GitHub: Not listed in verification sources.
+
+Current Status: 🟢 Verified
+
+Last Verified: 2026-06-25
+
+Verified Sources: LinkedIn profile screenshot provided by founder on 2026-06-25.
+
+Reason for Inclusion: LinkedIn profile screenshot identifies Philipp Suarez as NEAR Foundation, Head of Finance.
+
+Suggested First Action: Track existing contact in Outreach CRM and send a short intro only if the connection is accepted or if a finance-specific question becomes relevant.
+
+Notes: Historical active invite from the previous CRM structure. Canonical LinkedIn URL from founder screenshot: `https://www.linkedin.com/in/philipp-suarez-83ab4593/`.
 
 ## David Norris
 
@@ -91,8 +123,6 @@ Trust Level: Official LinkedIn
 Preferred Contact Channel: LinkedIn
 
 AgriPartners Relevance: ★★★ Medium — relevant to financial model, treasury transparency, and sustainability, but not core founder routing.
-
-Outreach Status: Not Contacted
 
 Outreach Goal: Understand whether AgriPartners' financial model, treasury transparency, and sustainability framing fit NEAR's strategic priorities.
 
@@ -129,8 +159,6 @@ Trust Level: Official LinkedIn
 Preferred Contact Channel: LinkedIn
 
 AgriPartners Relevance: ★★★★ High — strong fit for developer-experience feedback on NEAR Testnet workflows and Beta readiness.
-
-Outreach Status: Not Contacted
 
 Outreach Goal: Request developer-experience feedback on AgriPartners' NEAR Testnet workflows and Beta-readiness assumptions.
 

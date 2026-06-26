@@ -16,11 +16,9 @@ Preferred Contact Channel: LinkedIn
 
 AgriPartners Relevance: ★★★★★ Critical — direct Founder Success contact for routing AgriPartners into the right NEAR support path.
 
-Outreach Status: Not Contacted
-
 Outreach Goal: Confirm the best founder-support path for AgriPartners and ask where an Alpha v1.2 agriculture/RWA workflow project should route for feedback.
 
-LinkedIn: https://www.linkedin.com/in/joey-be
+LinkedIn: https://www.linkedin.com/in/joey-be/
 
 X / Twitter: Not listed in verification sources.
 
@@ -36,7 +34,7 @@ Reason for Inclusion: LinkedIn identifies Joseph Beverley as Founder Success Man
 
 Suggested First Action: Verify profile one final time in LinkedIn, then send a short connection request asking for the right Founder Success routing for AgriPartners.
 
-Notes: Highest-confidence Founder Success entry currently verified for direct outreach. Source trail: LinkedIn search result for `https://www.linkedin.com/in/joey-be`; NEAR ecosystem `nf_people.md` at `https://github.com/near/ecosystem/blob/main/nf_people.md`.
+Notes: Highest-confidence Founder Success entry currently verified for direct outreach. Source trail: LinkedIn profile `https://www.linkedin.com/in/joey-be/`; NEAR ecosystem `nf_people.md` at `https://github.com/near/ecosystem/blob/main/nf_people.md`.
 
 ## Manual Review Queue
 

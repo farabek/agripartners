@@ -1,14 +1,16 @@
-# NEAR Directory Summary
+# Near Directory Summary
 
 Last update date: 2026-06-25
 
-This is the entry point for the AgriPartners NEAR Ecosystem Directory. Use it to choose outreach priorities, then open the organization files for full contact records and source notes.
+This is the main entry point for AgriPartners outreach planning. Use this file to choose verified contacts by Tier, then open the listed Directory File for full verification metadata and source notes.
+
+Near Directory is the canonical contact database. Outreach CRM is the operational interaction log.
 
 ## Totals
 
-Total verified contacts: 14
+Total verified contacts: 15
 
-Contacts needing verification: 10
+Contacts needing verification: 11
 
 ## Organizations Covered
 
@@ -21,31 +23,42 @@ Contacts needing verification: 10
 
 ## Tier 1
 
-- Joseph Beverley — NEAR Foundation, Founder Success Manager
+| Name | Organization | Role | Status | Directory File |
+| :--- | :--- | :--- | :--- | :--- |
+| Joseph Beverley | NEAR Foundation | Founder Success Manager | 🟢 Verified | `founder-success.md` |
 
 ## Tier 2
 
-- David Mirzadeh — NEAR Foundation, Chief of Staff
-- Josh Ford — NEAR Protocol, Senior Product Manager, DevX
-- Bowen Shen — Proximity Labs, NEAR DeFi ecosystem growth and strategy / BD
+| Name | Organization | Role | Status | Directory File |
+| :--- | :--- | :--- | :--- | :--- |
+| David Mirzadeh | NEAR Foundation | Chief of Staff | 🟢 Verified | `near-foundation.md` |
+| Josh Ford | NEAR Protocol | Senior Product Manager, DevX | 🟢 Verified | `near-foundation.md` |
+| Bowen Shen | Proximity Labs | Chief Chess Player | 🟢 Verified | `proximity-labs.md` |
 
 ## Tier 3
 
-- David Norris — NEAR Foundation, CFO & CSO
-- Marc Goldich — Proximity Labs, General Counsel
-- Alex Shevchenko — Aurora Labs / Defuse Labs, Advisor / NEAR Intents
-- Declan Hannon — Aurora Labs, CEO
-- Nick Symeou — Aurora Labs, Business Development Manager
-- Armand Didier — Aurora Labs, Head of Product
-- Peter Volnov — HOT Labs / HEVN, Co-Founder
-- Nate Geier — Bitte Protocol, Co-Founder
-- Claudio Cossio — Meta Pool, Co-Founder
+| Name | Organization | Role | Status | Directory File |
+| :--- | :--- | :--- | :--- | :--- |
+| David Norris | NEAR Foundation | CFO & CSO | 🟢 Verified | `near-foundation.md` |
+| Philipp Suarez | NEAR Foundation | Head of Finance | 🟢 Verified | `near-foundation.md` |
+| Marc Goldich | Proximity Labs | General Counsel | 🟢 Verified | `proximity-labs.md` |
+| Alex Shevchenko | Aurora Labs / Defuse Labs | Advisor / NEAR Intents | 🟢 Verified | `aurora.md` |
+| Declan Hannon | Aurora Labs | CEO | 🟢 Verified | `aurora.md` |
+| Nick Symeou | Aurora Labs | Business Development Manager | 🟢 Verified | `aurora.md` |
+| Armand Didier | Aurora Labs | Head of Product | 🟢 Verified | `aurora.md` |
+| Peter Volnov | HOT Labs / HEVN | Co-Founder | 🟢 Verified | `ecosystem-projects.md` |
+| Nate Geier | Bitte Protocol | Co-Founder | 🟢 Verified | `ecosystem-projects.md` |
+| Claudio Cossio | Meta Pool | Co-Founder | 🟢 Verified | `ecosystem-projects.md` |
 
 ## Tier 4
 
-- Illia Polosukhin — NEAR Foundation / NEAR Protocol, Co-Founder / CEO
+| Name | Organization | Role | Status | Directory File |
+| :--- | :--- | :--- | :--- | :--- |
+| Illia Polosukhin | NEAR Foundation / NEAR Protocol | Co-Founder / CEO | 🟢 Verified | `near-foundation.md` |
 
 ## Contacts Needing Verification
+
+These people are not eligible for Outreach CRM until they are verified and added to the appropriate Near Directory file.
 
 - Michael Broderick
 - Bianca Momand
@@ -57,10 +70,15 @@ Contacts needing verification: 10
 - Altan Tutar
 - Jacob Lindahl
 - Artem Petrikeev
+- Taras Dovgal
 
-## Next Update Checklist
+## Planning Rule
 
-- Re-verify every Tier 1 and Tier 2 contact before the next outreach wave.
-- Move anyone with role conflict or stale organization data to `verification-log.md` as `🟡 Needs Review`.
-- Add new contacts only after the full record schema in `README.md` is complete.
-- Keep `docs/outreach/outreach-crm.md` limited to people already listed here as `🟢 Verified`.
+Do not start from Outreach CRM when adding a new person.
+
+Start with Near Directory:
+
+1. Verify the person.
+2. Add the person to Near Directory.
+3. Assign a Tier.
+4. Add the person to Outreach CRM only when outreach begins.

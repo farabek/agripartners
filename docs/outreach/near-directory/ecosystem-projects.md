@@ -18,8 +18,6 @@ Preferred Contact Channel: LinkedIn
 
 AgriPartners Relevance: ★★★ Medium — useful for wallet onboarding, consumer UX, and NEAR-based user acquisition lessons.
 
-Outreach Status: Not Contacted
-
 Outreach Goal: Understand HOT Wallet/HOT Labs lessons for consumer onboarding, wallet adoption, and NEAR-based user acquisition.
 
 LinkedIn: https://www.linkedin.com/in/pvolnov/en
@@ -58,8 +56,6 @@ Preferred Contact Channel: LinkedIn
 
 AgriPartners Relevance: ★★★ Medium — relevant if AgriPartners frames agentic transaction tooling or AI-assisted workflow automation.
 
-Outreach Status: Not Contacted
-
 Outreach Goal: Explore whether agentic transaction tooling or AI-agent UX lessons apply to AgriPartners workflows.
 
 LinkedIn: https://pt.linkedin.com/in/nategeier
@@ -97,8 +93,6 @@ Trust Level: Official LinkedIn; Multiple verified sources
 Preferred Contact Channel: LinkedIn
 
 AgriPartners Relevance: ★★★ Medium — relevant only if AgriPartners develops a credible DeFi, staking, liquidity, or TVL thesis.
-
-Outreach Status: Not Contacted
 
 Outreach Goal: Validate whether AgriPartners has any credible DeFi, staking, liquidity, or TVL-related angle before approaching Meta Pool programs.
 

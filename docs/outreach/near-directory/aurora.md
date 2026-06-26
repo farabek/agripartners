@@ -16,8 +16,6 @@ Preferred Contact Channel: X
 
 AgriPartners Relevance: ★★★ Medium — useful if AgriPartners needs NEAR Intents, cross-chain UX, or Aurora/EVM settlement guidance.
 
-Outreach Status: Not Contacted
-
 Outreach Goal: Follow for NEAR Intents, EVM compatibility, and cross-chain UX context; consider outreach only if AgriPartners needs Aurora or intent-based settlement feedback.
 
 LinkedIn: https://www.linkedin.com/in/alexauroradev/
@@ -53,8 +51,6 @@ Trust Level: Official organization page; Official LinkedIn; Official X; Multiple
 Preferred Contact Channel: LinkedIn
 
 AgriPartners Relevance: ★★★ Medium — relevant if AgriPartners later needs Aurora Virtual Chains, Aurora Cloud, or EVM-compatible infrastructure.
-
-Outreach Status: Not Contacted
 
 Outreach Goal: Explore whether Aurora Virtual Chains or Aurora Cloud are relevant if AgriPartners later needs EVM-compatible infrastructure.
 
@@ -92,8 +88,6 @@ Preferred Contact Channel: LinkedIn
 
 AgriPartners Relevance: ★★★ Medium — useful for Aurora partner routing if AgriPartners needs EVM compatibility or ecosystem BD.
 
-Outreach Status: Not Contacted
-
 Outreach Goal: Ask about Aurora ecosystem/business-development fit if AgriPartners needs EVM compatibility or partner routing.
 
 LinkedIn: https://www.linkedin.com/in/nickbdm/
@@ -129,8 +123,6 @@ Trust Level: Official organization page; Official LinkedIn; Official X; Official
 Preferred Contact Channel: LinkedIn
 
 AgriPartners Relevance: ★★★ Medium — relevant for Aurora product-fit feedback if AgriPartners explores EVM-compatible product paths.
-
-Outreach Status: Not Contacted
 
 Outreach Goal: Request product-fit feedback if AgriPartners explores Aurora tooling or EVM-compatible product paths.
 

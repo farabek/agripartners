@@ -4,7 +4,7 @@
 
 Organization: Proximity Labs
 
-Role: NEAR DeFi ecosystem growth and strategy / BD
+Role: Chief Chess Player
 
 Category: Proximity Labs
 
@@ -14,13 +14,11 @@ Trust Level: Official LinkedIn; Official organization page; Multiple verified so
 
 Preferred Contact Channel: LinkedIn
 
-AgriPartners Relevance: ★★★★ High — strong fit for NEAR DeFi, RWA-adjacent workflows, and chain-abstraction feedback.
+AgriPartners Relevance: ★★★★ High — useful Proximity Labs contact for ecosystem fit, DeFi/RWA framing, and chain-abstraction feedback.
 
-Outreach Status: Not Contacted
+Outreach Goal: Ask for feedback on whether AgriPartners has a credible NEAR DeFi/RWA or Chain Abstraction angle, or should stay focused on product and Founder Success feedback first.
 
-Outreach Goal: Ask for feedback on where AgriPartners could fit within NEAR DeFi, RWA-adjacent workflows, and chain abstraction.
-
-LinkedIn: https://au.linkedin.com/in/bowen-shen-558479a0
+LinkedIn: https://www.linkedin.com/in/bowen-shen-558479a0/
 
 X / Twitter: Not listed in verification sources.
 
@@ -30,13 +28,13 @@ Current Status: 🟢 Verified
 
 Last Verified: 2026-06-25
 
-Verified Sources: LinkedIn profile; Proximity Labs website.
+Verified Sources: LinkedIn profile screenshot provided by founder on 2026-06-25; Proximity Labs website.
 
-Reason for Inclusion: LinkedIn search results identify Bowen Shen at Proximity Labs with NEAR DeFi ecosystem growth, strategy, and BD responsibilities.
+Reason for Inclusion: LinkedIn profile screenshot identifies Bowen Shen as Chief Chess Player at Proximity Labs, a NEAR ecosystem organization relevant to DeFi/RWA and chain-abstraction feedback.
 
-Suggested First Action: Verify profile in LinkedIn, then ask for a short DeFi/RWA fit check after the Founder Success path is started.
+Suggested First Action: Track invite as pending in Outreach CRM; monitor posts and send a short DeFi/RWA fit check after acceptance.
 
-Notes: Good fit for ecosystem growth and DeFi positioning. Source trail: LinkedIn search result for `https://au.linkedin.com/in/bowen-shen-558479a0`; Proximity overview `https://www.proximity.dev/`.
+Notes: Invite sent on 2026-06-25. Canonical LinkedIn URL from founder screenshot: `https://www.linkedin.com/in/bowen-shen-558479a0/`; Proximity overview `https://www.proximity.dev/`.
 
 ## Marc Goldich
 
@@ -53,8 +51,6 @@ Trust Level: Official LinkedIn; Official organization page; Multiple verified so
 Preferred Contact Channel: LinkedIn
 
 AgriPartners Relevance: ★★★ Medium — useful for RWA, DeFi, and regulated-market framing after the product thesis is sharper.
-
-Outreach Status: Not Contacted
 
 Outreach Goal: Understand legal/compliance considerations around RWA-like agriculture workflows and NEAR ecosystem expectations.
 

@@ -1,10 +1,40 @@
-# NEAR Ecosystem Directory 2026
+# Near Directory
 
-Start with `SUMMARY.md` for the current verified-contact count, tier breakdown, and manual-verification queue.
+Start with `SUMMARY.md` for outreach planning. The Near Directory is the single source of truth for verified NEAR ecosystem contacts used by AgriPartners founder outreach.
 
-This directory is the single source of truth for AgriPartners founder outreach into the NEAR ecosystem.
+Near Directory stores facts about people. Outreach CRM stores interactions with those people.
 
-It replaces ad-hoc contact lists with a curated CRM knowledge base of people whose LinkedIn profile, current organization, current role, profile activity, and relevance to AgriPartners have been checked before inclusion.
+## Workflow
+
+```text
+Discover Contact
+        ↓
+Verify Contact
+        ↓
+Add to Near Directory
+        ↓
+Assign Tier
+        ↓
+Begin Outreach
+        ↓
+Track in Outreach CRM
+```
+
+Never add a contact directly to Outreach CRM.
+
+Every contact must first be verified and added to Near Directory.
+
+## What Near Directory Contains
+
+- Verified contacts.
+- Roles.
+- Organizations.
+- LinkedIn, X, GitHub, and other source links when available.
+- Verification metadata.
+- Outreach relevance.
+- Priority Tier.
+
+Near Directory does not track live outreach activity. Use `docs/outreach/outreach-crm.md` for outreach status, dates, responses, next actions, and follow-ups.
 
 ## Verification Methodology
 
@@ -38,8 +68,6 @@ Trust Level:
 Preferred Contact Channel:
 
 AgriPartners Relevance:
-
-Outreach Status:
 
 Outreach Goal:
 
@@ -82,58 +110,47 @@ Use one or more of these values:
 
 Each rating must include a brief explanation.
 
-## Outreach Status Values
-
-- `Not Contacted`
-- `Following`
-- `Connected`
-- `Conversation`
-- `Feedback`
-- `Meeting`
-- `Partner`
-
-Default: `Not Contacted`.
-
 ## Update Process
 
 1. Search for the person by name, organization, and role.
 2. Confirm the LinkedIn URL directly from search results or an official team page.
 3. Confirm current organization and current role from LinkedIn and at least one supporting source when possible.
 4. Add the person to the correct organization file only after all verification checks pass.
-5. Use ISO verification dates only: `YYYY-MM-DD`.
-6. Update `verification-log.md` with the source used, result, and notes.
-7. Update `SUMMARY.md` counts and tier lists.
-8. Re-check Tier 1 contacts before every outreach wave.
+5. Assign a Priority Tier in Near Directory.
+6. Use ISO verification dates only: `YYYY-MM-DD`.
+7. Update `verification-log.md` with verification dates, expiry, next review date, sources, result, and notes.
+8. Update `SUMMARY.md` counts and Tier lists.
+9. Add the contact to `docs/outreach/outreach-crm.md` only when outreach actually begins.
 
-## CRM Usage
+## Outreach CRM Rule
 
-`docs/outreach/outreach-crm.md` should reference only contacts that are marked `🟢 Verified` in this directory.
+`docs/outreach/outreach-crm.md` should reference only contacts that are marked `🟢 Verified` in Near Directory.
 
-If a person is not present here, do not add them to the CRM outreach queue until they are verified and added to the directory.
+If a person is not present in Near Directory, do not add them to Outreach CRM.
 
-If a current CRM contact becomes stale, remove them from the active queue and add a verification-log entry before any further outreach.
+If a current CRM contact becomes stale, remove them from the active pipeline and add a verification-log entry before any further outreach.
 
 ## Directory Files
 
-- `SUMMARY.md` — entry point, counts, tier rollup, and manual-verification queue.
-- `founder-success.md` — Founder Success and ecosystem-entry contacts.
-- `near-foundation.md` — NEAR Foundation leadership, operations, product, and technical contacts.
-- `proximity-labs.md` — Proximity Labs contacts.
-- `pagoda.md` — Pagoda contacts.
-- `aurora.md` — Aurora Labs contacts.
-- `ecosystem-projects.md` — HOT Protocol, Bitte Protocol, Meta Pool, ecosystem builders, and strategic partners.
-- `investors.md` — investor and capital-network contacts.
-- `verification-log.md` — verification source trail and manual-review queue.
+- `SUMMARY.md` - entry point, counts, Tier rollup, and manual-verification queue.
+- `founder-success.md` - Founder Success and ecosystem-entry contacts.
+- `near-foundation.md` - NEAR Foundation leadership, operations, product, and technical contacts.
+- `proximity-labs.md` - Proximity Labs contacts.
+- `pagoda.md` - Pagoda contacts.
+- `aurora.md` - Aurora Labs contacts.
+- `ecosystem-projects.md` - HOT Protocol, Bitte Protocol, Meta Pool, ecosystem builders, and strategic partners.
+- `investors.md` - investor and capital-network contacts.
+- `verification-log.md` - verification source trail, expiry tracking, and manual-review queue.
 
 ## Priority Guide
 
-- `Tier 1` — Most relevant for Founder Success, ecosystem entry, technical review, or routing.
-- `Tier 2` — Strong relevance, but not the first outreach wave.
-- `Tier 3` — Useful strategic or specialist contact after core routing is established.
-- `Tier 4` — Visibility, follow, or later-stage strategic relevance.
+- `Tier 1` - Most relevant for Founder Success, ecosystem entry, technical review, or routing.
+- `Tier 2` - Strong relevance, but not the first outreach wave.
+- `Tier 3` - Useful strategic or specialist contact after core routing is established.
+- `Tier 4` - Visibility, follow, or later-stage strategic relevance.
 
-## Status Guide
+## Verification Status Guide
 
-- `🟢 Verified` — Passed all directory verification checks.
-- `🟡 Needs Review` — Do not outreach yet; source conflict, stale role, or insufficient role confirmation.
-- `🔴 Outdated` — Do not outreach; current role or organization is confirmed outdated for the intended purpose.
+- `🟢 Verified` - Passed all Near Directory verification checks.
+- `🟡 Needs Review` - Do not outreach yet; source conflict, stale role, or insufficient role confirmation.
+- `🔴 Outdated` - Do not outreach; current role or organization is confirmed outdated for the intended purpose.
