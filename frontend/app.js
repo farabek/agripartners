@@ -1278,6 +1278,12 @@ function showLogin() {
   const pendingLoginError = sessionStorage.getItem('ap_login_error');
   sessionStorage.removeItem('ap_login_error');
   el.innerHTML = `
+    <div class="mb-6">
+      <a href="#home" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+        <span aria-hidden="true">&larr;</span>
+        Back home
+      </a>
+    </div>
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-green-400">AgriPartners</h1>
       <p class="text-slate-400 mt-1">New users start with "Create NEAR Testnet Wallet."</p>

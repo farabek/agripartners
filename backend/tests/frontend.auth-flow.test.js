@@ -44,6 +44,14 @@ test('login copy explains wallet onboarding and platform credentials', () => {
   expect(appJs).toContain('Need help? Show step-by-step guide');
 });
 
+test('login screen links back to the home page', () => {
+  const loginStart = appJs.indexOf('function showLogin()');
+  expect(loginStart).toBeGreaterThan(-1);
+  const loginBody = appJs.slice(loginStart, loginStart + 1200);
+  expect(loginBody).toContain('href="#home"');
+  expect(loginBody).toContain('Back home');
+});
+
 test('login screen presents NEAR wallet before platform account access', () => {
   const walletIndex = appJs.indexOf('id="login-near-wallet"');
   const platformIndex = appJs.indexOf('Platform account access');
