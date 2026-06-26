@@ -39,8 +39,8 @@ test('frontend uses browser-safe wallet redirect and the Render API', () => {
 
 test('login copy explains wallet onboarding and platform credentials', () => {
   expect(appJs).toContain('New users start with "Create NEAR Testnet Wallet."');
-  expect(appJs).toContain('Have admin-provided credentials?');
-  expect(appJs).toContain('Sign in here with the username and password provided by a platform admin.');
+  expect(appJs).toContain('For admin-provided accounts');
+  expect(appJs).toContain('Sign in here only if a platform admin gave you a username and password.');
   expect(appJs).toContain('Need help? Show step-by-step guide');
 });
 

@@ -1328,9 +1328,9 @@ function showLogin() {
         <span class="h-px flex-1 bg-slate-700"></span>
       </div>
       <div class="bg-green-950/40 border border-green-800 rounded-lg px-4 py-3">
-        <p class="text-sm font-semibold text-green-200">Have admin-provided credentials?</p>
+        <p class="text-sm font-semibold text-green-200">For admin-provided accounts</p>
         <p class="text-sm text-slate-300 mt-1">
-          Sign in here with the username and password provided by a platform admin.
+          Sign in here only if a platform admin gave you a username and password.
         </p>
       </div>
       <div>
