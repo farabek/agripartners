@@ -92,6 +92,10 @@ Current Alpha v1.2 modules include:
 - [Screenshots](screenshots/)
 - [Screenshot Checklist](investor-package/screenshot-checklist.md)
 
+## White Papers
+
+- [AgriPartners White Papers](whitepaper/README.md) - official platform explanation documents in English and Russian.
+
 ## Outreach Materials
 
 - [Near Directory](outreach/near-directory/SUMMARY.md) - verified ecosystem directory and contact knowledge base.

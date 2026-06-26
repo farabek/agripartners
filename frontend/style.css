@@ -221,6 +221,114 @@
   color: #cbd5e1;
 }
 
+.landing-whitepaper {
+  background-color: #142033;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 22px;
+}
+
+.landing-whitepaper p {
+  color: #cbd5e1;
+  line-height: 1.6;
+  max-width: 860px;
+}
+
+.landing-safe-positioning,
+.whitepaper-positioning {
+  background-color: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  color: #dbeafe !important;
+  margin-top: 14px;
+  padding: 12px 14px;
+}
+
+.public-footer {
+  border-top: 1px solid #334155;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 44px;
+  padding-top: 20px;
+}
+
+.public-footer a {
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition: color 0.15s ease;
+}
+
+.public-footer a:hover {
+  color: #4ade80;
+}
+
+.whitepaper-page {
+  display: grid;
+  gap: 20px;
+}
+
+.whitepaper-heading {
+  display: grid;
+  gap: 14px;
+}
+
+.whitepaper-heading h1 {
+  color: #f8fafc;
+  font-size: 2.35rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.whitepaper-heading p {
+  color: #cbd5e1;
+  line-height: 1.65;
+  max-width: 860px;
+}
+
+.whitepaper-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.whitepaper-lang-btn {
+  background-color: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  color: #f8fafc;
+  font-size: 0.92rem;
+  font-weight: 700;
+  min-height: 42px;
+  padding: 10px 14px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.whitepaper-lang-btn:hover {
+  background-color: #334155;
+  border-color: #94a3b8;
+}
+
+.whitepaper-lang-btn.is-active {
+  background-color: #16a34a;
+  border-color: #22c55e;
+}
+
+.whitepaper-fallback {
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.whitepaper-frame {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  min-height: 760px;
+  width: 100%;
+}
+
 .presentation-timeline {
   display: grid;
   gap: 10px;
@@ -796,6 +904,26 @@
   .landing-card-grid,
   .landing-feature-list div {
     grid-template-columns: 1fr;
+  }
+
+  .public-footer,
+  .whitepaper-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .public-footer a,
+  .whitepaper-controls .landing-btn,
+  .whitepaper-lang-btn {
+    width: 100%;
+  }
+
+  .whitepaper-heading h1 {
+    font-size: 2rem;
+  }
+
+  .whitepaper-frame {
+    min-height: 560px;
   }
 
   .onboarding-role-grid {

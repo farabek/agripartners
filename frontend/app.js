@@ -294,7 +294,7 @@ function statusBadge(status) {
 // --- Router ---
 
 function showView(viewId) {
-  ['view-home', 'view-login', 'view-list', 'view-detail', 'view-marketplace', 'view-presentation', 'view-investor', 'view-farmer', 'view-admin', 'view-onboarding'].forEach(id => {
+  ['view-home', 'view-login', 'view-list', 'view-detail', 'view-marketplace', 'view-presentation', 'view-investor', 'view-farmer', 'view-admin', 'view-onboarding', 'view-whitepaper'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   document.getElementById(viewId).classList.remove('hidden');
@@ -1090,6 +1090,12 @@ function route() {
     return;
   }
 
+  const whitePaperMatch = hash.match(/^#\/?whitepaper(?:\?lang=(en|ru))?$/);
+  if (whitePaperMatch) {
+    showWhitePaper(whitePaperMatch[1] || 'en');
+    return;
+  }
+
   if (!auth) {
     location.hash = '#home';
     return;
@@ -1201,6 +1207,7 @@ function showHome() {
       <a href="#home" class="landing-brand">AgriPartners</a>
       <div class="landing-nav-actions">
         <a href="#/marketplace">Marketplace</a>
+        <a href="#/whitepaper">White Paper</a>
         <a href="#login">Login</a>
       </div>
     </header>
@@ -1265,10 +1272,102 @@ function showHome() {
           <div><strong>Treasury foundation</strong><span>Append-only double-entry ledger services with idempotent source references for future workflow integrations.</span></div>
         </div>
       </section>
+
+      <section class="landing-section landing-whitepaper" aria-label="AgriPartners white paper">
+        <div class="landing-section-heading">
+          <span>White paper</span>
+          <h2>Learn More About AgriPartners</h2>
+        </div>
+        <p>
+          Read the platform explanation to understand the AgriPartners vision, funding model, NEAR Testnet integration,
+          investor workflow, farmer workflow, treasury visibility, roadmap, and stakeholder benefits.
+        </p>
+        <p class="landing-safe-positioning">
+          AgriPartners is currently an Alpha platform on NEAR Testnet. It is not a production investment, custody,
+          payout, settlement, or Mainnet financial system.
+        </p>
+        <div class="landing-actions" aria-label="White paper actions">
+          <a class="landing-btn landing-btn-primary" href="#/whitepaper">Read White Paper (EN)</a>
+          <a class="landing-btn" href="assets/whitepaper/AGRIPARTNERS_PLATFORM_EXPLAINED_EN.pdf" download>Download PDF (EN)</a>
+          <a class="landing-btn landing-btn-primary" href="#/whitepaper?lang=ru">Read White Paper (RU)</a>
+          <a class="landing-btn" href="assets/whitepaper/AGRIPARTNERS_PLATFORM_EXPLAINED_RU.pdf" download>Download PDF (RU)</a>
+        </div>
+      </section>
     </main>
+
+    ${renderPublicFooter()}
   `;
 
   document.getElementById('home-login-wallet')?.addEventListener('click', handleWalletLogin);
+}
+
+function renderPublicFooter() {
+  return `
+    <footer class="public-footer">
+      <a href="#/whitepaper">White Paper</a>
+      <a href="https://github.com/farabek/agripartners" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://github.com/farabek/agripartners/tree/main/docs" target="_blank" rel="noopener noreferrer">Documentation</a>
+    </footer>
+  `;
+}
+
+function whitePaperAsset(lang) {
+  return lang === 'ru'
+    ? 'assets/whitepaper/AGRIPARTNERS_PLATFORM_EXPLAINED_RU.pdf'
+    : 'assets/whitepaper/AGRIPARTNERS_PLATFORM_EXPLAINED_EN.pdf';
+}
+
+function showWhitePaper(lang = 'en') {
+  const activeLang = lang === 'ru' ? 'ru' : 'en';
+  const pdfSrc = whitePaperAsset(activeLang);
+  showView('view-whitepaper');
+  const el = document.getElementById('view-whitepaper');
+  el.innerHTML = `
+    <header class="landing-nav">
+      <a href="#home" class="landing-brand">AgriPartners</a>
+      <div class="landing-nav-actions">
+        <a href="#/marketplace">Marketplace</a>
+        <a href="#login">Login</a>
+      </div>
+    </header>
+
+    <main class="whitepaper-page">
+      <div class="whitepaper-heading">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+          <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
+          Back home
+        </a>
+        <h1>AgriPartners White Paper</h1>
+        <p>
+          Read the platform explanation for the AgriPartners Alpha: vision, funding model, NEAR Testnet integration,
+          role workflows, treasury visibility, roadmap, and stakeholder benefits.
+        </p>
+        <p class="whitepaper-positioning">
+          AgriPartners is currently an Alpha platform on NEAR Testnet. It is not a production investment, custody,
+          payout, settlement, or Mainnet financial system.
+        </p>
+      </div>
+
+      <div class="whitepaper-controls" aria-label="White paper language">
+        <button type="button" class="whitepaper-lang-btn ${activeLang === 'en' ? 'is-active' : ''}" data-whitepaper-lang="en">English</button>
+        <button type="button" class="whitepaper-lang-btn ${activeLang === 'ru' ? 'is-active' : ''}" data-whitepaper-lang="ru">Русский</button>
+        <a class="landing-btn landing-btn-primary" href="${pdfSrc}" download>Download PDF (${activeLang.toUpperCase()})</a>
+      </div>
+
+      <p class="whitepaper-fallback">If the document does not load, use the download button below.</p>
+      <a class="landing-btn whitepaper-download-fallback" href="${pdfSrc}" download>Download PDF (${activeLang.toUpperCase()})</a>
+      <iframe class="whitepaper-frame" src="${pdfSrc}" title="AgriPartners Platform Explained ${activeLang.toUpperCase()}"></iframe>
+    </main>
+
+    ${renderPublicFooter()}
+  `;
+
+  document.querySelectorAll('[data-whitepaper-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const nextLang = btn.dataset.whitepaperLang === 'ru' ? 'ru' : 'en';
+      location.hash = nextLang === 'ru' ? '#/whitepaper?lang=ru' : '#/whitepaper';
+    });
+  });
 }
 
 function showLogin() {
