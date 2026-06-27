@@ -149,8 +149,8 @@ For Other files, prefer archive grouping before renaming. Suggested convention:
 | `one-pager.html` | `archive/one-pager.html` |
 | `pitch-deck.html` | `archive/pitch-deck.html` |
 | `funding-strategy.html` | `archive/funding-strategy.html` |
-| `checklist.html` | `archive/checklist.html` |
-| Root PDFs | move to `contracts-and-pdfs/` with current names |
+| `checklist.html` | `archive/checklist.html` (completed) |
+| Historical root PDFs | moved to `archive/` with current names |
 | `60-40/*.pdf` | keep or move to `contracts-and-pdfs/60-40/` |
 | `superpowers/**` | keep as historical planning archive |
 

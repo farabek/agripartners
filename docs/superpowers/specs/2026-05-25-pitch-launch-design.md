@@ -18,10 +18,10 @@ AgriPartners — RWA agro-investment platform on NEAR testnet. Status:
 
 | File | For | Model |
 | --- | --- | --- |
-| `docs/60-40/Agri-Investor-Fidlot-v5.9-6040.pdf` | Investor | Fidlot v5.9 |
-| `docs/60-40/Agri-Farmer-Fidlot-v5.9-6040.pdf` | Farmer | Fidlot v5.9 |
-| `docs/60-40/Agri-Investor-VariantB-v2.1-6040.pdf` | Investor | Variant B |
-| `docs/60-40/Agri-Farmer-VariantB-v2.1-6040.pdf` | Farmer | Variant B |
+| `docs/60-40/pdf/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf` | Investor | Fidlot v5.9 |
+| `docs/60-40/pdf/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf` | Farmer | Fidlot v5.9 |
+| `docs/60-40/pdf/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf` | Investor | Variant B |
+| `docs/60-40/pdf/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf` | Farmer | Variant B |
 
 **These PDFs are attached to all pitch materials and the NEAR Foundation package.**
 
@@ -113,7 +113,7 @@ All three are static HTML files in `frontend/pages/`. Open in browser, print as 
 
 **Audience:** potential investor, $50k/deal
 **Language:** Russian + English (two versions)
-**Attachment:** `docs/60-40/Agri-Investor-Fidlot-v5.9-6040.pdf`
+**Attachment:** `docs/60-40/pdf/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf`
 **Structure:**
 
 1. Headline: "Invest $50,000 — receive $82,000 in 35 months. Secured by NEAR blockchain."
@@ -128,7 +128,7 @@ All three are static HTML files in `frontend/pages/`. Open in browser, print as 
 
 **Audience:** Uzbekistan farmer
 **Language:** Uzbek + Russian
-**Attachment:** `docs/60-40/Agri-Farmer-Fidlot-v5.9-6040.pdf`
+**Attachment:** `docs/60-40/pdf/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf`
 **Structure:**
 
 1. Headline (UZ): "Siz 0 so'm kiritasiz — 35 oyda $114,250 olasiz."

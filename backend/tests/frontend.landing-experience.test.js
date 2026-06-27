@@ -49,6 +49,17 @@ test('landing describes core demonstration capabilities', () => {
   }
 });
 
+test('landing publishes bilingual investor and farmer financial models with disclaimer', () => {
+  expect(appJs).toContain('Explore the 60/40 Model');
+  expect(appJs).toContain('For Investors');
+  expect(appJs).toContain('For Farmers');
+  expect(appJs).toContain('do not guarantee returns');
+  expect(appJs).toContain('Agri-Investor-Fidlot-v5.9-6040-EN.pdf');
+  expect(appJs).toContain('Agri-Investor-VariantB-v2.1-6040-RU.pdf');
+  expect(appJs).toContain('Agri-Farmer-Fidlot-v5.9-6040-RU.pdf');
+  expect(appJs).toContain('Agri-Farmer-VariantB-v2.1-6040-EN.pdf');
+});
+
 test('landing CTAs route to explicit demo and login destinations', () => {
   expect(appJs).toContain('Explore Investor Demo');
   expect(appJs).toContain('href="#/investor/pilots/fidlot"');

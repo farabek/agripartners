@@ -147,16 +147,18 @@
 - `docs/one-pager.html`
 - `docs/pitch-deck.html`
 - `docs/funding-strategy.html`
-- `docs/checklist.html`
-- `docs/AgriPartners-Comparison-AllSplits.pdf`
-- `docs/AgriPartners-Escrow-Analysis.pdf`
+- `docs/archive/checklist.html`
+- `docs/archive/AgriPartners-Comparison-AllSplits.pdf`
+- `docs/archive/AgriPartners-Escrow-Analysis.pdf`
 
-### 60-40 PDFs
+### Финансовые модели 60-40
 
-- `docs/60-40/Agri-Farmer-Fidlot-v5.9-6040.pdf`
-- `docs/60-40/Agri-Farmer-VariantB-v2.1-6040.pdf`
-- `docs/60-40/Agri-Investor-Fidlot-v5.9-6040.pdf`
-- `docs/60-40/Agri-Investor-VariantB-v2.1-6040.pdf`
+- `docs/60-40/pdf/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf`
+- `docs/60-40/pdf/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf`
+- `docs/60-40/pdf/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf`
+- `docs/60-40/pdf/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf`
+- Соответствующие английские PDF находятся в `docs/60-40/pdf/en/`.
+- Редактируемые RU/EN-источники DOCX находятся в `docs/60-40/source/{ru,en}/`.
 
 ### Superpowers Plans And Specs
 

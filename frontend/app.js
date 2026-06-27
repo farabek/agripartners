@@ -1299,6 +1299,48 @@ function showHome() {
           <a class="landing-btn" href="assets/platform/PLATFORM_EXPLAINED_RU.pdf" download>Download PDF (RU)</a>
         </div>
       </section>
+
+      <section class="landing-section landing-financial-models" aria-label="AgriPartners financial models">
+        <div class="landing-section-heading">
+          <span>Financial models</span>
+          <h2>Explore the 60/40 Model</h2>
+        </div>
+        <p class="landing-financial-intro">
+          Review the demonstration economics for the Fidlot livestock-fattening and Hissar sheep-breeding models.
+          Investor and farmer documents are available in English and Russian.
+        </p>
+        <p class="landing-safe-positioning">
+          These materials contain projections, do not guarantee returns, and do not constitute a public offer to invest.
+        </p>
+        <div class="financial-model-groups">
+          <section class="financial-model-group" aria-labelledby="financial-models-investors">
+            <h3 id="financial-models-investors">For Investors</h3>
+            <article class="financial-model-card">
+              <div><strong>Fidlot v5.9</strong><span>7 cycles × 5 months · projected net ROI 64.0%</span></div>
+              <div class="financial-model-language"><span>EN</span><a href="assets/financial-models/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf" download>Download</a></div>
+              <div class="financial-model-language"><span>RU</span><a href="assets/financial-models/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf" download>Download</a></div>
+            </article>
+            <article class="financial-model-card">
+              <div><strong>Hissar / VariantB v2.1</strong><span>6 cycles × 6 months · projected net ROI 63.3%</span></div>
+              <div class="financial-model-language"><span>EN</span><a href="assets/financial-models/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf" download>Download</a></div>
+              <div class="financial-model-language"><span>RU</span><a href="assets/financial-models/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf" download>Download</a></div>
+            </article>
+          </section>
+          <section class="financial-model-group" aria-labelledby="financial-models-farmers">
+            <h3 id="financial-models-farmers">For Farmers</h3>
+            <article class="financial-model-card">
+              <div><strong>Fidlot v5.9</strong><span>Projected cash received $96,250 · total benefit $114,250</span></div>
+              <div class="financial-model-language"><span>EN</span><a href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" download>Download</a></div>
+              <div class="financial-model-language"><span>RU</span><a href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" download>Download</a></div>
+            </article>
+            <article class="financial-model-card">
+              <div><strong>Hissar / VariantB v2.1</strong><span>Projected cash received $83,160 · total benefit $101,160</span></div>
+              <div class="financial-model-language"><span>EN</span><a href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" download>Download</a></div>
+              <div class="financial-model-language"><span>RU</span><a href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" download>Download</a></div>
+            </article>
+          </section>
+        </div>
+      </section>
     </main>
 
     ${renderPublicFooter()}
@@ -4340,8 +4382,8 @@ function renderLiveFundingProgressPanel(deal) {
 
 // Canonical platform projection data for every demo surface.
 // Financial-model sources:
-// - docs/60-40/Agri-Investor-Fidlot-v5.9-6040.pdf
-// - docs/60-40/Agri-Investor-VariantB-v2.1-6040.pdf
+// - docs/60-40/pdf/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf
+// - docs/60-40/pdf/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf
 const INVESTOR_DEMO_PILOTS = [
   {
     number: 1,

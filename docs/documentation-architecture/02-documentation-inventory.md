@@ -147,16 +147,18 @@ These files are either legacy outputs, forum/grant materials, PDFs, HTML exports
 - `docs/one-pager.html`
 - `docs/pitch-deck.html`
 - `docs/funding-strategy.html`
-- `docs/checklist.html`
-- `docs/AgriPartners-Comparison-AllSplits.pdf`
-- `docs/AgriPartners-Escrow-Analysis.pdf`
+- `docs/archive/checklist.html`
+- `docs/archive/AgriPartners-Comparison-AllSplits.pdf`
+- `docs/archive/AgriPartners-Escrow-Analysis.pdf`
 
-### 60-40 PDFs
+### 60-40 financial models
 
-- `docs/60-40/Agri-Farmer-Fidlot-v5.9-6040.pdf`
-- `docs/60-40/Agri-Farmer-VariantB-v2.1-6040.pdf`
-- `docs/60-40/Agri-Investor-Fidlot-v5.9-6040.pdf`
-- `docs/60-40/Agri-Investor-VariantB-v2.1-6040.pdf`
+- `docs/60-40/pdf/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf`
+- `docs/60-40/pdf/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf`
+- `docs/60-40/pdf/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf`
+- `docs/60-40/pdf/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf`
+- Matching English PDFs are in `docs/60-40/pdf/en/`.
+- Editable RU/EN DOCX sources are in `docs/60-40/source/{ru,en}/`.
 
 ### Superpowers Plans And Specs
 
