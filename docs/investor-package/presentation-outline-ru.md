@@ -60,7 +60,7 @@
 
 **Рекомендация по скриншоту:** `../screenshots/investor/03-investment-summary.png`
 
-**Заметки спикера:** Подсветить текущие метрики: $100,000 total pilot funding, $163,650 expected returns, $82,000 returned, одна активная и одна завершенная пилотная сделка. Объяснить, что завершенные проекты показывают ROI, активные - projected ROI.
+**Заметки спикера:** Подсветить текущие метрики: $100,000 total pilot funding, $163,672 expected returns, $82,000 returned, одна активная и одна завершенная пилотная сделка. Объяснить, что завершенные проекты показывают ROI, активные - projected ROI.
 
 ## 7. Farmer Portal
 
@@ -96,7 +96,7 @@
 
 **Название:** Hissar Sheep Breeding Project
 
-**Ключевое сообщение:** Hissar - активный sheep breeding pilot: $50,000 investment, 63.3% projected ROI, 21.1% APR, 6 cycles и $81,650 outstanding expected returns.
+**Ключевое сообщение:** Hissar - активный sheep breeding pilot: $50,000 investment, 63.3% projected ROI, 21.1% APR, 6 cycles и $81,672 outstanding expected returns.
 
 **Рекомендация по скриншоту:** `../screenshots/investor/05-active-hissar.png` или `../screenshots/admin/06-admin-hissar-profile.png`
 

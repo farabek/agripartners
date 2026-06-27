@@ -456,7 +456,7 @@ test('marketplace route and navigation are rendered', () => {
 });
 
 test('marketplace filters pilot deals on the frontend', () => {
-  const { marketplaceDeals, filterMarketplaceDeals, marketplaceMetrics } = loadMarketplaceHelpers();
+  const { INVESTOR_DEMO_PILOTS, marketplaceDeals, filterMarketplaceDeals, marketplaceMetrics } = loadMarketplaceHelpers();
   const deals = marketplaceDeals();
 
   expect(deals.map((deal) => deal.title)).toEqual([
@@ -471,6 +471,15 @@ test('marketplace filters pilot deals on the frontend', () => {
     totalDeals: 2,
     activeDeals: 1,
     completedDeals: 1,
+  }));
+  expect(INVESTOR_DEMO_PILOTS.find(pilot => pilot.key === 'fidlot')).toEqual(expect.objectContaining({
+    expectedReturn: '82000.00',
+    cycleDurationDays: 150,
+  }));
+  expect(INVESTOR_DEMO_PILOTS.find(pilot => pilot.key === 'hissar')).toEqual(expect.objectContaining({
+    expectedReturn: '81672.00',
+    outstandingAmount: '81672.00',
+    cycleDurationDays: 180,
   }));
 });
 
@@ -1345,11 +1354,11 @@ test('investor portfolio sections render compact summary, attention, performance
   } = loadInvestorDashboardHelpers();
   const metrics = {
     totalInvested: '100000.00',
-    totalProjectedProfit: '63650.00',
-    totalProjectedPayout: '163650.00',
+    totalProjectedProfit: '63672.00',
+    totalProjectedPayout: '163672.00',
     totalRecordedReturns: '82000.00',
-    totalOutstanding: '81650.00',
-    weightedProjectedRoi: 63.65,
+    totalOutstanding: '81672.00',
+    weightedProjectedRoi: 63.672,
     activeDeals: 1,
     completedDeals: 1,
   };
@@ -1365,7 +1374,7 @@ test('investor portfolio sections render compact summary, attention, performance
   expect(summary).not.toContain('Capital Returned %');
   expect(summary).not.toContain('Average ROI');
   expect(renderPortfolioPerformance(metrics)).toContain('Weighted Projected ROI');
-  expect(renderPortfolioPerformance(metrics)).toContain('63.6%');
+  expect(renderPortfolioPerformance(metrics)).toContain('63.7%');
   expect(renderPortfolioPerformance(metrics)).toContain('Not yet authoritative');
   expect(renderPortfolioPerformance(metrics)).not.toContain('Capital Returned %');
   expect(renderPortfolioPerformance(metrics)).not.toContain('Calculated Realized Profit');
@@ -1592,9 +1601,9 @@ test('investor demo financial metrics render in USD instead of NEAR', () => {
   expect(appJs).toContain("displayAmount: '$50,000'");
   expect(appJs).toContain("displayExpectedReturn: '$82,000'");
   expect(appJs).toContain("displayReturnedAmount: '$82,000'");
-  expect(appJs).toContain("displayExpectedReturn: '$81,650'");
+  expect(appJs).toContain("displayExpectedReturn: '$81,672'");
   expect(appJs).toContain("displayReturnedAmount: '$0'");
-  expect(appJs).toContain("displayOutstandingAmount: '$81,650'");
+  expect(appJs).toContain("displayOutstandingAmount: '$81,672'");
   const demoStart = appJs.indexOf('function renderInvestorDemoDealDetail');
   const demoEnd = appJs.indexOf('async function showInvestorDeal');
   const demoSource = appJs.slice(demoStart, demoEnd);

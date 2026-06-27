@@ -20,13 +20,13 @@ Dashboard дает администраторам чистую сводку по
 Summary cards показывают:
 
 - Total Pilot Funding: $100,000.
-- Expected Returns: $163,650.
+- Expected Returns: $163,672.
 - Active Deals: 1.
 - Completed Deals: 1.
 - Reports Submitted: 1.
 - Reports Pending: 1.
 - Returns Recorded: $82,000.
-- Outstanding: $81,650.
+- Outstanding: $81,672.
 
 Эти метрики показывают текущий pilot portfolio в компактном business format.
 
@@ -65,7 +65,7 @@ Fidlot завершен и имеет Report Submitted. Hissar активен и
 Admin view также отслеживает repayment state:
 
 - Fidlot показывает Return Recorded и $82,000 returned.
-- Hissar показывает Pending returns и $81,650 outstanding.
+- Hissar показывает Pending returns и $81,672 outstanding.
 
 Скриншоты:
 

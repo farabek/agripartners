@@ -45,8 +45,8 @@ Demo signals:
 
 - Active deal status.
 - Cycle active / current cycle visible.
-- `$81,650` projected return.
-- `$81,650` outstanding amount.
+- `$81,672` projected return.
+- `$81,672` outstanding amount.
 - Farmer report visibility.
 - Funding progress available.
 

@@ -4338,6 +4338,10 @@ function renderLiveFundingProgressPanel(deal) {
   `;
 }
 
+// Canonical platform projection data for every demo surface.
+// Financial-model sources:
+// - docs/60-40/Agri-Investor-Fidlot-v5.9-6040.pdf
+// - docs/60-40/Agri-Investor-VariantB-v2.1-6040.pdf
 const INVESTOR_DEMO_PILOTS = [
   {
     number: 1,
@@ -4349,6 +4353,7 @@ const INVESTOR_DEMO_PILOTS = [
     roiPercent: 64,
     apr: '21.9%',
     cycles: '7',
+    cycleDurationDays: 150,
     status: 'Completed',
     currentCycle: 7,
     amount: '50000.00',
@@ -4374,16 +4379,17 @@ const INVESTOR_DEMO_PILOTS = [
     roiPercent: 63.3,
     apr: '21.1%',
     cycles: '6',
+    cycleDurationDays: 180,
     status: 'Active',
     currentCycle: 1,
     amount: '50000.00',
-    expectedReturn: '81650.00',
+    expectedReturn: '81672.00',
     returnedAmount: '0.00',
-    outstandingAmount: '81650.00',
+    outstandingAmount: '81672.00',
     displayAmount: '$50,000',
-    displayExpectedReturn: '$81,650',
+    displayExpectedReturn: '$81,672',
     displayReturnedAmount: '$0',
-    displayOutstandingAmount: '$81,650',
+    displayOutstandingAmount: '$81,672',
     description: 'Sheep breeding operation based on a real pilot agricultural agreement. Demonstrated through the AgriPartners workflow on NEAR Testnet.',
     reportTitle: 'Initial breeding cycle update',
     reportDescription: 'Demo cycle update for the active Hissar pilot profile. This profile is presented for investor demo readiness and is not a new smart contract deployment.',
@@ -4418,7 +4424,7 @@ function investorDemoDealFromPilot(pilot, connectedWalletAccount) {
     investor: connectedWalletAccount || 'investor.demo.testnet',
     contract_address: `${pilot.key}-pilot-profile.near-testnet-demo`,
     total_cycles: Number(pilot.cycles),
-    cycle_duration_days: 150,
+    cycle_duration_days: pilot.cycleDurationDays,
     amount: pilot.amount,
     expected_return: pilot.expectedReturn,
     returned_amount: pilot.returnedAmount,
@@ -4447,7 +4453,7 @@ function farmerDemoDealFromPilot(pilot, farmerAccount) {
     investor: 'pilot-investor.demo.testnet',
     contract_address: `${pilot.key}-pilot-profile.near-testnet-demo`,
     total_cycles: Number(pilot.cycles),
-    cycle_duration_days: 150,
+    cycle_duration_days: pilot.cycleDurationDays,
     amount: pilot.amount,
     display_amount: pilot.displayAmount,
     display_currency: 'USD',
@@ -4635,13 +4641,13 @@ function renderMarketplaceDealCard(deal) {
 
 function adminDemoMetrics(deals) {
   return {
-    totalPilotFunding: '$100,000',
+    totalPilotFunding: formatUsdAmount(deals.reduce((sum, deal) => sum + numericReturnAmount(deal.amount), 0)),
     activeDeals: deals.filter((deal) => deal.status === 'Active').length,
     completedDeals: deals.filter((deal) => deal.status === 'Completed').length,
     reportsSubmitted: deals.filter((deal) => deal.reportStatus === 'Report Submitted').length,
     reportsPending: deals.filter((deal) => deal.reportStatus === 'Next Report Due').length,
-    returnsRecorded: '$82,000',
-    outstanding: '$81,650',
+    returnsRecorded: formatUsdAmount(deals.reduce((sum, deal) => sum + numericReturnAmount(deal.returnedAmount), 0)),
+    outstanding: formatUsdAmount(deals.reduce((sum, deal) => sum + numericReturnAmount(deal.outstandingAmount), 0)),
   };
 }
 

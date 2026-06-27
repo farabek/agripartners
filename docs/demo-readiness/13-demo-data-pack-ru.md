@@ -61,9 +61,9 @@ Hissar Sheep Pilot является active deal для демонстрации 
 ### ROI
 
 - ROI shown in demo: `63.3%`
-- Projected return shown in demo: `$81,650`
+- Projected return shown in demo: `$81,672`
 - Returned amount shown in demo: `$0`
-- Outstanding return shown in demo: `$81,650`
+- Outstanding return shown in demo: `$81,672`
 
 ### Return Status
 

@@ -80,7 +80,7 @@ Show:
 - Cycles: `6`.
 - Status: `Active`.
 - Funding progress: demo-safe partial funding view.
-- Outstanding returns: `$81,650`.
+- Outstanding returns: `$81,672`.
 
 Speaker point:
 

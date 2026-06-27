@@ -60,7 +60,7 @@ Target audience: regional and international investors, investment funds, ecosyst
 
 **Screenshot recommendation:** `../screenshots/investor/03-investment-summary.png`
 
-**Speaker notes:** Highlight the current metrics: $100,000 total pilot funding, $163,650 expected returns, $82,000 returned, and one active plus one completed pilot deal. Explain that completed projects show ROI, while active projects show projected ROI.
+**Speaker notes:** Highlight the current metrics: $100,000 total pilot funding, $163,672 expected returns, $82,000 returned, and one active plus one completed pilot deal. Explain that completed projects show ROI, while active projects show projected ROI.
 
 ## 7. Farmer Portal
 
@@ -96,7 +96,7 @@ Target audience: regional and international investors, investment funds, ecosyst
 
 **Title:** Hissar Sheep Breeding Project
 
-**Key message:** Hissar is the active sheep breeding pilot: $50,000 investment, 63.3% projected ROI, 21.1% APR, 6 cycles, and $81,650 outstanding expected returns.
+**Key message:** Hissar is the active sheep breeding pilot: $50,000 investment, 63.3% projected ROI, 21.1% APR, 6 cycles, and $81,672 outstanding expected returns.
 
 **Screenshot recommendation:** `../screenshots/investor/05-active-hissar.png` or `../screenshots/admin/06-admin-hissar-profile.png`
 

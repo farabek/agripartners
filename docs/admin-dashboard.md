@@ -20,13 +20,13 @@ Screenshot:
 The summary cards show:
 
 - Total Pilot Funding: $100,000.
-- Expected Returns: $163,650.
+- Expected Returns: $163,672.
 - Active Deals: 1.
 - Completed Deals: 1.
 - Reports Submitted: 1.
 - Reports Pending: 1.
 - Returns Recorded: $82,000.
-- Outstanding: $81,650.
+- Outstanding: $81,672.
 
 These metrics present the current pilot portfolio in a concise business format.
 
@@ -65,7 +65,7 @@ Screenshots:
 The admin view also tracks repayment state:
 
 - Fidlot shows Return Recorded and $82,000 returned.
-- Hissar shows Pending returns and $81,650 outstanding.
+- Hissar shows Pending returns and $81,672 outstanding.
 
 Screenshots:
 

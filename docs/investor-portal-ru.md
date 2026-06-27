@@ -23,7 +23,7 @@ Investor profile содержит базовую информацию об ин�
 Investment Summary дает портфельную сводку по пилотным проектам:
 
 - общий инвестированный капитал;
-- Expected Returns: $163,650;
+- Expected Returns: $163,672;
 - уже возвращенная сумма;
 - outstanding amount;
 - average ROI;

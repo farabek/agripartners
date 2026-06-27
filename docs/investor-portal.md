@@ -23,7 +23,7 @@ Screenshot:
 The Investment Summary provides a portfolio-level view across the pilot projects:
 
 - Total invested capital.
-- Expected Returns: $163,650.
+- Expected Returns: $163,672.
 - Returned amount.
 - Outstanding amount.
 - Average ROI.

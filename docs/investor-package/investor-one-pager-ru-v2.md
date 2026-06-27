@@ -41,9 +41,9 @@ Hissar - активный пилот по разведению гиссарск�
 - Projected ROI: 63.3%
 - APR: 21.1%
 - Cycles: 6
-- Outstanding expected returns: $81,650
+- Outstanding expected returns: $81,672
 
-Вместе два пилота представляют $100,000 total pilot funding и $163,650 expected returns.
+Вместе два пилота представляют $100,000 total pilot funding и $163,672 expected returns.
 
 ## Бизнес-модель
 

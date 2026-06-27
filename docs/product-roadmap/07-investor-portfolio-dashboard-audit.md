@@ -43,9 +43,9 @@ With the current two pilot demo profiles:
 | Metric | Demo Value |
 |---|---:|
 | Total Invested | `$100,000` |
-| Projected Returns | `$163,650` |
+| Projected Returns | `$163,672` |
 | Returned Amount | `$82,000` |
-| Outstanding Returns | `$81,650` |
+| Outstanding Returns | `$81,672` |
 | Average ROI | `63.7%` |
 | Active Deals | `1` |
 | Completed Deals | `1` |

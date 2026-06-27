@@ -15,7 +15,7 @@ Our first demo focuses on two agricultural pilot models:
 - Fidlot Livestock Project, a completed livestock fattening pilot.
 - Hissar Sheep Breeding Project, an active sheep breeding pilot.
 
-Together, these pilots represent $100,000 in total pilot funding and $163,650 in expected returns.
+Together, these pilots represent $100,000 in total pilot funding and $163,672 in expected returns.
 
 ## 0:45-2:15 - Investor Portal
 
@@ -26,7 +26,7 @@ On the Investor Dashboard, the investor sees portfolio-level metrics: total inve
 The current pilot portfolio shows:
 
 - $100,000 total pilot funding.
-- $163,650 expected returns.
+- $163,672 expected returns.
 - $82,000 returned.
 - One active deal and one completed deal.
 
@@ -50,7 +50,7 @@ Next is the Admin Dashboard.
 
 The admin view gives controlled monitoring across the pilot portfolio. Admins can review project status, funding, ROI or projected ROI, APR, farmer reporting status, return status, and event history.
 
-For the current pilots, the admin metrics show $100,000 in total pilot funding, $82,000 returned, and $81,650 outstanding. Fidlot is completed with return recorded. Hissar is active with pending returns.
+For the current pilots, the admin metrics show $100,000 in total pilot funding, $82,000 returned, and $81,672 outstanding. Fidlot is completed with return recorded. Hissar is active with pending returns.
 
 This layer is important for accelerators, funds, and strategic investors because pilot-scale agricultural finance needs operational oversight before it can scale.
 

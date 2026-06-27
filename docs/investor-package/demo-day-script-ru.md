@@ -15,7 +15,7 @@ AgriPartners - это agricultural investment workflow platform. Мы помог
 - Fidlot Livestock Project - завершенный livestock fattening pilot.
 - Hissar Sheep Breeding Project - активный sheep breeding pilot.
 
-Вместе эти пилоты представляют $100,000 total pilot funding и $163,650 expected returns.
+Вместе эти пилоты представляют $100,000 total pilot funding и $163,672 expected returns.
 
 ## 0:45-2:15 - Investor Portal
 
@@ -26,7 +26,7 @@ AgriPartners - это agricultural investment workflow platform. Мы помог
 Текущий pilot portfolio показывает:
 
 - $100,000 total pilot funding.
-- $163,650 expected returns.
+- $163,672 expected returns.
 - $82,000 returned.
 - Одну активную и одну завершенную сделку.
 
@@ -50,7 +50,7 @@ AgriPartners - это agricultural investment workflow platform. Мы помог
 
 Admin view дает контролируемый мониторинг пилотного портфеля. Администратор видит статус проекта, funding, ROI или projected ROI, APR, farmer reporting status, return status и event history.
 
-По текущим пилотам admin metrics показывают $100,000 total pilot funding, $82,000 returned и $81,650 outstanding. Fidlot завершен с return recorded. Hissar активен, возвраты pending.
+По текущим пилотам admin metrics показывают $100,000 total pilot funding, $82,000 returned и $81,672 outstanding. Fidlot завершен с return recorded. Hissar активен, возвраты pending.
 
 Этот слой важен для акселераторов, фондов и стратегических инвесторов, потому что пилотное агрофинансирование требует операционного контроля до масштабирования.
 

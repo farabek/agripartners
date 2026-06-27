@@ -54,9 +54,9 @@ Mainnet status: pending security audit, legal readiness, and partner validation.
 - Projected ROI: 63.3%.
 - APR: 21.1%.
 - Cycles: 6.
-- Outstanding expected returns: $81,650.
+- Outstanding expected returns: $81,672.
 
-Across both pilots, the demo portfolio represents $100,000 in total pilot funding and $163,650 in expected returns.
+Across both pilots, the demo portfolio represents $100,000 in total pilot funding and $163,672 in expected returns.
 
 ## NEAR Fit
 

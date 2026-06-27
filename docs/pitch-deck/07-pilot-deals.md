@@ -20,6 +20,6 @@ These profiles support investor validation and product demonstration. They shoul
 - APR: `21.1%`
 - Cycles: `6`
 - Current demo status: active profile
-- Demo signals: active cycle, funding progress, `$81,650` projected return, `$81,650` outstanding, reporting visibility available
+- Demo signals: active cycle, funding progress, `$81,672` projected return, `$81,672` outstanding, reporting visibility available
 
 Together, the pilots show marketplace discovery, funding visibility, farmer reporting, ROI tracking, portfolio health, and lifecycle transparency.
