@@ -15,13 +15,18 @@ from docx.shared import Inches, Pt, RGBColor
 GREEN = "00695C"
 GREEN_DARK = "004D40"
 GREEN_LIGHT = "E5F3F0"
-NAVY = "001555"
+GREEN_BRIGHT = "2E9D45"
+BLUE = "1769C2"
+BLUE_DARK = "0B4F9C"
+BLUE_LIGHT = "EAF3FC"
+NAVY = "102A43"
+GOLD = "D7A52A"
 INK = "17212B"
 MUTED = "667085"
 GRAY = "F2F4F7"
 WHITE = "FFFFFF"
 BORDER = "B8C2CC"
-CONTENT_WIDTH_DXA = 9360
+CONTENT_WIDTH_DXA = 10656
 TABLE_INDENT_DXA = 120
 
 
@@ -277,7 +282,7 @@ def set_repeat_table_header(row) -> None:
     tr_pr.append(tbl_header)
 
 
-def set_run_font(run, name="Calibri", size=11, color=INK, bold=False, italic=False) -> None:
+def set_run_font(run, name="Arial", size=11, color=INK, bold=False, italic=False) -> None:
     run.font.name = name
     run._element.get_or_add_rPr().rFonts.set(qn("w:ascii"), name)
     run._element.get_or_add_rPr().rFonts.set(qn("w:hAnsi"), name)
@@ -338,22 +343,22 @@ def add_page_number(paragraph) -> None:
 def configure_styles(doc: Document) -> None:
     styles = doc.styles
     normal = styles["Normal"]
-    normal.font.name = "Calibri"
-    normal._element.rPr.rFonts.set(qn("w:ascii"), "Calibri")
-    normal._element.rPr.rFonts.set(qn("w:hAnsi"), "Calibri")
-    normal.font.size = Pt(11)
+    normal.font.name = "Arial"
+    normal._element.rPr.rFonts.set(qn("w:ascii"), "Arial")
+    normal._element.rPr.rFonts.set(qn("w:hAnsi"), "Arial")
+    normal.font.size = Pt(9.5)
     normal.font.color.rgb = RGBColor.from_string(INK)
-    normal.paragraph_format.space_after = Pt(6)
-    normal.paragraph_format.line_spacing = 1.25
+    normal.paragraph_format.space_after = Pt(4)
+    normal.paragraph_format.line_spacing = 1.12
     for name, size, before, after in (
-        ("Heading 1", 16, 18, 10),
-        ("Heading 2", 13, 14, 7),
-        ("Heading 3", 12, 10, 5),
+        ("Heading 1", 15, 12, 7),
+        ("Heading 2", 12, 9, 5),
+        ("Heading 3", 10.5, 7, 4),
     ):
         style = styles[name]
-        style.font.name = "Calibri"
-        style._element.rPr.rFonts.set(qn("w:ascii"), "Calibri")
-        style._element.rPr.rFonts.set(qn("w:hAnsi"), "Calibri")
+        style.font.name = "Arial"
+        style._element.rPr.rFonts.set(qn("w:ascii"), "Arial")
+        style._element.rPr.rFonts.set(qn("w:hAnsi"), "Arial")
         style.font.size = Pt(size)
         style.font.bold = True
         style.font.color.rgb = RGBColor.from_string(GREEN)
@@ -361,39 +366,39 @@ def configure_styles(doc: Document) -> None:
         style.paragraph_format.space_after = Pt(after)
         style.paragraph_format.keep_with_next = True
     bullet = styles["List Bullet"]
-    bullet.font.name = "Calibri"
-    bullet.font.size = Pt(10.5)
+    bullet.font.name = "Arial"
+    bullet.font.size = Pt(9.5)
     bullet.paragraph_format.left_indent = Inches(0.375)
     bullet.paragraph_format.first_line_indent = Inches(-0.188)
-    bullet.paragraph_format.space_after = Pt(4)
-    bullet.paragraph_format.line_spacing = 1.25
+    bullet.paragraph_format.space_after = Pt(3)
+    bullet.paragraph_format.line_spacing = 1.12
 
 
 def configure_page(doc: Document, running_label: str) -> None:
     section = doc.sections[0]
     section.page_width = Inches(8.5)
     section.page_height = Inches(11)
-    section.top_margin = Inches(1)
-    section.bottom_margin = Inches(1)
-    section.left_margin = Inches(1)
-    section.right_margin = Inches(1)
-    section.header_distance = Inches(0.492)
-    section.footer_distance = Inches(0.492)
+    section.top_margin = Inches(0.62)
+    section.bottom_margin = Inches(0.62)
+    section.left_margin = Inches(0.55)
+    section.right_margin = Inches(0.55)
+    section.header_distance = Inches(0.28)
+    section.footer_distance = Inches(0.3)
     header = section.header
     hp = header.paragraphs[0]
     set_paragraph(hp, after=0, line=1, align=WD_ALIGN_PARAGRAPH.LEFT)
     hr = hp.add_run(running_label)
-    set_run_font(hr, size=8, color=MUTED, bold=True)
+    set_run_font(hr, name="Arial", size=7.5, color=MUTED, bold=True)
     footer = section.footer
     fp = footer.paragraphs[0]
     add_page_number(fp)
 
 
 def add_title_block(doc: Document, kicker: str, title: str, subtitle: str) -> None:
-    add_text(doc, kicker.upper(), size=9, color=GREEN, bold=True, after=4, align=WD_ALIGN_PARAGRAPH.CENTER)
-    add_text(doc, "AgriPartners", size=24, color=GREEN_DARK, bold=True, after=2, align=WD_ALIGN_PARAGRAPH.CENTER)
-    add_text(doc, title, size=15, color=INK, bold=True, after=3, align=WD_ALIGN_PARAGRAPH.CENTER)
-    add_text(doc, subtitle, size=10, color=MUTED, after=12, align=WD_ALIGN_PARAGRAPH.CENTER)
+    add_text(doc, kicker.upper(), size=8.5, color=GREEN, bold=True, after=2, align=WD_ALIGN_PARAGRAPH.CENTER)
+    add_text(doc, "AgriPartners", size=27, color=GREEN_DARK, bold=True, after=1, align=WD_ALIGN_PARAGRAPH.CENTER)
+    add_text(doc, title, size=16, color=NAVY, bold=True, after=2, align=WD_ALIGN_PARAGRAPH.CENTER)
+    add_text(doc, subtitle, size=8.7, color=MUTED, after=7, align=WD_ALIGN_PARAGRAPH.CENTER)
 
 
 def add_disclaimer(doc: Document, text: str) -> None:
@@ -410,7 +415,7 @@ def add_disclaimer(doc: Document, text: str) -> None:
     doc.add_paragraph().paragraph_format.space_after = Pt(2)
 
 
-def add_metric_strip(doc: Document, metrics: list[tuple[str, str]]) -> None:
+def add_metric_strip(doc: Document, metrics: list[tuple[str, str]], accent: str = GREEN) -> None:
     table = doc.add_table(rows=2, cols=len(metrics))
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     widths = [CONTENT_WIDTH_DXA // len(metrics)] * len(metrics)
@@ -418,21 +423,29 @@ def add_metric_strip(doc: Document, metrics: list[tuple[str, str]]) -> None:
     for idx, (label, value) in enumerate(metrics):
         label_cell = table.cell(0, idx)
         value_cell = table.cell(1, idx)
-        set_cell_shading(label_cell, GRAY)
+        set_cell_shading(label_cell, accent)
         for cell in (label_cell, value_cell):
             cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
             for p in cell.paragraphs:
                 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
                 set_paragraph(p, after=0, line=1)
         lr = label_cell.paragraphs[0].add_run(label)
-        set_run_font(lr, size=8.5, color=MUTED, bold=True)
+        set_run_font(lr, name="Arial", size=8, color=WHITE, bold=True)
         vr = value_cell.paragraphs[0].add_run(value)
-        set_run_font(vr, size=17, color=GREEN_DARK, bold=True)
+        set_run_font(vr, name="Arial", size=17, color=GREEN_DARK, bold=True)
     set_table_geometry(table, widths)
     doc.add_paragraph().paragraph_format.space_after = Pt(2)
 
 
-def add_data_table(doc: Document, headers: list[str], rows: list[list[str]], widths: list[int]) -> None:
+def add_data_table(
+    doc: Document,
+    headers: list[str],
+    rows: list[list[str]],
+    widths: list[int],
+    header_fill: str = GREEN,
+    total_fill: str = GREEN_LIGHT,
+    font_size: float = 8.8,
+) -> None:
     table = doc.add_table(rows=1, cols=len(headers))
     table.style = "Table Grid"
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -440,7 +453,7 @@ def add_data_table(doc: Document, headers: list[str], rows: list[list[str]], wid
     set_repeat_table_header(header)
     for idx, text in enumerate(headers):
         cell = header.cells[idx]
-        set_cell_shading(cell, GREEN)
+        set_cell_shading(cell, header_fill)
         cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
         p = cell.paragraphs[0]
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -449,7 +462,11 @@ def add_data_table(doc: Document, headers: list[str], rows: list[list[str]], wid
         set_run_font(run, size=8.5, color=WHITE, bold=True)
     for ridx, row in enumerate(rows):
         cells = table.add_row().cells
-        if ridx % 2 == 1:
+        is_total = str(row[0]).upper() in {"TOTAL", "ИТОГО"} or str(row[-1]).upper() in {"TOTAL", "ИТОГО"}
+        if is_total:
+            for cell in cells:
+                set_cell_shading(cell, total_fill)
+        elif ridx % 2 == 1:
             for cell in cells:
                 set_cell_shading(cell, "FAFBFC")
         for idx, text in enumerate(row):
@@ -459,7 +476,7 @@ def add_data_table(doc: Document, headers: list[str], rows: list[list[str]], wid
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER if idx > 0 else WD_ALIGN_PARAGRAPH.LEFT
             set_paragraph(p, after=0, line=1.1)
             run = p.add_run(str(text))
-            set_run_font(run, size=8.8, color=INK, bold=(str(text).upper() in {"TOTAL", "ИТОГО"}))
+            set_run_font(run, size=font_size, color=INK, bold=is_total or str(text).upper() in {"TOTAL", "ИТОГО"})
     set_table_geometry(table, widths)
     doc.add_paragraph().paragraph_format.space_after = Pt(2)
 
@@ -529,9 +546,316 @@ def hissar_farmer_tables(t):
     return cycle_rows, cash
 
 
+def detail_text(lang: str) -> dict[str, str]:
+    if lang == "ru":
+        return {
+            "overview": "Обзор программы",
+            "cycle_breakdown": "Подробный разбор по циклам",
+            "cash_summary": "Сводная матрица денежных потоков",
+            "final_balance": "Итоговый финансовый баланс",
+            "responsibilities": "Распределение ролей и ценности",
+            "company": "AgriPartners",
+            "farmer": "Фермер",
+            "funds": "Финансирует активы и оборотный капитал",
+            "operates": "Предоставляет землю, труд и управление",
+            "revenue": "Выручка от продаж",
+            "livestock": "Закупка молодняка",
+            "feed": "Корма и операционные расходы",
+            "herd_payment": "Плата за стадо",
+            "net_profit": "Чистая прибыль",
+            "farmer_share": "Доля фермера 60%",
+            "investor_share": "Доля инвестора 40%",
+            "performance_fee": "Performance Fee 20%",
+            "investor_dividend": "Дивиденд инвестору",
+            "capital_component": "Возврат капитала за стадо",
+            "investor_total": "ИТОГО инвестору за цикл",
+            "farmer_gross": "Доля фермера до расходов",
+            "salary": "Зарплата работника",
+            "transport": "Транспорт",
+            "farmer_total": "ДОХОД ФЕРМЕРА НА РУКИ",
+            "from_company": "Из фонда компании",
+            "from_revenue": "Из выручки цикла",
+            "protected_partner": "Защищённая доля партнёра",
+            "investor_only": "Удерживается только из доли инвестора",
+            "farmer_expense": "Вычитается из доли фермера",
+            "paid_usdc": "Выплата в USDC",
+            "cycle": "Цикл",
+            "period": "Период",
+            "cash": "Выплата",
+            "cumulative": "Накоплено",
+            "final": "Итог",
+            "model_value": "Показатель",
+            "comment": "Комментарий",
+            "investor_profit": "Чистая прибыль инвестора",
+            "gross_share": "Доля фермера до расходов",
+            "cash_received": "Денежные выплаты",
+            "asset_transfer": "Имущество фермеру",
+            "total_benefit": "Общая выгода",
+            "role": "Сторона",
+            "contribution": "Вклад",
+            "benefit": "Результат",
+            "duration": "Срок модели",
+            "cycle_word": "Цикл",
+            "months_short": "мес.",
+        }
+    return {
+        "overview": "Program overview",
+        "cycle_breakdown": "Detailed cycle breakdown",
+        "cash_summary": "Cash-flow summary",
+        "final_balance": "Final financial outcome",
+        "responsibilities": "Roles and value exchange",
+        "company": "AgriPartners",
+        "farmer": "Farmer",
+        "funds": "Funds assets and working capital",
+        "operates": "Provides land, labor, and operations",
+        "revenue": "Sales revenue",
+        "livestock": "Livestock purchase",
+        "feed": "Feed and operating costs",
+        "herd_payment": "Herd capital payment",
+        "net_profit": "Net profit",
+        "farmer_share": "Farmer share 60%",
+        "investor_share": "Investor share 40%",
+        "performance_fee": "Performance Fee 20%",
+        "investor_dividend": "Investor dividend",
+        "capital_component": "Herd capital component",
+        "investor_total": "TOTAL TO INVESTOR",
+        "farmer_gross": "Farmer share before expenses",
+        "salary": "Worker salary",
+        "transport": "Transport",
+        "farmer_total": "FARMER TAKE-HOME",
+        "from_company": "From company reserve",
+        "from_revenue": "From cycle revenue",
+        "protected_partner": "Protected partner share",
+        "investor_only": "Charged only to investor share",
+        "farmer_expense": "Deducted from farmer share",
+        "paid_usdc": "Paid in USDC",
+        "cycle": "Cycle",
+        "period": "Period",
+        "cash": "Payment",
+        "cumulative": "Cumulative",
+        "final": "Total",
+        "model_value": "Metric",
+        "comment": "Comment",
+        "investor_profit": "Investor net profit",
+        "gross_share": "Farmer gross share",
+        "cash_received": "Cash received",
+        "asset_transfer": "Property transferred",
+        "total_benefit": "Total benefit",
+        "role": "Party",
+        "contribution": "Contribution",
+        "benefit": "Outcome",
+        "duration": "Model duration",
+        "cycle_word": "Cycle",
+        "months_short": "mo.",
+    }
+
+
+def add_section_banner(doc: Document, text: str, accent: str) -> None:
+    table = doc.add_table(rows=1, cols=1)
+    cell = table.cell(0, 0)
+    set_cell_shading(cell, accent)
+    set_cell_margins(cell, top=90, start=160, bottom=90, end=160)
+    p = cell.paragraphs[0]
+    set_paragraph(p, after=0, line=1)
+    run = p.add_run(text)
+    set_run_font(run, size=11, color=WHITE, bold=True)
+    set_table_geometry(table, [CONTENT_WIDTH_DXA])
+    spacer = doc.add_paragraph()
+    set_paragraph(spacer, after=1, line=1)
+
+
+def start_new_page(doc: Document) -> None:
+    marker = doc.add_paragraph()
+    marker.paragraph_format.page_break_before = True
+    marker.paragraph_format.space_before = Pt(0)
+    marker.paragraph_format.space_after = Pt(0)
+    marker.paragraph_format.line_spacing = 0.1
+    run = marker.add_run("")
+    set_run_font(run, size=1, color=WHITE)
+
+
+def cycle_values(model_key: str, cycle: int) -> dict[str, int]:
+    if model_key == "fidlot":
+        early = cycle <= 2
+        return {
+            "revenue": 50_000,
+            "livestock": 20_000,
+            "feed": 0 if early else 3_500,
+            "herd_payment": 0,
+            "net": 30_000 if early else 26_500,
+            "farmer": 18_000 if early else 15_900,
+            "investor_gross": 12_000 if early else 10_600,
+            "fee": 2_400 if early else 2_120,
+            "investor_dividend": 9_600 if early else 8_480,
+            "capital_component": 0,
+            "investor_total": 9_600 if early else 8_480,
+            "salary": 1_750,
+            "transport": 1_000,
+            "farmer_takehome": 15_250 if early else 13_150,
+        }
+    early = cycle <= 2
+    return {
+        "revenue": 30_600,
+        "livestock": 0,
+        "feed": 0 if early else 3_500,
+        "herd_payment": 0 if early else 2_500,
+        "net": 30_600 if early else 24_600,
+        "farmer": 18_360 if early else 14_760,
+        "investor_gross": 12_240 if early else 9_840,
+        "fee": 2_448 if early else 1_968,
+        "investor_dividend": 9_792 if early else 7_872,
+        "capital_component": 0 if early else 2_500,
+        "investor_total": 9_792 if early else 10_372,
+        "salary": 2_100,
+        "transport": 1_000,
+        "farmer_takehome": 15_260 if early else 11_660,
+    }
+
+
+def add_cycle_card(
+    doc: Document,
+    model_key: str,
+    audience: str,
+    lang: str,
+    cycle: int,
+    accent: str,
+) -> None:
+    d = detail_text(lang)
+    m = MODELS[model_key]
+    v = cycle_values(model_key, cycle)
+    start = (cycle - 1) * m["cycle_months"]
+    end = cycle * m["cycle_months"]
+    title = f"{d['cycle_word']} {cycle}  |  {start}-{end} {d['months_short']}"
+    title_table = doc.add_table(rows=1, cols=1)
+    title_table.style = "Table Grid"
+    title_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    title_cell = title_table.cell(0, 0)
+    set_cell_shading(title_cell, accent)
+    set_cell_margins(title_cell, top=75, start=140, bottom=75, end=140)
+    hp = title_cell.paragraphs[0]
+    hp.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    set_paragraph(hp, after=0, line=1)
+    hr = hp.add_run(title)
+    set_run_font(hr, size=9.2, color=WHITE, bold=True)
+    set_table_geometry(title_table, [CONTENT_WIDTH_DXA])
+    table = doc.add_table(rows=0, cols=3)
+    table.style = "Table Grid"
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+
+    source = d["from_company"] if cycle <= 2 else d["from_revenue"]
+    if model_key == "fidlot":
+        cost_rows = [
+            (d["revenue"], "50 x $1,000" if lang == "en" else "50 гол. x $1,000", money(v["revenue"])),
+            (d["livestock"], source, f"-{money(v['livestock'])}"),
+        ]
+        if cycle > 2:
+            cost_rows.append((d["feed"], d["from_revenue"], f"-{money(v['feed'])}"))
+    else:
+        cost_rows = [
+            (d["revenue"], "34 x $900" if lang == "en" else "34 гол. x $900", money(v["revenue"])),
+        ]
+        if cycle > 2:
+            cost_rows.extend(
+                [
+                    (d["feed"], d["from_revenue"], f"-{money(v['feed'])}"),
+                    (d["herd_payment"], d["from_revenue"], f"-{money(v['herd_payment'])}"),
+                ]
+            )
+    if audience == "investor":
+        rows = cost_rows + [
+            (d["net_profit"], "60/40", money(v["net"])),
+            (d["farmer_share"], d["protected_partner"], money(v["farmer"])),
+            (d["investor_share"], "Before fee" if lang == "en" else "До удержания Fee", money(v["investor_gross"])),
+            (d["performance_fee"], d["investor_only"], f"-{money(v['fee'])}"),
+            (d["investor_dividend"], d["paid_usdc"], money(v["investor_dividend"])),
+        ]
+        if v["capital_component"]:
+            rows.append((d["capital_component"], "No fee" if lang == "en" else "Без комиссии", money(v["capital_component"])))
+        rows.append((d["investor_total"], d["paid_usdc"], money(v["investor_total"])))
+    else:
+        rows = cost_rows + [
+            (d["net_profit"], "60/40", money(v["net"])),
+            (d["investor_share"], d["investor_only"], money(v["investor_gross"])),
+            (d["performance_fee"], d["investor_only"], f"-{money(v['fee'])}"),
+            (d["farmer_gross"], d["protected_partner"], money(v["farmer"])),
+            (d["salary"], d["farmer_expense"], f"-{money(v['salary'])}"),
+            (d["transport"], d["farmer_expense"], f"-{money(v['transport'])}"),
+            (d["farmer_total"], "Cash" if lang == "en" else "Денежная выплата", money(v["farmer_takehome"])),
+        ]
+
+    for idx, (label, note, amount) in enumerate(rows):
+        cells = table.add_row().cells
+        is_last = idx == len(rows) - 1
+        is_share = label in {d["farmer_share"], d["farmer_gross"]}
+        if is_last:
+            for cell in cells:
+                set_cell_shading(cell, GREEN_BRIGHT if audience == "farmer" else GREEN_DARK)
+        elif is_share:
+            for cell in cells:
+                set_cell_shading(cell, GREEN_LIGHT)
+        elif idx % 2:
+            for cell in cells:
+                set_cell_shading(cell, "F8FAFC")
+        for col, value in enumerate((label, note, amount)):
+            cell = cells[col]
+            cell.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
+            set_cell_margins(cell, top=45, start=100, bottom=45, end=100)
+            p = cell.paragraphs[0]
+            p.alignment = WD_ALIGN_PARAGRAPH.RIGHT if col == 2 else WD_ALIGN_PARAGRAPH.LEFT
+            set_paragraph(p, after=0, line=1)
+            run = p.add_run(value)
+            set_run_font(
+                run,
+                size=7.4,
+                color=WHITE if is_last else INK,
+                bold=is_last or is_share or col == 2,
+            )
+    set_table_geometry(table, [3100, 5356, 2200])
+    spacer = doc.add_paragraph()
+    set_paragraph(spacer, after=2, line=1)
+
+
+def add_role_table(doc: Document, lang: str, accent: str) -> None:
+    d = detail_text(lang)
+    add_data_table(
+        doc,
+        [d["role"], d["contribution"], d["benefit"]],
+        [
+            [d["company"], d["funds"], "40% investor share less fee" if lang == "en" else "40% доли инвестора за вычетом Fee"],
+            [d["farmer"], d["operates"], "60% share plus transferred property" if lang == "en" else "60% доли и передаваемое имущество"],
+        ],
+        [1700, 4650, 4306],
+        header_fill=accent,
+        font_size=8.3,
+    )
+
+
+def outcome_rows(model_key: str, audience: str, lang: str) -> list[list[str]]:
+    d = detail_text(lang)
+    m = MODELS[model_key]
+    if audience == "investor":
+        return [
+            [TEXT[lang]["metric_investment"], money(m["investment"]), "Initial capital" if lang == "en" else "Стартовый капитал"],
+            [TEXT[lang]["metric_payout"], money(m["investor_payout"]), f"{m['duration_months']} {TEXT[lang]['months']}"],
+            [d["investor_profit"], money(m["investor_profit"]), f"ROI +{pct(m['roi'])}"],
+            [TEXT[lang]["metric_apr"], f"~{pct(m['apr'])}", "Annualized projection" if lang == "en" else "Годовая расчётная доходность"],
+        ]
+    gross = 115_500 if model_key == "fidlot" else 95_760
+    expenses = 19_250 if model_key == "fidlot" else 18_600
+    return [
+        [d["gross_share"], money(gross), "Before farmer expenses" if lang == "en" else "До расходов фермера"],
+        ["Salary + transport" if lang == "en" else "Зарплата + транспорт", f"-{money(expenses)}", "Farmer operating costs" if lang == "en" else "Операционные расходы фермера"],
+        [d["cash_received"], money(m["farmer_cash"]), "Cash over the model term" if lang == "en" else "Деньгами за срок модели"],
+        [d["asset_transfer"], money(m["farmer_asset"]), "At model completion" if lang == "en" else "После завершения модели"],
+        [d["total_benefit"], money(m["farmer_total"]), "Cash + property" if lang == "en" else "Деньги + имущество"],
+    ]
+
+
 def build_document(model_key: str, audience: str, lang: str, output: Path) -> None:
     m = MODELS[model_key]
     t = TEXT[lang]
+    d = detail_text(lang)
+    accent = GREEN if audience == "investor" else BLUE
     doc = Document()
     configure_styles(doc)
     title_name = t["fidlot_title"] if model_key == "fidlot" else t["hissar_title"]
@@ -544,7 +868,6 @@ def build_document(model_key: str, audience: str, lang: str, output: Path) -> No
         else f"{m['cycles']} циклов x {m['cycle_months']} мес. | Сплит 60/40 | Fee 20% | {t['language']}"
     )
     add_title_block(doc, role_name, title_name, f"{m['version']} | {subtitle}")
-    add_disclaimer(doc, t["disclaimer"])
     if audience == "investor":
         metrics = [
             (t["metric_investment"], money(m["investment"])),
@@ -560,11 +883,12 @@ def build_document(model_key: str, audience: str, lang: str, output: Path) -> No
             (t["metric_total"], money(m["farmer_total"])),
             (t["metric_cycles"], f"{m['cycles']} x {m['cycle_months']}"),
         ]
-    add_metric_strip(doc, metrics)
+    add_metric_strip(doc, metrics, accent=accent)
+    add_disclaimer(doc, t["disclaimer"])
 
-    add_heading(doc, t["section_mechanics"], 1)
+    add_section_banner(doc, d["overview"], accent)
     mechanics = t[f"mechanics_{model_key}_{audience}"]
-    add_text(doc, mechanics, size=10.5, after=8)
+    add_text(doc, mechanics, size=9.2, after=5)
 
     if model_key == "fidlot":
         labels = (
@@ -592,85 +916,87 @@ def build_document(model_key: str, audience: str, lang: str, output: Path) -> No
         doc,
         [t["amount"], t["item"]],
         [[amount, label] for amount, label in capital_rows] + [[money(50_000), t["total"]]],
-        [1900, 7460],
+        [2100, 8556],
+        header_fill=accent,
+        font_size=8.1,
     )
+    add_role_table(doc, lang, accent)
 
-    add_heading(doc, t["section_economics"], 1)
     if audience == "investor":
+        add_section_banner(doc, d["cycle_breakdown"], accent)
+        add_cycle_card(doc, model_key, audience, lang, 1, accent)
+
+        start_new_page(doc)
+        add_section_banner(doc, d["cycle_breakdown"], accent)
+        for cycle in range(2, min(m["cycles"], 4) + 1):
+            add_cycle_card(doc, model_key, audience, lang, cycle, accent)
+
+        start_new_page(doc)
+        add_section_banner(doc, d["cycle_breakdown"], accent)
+        for cycle in range(5, m["cycles"] + 1):
+            add_cycle_card(doc, model_key, audience, lang, cycle, accent)
         cycle_rows, cash = (
             fidlot_investor_tables(t) if model_key == "fidlot" else hissar_investor_tables(t)
-        )
-        add_data_table(
-            doc,
-            [
-                t["cycle"],
-                t["revenue"],
-                t["costs"],
-                t["pool"],
-                t["farmer_share"],
-                t["investor_gross"],
-                t["fee"],
-                t["investor_net"],
-            ],
-            cycle_rows,
-            [750, 1150, 1150, 1150, 1200, 1200, 1050, 1710],
         )
     else:
         cycle_rows, cash = (
             fidlot_farmer_tables(t) if model_key == "fidlot" else hissar_farmer_tables(t)
         )
+        add_heading(doc, t["section_economics"], 1)
         add_data_table(
             doc,
             [t["cycle"], t["revenue"], t["pool"], t["farmer_share"], t["salary_transport"], t["farmer_takehome"]],
             cycle_rows,
-            [850, 1400, 1500, 1700, 1700, 2210],
+            [1050, 1700, 1850, 2100, 2050, 1906],
+            header_fill=accent,
+            font_size=7.8,
         )
+        start_new_page(doc)
+        add_section_banner(doc, d["cycle_breakdown"], accent)
+        for cycle in range(1, min(m["cycles"], 3) + 1):
+            add_cycle_card(doc, model_key, audience, lang, cycle, accent)
 
-    doc.add_page_break()
-    add_heading(doc, t["section_cashflow"], 1)
-    if audience == "investor":
-        add_data_table(
-            doc,
-            [t["cycle"], t["period"], t["pool"], t["payment"], t["cumulative"]],
-            cash,
-            [1400, 1900, 1900, 1900, 2260],
-        )
-    else:
+        start_new_page(doc)
+        add_section_banner(doc, d["cycle_breakdown"], accent)
+        for cycle in range(4, min(m["cycles"], 5) + 1):
+            add_cycle_card(doc, model_key, audience, lang, cycle, accent)
+
+        start_new_page(doc)
+        add_section_banner(doc, d["cycle_breakdown"], accent)
+        for cycle in range(6, m["cycles"] + 1):
+            add_cycle_card(doc, model_key, audience, lang, cycle, accent)
+        add_heading(doc, d["cash_summary"], 1)
         add_data_table(
             doc,
             [t["cycle"], t["period"], t["farmer_takehome"], t["cumulative"]],
             cash,
-            [1800, 2300, 2500, 2760],
+            [1650, 2600, 2900, 3506],
+            header_fill=BLUE,
+            font_size=7.8,
         )
 
-    add_heading(doc, t["section_outcome"], 1)
+    start_new_page(doc)
+    add_section_banner(doc, d["final_balance"], accent)
     if audience == "investor":
-        outcome = [
-            [t["metric_investment"], money(m["investment"])],
-            [t["metric_payout"], money(m["investor_payout"])],
-            ["Investor profit" if lang == "en" else "Прибыль инвестора", money(m["investor_profit"])],
-            [t["metric_roi"], f"+{pct(m['roi'])}"],
-            [t["metric_apr"], f"~{pct(m['apr'])}"],
-        ]
-    elif model_key == "fidlot":
-        outcome = [
-            ["Farmer gross share" if lang == "en" else "Доля фермера до расходов", money(115_500)],
-            ["Worker salary" if lang == "en" else "Зарплата работника", f"-{money(12_250)}"],
-            ["Transport" if lang == "en" else "Транспорт", f"-{money(7_000)}"],
-            [t["metric_cash"], money(96_250)],
-            [t["property"], money(18_000)],
-            [t["metric_total"], money(114_250)],
-        ]
-    else:
-        outcome = [
-            ["Farmer cycle cash" if lang == "en" else "Выплаты по циклам", money(77_160)],
-            [t["herd_sale"], money(6_000)],
-            [t["metric_cash"], money(83_160)],
-            [t["property"], money(18_000)],
-            [t["metric_total"], money(101_160)],
-        ]
-    add_data_table(doc, [t["item"], t["amount"]], outcome, [6500, 2860])
-
+        add_heading(doc, d["cash_summary"], 1)
+        add_data_table(
+            doc,
+            [t["cycle"], t["period"], t["pool"], t["payment"], t["cumulative"]],
+            cash,
+            [1150, 2150, 2200, 2200, 2956],
+            header_fill=BLUE,
+            font_size=7.7,
+        )
+    add_metric_strip(doc, metrics, accent=accent)
+    add_data_table(
+        doc,
+        [d["model_value"], d["final"], d["comment"]],
+        outcome_rows(model_key, audience, lang),
+        [4000, 2300, 4356],
+        header_fill=BLUE,
+        total_fill=GREEN_LIGHT,
+        font_size=8.4,
+    )
     add_heading(doc, t["section_notes"], 1)
     if lang == "ru":
         notes = [
