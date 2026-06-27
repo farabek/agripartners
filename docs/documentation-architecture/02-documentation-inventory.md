@@ -148,8 +148,6 @@ These files are either legacy outputs, forum/grant materials, PDFs, HTML exports
 - `docs/pitch-deck.html`
 - `docs/funding-strategy.html`
 - `docs/checklist.html`
-- `docs/Agri-Farmer-Fidlot-v5.9-6040.pdf`
-- `docs/Agri-Investor-Fidlot-v5.9-6040.pdf`
 - `docs/AgriPartners-Comparison-AllSplits.pdf`
 - `docs/AgriPartners-Escrow-Analysis.pdf`
 

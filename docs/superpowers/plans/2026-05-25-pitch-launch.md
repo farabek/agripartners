@@ -620,7 +620,7 @@ mkdir -p /e/agripartners/frontend/pages
 
   <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-8">
     <p class="font-semibold text-gray-800 mb-2">Документы</p>
-    <p class="text-sm text-gray-600">Полный договор инвестора: <strong>Agri-Investor-Fidlot-v5.9-6040.pdf</strong></p>
+    <p class="text-sm text-gray-600">Полный договор инвестора: <strong>docs/60-40/Agri-Investor-Fidlot-v5.9-6040.pdf</strong></p>
     <p class="text-sm text-gray-600 mt-1">Live дашборд: <strong>https://agripartners.vercel.app</strong></p>
   </div>
 
@@ -697,7 +697,7 @@ mkdir -p /e/agripartners/frontend/pages
 
   <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-8">
     <p class="font-semibold text-gray-800 mb-2">Documents</p>
-    <p class="text-sm text-gray-600">Full investor agreement: <strong>Agri-Investor-Fidlot-v5.9-6040.pdf</strong></p>
+    <p class="text-sm text-gray-600">Full investor agreement: <strong>docs/60-40/Agri-Investor-Fidlot-v5.9-6040.pdf</strong></p>
     <p class="text-sm text-gray-600 mt-1">Live dashboard: <strong>https://agripartners.vercel.app</strong></p>
   </div>
 
@@ -786,7 +786,7 @@ git commit -m "feat: add investor brief pages (RU + EN)"
 
   <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-8">
     <p class="font-semibold text-gray-800 mb-2">Hujjatlar</p>
-    <p class="text-sm text-gray-600">To'liq fermer shartnomasi: <strong>Agri-Farmer-Fidlot-v5.9-6040.pdf</strong></p>
+    <p class="text-sm text-gray-600">To'liq fermer shartnomasi: <strong>docs/60-40/Agri-Farmer-Fidlot-v5.9-6040.pdf</strong></p>
     <p class="text-sm text-gray-600 mt-1">Dashboard: <strong>https://agripartners.vercel.app</strong></p>
   </div>
 
@@ -859,7 +859,7 @@ git commit -m "feat: add investor brief pages (RU + EN)"
 
   <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-8">
     <p class="font-semibold text-gray-800 mb-2">Документы</p>
-    <p class="text-sm text-gray-600">Полный договор фермера: <strong>Agri-Farmer-Fidlot-v5.9-6040.pdf</strong></p>
+    <p class="text-sm text-gray-600">Полный договор фермера: <strong>docs/60-40/Agri-Farmer-Fidlot-v5.9-6040.pdf</strong></p>
     <p class="text-sm text-gray-600 mt-1">Дашборд: <strong>https://agripartners.vercel.app</strong></p>
   </div>
 
