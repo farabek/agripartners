@@ -58,6 +58,7 @@ test('landing publishes bilingual investor and farmer financial models with disc
   expect(appJs).toContain('For Farmers');
   expect(appJs).toContain('Projected net ROI');
   expect(appJs).toContain('Projected cash received');
+  expect(appJs.match(/class="financial-language notranslate" translate="no"/g)).toHaveLength(8);
   expect(appJs).toContain('do not guarantee returns');
   expect(appJs).toContain('Agri-Investor-Fidlot-v5.9-6040-EN.pdf');
   expect(appJs).toContain('Agri-Investor-VariantB-v2.1-6040-RU.pdf');
