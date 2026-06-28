@@ -51,8 +51,13 @@ test('landing describes core demonstration capabilities', () => {
 
 test('landing publishes bilingual investor and farmer financial models with disclaimer', () => {
   expect(appJs).toContain('Explore the 60/40 Model');
+  expect(appJs).toContain('financial-model-catalog');
+  expect(appJs).toContain('Livestock fattening');
+  expect(appJs).toContain('Sheep breeding');
   expect(appJs).toContain('For Investors');
   expect(appJs).toContain('For Farmers');
+  expect(appJs).toContain('Projected net ROI');
+  expect(appJs).toContain('Projected cash received');
   expect(appJs).toContain('do not guarantee returns');
   expect(appJs).toContain('Agri-Investor-Fidlot-v5.9-6040-EN.pdf');
   expect(appJs).toContain('Agri-Investor-VariantB-v2.1-6040-RU.pdf');

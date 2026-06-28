@@ -1309,36 +1309,92 @@ function showHome() {
           Review the demonstration economics for the Fidlot livestock-fattening and Hissar sheep-breeding models.
           Investor and farmer documents are available in English and Russian.
         </p>
-        <p class="landing-safe-positioning">
-          These materials contain projections, do not guarantee returns, and do not constitute a public offer to invest.
+        <p class="landing-safe-positioning financial-model-notice">
+          <span class="financial-model-notice-icon" aria-hidden="true">i</span>
+          <span>These materials contain projections, do not guarantee returns, and do not constitute a public offer to invest.</span>
         </p>
-        <div class="financial-model-groups">
-          <section class="financial-model-group" aria-labelledby="financial-models-investors">
-            <h3 id="financial-models-investors">For Investors</h3>
-            <article class="financial-model-card">
-              <div><strong>Fidlot v5.9</strong><span>7 cycles × 5 months · projected net ROI 64.0%</span></div>
-              <div class="financial-model-language"><span>EN</span><a href="assets/financial-models/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf" download>Download</a></div>
-              <div class="financial-model-language"><span>RU</span><a href="assets/financial-models/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf" download>Download</a></div>
-            </article>
-            <article class="financial-model-card">
-              <div><strong>Hissar / VariantB v2.1</strong><span>6 cycles × 6 months · projected net ROI 63.3%</span></div>
-              <div class="financial-model-language"><span>EN</span><a href="assets/financial-models/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf" download>Download</a></div>
-              <div class="financial-model-language"><span>RU</span><a href="assets/financial-models/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf" download>Download</a></div>
-            </article>
-          </section>
-          <section class="financial-model-group" aria-labelledby="financial-models-farmers">
-            <h3 id="financial-models-farmers">For Farmers</h3>
-            <article class="financial-model-card">
-              <div><strong>Fidlot v5.9</strong><span>Projected cash received $96,250 · total benefit $114,250</span></div>
-              <div class="financial-model-language"><span>EN</span><a href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" download>Download</a></div>
-              <div class="financial-model-language"><span>RU</span><a href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" download>Download</a></div>
-            </article>
-            <article class="financial-model-card">
-              <div><strong>Hissar / VariantB v2.1</strong><span>Projected cash received $83,160 · total benefit $101,160</span></div>
-              <div class="financial-model-language"><span>EN</span><a href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" download>Download</a></div>
-              <div class="financial-model-language"><span>RU</span><a href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View</a><a href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" download>Download</a></div>
-            </article>
-          </section>
+        <div class="financial-model-catalog">
+          <article class="financial-model-card">
+            <header class="financial-model-header">
+              <div>
+                <span class="financial-model-type">Livestock fattening</span>
+                <h3>Fidlot <span>v5.9</span></h3>
+              </div>
+              <div class="financial-model-badges" aria-label="Fidlot model details">
+                <span>7 cycles</span>
+                <span>5 months each</span>
+                <span>60 / 40 split</span>
+              </div>
+            </header>
+            <div class="financial-model-audiences">
+              <section class="financial-model-audience" aria-labelledby="fidlot-investors">
+                <div class="financial-audience-heading">
+                  <span class="financial-audience-icon financial-audience-icon-investor" aria-hidden="true">↗</span>
+                  <div><span>Capital perspective</span><h4 id="fidlot-investors">For Investors</h4></div>
+                </div>
+                <div class="financial-model-stat"><span>Projected net ROI</span><strong>64.0%</strong></div>
+                <div class="financial-document-list" aria-label="Fidlot investor documents">
+                  <div class="financial-document-row"><span class="financial-language">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf" download aria-label="Download Fidlot investor model in English">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf" download aria-label="Download Fidlot investor model in Russian">↓</a></div>
+                </div>
+              </section>
+              <section class="financial-model-audience" aria-labelledby="fidlot-farmers">
+                <div class="financial-audience-heading">
+                  <span class="financial-audience-icon" aria-hidden="true">✓</span>
+                  <div><span>Operator perspective</span><h4 id="fidlot-farmers">For Farmers</h4></div>
+                </div>
+                <div class="financial-model-stat-pair">
+                  <div class="financial-model-stat"><span>Projected cash received</span><strong>$96,250</strong></div>
+                  <div class="financial-model-stat"><span>Total benefit</span><strong>$114,250</strong></div>
+                </div>
+                <div class="financial-document-list" aria-label="Fidlot farmer documents">
+                  <div class="financial-document-row"><span class="financial-language">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" download aria-label="Download Fidlot farmer model in English">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" download aria-label="Download Fidlot farmer model in Russian">↓</a></div>
+                </div>
+              </section>
+            </div>
+          </article>
+
+          <article class="financial-model-card">
+            <header class="financial-model-header">
+              <div>
+                <span class="financial-model-type">Sheep breeding</span>
+                <h3>Hissar / VariantB <span>v2.1</span></h3>
+              </div>
+              <div class="financial-model-badges" aria-label="Hissar VariantB model details">
+                <span>6 cycles</span>
+                <span>6 months each</span>
+                <span>60 / 40 split</span>
+              </div>
+            </header>
+            <div class="financial-model-audiences">
+              <section class="financial-model-audience" aria-labelledby="hissar-investors">
+                <div class="financial-audience-heading">
+                  <span class="financial-audience-icon financial-audience-icon-investor" aria-hidden="true">↗</span>
+                  <div><span>Capital perspective</span><h4 id="hissar-investors">For Investors</h4></div>
+                </div>
+                <div class="financial-model-stat"><span>Projected net ROI</span><strong>63.3%</strong></div>
+                <div class="financial-document-list" aria-label="Hissar investor documents">
+                  <div class="financial-document-row"><span class="financial-language">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf" download aria-label="Download Hissar investor model in English">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf" download aria-label="Download Hissar investor model in Russian">↓</a></div>
+                </div>
+              </section>
+              <section class="financial-model-audience" aria-labelledby="hissar-farmers">
+                <div class="financial-audience-heading">
+                  <span class="financial-audience-icon" aria-hidden="true">✓</span>
+                  <div><span>Operator perspective</span><h4 id="hissar-farmers">For Farmers</h4></div>
+                </div>
+                <div class="financial-model-stat-pair">
+                  <div class="financial-model-stat"><span>Projected cash received</span><strong>$83,160</strong></div>
+                  <div class="financial-model-stat"><span>Total benefit</span><strong>$101,160</strong></div>
+                </div>
+                <div class="financial-document-list" aria-label="Hissar farmer documents">
+                  <div class="financial-document-row"><span class="financial-language">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" download aria-label="Download Hissar farmer model in English">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" download aria-label="Download Hissar farmer model in Russian">↓</a></div>
+                </div>
+              </section>
+            </div>
+          </article>
         </div>
       </section>
     </main>
