@@ -55,9 +55,25 @@ Track in Outreach CRM
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | Joseph Beverley | [founder-success.md#joseph-beverley](near-directory/founder-success.md#joseph-beverley) | Following | 2026-06-25 | 2026-06-25 | No response yet | Monitor posts and engage | Followed on LinkedIn. Tier 1 Founder Success entry point; role и source details хранятся в Near Directory. |
 | David Mirzadeh | [near-foundation.md#david-mirzadeh](near-directory/near-foundation.md#david-mirzadeh) | Following | 2026-06-25 | Invite sent on 2026-06-25 | No response yet | Отправить короткое intro после acceptance | Existing outreach activity сохранена как operational record; profile details хранятся в Near Directory. |
-| Philipp Suarez | [near-foundation.md#philipp-suarez](near-directory/near-foundation.md#philipp-suarez) | Following | 2026-06-25 | Invite sent on 2026-06-25 | No response yet | Отправить короткое intro после acceptance | Finance-track contact. Profile details хранятся в Near Directory. |
+| Philipp Suarez | [near-foundation.md#philipp-suarez](near-directory/near-foundation.md#philipp-suarez) | Intro sent | 2026-06-25 | LinkedIn intro отправлено 2026-06-29 в 18:51 | Ответа пока нет | Если ответа не будет, отправить один follow-up 2026-07-03 | Connection принято. Finance-track contact. Не отправлять новое сообщение раньше даты follow-up. Profile details хранятся в Near Directory. |
 | Josh Ford | [near-foundation.md#josh-ford](near-directory/near-foundation.md#josh-ford) | Following | 2026-06-25 | Invite sent and followed on 2026-06-25 | No response yet | Monitor posts and engage; отправить DevX/product feedback intro после acceptance | Tier 2 DevX/Product contact. Profile details хранятся в Near Directory. |
 | Bowen Shen | [proximity-labs.md#bowen-shen](near-directory/proximity-labs.md#bowen-shen) | Following | 2026-06-25 | Invite sent on 2026-06-25 | No response yet | Monitor posts and engage; отправить DeFi/RWA fit intro после acceptance | Proximity Labs contact. Profile details хранятся в Near Directory. |
+
+### Подготовленный follow-up — Philipp Suarez
+
+Отправить только при отсутствии ответа к **2026-07-03**:
+
+> Hi Philipp,
+>
+> Just following up on my message. We’ve prepared a public AgriPartners demo, including model-specific investor protection and transparent farmer payment schedules:
+>
+> https://frontend-omega-woad-90.vercel.app
+>
+> Would you be open to a brief 15-minute introduction next week?
+>
+> Best, Farhod
+
+После отправки обновить `Last Contact`, оставить `Last Response` фактическим и не отправлять следующий follow-up в течение семи дней.
 
 ## Требуется backfill
 
