@@ -760,6 +760,226 @@
   color: #fef3c7;
 }
 
+.farmer-reserve-panel {
+  background:
+    radial-gradient(circle at 100% 0%, rgb(34 197 94 / 0.09), transparent 32%),
+    #162337;
+  border: 1px solid #2f6b4f;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  padding: 20px;
+}
+
+.farmer-protection-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+}
+
+.farmer-protection-kicker {
+  color: #86efac;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.farmer-protection-heading h2 {
+  color: #f8fafc;
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-top: 4px;
+}
+
+.farmer-protection-heading p {
+  color: #94a3b8;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  margin-top: 6px;
+  max-width: 760px;
+}
+
+.farmer-protection-rate {
+  background-color: rgb(21 128 61 / 0.22);
+  border: 1px solid #278454;
+  border-radius: 999px;
+  color: #bbf7d0;
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 7px 10px;
+}
+
+.farmer-protection-demo-note,
+.farmer-protection-data-warning {
+  background-color: #422006;
+  border: 1px solid #a16207;
+  border-radius: 8px;
+  color: #fde68a;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin-top: 16px;
+  padding: 11px 13px;
+}
+
+.farmer-protection-live-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 16px;
+}
+
+.farmer-protection-live-grid > div {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.farmer-protection-live-grid span,
+.farmer-protection-formula span {
+  color: #64748b;
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.farmer-protection-live-grid strong {
+  color: #f8fafc;
+  display: block;
+  font-size: 1rem;
+  margin-top: 4px;
+}
+
+.farmer-protection-formula {
+  background-color: rgb(15 23 42 / 0.8);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  margin-top: 14px;
+  padding: 12px;
+}
+
+.farmer-protection-formula code {
+  color: #d1fae5;
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+
+.farmer-protection-schedule-heading {
+  align-items: flex-end;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin: 18px 0 9px;
+}
+
+.farmer-protection-schedule-heading h3 {
+  color: #f8fafc;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.farmer-protection-schedule-heading p,
+.farmer-protection-schedule-heading > span {
+  color: #94a3b8;
+  font-size: 0.72rem;
+}
+
+.farmer-protection-capital-note {
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  margin-bottom: 9px;
+}
+
+.farmer-protection-scroll-hint {
+  color: #86efac;
+  display: none;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+
+.farmer-protection-table-scroll {
+  border: 1px solid #334155;
+  border-radius: 9px;
+  overflow-x: auto;
+}
+
+.farmer-protection-table {
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  min-width: 940px;
+  width: 100%;
+}
+
+.farmer-protection-table th,
+.farmer-protection-table td {
+  border-bottom: 1px solid #334155;
+  color: #cbd5e1;
+  padding: 10px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.farmer-protection-table th:first-child,
+.farmer-protection-table td:first-child,
+.farmer-protection-table th:nth-child(2),
+.farmer-protection-table td:nth-child(2) {
+  text-align: left;
+}
+
+.farmer-protection-table thead th {
+  background-color: #0f2b26;
+  color: #d1fae5;
+  font-weight: 800;
+}
+
+.farmer-protection-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.farmer-protection-table tr.is-current td {
+  background-color: rgb(21 128 61 / 0.13);
+}
+
+.farmer-protection-table td strong {
+  color: #86efac;
+}
+
+.farmer-protection-status {
+  background-color: #334155;
+  border-radius: 999px;
+  color: #e2e8f0;
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 4px 7px;
+}
+
+.is-current .farmer-protection-status {
+  background-color: #166534;
+  color: #dcfce7;
+}
+
+.is-completed .farmer-protection-status {
+  background-color: #1e3a5f;
+  color: #dbeafe;
+}
+
+.farmer-protection-warning {
+  color: #fcd34d;
+  font-size: 0.73rem;
+  line-height: 1.5;
+  margin-top: 11px;
+}
+
 .protection-home-actions {
   display: flex;
   flex-wrap: wrap;
@@ -768,6 +988,12 @@
 }
 
 @media (max-width: 820px) {
+  .farmer-protection-heading,
+  .farmer-protection-schedule-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
   .financial-model-audiences {
     grid-template-columns: 1fr;
   }
@@ -785,6 +1011,18 @@
 }
 
 @media (max-width: 560px) {
+  .farmer-reserve-panel {
+    padding: 16px;
+  }
+
+  .farmer-protection-live-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .farmer-protection-scroll-hint {
+    display: block;
+  }
+
   .landing-financial-models {
     padding: 18px;
   }

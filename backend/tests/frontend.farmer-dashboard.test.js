@@ -222,6 +222,39 @@ test('farmer demo deal detail renders project profile and report cycle status', 
   expect(appJs).toContain('Return Recorded');
 });
 
+test('farmer deal detail explains reserve and payment for every model cycle', () => {
+  expect(appJs).toContain('function renderFarmerReserveBreakdown');
+  expect(appJs).toContain('Reserve and Farmer Payment by Cycle');
+  expect(appJs).toContain('Farmer cash before reserve · after expenses');
+  expect(appJs).toContain('Added to reserve');
+  expect(appJs).toContain('Released to farmer');
+  expect(appJs).toContain('Farmer receives');
+  expect(appJs).toContain('Ending reserve');
+  expect(appJs).toContain('cash after reserve and expenses + reserve released = farmer receives');
+  expect(appJs).toContain('Model projection only — this pilot profile has no live contract reserve or withdrawable balance.');
+  expect(appJs).toContain('Contract reserve · live');
+  expect(appJs).toContain('Farmer available · live');
+  expect(appJs).toContain('Swipe horizontally to compare every amount');
+  expect(appJs).toContain('Hissar cycles 3–6 include a $2,500 partial capital return');
+});
+
+test('farmer reserve schedule includes canonical Fidlot and Hissar cycle examples', () => {
+  expect(appJs).toContain("['Cycle 3', '$27,680', '$6,996', '$516', '$22,320', '$6,670']");
+  expect(appJs).toContain("['Cycle 3', '$29,956', '$7,822.80', '$7,240.40', '$20,044', '$11,077.60']");
+  expect(appJs).toContain('Minimum reserve until completion:');
+  expect(appJs).toContain('A release is not automatic.');
+});
+
+test('reserve breakdown is present in demo and live farmer details', () => {
+  const demoStart = appJs.indexOf('function renderFarmerDemoDealDetail');
+  const demoBody = appJs.slice(demoStart, demoStart + 1900);
+  const liveStart = appJs.indexOf('function renderFarmerDealDetail');
+  const liveBody = appJs.slice(liveStart, liveStart + 2200);
+
+  expect(demoBody).toContain('renderFarmerReserveBreakdown(deal, cycles)');
+  expect(liveBody).toContain('renderFarmerReserveBreakdown(deal, cycles, balances, resourceErrors.balances)');
+});
+
 test('farmer operations dashboard adds timeline and reports history helpers', () => {
   expect(appJs).toContain('function renderFarmerCycleTimeline');
   expect(appJs).toContain('Funding Sent');

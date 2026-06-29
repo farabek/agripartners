@@ -3485,6 +3485,7 @@ function renderFarmerDemoDealDetail(el, deal, cycles, events) {
 
     ${renderFarmerProjectProfile(deal)}
     ${renderFarmerDealOperationsSummary(deal, cycles)}
+    ${renderFarmerReserveBreakdown(deal, cycles)}
 
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5">
@@ -3596,6 +3597,163 @@ function renderFarmerDealOperationsSummary(deal, cycles) {
             <span class="block text-sm text-slate-100 mt-1">${escapeHtml(value)}</span>
           </div>
         `).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function farmerProtectionUsdNumber(value) {
+  const amount = Number(String(value ?? '').replace(/[$,\s]/g, ''));
+  return Number.isFinite(amount) ? amount : 0;
+}
+
+function formatFarmerProtectionUsd(value) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function farmerProtectionStageStatus(stage, deal, cycles = []) {
+  const isCompletion = stage === 'Completion';
+  const stageNumber = Number(String(stage).match(/\d+/)?.[0]);
+  const normalizedDealStatus = String(deal?.status?.status || deal?.status || '').toLowerCase();
+  if (isCompletion) return normalizedDealStatus === 'completed' ? 'Completed' : 'Planned';
+
+  const cycle = cycles.find(item => Number(item?.id ?? item?.cycle_id ?? item?.cycle_number) === stageNumber);
+  if (farmerCycleCompleted(cycle)) return 'Completed';
+  if (cycle) return 'Current';
+
+  const activeCycle = Number(deal?.activeCycleId ?? deal?.current_cycle ?? deal?.status?.current_cycle);
+  if (Number.isFinite(activeCycle) && stageNumber === activeCycle) return 'Current';
+  if (normalizedDealStatus === 'completed') return 'Completed';
+  if (Number.isFinite(activeCycle) && stageNumber < activeCycle) return 'Completed';
+  return 'Planned';
+}
+
+function formatFarmerProtectionContractBalance(value) {
+  if (value == null || value === '') return 'Unavailable';
+  try {
+    return yoctoToNear(value);
+  } catch {
+    return 'Unavailable';
+  }
+}
+
+function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balancesError = null) {
+  const pilot = getPilotForDeal(deal);
+  const modelKey = deal?.pilot_key || pilot?.key || pilotKeyFromText(`${deal?.title || ''} ${deal?.deal_type || ''}`);
+  const model = INVESTOR_PROTECTION_MODELS[modelKey];
+  const reserveRate = deal?.escrow_pct ?? pilot?.reserveRate ?? model?.rate;
+  const contractReserve = formatFarmerProtectionContractBalance(balances?.escrow);
+  const farmerAvailable = formatFarmerProtectionContractBalance(balances?.farmer);
+
+  const liveBalanceView = deal?.isDemoPilot
+    ? `
+      <div class="farmer-protection-demo-note">
+        Model projection only — this pilot profile has no live contract reserve or withdrawable balance.
+      </div>
+    `
+    : `
+      <div class="farmer-protection-live-grid">
+        <div>
+          <span>Contract reserve · live</span>
+          <strong>${escapeHtml(contractReserve)}</strong>
+        </div>
+        <div>
+          <span>Farmer available · live</span>
+          <strong>${escapeHtml(farmerAvailable)}</strong>
+        </div>
+      </div>
+      ${balancesError ? `<div class="farmer-protection-data-warning">Live balances unavailable: ${escapeHtml(balancesError)}</div>` : ''}
+    `;
+
+  const scheduleView = model
+    ? `
+      <div class="farmer-protection-table-scroll">
+        <table class="farmer-protection-table">
+          <thead>
+            <tr>
+              <th>Stage</th>
+              <th>Status</th>
+              <th>Farmer cash before reserve · after expenses</th>
+              <th>Added to reserve</th>
+              <th>Released to farmer</th>
+              <th>Farmer receives</th>
+              <th>Ending reserve</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${model.schedule.map(([stage, _investorCash, contribution, release, endingReserve, farmerCash]) => {
+              const beforeReserve = farmerProtectionUsdNumber(farmerCash)
+                - farmerProtectionUsdNumber(release)
+                + farmerProtectionUsdNumber(contribution);
+              const status = farmerProtectionStageStatus(stage, deal, cycles);
+              return `
+                <tr class="farmer-protection-row is-${status.toLowerCase()}">
+                  <td>${escapeHtml(stage)}</td>
+                  <td><span class="farmer-protection-status">${escapeHtml(status)}</span></td>
+                  <td>${escapeHtml(formatFarmerProtectionUsd(beforeReserve))}</td>
+                  <td>${escapeHtml(contribution)}</td>
+                  <td>${escapeHtml(release)}</td>
+                  <td><strong>${escapeHtml(farmerCash)}</strong></td>
+                  <td>${escapeHtml(endingReserve)}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `
+    : `
+      <div class="farmer-protection-data-warning">
+        A cycle-by-cycle USD schedule has not been configured for this deal. Live contract balances above remain authoritative.
+      </div>
+    `;
+
+  return `
+    <section class="farmer-reserve-panel" data-farmer-reserve-breakdown>
+      <div class="farmer-protection-heading">
+        <div>
+          <span class="farmer-protection-kicker">Farmer payment transparency</span>
+          <h2>Reserve and Farmer Payment by Cycle</h2>
+          <p>
+            See what is temporarily added to the Protection Reserve, what may be released after cycle checks,
+            what remains protected, and the total modeled cash available to the farmer.
+          </p>
+        </div>
+        <span class="farmer-protection-rate">${reserveRate == null ? 'Rate unavailable' : `${escapeHtml(reserveRate)}% of farmer share`}</span>
+      </div>
+
+      ${liveBalanceView}
+
+      <div class="farmer-protection-formula">
+        <span>How “Farmer receives” is calculated</span>
+        <code>cash after reserve and expenses + reserve released = farmer receives</code>
+      </div>
+
+      <div class="farmer-protection-schedule-heading">
+        <div>
+          <h3>${model ? `${escapeHtml(model.title)} staged schedule` : 'Cycle schedule unavailable'}</h3>
+          <p>USD model projection. It is separate from the live NEAR contract balances shown above.</p>
+        </div>
+        ${model ? `<span>Minimum reserve until completion: ${escapeHtml(model.minimumReserve)}</span>` : ''}
+      </div>
+
+      ${modelKey === 'hissar' ? `
+        <p class="farmer-protection-capital-note">
+          Hissar cycles 3–6 include a $2,500 partial capital return to the investor before the 60/40 profit split.
+          It is included in the staged release calculation and has no Performance Fee.
+        </p>
+      ` : ''}
+      ${model ? '<p class="farmer-protection-scroll-hint">Swipe horizontally to compare every amount →</p>' : ''}
+      ${scheduleView}
+
+      <div class="farmer-protection-warning">
+        A release is not automatic. A Confirmed Loss, overdue mandatory report, default, or open dispute may reduce or suspend it.
+        The final ${model ? escapeHtml(model.minimumReserve) : 'minimum reserve'} is released only after completion and required checks.
       </div>
     </section>
   `;
@@ -3728,6 +3886,7 @@ function renderFarmerDealDetail(el, bundle) {
     ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
     ${renderFarmerProjectProfile(deal)}
     ${renderFarmerDealOperationsSummary(deal, cycles)}
+    ${renderFarmerReserveBreakdown(deal, cycles, balances, resourceErrors.balances)}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Deal Summary</h3>
@@ -4729,6 +4888,7 @@ function farmerDemoDealFromPilot(pilot, farmerAccount) {
     amount: pilot.amount,
     display_amount: pilot.displayAmount,
     display_currency: 'USD',
+    escrow_pct: pilot.reserveRate,
     status: pilot.status,
     activeCycleId: isFidlot ? null : 1,
     fundingStatus: 'Funding Confirmed',
