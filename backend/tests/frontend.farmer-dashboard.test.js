@@ -230,6 +230,11 @@ test('farmer deal detail explains reserve and payment for every model cycle', ()
   expect(appJs).toContain('Released to farmer');
   expect(appJs).toContain('Farmer receives');
   expect(appJs).toContain('Ending reserve');
+  expect(appJs).toContain('Program total');
+  expect(appJs).toContain('No-loss model');
+  expect(appJs).toContain('scheduleTotals.contribution');
+  expect(appJs).toContain('scheduleTotals.release');
+  expect(appJs).toContain('scheduleTotals.farmerCash');
   expect(appJs).toContain('farmer’s gross 60% profit share × reserve rate = reserve contribution');
   expect(appJs).toContain('gross farmer share − operating expenses − reserve contribution + reserve released = farmer receives');
   expect(appJs).toContain('the ${reserveRate == null ? \'model-specific\' : `${escapeHtml(reserveRate)}%`} rate is calculated before operating expenses');

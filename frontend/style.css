@@ -999,6 +999,17 @@
   border-bottom: 0;
 }
 
+.farmer-protection-table tfoot td {
+  background-color: #0b2a22;
+  border-top: 2px solid #278454;
+  color: #f8fafc;
+  font-weight: 800;
+}
+
+.farmer-protection-table tfoot td strong {
+  color: #86efac;
+}
+
 .farmer-protection-table tr.is-current td {
   background-color: rgb(21 128 61 / 0.13);
 }

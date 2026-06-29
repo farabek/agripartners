@@ -3649,6 +3649,15 @@ function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balanc
   const reserveRate = deal?.escrow_pct ?? pilot?.reserveRate ?? model?.rate;
   const contractReserve = formatFarmerProtectionContractBalance(balances?.escrow);
   const farmerAvailable = formatFarmerProtectionContractBalance(balances?.farmer);
+  const scheduleTotals = model?.schedule.reduce((totals, [_stage, _investorCash, contribution, release, _endingReserve, farmerCash]) => {
+    totals.contribution += farmerProtectionUsdNumber(contribution);
+    totals.release += farmerProtectionUsdNumber(release);
+    totals.farmerCash += farmerProtectionUsdNumber(farmerCash);
+    totals.beforeReserve += farmerProtectionUsdNumber(farmerCash)
+      - farmerProtectionUsdNumber(release)
+      + farmerProtectionUsdNumber(contribution);
+    return totals;
+  }, { beforeReserve: 0, contribution: 0, release: 0, farmerCash: 0 });
 
   const liveBalanceView = deal?.isDemoPilot
     ? `
@@ -3704,6 +3713,17 @@ function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balanc
               `;
             }).join('')}
           </tbody>
+          <tfoot>
+            <tr>
+              <td>Program total</td>
+              <td><span class="farmer-protection-status">No-loss model</span></td>
+              <td>${escapeHtml(formatFarmerProtectionUsd(scheduleTotals.beforeReserve))}</td>
+              <td>${escapeHtml(formatFarmerProtectionUsd(scheduleTotals.contribution))}</td>
+              <td>${escapeHtml(formatFarmerProtectionUsd(scheduleTotals.release))}</td>
+              <td><strong>${escapeHtml(formatFarmerProtectionUsd(scheduleTotals.farmerCash))}</strong></td>
+              <td>${escapeHtml(model.schedule[model.schedule.length - 1][4])} at completion</td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     `
