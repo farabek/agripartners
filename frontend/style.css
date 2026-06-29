@@ -874,6 +874,40 @@
   color: #dbeafe;
 }
 
+.protection-cta {
+  align-items: center;
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  border: 1px solid #7dd3fc !important;
+  border-radius: 8px;
+  box-shadow:
+    0 0 0 1px rgb(59 130 246 / 0.18),
+    0 7px 18px rgb(14 165 233 / 0.2);
+  color: #ffffff !important;
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 900;
+  justify-content: center;
+  letter-spacing: 0.01em;
+  margin-bottom: 0;
+  padding: 8px 11px;
+  text-align: center;
+  text-decoration: none;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.protection-cta:hover {
+  box-shadow:
+    0 0 0 2px rgb(125 211 252 / 0.28),
+    0 10px 24px rgb(14 165 233 / 0.34);
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+.protection-cta:focus-visible {
+  outline: 3px solid rgb(125 211 252 / 0.55);
+  outline-offset: 3px;
+}
+
 .farmer-pilot-selector-heading {
   margin-bottom: 24px;
   max-width: 760px;

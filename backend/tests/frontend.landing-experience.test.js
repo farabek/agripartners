@@ -125,6 +125,8 @@ test('public protection schedules are linked across primary product surfaces', (
   expect(appJs).toContain('Investor view');
   expect(appJs).toContain('Farmer view');
   expect(appJs).toContain('Admin view');
+  expect(appJs).toContain('class="protection-cta"');
+  expect(appJs).toContain('financial-protection-badge protection-cta');
 });
 
 test('existing login form and wallet login behavior remain available', () => {
