@@ -16,7 +16,7 @@
 - Заголовок Fidlot Livestock Project виден.
 - Investment: $50,000 виден.
 - ROI: 64% виден.
-- APR: 21.9% виден.
+- simple annualized ROI: 21.9% виден.
 - Cycles: 7 виден.
 - Deal ID виден только как вторичная информация.
 
@@ -25,7 +25,7 @@
 - Заголовок Hissar Sheep Breeding Project виден.
 - Investment: $50,000 виден.
 - Projected ROI: 63.3% виден.
-- APR: 21.1% виден.
+- simple annualized ROI: 21.1% виден.
 - Cycles: 6 виден.
 - Deal ID виден только как вторичная информация.
 

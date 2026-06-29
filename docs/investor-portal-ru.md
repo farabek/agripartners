@@ -40,7 +40,7 @@ Featured Pilot Deals показывает два чистых пилотных �
 - Fidlot Livestock Project.
 - Hissar Sheep Breeding Project.
 
-Каждый проект показывает funding, ROI или Projected ROI, APR и количество циклов. Этот блок предназначен для investor discovery и быстрого сравнения пилотов.
+Каждый проект показывает funding, ROI или Projected ROI, simple annualized ROI и количество циклов. Этот блок предназначен для investor discovery и быстрого сравнения пилотов.
 
 Скриншот:
 

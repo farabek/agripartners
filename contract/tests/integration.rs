@@ -238,7 +238,7 @@ async fn test_hissar_params_stored() {
             "investment_amount": INVESTMENT.to_string(),
             "farmer_split_pct": 60,
             "investor_split_pct": 40,
-            "escrow_pct": 44,
+            "escrow_pct": 53,
             "performance_fee_pct": 20,
             "cycle_duration_days": 180,
             "total_cycles": 6,
@@ -258,5 +258,5 @@ async fn test_hissar_params_stored() {
     );
     assert_eq!(params["cycle_duration_days"], 180);
     assert_eq!(params["total_cycles"], 6);
-    assert_eq!(params["escrow_pct"], 44);
+    assert_eq!(params["escrow_pct"], 53);
 }

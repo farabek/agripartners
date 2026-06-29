@@ -40,7 +40,7 @@ The Featured Pilot Deals section presents the two clean pilot profiles:
 - Fidlot Livestock Project.
 - Hissar Sheep Breeding Project.
 
-Each project displays funding, ROI or projected ROI, APR, and cycle count. This section is designed for investor discovery and high-level comparison.
+Each project displays funding, ROI or projected ROI, simple annualized ROI, and cycle count. This section is designed for investor discovery and high-level comparison.
 
 Screenshot:
 

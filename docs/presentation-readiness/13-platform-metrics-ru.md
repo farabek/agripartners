@@ -13,11 +13,11 @@
 | Total Capital Listed | `$100,000` |
 | Total Capital Returned | `$82,000` |
 | Average ROI | `63.7%` |
-| Average APR | `21.5%` |
+| Average simple annualized ROI | `21.5%` |
 
 ## Pilot Deal Inputs
 
-| Deal | Capital Listed | Returned | ROI | APR | Status |
+| Deal | Capital Listed | Returned | ROI | simple annualized ROI | Status |
 |---|---:|---:|---:|---:|---|
 | Fidlot Livestock Project | `$50,000` | `$82,000` | `64%` | `21.9%` | Completed |
 | Hissar Sheep Breeding Project | `$50,000` | `$0` | `63.3%` | `21.1%` | Active |
@@ -42,7 +42,7 @@ Average ROI:
 (64.0% + 63.3%) / 2 = 63.65%, rounded to 63.7%
 ```
 
-Average APR:
+Average simple annualized ROI:
 
 ```text
 (21.9% + 21.1%) / 2 = 21.5%

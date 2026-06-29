@@ -29,7 +29,7 @@ Fidlot is the completed livestock fattening pilot.
 
 - Investment: $50,000
 - ROI: 64%
-- APR: 21.9%
+- simple annualized ROI: 21.9%
 - Cycles: 7
 - Returned: $82,000
 
@@ -39,7 +39,7 @@ Hissar is the active sheep breeding pilot.
 
 - Investment: $50,000
 - Projected ROI: 63.3%
-- APR: 21.1%
+- simple annualized ROI: 21.1%
 - Cycles: 6
 - Outstanding expected returns: $81,672
 

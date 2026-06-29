@@ -10,7 +10,7 @@ AgriPartners Alpha v1 - validation-stage demonstration platform на NEAR Testne
 
 - [Executive Summary](presentation-readiness/01-executive-summary.md) - краткое описание проблемы, решения, агро-фокуса, blockchain fit и текущего позиционирования Alpha v1.
 - [Core Narrative](demo-readiness/15-core-narrative-ru.md) - основной narrative для объяснения, зачем существует AgriPartners и как презентовать demo.
-- [Platform Metrics](presentation-readiness/03-platform-metrics.md) - текущие demo portfolio metrics, основанные только на Alpha v1 data: active deals, completed deals, listed capital, returned capital, ROI и APR.
+- [Platform Metrics](presentation-readiness/03-platform-metrics.md) - текущие demo portfolio metrics, основанные только на Alpha v1 data: active deals, completed deals, listed capital, returned capital, ROI и simple annualized ROI.
 
 Эти документы лучше всего подходят для первого понимания того, что такое AgriPartners, почему проект существует и что демонстрирует текущий Alpha v1 package.
 

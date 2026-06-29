@@ -8,7 +8,7 @@ AgriPartners - это working Alpha v1 MVP, который использует 
 
 AgriPartners помогает участникам агроинвестиций работать через один структурированный workflow:
 
-- Investors оценивают pilot deals, ROI, APR, expected returns, returned amount и outstanding amount.
+- Investors оценивают pilot deals, ROI, simple annualized ROI, expected returns, returned amount и outstanding amount.
 - Farmers отслеживают funding, cycles, active deals, completed deals и reporting status.
 - Admins контролируют reporting, repayment status, deal events и lifecycle progress.
 - NEAR Testnet поддерживает wallet-authenticated и contract-aware workflow validation.
@@ -42,7 +42,7 @@ Mainnet status: pending security audit, legal readiness и partner validation.
 - Status: Completed pilot presentation.
 - Investment: $50,000.
 - ROI: 64%.
-- APR: 21.9%.
+- simple annualized ROI: 21.9%.
 - Cycles: 7.
 - Returned: $82,000.
 
@@ -52,7 +52,7 @@ Mainnet status: pending security audit, legal readiness и partner validation.
 - Status: Active pilot presentation.
 - Investment: $50,000.
 - Projected ROI: 63.3%.
-- APR: 21.1%.
+- simple annualized ROI: 21.1%.
 - Cycles: 6.
 - Outstanding expected returns: $81,672.
 

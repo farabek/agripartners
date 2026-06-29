@@ -90,7 +90,7 @@ Fidlot Livestock Project является ведущей пилотной мод
 
 - Investment: $50,000.
 - ROI: 64%.
-- APR: 21.9%.
+- simple annualized ROI: 21.9%.
 - Cycles: 7.
 - Category: livestock fattening.
 
@@ -104,7 +104,7 @@ Hissar Sheep Breeding Project является второй пилотной м�
 
 - Investment: $50,000.
 - Projected ROI: 63.3%.
-- APR: 21.1%.
+- simple annualized ROI: 21.1%.
 - Cycles: 6.
 - Category: sheep breeding.
 

@@ -45,7 +45,7 @@ Fidlot and Hissar use the **same contract template** — the difference is only 
 | `investment_amount` | Balance (NEAR) | amount in NEAR | amount in NEAR |
 | `farmer_split_pct` | u8 | 60 | 60 |
 | `investor_split_pct` | u8 | 40 | 40 |
-| `escrow_pct` | u8 | 44 | **44** |
+| `escrow_pct` | u8 | 44 | **53** |
 | `performance_fee_pct` | u8 | 20 | 20 |
 | `cycle_duration_days` | u32 | 150 (5 months) | **180 (6 months)** |
 | `total_cycles` | u8 | 7 | **6** |
@@ -228,13 +228,13 @@ deal_type = "hissar"
 investment_amount = 50000 NEAR
 farmer_split_pct = 60
 investor_split_pct = 40
-escrow_pct = 44
+escrow_pct = 53
 performance_fee_pct = 20
 cycle_duration_days = 180  (6 months)
 total_cycles = 6
 capital_return_near = 20600 NEAR  (from sale of breeding herd after cycle 6)
 ```
 
-**Hissar note:** Escrow 44% is applied the same way as in Fidlot.
+**Hissar note:** The model-specific reserve rate is 53%, based on the Hissar / VariantB farmer-share calculation. It must not inherit Fidlot's 44% rate.
 From cycle 3, the "herd fee" of $2,500/cycle is paid to the investor BEFORE the 60/40 profit split.
 Admin accounts for this in the report — specifies net profit already after deducting the herd fee.

@@ -344,6 +344,7 @@ test('POST /api/admin/deals accepts admin portal payload', async () => {
       investor_wallet: 'investor.testnet',
       farmer_wallet: 'farmer.testnet',
       amount: '132',
+      escrow_pct: 53,
       title: 'Greenhouse expansion',
       description: 'Seed capital for new greenhouse cycle',
     });
@@ -354,6 +355,7 @@ test('POST /api/admin/deals accepts admin portal payload', async () => {
     farmer: 'farmer.testnet',
     investor: 'investor.testnet',
     investment_amount: '132000000000000000000000000',
+    escrow_pct: 53,
     total_cycles: 1,
     cycle_duration_days: 150,
     investor_withdraw_signer: 'agripartners.testnet',
@@ -365,6 +367,7 @@ test('POST /api/admin/deals accepts admin portal payload', async () => {
     farmer: 'farmer.testnet',
     investor: 'investor.testnet',
     investment_amount: '132000000000000000000000000',
+    escrow_pct: 53,
   }));
   expect(res.body).toEqual(expect.objectContaining({
     ok: true,
@@ -372,6 +375,50 @@ test('POST /api/admin/deals accepts admin portal payload', async () => {
     contract_address: 'ap1.agripartners.testnet',
     status: 'deployed',
   }));
+});
+
+test('POST /api/admin/deals applies the confirmed Hissar reserve rate', async () => {
+  const res = await request(app)
+    .post('/api/admin/deals')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({
+      deal_type: 'hissar',
+      farmer: 'farmer.testnet',
+      investor: 'investor.testnet',
+      investment_amount: '50000000000000000000000000',
+      total_cycles: 6,
+      cycle_duration_days: 180,
+      capital_return_near: '20600000000000000000000000'
+    });
+
+  expect(res.status).toBe(201);
+  expect(nearService.deployContract).toHaveBeenCalledWith(expect.objectContaining({
+    escrow_pct: 53,
+    performance_fee_pct: 20,
+  }));
+  expect(dealService.createDeal).toHaveBeenCalledWith(expect.objectContaining({
+    escrow_pct: 53,
+    performance_fee_pct: 20,
+  }));
+});
+
+test('POST /api/admin/deals requires an explicit reserve rate for an uncalculated model', async () => {
+  const res = await request(app)
+    .post('/api/admin/deals')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({
+      deal_type: 'greenhouse',
+      farmer: 'farmer.testnet',
+      investor: 'investor.testnet',
+      investment_amount: '50000000000000000000000000',
+      total_cycles: 1,
+      cycle_duration_days: 150,
+      capital_return_near: '50000000000000000000000000'
+    });
+
+  expect(res.status).toBe(400);
+  expect(res.body.error).toBe('escrow_pct is required because reserve rates are model-specific');
+  expect(nearService.deployContract).not.toHaveBeenCalled();
 });
 
 test('POST /api/admin/deals defaults investor withdraw signer to admin signer', async () => {

@@ -35,7 +35,7 @@ The investor workflow focuses on clarity and reviewability:
 1. Investor accesses the portal through a role-specific account.
 2. Investor reviews portfolio metrics and featured pilot deals.
 3. Investor opens a pilot project such as Fidlot or Hissar.
-4. Investor reviews investment size, ROI, APR, cycle count, expected returns, returned amount, and outstanding amount.
+4. Investor reviews investment size, ROI, simple annualized ROI, cycle count, expected returns, returned amount, and outstanding amount.
 5. Investor follows reporting and event history to understand lifecycle progress.
 6. In a future mainnet version, funding and settlement can be connected to audited smart contract flows.
 

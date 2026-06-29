@@ -86,7 +86,7 @@ Target audience: regional and international investors, investment funds, ecosyst
 
 **Title:** Fidlot Livestock Project
 
-**Key message:** Fidlot is the completed livestock fattening pilot: $50,000 investment, 64% ROI, 21.9% APR, 7 cycles, and $82,000 returned.
+**Key message:** Fidlot is the completed livestock fattening pilot: $50,000 investment, 64% ROI, 21.9% simple annualized ROI, 7 cycles, and $82,000 returned.
 
 **Screenshot recommendation:** `../screenshots/investor/06-completed-fidlot.png` or `../screenshots/admin/03-admin-fidlot-profile.png`
 
@@ -96,7 +96,7 @@ Target audience: regional and international investors, investment funds, ecosyst
 
 **Title:** Hissar Sheep Breeding Project
 
-**Key message:** Hissar is the active sheep breeding pilot: $50,000 investment, 63.3% projected ROI, 21.1% APR, 6 cycles, and $81,672 outstanding expected returns.
+**Key message:** Hissar is the active sheep breeding pilot: $50,000 investment, 63.3% projected ROI, 21.1% simple annualized ROI, 6 cycles, and $81,672 outstanding expected returns.
 
 **Screenshot recommendation:** `../screenshots/investor/05-active-hissar.png` or `../screenshots/admin/06-admin-hissar-profile.png`
 

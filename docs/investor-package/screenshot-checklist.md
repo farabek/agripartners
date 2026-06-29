@@ -14,7 +14,7 @@
 - Fidlot Livestock Project title visible.
 - Investment: $50,000 visible.
 - ROI: 64% visible.
-- APR: 21.9% visible.
+- simple annualized ROI: 21.9% visible.
 - Cycles: 7 visible.
 - Deal ID visible only as secondary information.
 
@@ -22,7 +22,7 @@
 - Hissar Sheep Breeding Project title visible.
 - Investment: $50,000 visible.
 - Projected ROI: 63.3% visible.
-- APR: 21.1% visible.
+- simple annualized ROI: 21.1% visible.
 - Cycles: 6 visible.
 - Deal ID visible only as secondary information.
 

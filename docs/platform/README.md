@@ -66,6 +66,12 @@ It should not be described as:
 - a Mainnet financial system;
 - a regulated investment product.
 
+## Investor Protection Framework
+
+- [Investor Protection Framework](investor-protection/README.md)
+
+Documents the protection reserve concept, the Fidlot 44% model, the Hissar / VariantB 53% model, staged release schedules, draft contract terms, legal notes, and open questions.
+
 ## Planned Structure
 
 This directory is intended to grow into the following structure over time:

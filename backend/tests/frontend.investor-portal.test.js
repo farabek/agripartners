@@ -229,7 +229,7 @@ function loadInvestorProjectProfileHelper() {
     function getPilotForDeal() {
       return {
         title: 'Static Fidlot Title', investment: '$50,000', roi: '64%',
-        apr: '21.9%', cycles: '7', description: 'Static pilot description'
+        simpleAnnualizedRoi: '21.9%', cycles: '7', description: 'Static pilot description'
       };
     }
     function formatNearDisplay(value) { return \`\${value} NEAR\`; }
@@ -788,7 +788,7 @@ test('live Fidlot-like deal never receives static pilot profile values', () => {
     title: 'Fidlot Livestock Project',
     investment: '12 NEAR',
     roi: 'Unavailable',
-    apr: 'Unavailable',
+    simpleAnnualizedRoi: 'Unavailable',
     cycles: 'Unavailable',
     description: 'Unavailable',
     status: 'Unknown',
@@ -813,7 +813,7 @@ test('explicit demo pilot profile still uses the preserved pilot mapping', () =>
     title: 'Static Fidlot Title',
     investment: '$50,000',
     roi: '64%',
-    apr: '21.9%',
+    simpleAnnualizedRoi: '21.9%',
     status: 'Completed',
   }));
   expect(appJs).toContain('showInvestorPilotProfile(investorPilot[1])');

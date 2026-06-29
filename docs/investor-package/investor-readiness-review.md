@@ -12,9 +12,9 @@ AgriPartners has a clear demo narrative: agricultural operators need working cap
 
 The investor dashboard is a strong first screen because it starts with financial summary data instead of technical contract information. This makes the product easier to understand for non-technical investors.
 
-The two pilot models give the demo substance. Fidlot Livestock Project and Hissar Sheep Breeding Project show concrete investment size, ROI, APR, and cycle count rather than abstract marketplace placeholders.
+The two pilot models give the demo substance. Fidlot Livestock Project and Hissar Sheep Breeding Project show concrete investment size, ROI, simple annualized ROI, and cycle count rather than abstract marketplace placeholders.
 
-The project profile direction is appropriate. Putting project name, investment size, ROI, APR, and cycles above technical data makes the experience more investor-friendly.
+The project profile direction is appropriate. Putting project name, investment size, ROI, simple annualized ROI, and cycles above technical data makes the experience more investor-friendly.
 
 The product already includes several trust-building workflow areas: reports, returns, event history, role-based portals, and admin controls.
 
@@ -24,7 +24,7 @@ NEAR Testnet is positioned usefully as workflow validation infrastructure. The s
 
 The alpha still needs stronger separation between investor-facing information and technical/operator information. First-time investors may be distracted if deal IDs, backend mechanics, or admin actions appear too early in the flow.
 
-The platform needs more context around risk. ROI and APR are visible, but investors will expect a clear explanation of assumptions, operating risks, livestock/crop risks, currency risk, legal structure, and repayment conditions.
+The platform needs more context around risk. ROI and simple annualized ROI are visible, but investors will expect a clear explanation of assumptions, operating risks, livestock/crop risks, currency risk, legal structure, and repayment conditions.
 
 The demo depends on prepared accounts and seeded data. If the environment is not stable before a call, empty states or authentication friction could weaken confidence quickly.
 
@@ -57,7 +57,7 @@ These items do not all need to be in the product UI immediately, but they should
 Current trust signals:
 
 - Clear pilot project names.
-- Specific investment amount, ROI, APR, and cycles.
+- Specific investment amount, ROI, simple annualized ROI, and cycles.
 - Investor dashboard with summary metrics.
 - Project detail pages.
 - Farmer reporting workflow.
@@ -70,7 +70,7 @@ Recommended additional trust signals:
 
 - Pilot evidence appendix with project photos, location, operator background, and production assumptions.
 - Plain-English risk disclosure.
-- Methodology note explaining ROI and APR calculations.
+- Methodology note explaining ROI and simple annualized ROI calculations.
 - Security and mainnet readiness note.
 - Legal/compliance assumptions page.
 - Demo environment checklist confirming seeded data and account readiness.

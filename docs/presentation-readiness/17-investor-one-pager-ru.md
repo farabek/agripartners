@@ -31,11 +31,11 @@ AgriPartners Alpha v1 provides:
 | Total Capital Listed | `$100,000` |
 | Total Capital Returned | `$82,000` |
 | Average ROI | `63.7%` |
-| Average APR | `21.5%` |
+| Average simple annualized ROI | `21.5%` |
 
 ## Pilot Deals
 
-| Deal | Investment | ROI | APR | Cycles | Status |
+| Deal | Investment | ROI | simple annualized ROI | Cycles | Status |
 |---|---:|---:|---:|---:|---|
 | Fidlot Livestock Project | `$50,000` | `64%` | `21.9%` | `7` | Completed |
 | Hissar Sheep Breeding Project | `$50,000` | `63.3%` | `21.1%` | `6` | Active |

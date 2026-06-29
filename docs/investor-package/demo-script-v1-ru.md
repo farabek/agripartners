@@ -24,8 +24,8 @@ AgriPartners — это платформа инвестиционных проц
 
 Начните с двух реальных пилотных моделей:
 
-- Fidlot Livestock Project: $50,000, ROI 64%, APR 21.9%, 7 циклов.
-- Hissar Sheep Breeding Project: $50,000, projected ROI 63.3%, APR 21.1%, 6 циклов.
+- Fidlot Livestock Project: $50,000, ROI 64%, simple annualized ROI 21.9%, 7 циклов.
+- Hissar Sheep Breeding Project: $50,000, projected ROI 63.3%, simple annualized ROI 21.1%, 6 циклов.
 
 ## 4. Открыть профиль проекта
 

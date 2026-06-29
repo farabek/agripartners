@@ -18,11 +18,11 @@ I will show the demo in nine steps: login, marketplace, two pilot deals, farmer 
 
 First, we start with NEAR wallet login. The investor enters through a wallet-linked session, which gives us account-based access without creating a traditional username-password investor system. This is important because the long-term product needs blockchain-linked identity, contract interaction, and transaction verification.
 
-Now we open the Marketplace. Here investors can review agricultural pilot opportunities. The current demo has two profiles: the Feedlot Livestock Project and the Hissar Sheep Breeding Project. The marketplace shows investment amount, ROI, APR, cycles, status, and compact funding progress.
+Now we open the Marketplace. Here investors can review agricultural pilot opportunities. The current demo has two profiles: the Feedlot Livestock Project and the Hissar Sheep Breeding Project. The marketplace shows investment amount, ROI, simple annualized ROI, cycles, status, and compact funding progress.
 
-The first pilot is the Feedlot Livestock Project. This is the completed-state example. It shows a $50,000 investment, 7 cycles, 64% ROI, 21.9% APR, and completed status. In the investor view we can see funding progress, farmer reporting, returned capital, and event history. The returned amount is $82,000, with $0 outstanding. This is the clean example of a completed agricultural cycle.
+The first pilot is the Feedlot Livestock Project. This is the completed-state example. It shows a $50,000 investment, 7 cycles, 64% ROI, 21.9% simple annualized ROI, and completed status. In the investor view we can see funding progress, farmer reporting, returned capital, and event history. The returned amount is $82,000, with $0 outstanding. This is the clean example of a completed agricultural cycle.
 
-The second pilot is the Hissar Sheep Breeding Project. This is the active-state example. It also has a $50,000 investment amount, with 6 cycles, 63.3% projected ROI, and 21.1% APR. It is active, so the dashboard shows outstanding projected returns and an operating-cycle view. This is where investors can understand what is still in progress rather than only seeing a static deal document.
+The second pilot is the Hissar Sheep Breeding Project. This is the active-state example. It also has a $50,000 investment amount, with 6 cycles, 63.3% projected ROI, and 21.1% simple annualized ROI. It is active, so the dashboard shows outstanding projected returns and an operating-cycle view. This is where investors can understand what is still in progress rather than only seeing a static deal document.
 
 Next, farmer reports. AgriPartners is not only a financial dashboard. It connects capital to farm execution. In the deal detail view, investors can see cycle status, report status, submitted farmer reports, amount used, evidence links when available, and event history. This is the operational transparency layer.
 

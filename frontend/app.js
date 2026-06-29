@@ -2292,10 +2292,15 @@ function renderAdminCreateForm(el, farmers, investors) {
             class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
         </div>
         <div>
-          <label class="block text-sm text-slate-400 mb-1" for="admin-title">Title</label>
-          <input id="admin-title" type="text" maxlength="120" required placeholder="Greenhouse expansion"
+          <label class="block text-sm text-slate-400 mb-1" for="admin-reserve-rate">Model-specific reserve rate (%)</label>
+          <input id="admin-reserve-rate" type="number" min="0" max="100" step="1" required placeholder="Fidlot 44; Hissar 53"
             class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
         </div>
+      </div>
+      <div>
+        <label class="block text-sm text-slate-400 mb-1" for="admin-title">Title</label>
+        <input id="admin-title" type="text" maxlength="120" required placeholder="Greenhouse expansion"
+          class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
       </div>
       <div>
         <label class="block text-sm text-slate-400 mb-1" for="admin-description">Description</label>
@@ -2334,6 +2339,7 @@ async function createAdminDeal(event) {
     investor_wallet: document.getElementById('admin-investor').value,
     farmer_wallet: document.getElementById('admin-farmer').value,
     amount: document.getElementById('admin-amount').value,
+    escrow_pct: Number(document.getElementById('admin-reserve-rate').value),
     title: document.getElementById('admin-title').value.trim(),
     description: document.getElementById('admin-description').value.trim(),
   };
@@ -2528,7 +2534,7 @@ function renderAdminDemoDealCard(deal) {
           <p class="text-slate-400">Investor: <span class="text-slate-200">${escapeHtml(deal.investor)}</span></p>
           <p class="text-slate-400">Funding: <span class="text-slate-100 font-mono">${escapeHtml(deal.funding)}</span></p>
           <p class="text-slate-400">${escapeHtml(deal.roiLabel)}: <span class="text-slate-100 font-mono">${escapeHtml(deal.roi)}</span></p>
-          <p class="text-slate-400">APR: <span class="text-slate-100 font-mono">${escapeHtml(deal.apr)}</span></p>
+          <p class="text-slate-400">Simple annualized ROI: <span class="text-slate-100 font-mono">${escapeHtml(deal.simpleAnnualizedRoi)}</span></p>
           <p class="text-slate-400">Report: <span class="text-slate-200">${escapeHtml(deal.reportStatus)}</span></p>
           <p class="text-slate-400">Funding Status: <span class="text-slate-200">${escapeHtml(deal.fundingStatus)}</span></p>
           <p class="text-slate-400">Return Status: <span class="text-slate-200">${escapeHtml(deal.returnStatus)}</span></p>
@@ -2617,7 +2623,7 @@ function renderAdminDemoProjectProfile(deal) {
   const metrics = [
     ['Funding', deal.funding],
     [deal.roiLabel, deal.roi],
-    ['APR', deal.apr],
+    ['Simple annualized ROI', deal.simpleAnnualizedRoi],
     ['Cycles', deal.cycles],
     ['Status', deal.status],
   ];
@@ -4449,7 +4455,7 @@ const INVESTOR_DEMO_PILOTS = [
     investment: '$50,000',
     roi: '64%',
     roiPercent: 64,
-    apr: '21.9%',
+    simpleAnnualizedRoi: '21.9%',
     cycles: '7',
     cycleDurationDays: 150,
     status: 'Completed',
@@ -4475,7 +4481,7 @@ const INVESTOR_DEMO_PILOTS = [
     investment: '$50,000',
     roi: '63.3%',
     roiPercent: 63.3,
-    apr: '21.1%',
+    simpleAnnualizedRoi: '21.1%',
     cycles: '6',
     cycleDurationDays: 180,
     status: 'Active',
@@ -4585,7 +4591,7 @@ function adminDemoDealFromPilot(pilot) {
     amount: pilot.amount,
     roi: pilot.roi,
     roiLabel: isFidlot ? 'ROI' : 'Projected ROI',
-    apr: pilot.apr,
+    simpleAnnualizedRoi: pilot.simpleAnnualizedRoi,
     cycles: pilot.cycles,
     currentCycle: isFidlot ? 7 : 1,
     reportStatus: isFidlot ? 'Report Submitted' : 'Next Report Due',
@@ -4615,11 +4621,11 @@ function marketplaceMetrics(deals) {
   const averageRoi = totalDeals
     ? deals.reduce((sum, deal) => sum + Number(deal.roiPercent || 0), 0) / totalDeals
     : 0;
-  const averageApr = totalDeals
-    ? deals.reduce((sum, deal) => sum + numericReturnAmount(deal.apr), 0) / totalDeals
+  const averageSimpleAnnualizedRoi = totalDeals
+    ? deals.reduce((sum, deal) => sum + numericReturnAmount(deal.simpleAnnualizedRoi), 0) / totalDeals
     : 0;
 
-  return { totalDeals, activeDeals, completedDeals, averageRoi, averageApr };
+  return { totalDeals, activeDeals, completedDeals, averageRoi, averageSimpleAnnualizedRoi };
 }
 
 function filterMarketplaceDeals(deals, filter) {
@@ -4669,7 +4675,7 @@ function renderMarketplaceStats(metrics) {
     ['Active Deals', metrics.activeDeals],
     ['Completed Deals', metrics.completedDeals],
     ['Average ROI', `${metrics.averageRoi.toFixed(1)}%`],
-    ['Average APR', `${metrics.averageApr.toFixed(1)}%`],
+    ['Average simple annualized ROI', `${metrics.averageSimpleAnnualizedRoi.toFixed(1)}%`],
   ];
 
   return `
@@ -4709,7 +4715,7 @@ function renderMarketplaceDealCard(deal) {
   const metrics = [
     ['Investment', deal.investment],
     ['ROI', deal.roi],
-    ['APR', deal.apr],
+    ['Simple annualized ROI', deal.simpleAnnualizedRoi],
     ['Cycles', deal.cycles],
     ['Status', deal.status],
   ];
@@ -4951,7 +4957,7 @@ function investorProjectProfile(deal = {}, status) {
       investment: pilot?.investment || deal.display_amount || 'Unavailable',
       roi: pilot?.roi || 'Unavailable',
       roiLabel: projectStatus === 'Completed' ? 'ROI' : 'Projected ROI',
-      apr: pilot?.apr || 'Unavailable',
+      simpleAnnualizedRoi: pilot?.simpleAnnualizedRoi || 'Unavailable',
       cycles: pilot?.cycles || String(deal.total_cycles ?? 'Unavailable'),
       description: pilot?.description || deal.description || 'Unavailable',
       status: projectStatus,
@@ -4967,7 +4973,13 @@ function investorProjectProfile(deal = {}, status) {
     investment,
     roi: projectedRoi != null && Number.isFinite(Number(projectedRoi)) ? `${projectedRoi}%` : 'Unavailable',
     roiLabel: 'Projected ROI',
-    apr: deal.apr != null ? String(deal.apr) : (deal.apr_pct != null ? `${deal.apr_pct}%` : 'Unavailable'),
+    simpleAnnualizedRoi: deal.simple_annualized_roi != null
+      ? String(deal.simple_annualized_roi)
+      : deal.apr != null
+        ? String(deal.apr)
+        : deal.apr_pct != null
+          ? `${deal.apr_pct}%`
+          : 'Unavailable',
     cycles: deal.total_cycles != null ? String(deal.total_cycles) : 'Unavailable',
     description: deal.description || 'Unavailable',
     status: projectStatus,
@@ -4999,7 +5011,7 @@ function renderProjectProfile(deal, status, statusError = null) {
   const metrics = [
     ['Investment', profile.investment],
     [profile.roiLabel, profile.roi],
-    ['APR', profile.apr],
+    ['Simple annualized ROI', profile.simpleAnnualizedRoi],
     ['Cycles', profile.cycles],
     ['Status', profile.status],
   ];

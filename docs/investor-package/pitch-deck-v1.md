@@ -12,8 +12,8 @@ Agricultural operators need transparent working capital, while investors need cl
 AgriPartners connects investors and farmers through project-based investment workflows with dashboard visibility, cycle reporting, and return tracking.
 
 ## 4. Pilot Deals
-- Fidlot Livestock Project: $50,000 investment, 64% ROI, 21.9% APR, 7 cycles.
-- Hissar Sheep Breeding Project: $50,000 investment, 63.3% projected ROI, 21.1% APR, 6 cycles.
+- Fidlot Livestock Project: $50,000 investment, 64% ROI, 21.9% simple annualized ROI, 7 cycles.
+- Hissar Sheep Breeding Project: $50,000 investment, 63.3% projected ROI, 21.1% simple annualized ROI, 6 cycles.
 
 ## 5. Product Demo
 Investor dashboard highlights investment summary, featured pilot deals, active deals, completed deals, project profiles, reports, returns, and event history.

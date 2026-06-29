@@ -32,7 +32,7 @@ Summary cards показывают:
 
 ## Pilot Deals
 
-Pilot deal cards показывают project name, status, farmer, investor, funding, ROI или Projected ROI, APR, report status, funding status и return status.
+Pilot deal cards показывают project name, status, farmer, investor, funding, ROI или Projected ROI, simple annualized ROI, report status, funding status и return status.
 
 Скриншот:
 
@@ -40,7 +40,7 @@ Pilot deal cards показывают project name, status, farmer, investor, fu
 
 ## Deal Monitoring
 
-У каждого пилота есть project profile с funding, ROI или Projected ROI, APR, cycle count и current status.
+У каждого пилота есть project profile с funding, ROI или Projected ROI, simple annualized ROI, cycle count и current status.
 
 Скриншоты:
 

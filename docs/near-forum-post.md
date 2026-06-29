@@ -53,7 +53,7 @@ We replace paper investment agreements with NEAR smart contracts.
 
 **Returns:**
 
-- Investor: $50,000 → ~$82,000 · **+64% ROI · 21.9% APR**
+- Investor: $50,000 → ~$82,000 · **+64% ROI · 21.9% simple annualized ROI**
 - Farmer: $0 invested → $96,250 cash + $18,000 feedlot asset = **$114,250 total**
 
 Every payment, every cycle, every payout — recorded on NEAR.

@@ -5,7 +5,7 @@ Livestock fattening operation based on a real pilot agricultural agreement. Demo
 
 - Investment: $50,000
 - ROI: 64%
-- APR: 21.9%
+- simple annualized ROI: 21.9%
 - Cycles: 7
 - Model: Livestock fattening
 - Dashboard status: Active / Completed
@@ -15,7 +15,7 @@ Sheep breeding operation based on a real pilot agricultural agreement. Demonstra
 
 - Investment: $50,000
 - Projected ROI: 63.3%
-- APR: 21.1%
+- simple annualized ROI: 21.1%
 - Cycles: 6
 - Model: Sheep breeding
 - Dashboard status: Active / Completed

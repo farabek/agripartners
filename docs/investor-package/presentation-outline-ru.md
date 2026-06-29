@@ -86,7 +86,7 @@
 
 **Название:** Fidlot Livestock Project
 
-**Ключевое сообщение:** Fidlot - завершенный livestock fattening pilot: $50,000 investment, 64% ROI, 21.9% APR, 7 cycles и $82,000 returned.
+**Ключевое сообщение:** Fidlot - завершенный livestock fattening pilot: $50,000 investment, 64% ROI, 21.9% simple annualized ROI, 7 cycles и $82,000 returned.
 
 **Рекомендация по скриншоту:** `../screenshots/investor/06-completed-fidlot.png` или `../screenshots/admin/03-admin-fidlot-profile.png`
 
@@ -96,7 +96,7 @@
 
 **Название:** Hissar Sheep Breeding Project
 
-**Ключевое сообщение:** Hissar - активный sheep breeding pilot: $50,000 investment, 63.3% projected ROI, 21.1% APR, 6 cycles и $81,672 outstanding expected returns.
+**Ключевое сообщение:** Hissar - активный sheep breeding pilot: $50,000 investment, 63.3% projected ROI, 21.1% simple annualized ROI, 6 cycles и $81,672 outstanding expected returns.
 
 **Рекомендация по скриншоту:** `../screenshots/investor/05-active-hissar.png` или `../screenshots/admin/06-admin-hissar-profile.png`
 

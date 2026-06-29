@@ -6,7 +6,7 @@
 
 - Инвестиция: $50,000
 - ROI: 64%
-- APR: 21.9%
+- simple annualized ROI: 21.9%
 - Циклы: 7
 - Модель: откорм скота
 - Статус в дашборде: Active / Completed
@@ -17,7 +17,7 @@
 
 - Инвестиция: $50,000
 - Projected ROI: 63.3%
-- APR: 21.1%
+- simple annualized ROI: 21.1%
 - Циклы: 6
 - Модель: разведение овец
 - Статус в дашборде: Active / Completed

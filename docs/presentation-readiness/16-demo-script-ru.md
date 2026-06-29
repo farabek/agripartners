@@ -18,11 +18,11 @@ AgriPartners - agricultural real-world asset platform, которая соеди
 
 Сначала NEAR wallet login. Investor входит через wallet-linked session, что дает account-based access без traditional username-password investor system. Это важно, потому что long-term product needs blockchain-linked identity, contract interaction и transaction verification.
 
-Теперь открываем Marketplace. Здесь investors могут review agricultural pilot opportunities. Current demo has two profiles: Fidlot Livestock Project и Hissar Sheep Breeding Project. Marketplace показывает investment amount, ROI, APR, cycles, status и compact funding progress.
+Теперь открываем Marketplace. Здесь investors могут review agricultural pilot opportunities. Current demo has two profiles: Fidlot Livestock Project и Hissar Sheep Breeding Project. Marketplace показывает investment amount, ROI, simple annualized ROI, cycles, status и compact funding progress.
 
-Первый pilot - Fidlot Livestock Project. Это completed-state example. Он показывает `$50,000` investment, `7` cycles, `64%` ROI, `21.9%` APR и completed status. В investor view мы видим funding progress, farmer reporting, returned capital и event history. Returned amount is `$82,000`, with `$0` outstanding. Это clean example completed agricultural cycle.
+Первый pilot - Fidlot Livestock Project. Это completed-state example. Он показывает `$50,000` investment, `7` cycles, `64%` ROI, `21.9%` simple annualized ROI и completed status. В investor view мы видим funding progress, farmer reporting, returned capital и event history. Returned amount is `$82,000`, with `$0` outstanding. Это clean example completed agricultural cycle.
 
-Второй pilot - Hissar Sheep Breeding Project. Это active-state example. Он также имеет `$50,000` investment amount, `6` cycles, `63.3%` projected ROI и `21.1%` APR. Он active, поэтому dashboard показывает outstanding projected returns и operating-cycle view. Здесь investors понимают, что still in progress, а не видят только static deal document.
+Второй pilot - Hissar Sheep Breeding Project. Это active-state example. Он также имеет `$50,000` investment amount, `6` cycles, `63.3%` projected ROI и `21.1%` simple annualized ROI. Он active, поэтому dashboard показывает outstanding projected returns и operating-cycle view. Здесь investors понимают, что still in progress, а не видят только static deal document.
 
 Далее farmer reports. AgriPartners - не только financial dashboard. Он connects capital to farm execution. В deal detail view investors видят cycle status, report status, submitted farmer reports, amount used, evidence links when available и event history. Это operational transparency layer.
 

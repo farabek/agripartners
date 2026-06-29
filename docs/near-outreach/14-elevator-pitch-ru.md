@@ -22,6 +22,6 @@ AgriPartners переводит это в структурированный wor
 
 NEAR Testnet используется для валидации wallet-authenticated доступа и contract-aware lifecycle events. Smart contract layer может отражать funding, cycle activation, farmer reporting, return recording, withdrawals и settlement-related actions. При этом продукт оставляет бизнес-опыт понятным для нетехнических пользователей, сохраняя прозрачную инфраструктуру под капотом.
 
-Текущий MVP - Alpha v1, готовый к controlled external demonstrations. Он включает два пилотных проекта. Fidlot Livestock Project представлен как завершенный livestock fattening pilot с investment $50,000, ROI 64%, APR 21.9%, 7 cycles и $82,000 returned. Hissar Sheep Breeding Project представлен как активный sheep breeding pilot с investment $50,000, projected ROI 63.3%, APR 21.1%, 6 cycles и $81,672 outstanding expected returns.
+Текущий MVP - Alpha v1, готовый к controlled external demonstrations. Он включает два пилотных проекта. Fidlot Livestock Project представлен как завершенный livestock fattening pilot с investment $50,000, ROI 64%, simple annualized ROI 21.9%, 7 cycles и $82,000 returned. Hissar Sheep Breeding Project представлен как активный sheep breeding pilot с investment $50,000, projected ROI 63.3%, simple annualized ROI 21.1%, 6 cycles и $81,672 outstanding expected returns.
 
 AgriPartners ищет feedback от NEAR ecosystem, technical review, grant consideration, security audit support, RWA introductions и партнеров, которым важна real-sector blockchain adoption в emerging markets.

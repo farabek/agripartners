@@ -46,7 +46,7 @@ AgriPartners replaces paper investment agreements with NEAR smart contracts. Eve
 
 **Investment model — Fidlot v5.9 (60/40 split):**
 
-- Investor: $50,000 → ~$82,000 (+64% ROI, 21.9% APR over 35 months)
+- Investor: $50,000 → ~$82,000 (+64% ROI, 21.9% simple annualized ROI over 35 months)
 - Farmer: $0 upfront → $96,250 cash + $18,000 feedlot asset
 - Platform fee: 20% of investor share only — farmer pays nothing
 

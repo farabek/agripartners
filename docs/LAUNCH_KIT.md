@@ -10,7 +10,7 @@ AgriPartners Alpha v1 is a validation-stage demonstration platform using NEAR Te
 
 - [Executive Summary](presentation-readiness/01-executive-summary.md) - concise overview of the problem, solution, agriculture focus, blockchain fit, and current Alpha v1 positioning.
 - [Core Narrative](demo-readiness/05-core-narrative.md) - the main story used to explain why AgriPartners exists and how the demo should be presented.
-- [Platform Metrics](presentation-readiness/03-platform-metrics.md) - current demo portfolio metrics based only on Alpha v1 data, including active deals, completed deals, listed capital, returned capital, ROI, and APR.
+- [Platform Metrics](presentation-readiness/03-platform-metrics.md) - current demo portfolio metrics based only on Alpha v1 data, including active deals, completed deals, listed capital, returned capital, ROI, and simple annualized ROI.
 
 These documents are the best starting point for understanding what AgriPartners is, why the project exists, and what the current Alpha v1 package demonstrates.
 

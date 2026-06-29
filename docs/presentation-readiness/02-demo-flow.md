@@ -44,7 +44,7 @@ Show:
 - Available pilot deals.
 - Active and completed deal filters.
 - Compact funding progress on marketplace cards.
-- Deal-level investment, ROI, APR, cycles, and status.
+- Deal-level investment, ROI, simple annualized ROI, cycles, and status.
 
 Speaker point:
 
@@ -58,7 +58,7 @@ Show:
 
 - Investment amount: `$50,000`.
 - ROI: `64%`.
-- APR: `21.9%`.
+- simple annualized ROI: `21.9%`.
 - Cycles: `7`.
 - Status: `Completed`.
 - Funding progress: fully funded.
@@ -76,7 +76,7 @@ Show:
 
 - Investment amount: `$50,000`.
 - Projected ROI: `63.3%`.
-- APR: `21.1%`.
+- simple annualized ROI: `21.1%`.
 - Cycles: `6`.
 - Status: `Active`.
 - Funding progress: demo-safe partial funding view.

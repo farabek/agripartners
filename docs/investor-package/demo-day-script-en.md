@@ -30,7 +30,7 @@ The current pilot portfolio shows:
 - $82,000 returned.
 - One active deal and one completed deal.
 
-Next, we show Featured Pilot Deals. Fidlot is the completed livestock project with $50,000 invested, 64% ROI, 21.9% APR, and 7 cycles. Hissar is the active sheep breeding project with $50,000 invested, 63.3% projected ROI, 21.1% APR, and 6 cycles.
+Next, we show Featured Pilot Deals. Fidlot is the completed livestock project with $50,000 invested, 64% ROI, 21.9% simple annualized ROI, and 7 cycles. Hissar is the active sheep breeding project with $50,000 invested, 63.3% projected ROI, 21.1% simple annualized ROI, and 6 cycles.
 
 The important point is that an investor can compare agricultural projects in a familiar investment format before going deeper into technical details.
 
@@ -48,7 +48,7 @@ This view matters because investor trust depends on reporting discipline. AgriPa
 
 Next is the Admin Dashboard.
 
-The admin view gives controlled monitoring across the pilot portfolio. Admins can review project status, funding, ROI or projected ROI, APR, farmer reporting status, return status, and event history.
+The admin view gives controlled monitoring across the pilot portfolio. Admins can review project status, funding, ROI or projected ROI, simple annualized ROI, farmer reporting status, return status, and event history.
 
 For the current pilots, the admin metrics show $100,000 in total pilot funding, $82,000 returned, and $81,672 outstanding. Fidlot is completed with return recorded. Hissar is active with pending returns.
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from decimal import Decimal
 from pathlib import Path
 
 from docx import Document
@@ -34,6 +35,11 @@ def money(value: int) -> str:
     return f"${value:,.0f}"
 
 
+def reserve_money(value: Decimal | int) -> str:
+    amount = Decimal(value)
+    return f"${amount:,.0f}" if amount == amount.to_integral() else f"${amount:,.2f}"
+
+
 def pct(value: float) -> str:
     return f"{value:.1f}%"
 
@@ -52,6 +58,8 @@ MODELS = {
         "farmer_cash": 96_250,
         "farmer_asset": 18_000,
         "farmer_total": 114_250,
+        "reserve_pct": 44,
+        "reserve_total": Decimal("50820"),
     },
     "hissar": {
         "version": "VariantB v2.1",
@@ -66,6 +74,8 @@ MODELS = {
         "farmer_cash": 83_160,
         "farmer_asset": 18_000,
         "farmer_total": 101_160,
+        "reserve_pct": 53,
+        "reserve_total": Decimal("50752.80"),
     },
 }
 
@@ -89,7 +99,7 @@ TEXT = {
         "source_note": "Источник модели: AgriPartners 60/40 financial model.",
         "metric_investment": "Стартовая инвестиция",
         "metric_payout": "Возврат инвестору",
-        "metric_apr": "APR годовых",
+        "metric_apr": "Простой годовой ROI",
         "metric_roi": "Чистый ROI",
         "metric_first": "Первая выплата",
         "metric_cash": "Денежные выплаты",
@@ -159,7 +169,7 @@ TEXT = {
         "source_note": "Model source: AgriPartners 60/40 financial model.",
         "metric_investment": "Initial investment",
         "metric_payout": "Investor payout",
-        "metric_apr": "Annual APR",
+        "metric_apr": "Simple annualized ROI",
         "metric_roi": "Net ROI",
         "metric_first": "First payment",
         "metric_cash": "Cash received",
@@ -521,12 +531,15 @@ def fidlot_farmer_tables(t):
         ["3-7", money(50_000), money(26_500), money(15_900), money(2_750), money(13_150)],
     ]
     cash = []
-    cumulative = 0
-    for cycle in range(1, 8):
-        payment = 15_250 if cycle <= 2 else 13_150
+    cumulative = Decimal(0)
+    for cycle, reserve_row in enumerate(reserve_schedule("fidlot")[:-1], start=1):
+        payment = Decimal(reserve_row["farmer_available"])
         cumulative += payment
         start, end = (cycle - 1) * 5, cycle * 5
-        cash.append([str(cycle), f"{start}-{end} {t['months']}", money(payment), money(cumulative)])
+        cash.append([str(cycle), f"{start}-{end} {t['months']}", reserve_money(payment), reserve_money(cumulative)])
+    completion = Decimal(reserve_schedule("fidlot")[-1]["farmer_available"])
+    cumulative += completion
+    cash.append([t["completion"], f"35 {t['months']}", reserve_money(completion), reserve_money(cumulative)])
     return cycle_rows, cash
 
 
@@ -536,13 +549,15 @@ def hissar_farmer_tables(t):
         ["3-6", money(30_600), money(24_600), money(14_760), money(3_100), money(11_660)],
     ]
     cash = []
-    cumulative = 0
-    for cycle in range(1, 7):
-        payment = 15_260 if cycle <= 2 else 11_660
+    cumulative = Decimal(0)
+    for cycle, reserve_row in enumerate(reserve_schedule("hissar")[:-1], start=1):
+        payment = Decimal(reserve_row["farmer_available"])
         cumulative += payment
         start, end = (cycle - 1) * 6, cycle * 6
-        cash.append([str(cycle), f"{start}-{end} {t['months']}", money(payment), money(cumulative)])
-    cash.append([t["herd_sale"], f"36 {t['months']}", money(6_000), money(83_160)])
+        cash.append([str(cycle), f"{start}-{end} {t['months']}", reserve_money(payment), reserve_money(cumulative)])
+    completion = Decimal(reserve_schedule("hissar")[-1]["farmer_available"])
+    cumulative += completion
+    cash.append([t["completion"], f"36 {t['months']}", reserve_money(completion), reserve_money(cumulative)])
     return cycle_rows, cash
 
 
@@ -570,9 +585,17 @@ def detail_text(lang: str) -> dict[str, str]:
             "capital_component": "Возврат капитала за стадо",
             "investor_total": "ИТОГО инвестору за цикл",
             "farmer_gross": "Доля фермера до расходов",
+            "farmer_before_reserve": "Фермеру до резерва",
             "salary": "Зарплата работника",
             "transport": "Транспорт",
             "farmer_total": "ДОХОД ФЕРМЕРА НА РУКИ",
+            "reserve_schedule": "Резерв защиты инвестора",
+            "reserve_contribution": "Взнос в резерв",
+            "reserve_release": "Разблокировано фермеру",
+            "reserve_balance": "Остаток резерва",
+            "farmer_available": "Доступно фермеру",
+            "investor_received": "Получено инвестором",
+            "completion": "Завершение",
             "from_company": "Из фонда компании",
             "from_revenue": "Из выручки цикла",
             "protected_partner": "Защищённая доля партнёра",
@@ -620,9 +643,17 @@ def detail_text(lang: str) -> dict[str, str]:
         "capital_component": "Herd capital component",
         "investor_total": "TOTAL TO INVESTOR",
         "farmer_gross": "Farmer share before expenses",
+        "farmer_before_reserve": "Farmer cash before reserve",
         "salary": "Worker salary",
         "transport": "Transport",
         "farmer_total": "FARMER TAKE-HOME",
+        "reserve_schedule": "Investor Protection Reserve",
+        "reserve_contribution": "Reserve contribution",
+        "reserve_release": "Released to farmer",
+        "reserve_balance": "Reserve balance",
+        "farmer_available": "Farmer cash available",
+        "investor_received": "Investor cash received",
+        "completion": "Completion",
         "from_company": "From company reserve",
         "from_revenue": "From cycle revenue",
         "protected_partner": "Protected partner share",
@@ -712,6 +743,78 @@ def cycle_values(model_key: str, cycle: int) -> dict[str, int]:
     }
 
 
+def reserve_schedule(model_key: str) -> list[dict[str, Decimal | int | str]]:
+    model = MODELS[model_key]
+    rate = Decimal(model["reserve_pct"]) / Decimal(100)
+    ending_reserve = Decimal(0)
+    cumulative_investor = Decimal(0)
+    rows: list[dict[str, Decimal | int | str]] = []
+
+    for cycle in range(1, model["cycles"] + 1):
+        values = cycle_values(model_key, cycle)
+        contribution = Decimal(values["farmer"]) * rate
+        cumulative_investor += Decimal(values["investor_total"])
+        reserve_before_release = ending_reserve + contribution
+        required_reserve = max(Decimal("10000"), Decimal(model["investment"]) - cumulative_investor)
+        release = max(Decimal(0), reserve_before_release - required_reserve)
+        ending_reserve = reserve_before_release - release
+        farmer_available = Decimal(values["farmer_takehome"]) - contribution + release
+        rows.append(
+            {
+                "stage": str(cycle),
+                "investor_received": cumulative_investor,
+                "contribution": contribution,
+                "release": release,
+                "ending_reserve": ending_reserve,
+                "farmer_available": farmer_available,
+            }
+        )
+
+    completion_investor = Decimal("20400") if model_key == "fidlot" else Decimal("20600")
+    completion_farmer = Decimal(0) if model_key == "fidlot" else Decimal("6000")
+    cumulative_investor += completion_investor
+    rows.append(
+        {
+            "stage": "completion",
+            "investor_received": cumulative_investor,
+            "contribution": Decimal(0),
+            "release": ending_reserve,
+            "ending_reserve": Decimal(0),
+            "farmer_available": completion_farmer + ending_reserve,
+        }
+    )
+    return rows
+
+
+def reserve_table_rows(model_key: str, lang: str) -> list[list[str]]:
+    d = detail_text(lang)
+    rows = reserve_schedule(model_key)
+    result = []
+    for row in rows:
+        stage = d["completion"] if row["stage"] == "completion" else f"{d['cycle_word']} {row['stage']}"
+        result.append(
+            [
+                stage,
+                reserve_money(row["investor_received"]),
+                reserve_money(row["contribution"]),
+                reserve_money(row["release"]),
+                reserve_money(row["ending_reserve"]),
+                reserve_money(row["farmer_available"]),
+            ]
+        )
+    result.append(
+        [
+            d["final"],
+            reserve_money(rows[-1]["investor_received"]),
+            reserve_money(sum(Decimal(row["contribution"]) for row in rows)),
+            reserve_money(sum(Decimal(row["release"]) for row in rows)),
+            reserve_money(rows[-1]["ending_reserve"]),
+            money(MODELS[model_key]["farmer_cash"]),
+        ]
+    )
+    return result
+
+
 def add_cycle_card(
     doc: Document,
     model_key: str,
@@ -780,7 +883,11 @@ def add_cycle_card(
             (d["farmer_gross"], d["protected_partner"], money(v["farmer"])),
             (d["salary"], d["farmer_expense"], f"-{money(v['salary'])}"),
             (d["transport"], d["farmer_expense"], f"-{money(v['transport'])}"),
-            (d["farmer_total"], "Cash" if lang == "en" else "Денежная выплата", money(v["farmer_takehome"])),
+            (
+                d["farmer_before_reserve"],
+                "Before reserve" if lang == "en" else "До взноса в резерв",
+                money(v["farmer_takehome"]),
+            ),
         ]
 
     for idx, (label, note, amount) in enumerate(rows):
@@ -838,14 +945,47 @@ def outcome_rows(model_key: str, audience: str, lang: str) -> list[list[str]]:
             [TEXT[lang]["metric_investment"], money(m["investment"]), "Initial capital" if lang == "en" else "Стартовый капитал"],
             [TEXT[lang]["metric_payout"], money(m["investor_payout"]), f"{m['duration_months']} {TEXT[lang]['months']}"],
             [d["investor_profit"], money(m["investor_profit"]), f"ROI +{pct(m['roi'])}"],
-            [TEXT[lang]["metric_apr"], f"~{pct(m['apr'])}", "Annualized projection" if lang == "en" else "Годовая расчётная доходность"],
+            [
+                TEXT[lang]["metric_apr"],
+                f"~{pct(m['apr'])}",
+                "Total ROI divided by model duration"
+                if lang == "en"
+                else "Общий ROI, делённый на срок модели",
+            ],
         ]
     gross = 115_500 if model_key == "fidlot" else 95_760
     expenses = 19_250 if model_key == "fidlot" else 18_600
-    return [
+    rows = [
         [d["gross_share"], money(gross), "Before farmer expenses" if lang == "en" else "До расходов фермера"],
         ["Salary + transport" if lang == "en" else "Зарплата + транспорт", f"-{money(expenses)}", "Farmer operating costs" if lang == "en" else "Операционные расходы фермера"],
-        [d["cash_received"], money(m["farmer_cash"]), "Cash over the model term" if lang == "en" else "Деньгами за срок модели"],
+        [
+            f"{d['reserve_contribution']} ({m['reserve_pct']}%)",
+            f"-{reserve_money(m['reserve_total'])}",
+            "Temporarily allocated from farmer share" if lang == "en" else "Временно из доли фермера",
+        ],
+        [
+            d["reserve_release"],
+            reserve_money(m["reserve_total"]),
+            "No-loss modeled release" if lang == "en" else "Расчётное разблокирование без убытка",
+        ],
+    ]
+    if model_key == "hissar":
+        rows.append([
+            TEXT[lang]["herd_sale"],
+            money(6_000),
+            "Farmer share of herd sale at completion"
+            if lang == "en"
+            else "Доля фермера от продажи стада при завершении",
+        ])
+    return rows + [
+        [
+            d["cash_received"],
+            money(m["farmer_cash"]),
+            "Cycle cash plus herd sale" if model_key == "hissar" and lang == "en"
+            else "Выплаты по циклам плюс продажа стада" if model_key == "hissar"
+            else "Cash over the model term" if lang == "en"
+            else "Деньгами за срок модели",
+        ],
         [d["asset_transfer"], money(m["farmer_asset"]), "At model completion" if lang == "en" else "После завершения модели"],
         [d["total_benefit"], money(m["farmer_total"]), "Cash + property" if lang == "en" else "Деньги + имущество"],
     ]
@@ -863,9 +1003,9 @@ def build_document(model_key: str, audience: str, lang: str, output: Path) -> No
     running_label = f"AgriPartners | {role_name} | {m['version']} | 60/40"
     configure_page(doc, running_label)
     subtitle = (
-        f"{m['cycles']} cycles x {m['cycle_months']} months | 60/40 split | Fee 20% | {t['language']}"
+        f"{m['cycles']} cycles x {m['cycle_months']} months | 60/40 split | Reserve {m['reserve_pct']}% | Fee 20% | {t['language']}"
         if lang == "en"
-        else f"{m['cycles']} циклов x {m['cycle_months']} мес. | Сплит 60/40 | Fee 20% | {t['language']}"
+        else f"{m['cycles']} циклов x {m['cycle_months']} мес. | Сплит 60/40 | Резерв {m['reserve_pct']}% | Fee 20% | {t['language']}"
     )
     add_title_block(doc, role_name, title_name, f"{m['version']} | {subtitle}")
     if audience == "investor":
@@ -876,9 +1016,9 @@ def build_document(model_key: str, audience: str, lang: str, output: Path) -> No
             (t["metric_roi"], f"+{pct(m['roi'])}"),
         ]
     else:
-        first = 15_250 if model_key == "fidlot" else 15_260
+        first = Decimal(reserve_schedule(model_key)[0]["farmer_available"])
         metrics = [
-            (t["metric_first"], money(first)),
+            (t["metric_first"], reserve_money(first)),
             (t["metric_cash"], money(m["farmer_cash"])),
             (t["metric_total"], money(m["farmer_total"])),
             (t["metric_cycles"], f"{m['cycles']} x {m['cycle_months']}"),
@@ -945,7 +1085,7 @@ def build_document(model_key: str, audience: str, lang: str, output: Path) -> No
         add_heading(doc, t["section_economics"], 1)
         add_data_table(
             doc,
-            [t["cycle"], t["revenue"], t["pool"], t["farmer_share"], t["salary_transport"], t["farmer_takehome"]],
+            [t["cycle"], t["revenue"], t["pool"], t["farmer_share"], t["salary_transport"], d["farmer_before_reserve"]],
             cycle_rows,
             [1050, 1700, 1850, 2100, 2050, 1906],
             header_fill=accent,
@@ -965,15 +1105,45 @@ def build_document(model_key: str, audience: str, lang: str, output: Path) -> No
         add_section_banner(doc, d["cycle_breakdown"], accent)
         for cycle in range(6, m["cycles"] + 1):
             add_cycle_card(doc, model_key, audience, lang, cycle, accent)
-        add_heading(doc, d["cash_summary"], 1)
-        add_data_table(
-            doc,
-            [t["cycle"], t["period"], t["farmer_takehome"], t["cumulative"]],
-            cash,
-            [1650, 2600, 2900, 3506],
-            header_fill=BLUE,
-            font_size=7.8,
-        )
+
+    start_new_page(doc)
+    add_section_banner(doc, d["reserve_schedule"], accent)
+    reserve_explanation = (
+        f"Rate: {m['reserve_pct']}% of the farmer share. Required reserve after each successful cycle: "
+        "max($10,000; $50,000 - investor cash actually received). The final $10,000 is released only "
+        "after completion and performance of all obligations."
+        if lang == "en"
+        else f"Ставка: {m['reserve_pct']}% от доли фермера. Необходимый резерв после каждого успешного цикла: "
+        "max($10,000; $50,000 - фактически полученные инвестором выплаты). Последние $10,000 "
+        "разблокируются только после завершения и исполнения всех обязательств."
+    )
+    add_text(doc, reserve_explanation, size=8.7, after=5)
+    add_data_table(
+        doc,
+        [
+            d["cycle"],
+            d["investor_received"],
+            d["reserve_contribution"],
+            d["reserve_release"],
+            d["reserve_balance"],
+            d["farmer_available"],
+        ],
+        reserve_table_rows(model_key, lang),
+        [1250, 1850, 1750, 1750, 1700, 2356],
+        header_fill=accent,
+        total_fill=GREEN_LIGHT,
+        font_size=7.2,
+    )
+    reserve_warning = (
+        "No-loss projection only. A Confirmed Loss, overdue mandatory report, default, or open dispute "
+        "may reduce or suspend release. The reserve is not insurance or a guarantee, and this model does "
+        "not determine legal ownership while funds are locked."
+        if lang == "en"
+        else "Только расчётный сценарий без убытка. Подтверждённый убыток, просроченный обязательный отчёт, "
+        "дефолт или открытый спор могут уменьшить или приостановить разблокирование. Резерв не является "
+        "страховкой или гарантией; модель не определяет юридическую принадлежность заблокированных средств."
+    )
+    add_text(doc, reserve_warning, size=8.4, color=MUTED, italic=True, before=6, after=4)
 
     start_new_page(doc)
     add_section_banner(doc, d["final_balance"], accent)
@@ -1002,16 +1172,25 @@ def build_document(model_key: str, audience: str, lang: str, output: Path) -> No
         notes = [
             "Сплит 60/40 применяется к чистой прибыли после затрат до раздела.",
             "Performance Fee 20% удерживается только из инвесторской доли 40%.",
-            "Показатели округлены до доллара; фактические результаты могут отличаться.",
-            f"Расчётный срок модели: {m['duration_months']} месяцев.",
+            f"Резерв {m['reserve_pct']}% формируется из доли фермера; неиспользованный остаток предполагается вернуть фермеру по установленным правилам.",
+            "Поэтапное разблокирование рассчитано для сценария без подтверждённых убытков и может быть приостановлено при отчётности, дефолте или споре.",
+            "Простой годовой ROI — это общий ROI, делённый на срок модели в годах; показатель не учитывает сложный процент и даты промежуточных выплат.",
         ]
     else:
         notes = [
             "The 60/40 split applies to net profit after pre-split costs.",
             "The 20% performance fee applies only to the investor's 40% share.",
-            "Figures are rounded to the nearest dollar; actual results may differ.",
-            f"Model duration: {m['duration_months']} months.",
+            f"The {m['reserve_pct']}% reserve is formed from the farmer share; the unused balance is intended to be returned to the farmer under established rules.",
+            "Staged release is modeled for a no-Confirmed-Loss scenario and may be suspended by reporting failure, default, or dispute.",
+            "Simple annualized ROI divides total ROI by the model duration in years; it does not account for compounding or the timing of interim payments.",
         ]
+    if model_key == "hissar":
+        notes.insert(
+            2,
+            "$2,500 в циклах 3–6 возвращаются инвестору до сплита как частичный возврат капитала; Performance Fee не применяется."
+            if lang == "ru"
+            else "$2,500 in cycles 3–6 is returned to the investor before the split as partial capital return; no Performance Fee applies.",
+        )
     for note in notes:
         add_bullet(doc, note)
     add_text(doc, t["source_note"], size=8.5, color=MUTED, italic=True, before=8, after=4)

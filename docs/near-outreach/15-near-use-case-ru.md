@@ -35,7 +35,7 @@ Investor workflow сфокусирован на ясности и проверя
 1. Investor входит в portal через role-specific account.
 2. Investor смотрит portfolio metrics и featured pilot deals.
 3. Investor открывает pilot project, например Fidlot или Hissar.
-4. Investor проверяет investment size, ROI, APR, cycle count, expected returns, returned amount и outstanding amount.
+4. Investor проверяет investment size, ROI, simple annualized ROI, cycle count, expected returns, returned amount и outstanding amount.
 5. Investor смотрит reporting и event history, чтобы понимать lifecycle progress.
 6. В future mainnet version funding и settlement могут быть связаны с audited smart contract flows.
 

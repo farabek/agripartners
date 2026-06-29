@@ -32,7 +32,7 @@ These metrics present the current pilot portfolio in a concise business format.
 
 ## Pilot Deals
 
-Pilot deal cards show project name, status, farmer, investor, funding, ROI or projected ROI, APR, report status, funding status, and return status.
+Pilot deal cards show project name, status, farmer, investor, funding, ROI or projected ROI, simple annualized ROI, report status, funding status, and return status.
 
 Screenshot:
 
@@ -40,7 +40,7 @@ Screenshot:
 
 ## Deal Monitoring
 
-Each pilot has a project profile with funding, ROI or projected ROI, APR, cycle count, and current status.
+Each pilot has a project profile with funding, ROI or projected ROI, simple annualized ROI, cycle count, and current status.
 
 Screenshots:
 

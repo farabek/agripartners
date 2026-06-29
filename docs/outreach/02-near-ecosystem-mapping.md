@@ -460,7 +460,7 @@ This sequence moves from the strongest current evidence to broader strategy: tec
 | Overstated AI alignment | Adding AI language without a real product need damages trust. | Treat AI ideas as future hypotheses until validated and implemented. |
 | Too many attachments | Reviewers may not know where to start. | Send the Launch Kit plus one role-specific artifact and offer the rest. |
 | Stale demo assets | Missing or outdated screenshots reduce confidence. | Refresh Marketplace, Portfolio Dashboard, and Funding Progress assets before contact. |
-| Inconsistent financial claims | ROI, APR, pilot status, and agreement language may be challenged. | Reconcile every metric across deck, brief, demo, and pilot evidence; label projections and demonstrations. |
+| Inconsistent financial claims | ROI, simple annualized ROI, pilot status, and agreement language may be challenged. | Reconcile every metric across deck, brief, demo, and pilot evidence; label projections and demonstrations. |
 | Wrong channel | Core protocol, governance, and infrastructure teams are not startup intake desks. | Follow the ranking and contact each organization only with a mission-matched objective. |
 | No clear team profile | Programs assess execution capacity, not only product documents. | Prepare founder roles, technical ownership, agriculture expertise, availability, and 90-day milestones. |
 

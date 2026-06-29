@@ -95,6 +95,7 @@ Current Alpha v1.2 modules include:
 ## Platform Documentation
 
 - [Platform Documentation](platform/README.md)
+- [Investor Protection Framework](platform/investor-protection/README.md)
 
 Official AgriPartners platform explanation documents in English and Russian.
 

@@ -79,7 +79,7 @@ Source documents:
 
 - Title: Fidlot Pilot Model
 - Required screenshot: `../screenshots/admin/03-admin-fidlot-profile.png`
-- Required diagram: pilot economics card for investment, ROI, APR, cycles
+- Required diagram: pilot economics card for investment, ROI, simple annualized ROI, cycles
 - Required icon: livestock or finance icon
 - Suggested visual layout: screenshot on the right; compact metrics panel on the left with $50,000, 64%, 21.9%, 7 cycles. Keep Fidlot Livestock Project name unchanged.
 
@@ -87,7 +87,7 @@ Source documents:
 
 - Title: Hissar Pilot Model
 - Required screenshot: `../screenshots/admin/06-admin-hissar-profile.png`
-- Required diagram: pilot economics card for investment, ROI, APR, cycles
+- Required diagram: pilot economics card for investment, ROI, simple annualized ROI, cycles
 - Required icon: livestock or breeding icon
 - Suggested visual layout: mirror Slide 8 for visual consistency. Use the same screenshot dimensions and metric panel style. Keep Hissar Sheep Breeding Project name unchanged.
 

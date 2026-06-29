@@ -18,8 +18,8 @@ Point out the dashboard summary:
 
 ## 3. Show Featured Pilot Deals
 Open with the two real pilot models:
-- Fidlot Livestock Project: $50,000, 64% ROI, 21.9% APR, 7 cycles.
-- Hissar Sheep Breeding Project: $50,000, 63.3% projected ROI, 21.1% APR, 6 cycles.
+- Fidlot Livestock Project: $50,000, 64% ROI, 21.9% simple annualized ROI, 7 cycles.
+- Hissar Sheep Breeding Project: $50,000, 63.3% projected ROI, 21.1% simple annualized ROI, 6 cycles.
 
 ## 4. Open a Project Profile
 Open the Fidlot project detail page.

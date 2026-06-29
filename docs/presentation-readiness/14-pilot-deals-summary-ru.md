@@ -11,7 +11,7 @@ AgriPartners Alpha v1 использует два agricultural pilot profiles д
 | Investment Amount | `$50,000` |
 | Cycles | `7` |
 | ROI | `64%` |
-| APR | `21.9%` |
+| simple annualized ROI | `21.9%` |
 | Status | Completed |
 
 Summary:
@@ -34,7 +34,7 @@ Demo signals:
 | Investment Amount | `$50,000` |
 | Cycles | `6` |
 | ROI | `63.3%` |
-| APR | `21.1%` |
+| simple annualized ROI | `21.1%` |
 | Status | Active |
 
 Summary:

@@ -139,7 +139,7 @@ Hello,
 
 I am preparing Wave 1 validation for AgriPartners Alpha v1, an agricultural RWA platform for transparent farm investment workflows.
 
-The demo shows marketplace deal discovery, funding progress, farmer reports, portfolio analytics, ROI/returns tracking, and NEAR-based verification. Current demo metrics include two livestock pilot profiles, `$100,000` total capital listed, `$82,000` capital returned, `63.7%` average ROI, and `21.5%` average APR.
+The demo shows marketplace deal discovery, funding progress, farmer reports, portfolio analytics, ROI/returns tracking, and NEAR-based verification. Current demo metrics include two livestock pilot profiles, `$100,000` total capital listed, `$82,000` capital returned, `63.7%` average ROI, and `21.5%` average simple annualized ROI.
 
 I am looking for investor feedback on the thesis, dashboard clarity, risk questions, and what diligence would be required before this could become investable.
 
@@ -162,7 +162,7 @@ I am reaching out for feedback on AgriPartners Alpha v1, an agricultural real-wo
 
 The problem is that agricultural operators need working capital, while investors often lack visibility after capital is deployed. AgriPartners addresses this with marketplace deal discovery, funding progress, farmer reports, investor portfolio analytics, ROI and returns tracking, and blockchain-linked verification.
 
-The current Alpha v1 demo uses two livestock pilot profiles: a completed feedlot livestock project and an active Hissar sheep breeding project. Demo metrics include `$100,000` total capital listed, `$82,000` capital returned, `63.7%` average ROI, and `21.5%` average APR. The demo also includes NEAR wallet authentication and smart-contract-linked testnet withdrawal flow.
+The current Alpha v1 demo uses two livestock pilot profiles: a completed feedlot livestock project and an active Hissar sheep breeding project. Demo metrics include `$100,000` total capital listed, `$82,000` capital returned, `63.7%` average ROI, and `21.5%` average simple annualized ROI. The demo also includes NEAR wallet authentication and smart-contract-linked testnet withdrawal flow.
 
 At this stage, I am looking for validation rather than capital: is the thesis clear, does the investor dashboard answer the right questions, what risks or diligence gaps stand out, and what would need to change before this becomes investment-ready?
 

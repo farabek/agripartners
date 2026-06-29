@@ -15,14 +15,14 @@ AgriPartners is an agricultural investment platform that presents real pilot pro
 ### Fidlot Livestock Project
 - Investment: $50,000
 - ROI: 64%
-- APR: 21.9%
+- simple annualized ROI: 21.9%
 - Cycles: 7
 - Origin: Real pilot agricultural agreement.
 
 ### Hissar Sheep Breeding Project
 - Investment: $50,000
 - Projected ROI: 63.3%
-- APR: 21.1%
+- simple annualized ROI: 21.1%
 - Cycles: 6
 - Origin: Real pilot agricultural agreement.
 

@@ -51,6 +51,8 @@ test('admin create handles success, request errors, partial profile failures and
   expect(portal).toContain("index === 0 ? 'Farmer' : 'Investor'");
   expect(portal).toContain('profiles unavailable:');
   expect(appJs).toContain('No farmer or investor profiles are available.');
+  expect(appJs).toContain('Model-specific reserve rate (%)');
+  expect(create).toContain("document.getElementById('admin-reserve-rate').value");
   expect(create).toContain("fetchAdminJson('/api/admin/deals'");
   expect(create).toContain('form.reset()');
   expect(create).toContain('Create deal failed:');

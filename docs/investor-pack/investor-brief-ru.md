@@ -34,7 +34,7 @@ AgriPartners Alpha v1 demonstrates a digital workflow for agricultural investmen
 - Investor Portal: investors can view portfolio metrics, active deals, completed deals, ROI, returns and event history.
 - Farmer Portal: farmers can see assigned deals, profile information, cycle status and reporting visibility.
 - Funding Progress: project views show funding state, listed capital and lifecycle progress.
-- ROI & Returns: investor-facing views show projected returns, returned capital, outstanding amounts, ROI and APR.
+- ROI & Returns: investor-facing views show projected returns, returned capital, outstanding amounts, ROI and simple annualized ROI.
 - Reporting: deal states include report submitted, next report due, return recorded, pending returns and event history.
 - Pilot Deals: Fidlot Livestock Project and Hissar Sheep Breeding Project are used as demonstration profiles based on real pilot agreements.
 
@@ -73,7 +73,7 @@ AgriPartners Alpha v1 uses two livestock demonstration profiles based on real pi
 |---|---:|
 | Investment Size | `$50,000` |
 | ROI | `64%` |
-| APR | `21.9%` |
+| simple annualized ROI | `21.9%` |
 | Cycles | `7` |
 | Current Demonstration Status | Completed profile |
 
@@ -91,7 +91,7 @@ Demo signals:
 |---|---:|
 | Investment Size | `$50,000` |
 | ROI | `63.3%` |
-| APR | `21.1%` |
+| simple annualized ROI | `21.1%` |
 | Cycles | `6` |
 | Current Demonstration Status | Active profile |
 

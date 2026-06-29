@@ -120,7 +120,7 @@ Capture the Featured Pilot Deals section with both cards visible:
 - Fidlot Livestock Project.
 - Hissar Sheep Breeding Project.
 - Investment: $50,000 for each.
-- ROI and APR visible for both projects.
+- ROI and simple annualized ROI visible for both projects.
 - Cycle count visible for both projects.
 
 Recommended framing:
@@ -151,7 +151,7 @@ Capture:
 - Fidlot Livestock Project title.
 - Investment: $50,000.
 - ROI: 64%.
-- APR: 21.9%.
+- simple annualized ROI: 21.9%.
 - Cycles: 7.
 - Deal ID only as secondary information.
 
@@ -181,7 +181,7 @@ Capture:
 - Hissar Sheep Breeding Project title.
 - Investment: $50,000.
 - Projected ROI: 63.3%.
-- APR: 21.1%.
+- simple annualized ROI: 21.1%.
 - Cycles: 6.
 - Deal ID only as secondary information.
 

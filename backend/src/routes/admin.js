@@ -67,6 +67,34 @@ function normalizeRequiredString(value, fieldName, maxLength) {
   return normalized;
 }
 
+function normalizePercentage(value, fieldName) {
+  const normalized = String(value ?? '').trim();
+  if (!/^\d+$/.test(normalized)) {
+    throw new Error(`${fieldName} must be a whole number from 0 to 100`);
+  }
+  const percentage = Number(normalized);
+  if (percentage < 0 || percentage > 100) {
+    throw new Error(`${fieldName} must be a whole number from 0 to 100`);
+  }
+  return percentage;
+}
+
+function confirmedReserveRateForModel(dealType) {
+  const normalized = String(dealType ?? '').trim().toLowerCase();
+  if (normalized.includes('fidlot') || normalized.includes('feedlot')) return 44;
+  if (normalized.includes('hissar') || normalized.includes('variantb')) return 53;
+  return null;
+}
+
+function resolveReserveRate(dealType, requestedRate) {
+  if (requestedRate !== undefined && requestedRate !== null && String(requestedRate).trim() !== '') {
+    return normalizePercentage(requestedRate, 'escrow_pct');
+  }
+  const confirmedRate = confirmedReserveRateForModel(dealType);
+  if (confirmedRate !== null) return confirmedRate;
+  throw new Error('escrow_pct is required because reserve rates are model-specific');
+}
+
 function getRequestActor(req) {
   return req.user?.account_id || req.user?.near_account || req.user?.username || null;
 }
@@ -127,7 +155,7 @@ function normalizeDealPayload(body) {
       investment_amount: investmentAmount,
       farmer_split_pct: 60,
       investor_split_pct: 40,
-      escrow_pct: 44,
+      escrow_pct: body.escrow_pct,
       performance_fee_pct: 20,
       total_cycles: body.total_cycles ?? 1,
       cycle_duration_days: body.cycle_duration_days ?? 150,
@@ -249,13 +277,14 @@ router.post('/deals', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields: deal_type, farmer, investor, investment_amount' });
     }
 
+    const modelReserveRate = resolveReserveRate(deal_type, escrow_pct);
     const investorWithdrawSigner = getInvestorWithdrawSignerAccountId();
     const { contractId, txHash } = await nearService.deployContract({
       deal_type, farmer, investor, investment_amount,
       investor_withdraw_signer: investorWithdrawSigner,
       farmer_split_pct: farmer_split_pct ?? 60,
       investor_split_pct: investor_split_pct ?? 40,
-      escrow_pct: escrow_pct ?? 44,
+      escrow_pct: modelReserveRate,
       performance_fee_pct: performance_fee_pct ?? 20,
       total_cycles, cycle_duration_days, capital_return_near
     });
@@ -272,7 +301,7 @@ router.post('/deals', async (req, res) => {
       investment_amount,
       farmer_split_pct: farmer_split_pct ?? 60,
       investor_split_pct: investor_split_pct ?? 40,
-      escrow_pct: escrow_pct ?? 44,
+      escrow_pct: modelReserveRate,
       performance_fee_pct: performance_fee_pct ?? 20,
       cycle_duration_days, total_cycles, capital_return_near
     });
@@ -289,7 +318,7 @@ router.post('/deals', async (req, res) => {
       portal_payload: portalPayload,
     });
   } catch (err) {
-    const status = /^(amount|title|description|farmer_wallet|investor_wallet) /.test(err.message) ? 400 : 500;
+    const status = /^(amount|title|description|farmer_wallet|investor_wallet|escrow_pct) /.test(err.message) ? 400 : 500;
     res.status(status).json({ error: err.message });
   }
 });
