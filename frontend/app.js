@@ -1101,6 +1101,12 @@ function route() {
     return;
   }
 
+  const protectionModel = hash.match(/^#\/?protection\/(fidlot|hissar)$/);
+  if (protectionModel) {
+    showPublicProtectionModel(protectionModel[1]);
+    return;
+  }
+
   if (hash === '#farmer/pilots') {
     showFarmerPilotSelector();
     return;
@@ -1316,6 +1322,7 @@ function renderHomeInvestorProtection() {
               <div><dt>Minimum until completion</dt><dd>${escapeHtml(model.minimumReserve)}</dd></div>
             </dl>
             <div class="protection-document-actions">
+              <a href="#/protection/${escapeHtml(model.key)}">Full cycle table</a>
               <a href="${model.investorPdfEn}" target="_blank" rel="noopener noreferrer">Investor PDF · EN</a>
               <a href="${model.investorPdfRu}" target="_blank" rel="noopener noreferrer">Investor PDF · RU</a>
             </div>
@@ -1488,7 +1495,7 @@ function showHome() {
                 <span>7 cycles</span>
                 <span>5 months each</span>
                 <span>60 / 40 split</span>
-                <span class="financial-protection-badge">Protection reserve 44%</span>
+                <a href="#/protection/fidlot" class="financial-protection-badge">Protection reserve 44% · View table</a>
               </div>
             </header>
             <div class="financial-model-audiences">
@@ -1530,7 +1537,7 @@ function showHome() {
                 <span>6 cycles</span>
                 <span>6 months each</span>
                 <span>60 / 40 split</span>
-                <span class="financial-protection-badge">Protection reserve 53%</span>
+                <a href="#/protection/hissar" class="financial-protection-badge">Protection reserve 53% · View table</a>
               </div>
             </header>
             <div class="financial-model-audiences">
@@ -2632,6 +2639,7 @@ async function showLiveAdminDashboard(el) {
 
 function renderDealCard(d) {
   const dealTitle = d.title || d.deal_type || 'Unknown';
+  const protectionKey = d.pilot_key || pilotKeyFromText(`${dealTitle} ${d.description || ''}`);
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex justify-between items-center gap-4">
       <div class="space-y-1 min-w-0">
@@ -2642,7 +2650,10 @@ function renderDealCard(d) {
         <p class="text-sm text-slate-500">${d.total_cycles ?? 'Unknown'} cycle(s) × ${d.cycle_duration_days == null ? 'Unknown' : escapeHtml(d.cycle_duration_days)} days  ·  ${formatOptionalYoctoDisplay(d.investment_amount)}</p>
         <span class="inline-flex text-xs font-semibold text-blue-200 bg-blue-950 border border-blue-800 rounded-full px-2.5 py-1 mt-2">Protection reserve: ${d.escrow_pct == null ? 'model rate unavailable' : `${escapeHtml(d.escrow_pct)}%`}</span>
       </div>
-      <a href="#deals/${d.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open →</a>
+      <div class="flex flex-col gap-2 shrink-0">
+        <a href="#deals/${d.id}" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open →</a>
+        ${protectionKey ? `<a href="#/protection/${escapeHtml(protectionKey)}" class="text-xs font-semibold text-blue-300 hover:text-blue-200 text-center">Protection table</a>` : ''}
+      </div>
     </div>
   `;
 }
@@ -2709,7 +2720,10 @@ function renderAdminDemoDealCard(deal) {
           <p class="text-slate-400">Return Status: <span class="text-slate-200">${escapeHtml(deal.returnStatus)}</span></p>
         </div>
       </div>
-      <a href="#deals/pilots/${escapeHtml(deal.pilot_key)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open</a>
+      <div class="flex flex-col gap-2 shrink-0">
+        <a href="#deals/pilots/${escapeHtml(deal.pilot_key)}" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open</a>
+        <a href="#/protection/${escapeHtml(deal.pilot_key)}" class="text-xs font-semibold text-blue-300 hover:text-blue-200 text-center">Protection table</a>
+      </div>
     </div>
   `;
 }
@@ -3448,6 +3462,59 @@ function normalizeFarmerBalancesPayload(payload) {
   return payload;
 }
 
+function showPublicProtectionModel(key) {
+  const model = INVESTOR_PROTECTION_MODELS[key];
+  const pilot = getPilotByKey(key);
+  showView('view-home');
+  const el = document.getElementById('view-home');
+
+  if (!model || !pilot) {
+    el.innerHTML = '<div class="bg-red-900 text-red-200 px-4 py-3 rounded">Protection model unavailable</div>';
+    return;
+  }
+
+  const deal = farmerDemoDealFromPilot(pilot, '');
+  el.innerHTML = `
+    <header class="landing-nav">
+      <a href="#home" class="landing-brand">AgriPartners</a>
+      <div class="landing-nav-actions">
+        <a href="#home">Home</a>
+        <a href="#/marketplace">Marketplace</a>
+        <a href="#farmer/pilots">Farmer Demo</a>
+      </div>
+    </header>
+    <main class="public-protection-page">
+      <a href="#home" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition mb-6">&larr; Back home</a>
+      <section class="public-protection-hero">
+        <div>
+          <span>Public protection schedule</span>
+          <h1>${escapeHtml(model.title)}</h1>
+          <p>
+            One shared explanation for investors, farmers, administrators, and public visitors.
+            This is the canonical USD no-loss projection used across AgriPartners demo surfaces.
+          </p>
+        </div>
+        <div class="public-protection-hero-metrics">
+          <div><span>Reserve rate</span><strong>${escapeHtml(model.rate)}%</strong></div>
+          <div><span>Scheduled contributions</span><strong>${escapeHtml(model.scheduledReserve)}</strong></div>
+          <div><span>Minimum until completion</span><strong>${escapeHtml(model.minimumReserve)}</strong></div>
+        </div>
+      </section>
+      ${renderFarmerReserveBreakdown(deal, farmerDemoCycles(pilot), null, null, { hidePublicLink: true })}
+      <section class="public-protection-audiences">
+        <h2>Continue in the view relevant to you</h2>
+        <div>
+          <a class="landing-btn landing-btn-primary" href="#/investor/pilots/${escapeHtml(key)}">Investor view</a>
+          <a class="landing-btn" href="#farmer/pilots/${escapeHtml(key)}">Farmer view</a>
+          <a class="landing-btn" href="#deals/pilots/${escapeHtml(key)}">Admin view</a>
+          <a class="landing-btn" href="${model.investorPdfEn}" target="_blank" rel="noopener noreferrer">Investor PDF · EN</a>
+          <a class="landing-btn" href="${model.investorPdfRu}" target="_blank" rel="noopener noreferrer">Investor PDF · RU</a>
+        </div>
+      </section>
+    </main>
+  `;
+}
+
 function showFarmerPilotSelector() {
   showView('view-farmer');
   const el = document.getElementById('view-farmer');
@@ -3473,6 +3540,7 @@ function showFarmerPilotSelector() {
         <div class="farmer-pilot-selector-note">
           Includes the same cycle table for reserve contributions, releases, farmer payments, ending balance, and program totals.
         </div>
+        <a href="#/protection/${escapeHtml(pilot.key)}" class="farmer-pilot-protection-link">View public protection schedule</a>
         <a href="#farmer/pilots/${escapeHtml(pilot.key)}" class="landing-btn landing-btn-primary">
           ${escapeHtml(buttonLabel)}
         </a>
@@ -3701,7 +3769,7 @@ function formatFarmerProtectionContractBalance(value) {
   }
 }
 
-function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balancesError = null) {
+function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balancesError = null, options = {}) {
   const pilot = getPilotForDeal(deal);
   const modelKey = deal?.pilot_key || pilot?.key || pilotKeyFromText(`${deal?.title || ''} ${deal?.deal_type || ''}`);
   const model = INVESTOR_PROTECTION_MODELS[modelKey];
@@ -3837,6 +3905,7 @@ function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balanc
         ${model ? `<span>Minimum reserve until completion: ${escapeHtml(model.minimumReserve)}</span>` : ''}
       </div>
 
+      ${model && !options.hidePublicLink ? `<a href="#/protection/${escapeHtml(modelKey)}" class="farmer-protection-public-link">Open the public protection page →</a>` : ''}
       ${modelKey === 'hissar' ? `
         <p class="farmer-protection-capital-note">
           Hissar cycles 3–6 include a $2,500 partial capital return to the investor before the 60/40 profit split.
@@ -5161,7 +5230,10 @@ function renderMarketplaceDealCard(deal) {
         `).join('')}
       </div>
       ${renderFundingProgressCompact(deal)}
-      <a href="#/investor/pilots/${deal.key}" class="inline-flex bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition mt-4">View Deal</a>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <a href="#/investor/pilots/${deal.key}" class="inline-flex bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
+        <a href="#/protection/${deal.key}" class="inline-flex border border-blue-700 text-blue-200 hover:border-blue-500 px-4 py-2 rounded-lg text-sm font-medium text-center transition">Protection table</a>
+      </div>
     </article>
   `;
 }
@@ -5962,6 +6034,7 @@ function renderInvestorProtectionPanel(deal = {}, balances = null) {
       : null;
   const documents = pdfBase ? `
     <div class="flex flex-wrap gap-2 mt-4">
+      <a class="text-sm font-semibold text-blue-300 hover:text-blue-200" href="#/protection/${escapeHtml(modelKey)}">Full cycle protection table →</a>
       <a class="text-sm font-semibold text-green-300 hover:text-green-200" href="assets/financial-models/en/${pdfBase}-EN.pdf" target="_blank" rel="noopener noreferrer">Detailed model · EN ↗</a>
       <a class="text-sm font-semibold text-green-300 hover:text-green-200" href="assets/financial-models/ru/${pdfBase}-RU.pdf" target="_blank" rel="noopener noreferrer">Подробная модель · RU ↗</a>
     </div>

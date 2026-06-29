@@ -101,6 +101,7 @@ test('demo routes are public while live protected routes still require auth', ()
 
   const publicRoutesSource = appJs.slice(publicRoutesStart, authGuardIndex);
   expect(publicRoutesSource).toContain('showInvestorPilotProfile(investorPilot[1])');
+  expect(publicRoutesSource).toContain('showPublicProtectionModel(protectionModel[1])');
   expect(publicRoutesSource).toContain('showFarmerPilotSelector()');
   expect(publicRoutesSource).toContain('showFarmerPilotProfile(farmerPilot[1])');
   expect(publicRoutesSource).toContain('showAdminPilotDetail(adminPilot[1])');
@@ -109,6 +110,21 @@ test('demo routes are public while live protected routes still require auth', ()
 
   const protectedSource = appJs.slice(authGuardIndex, appJs.indexOf("if (hash === '#farmer')"));
   expect(protectedSource).toContain("location.hash = '#home'");
+});
+
+test('public protection schedules are linked across primary product surfaces', () => {
+  expect(appJs).toContain('function showPublicProtectionModel');
+  expect(appJs).toContain('Public protection schedule');
+  expect(appJs).toContain('canonical USD no-loss projection');
+  expect(appJs).toContain('#/protection/fidlot');
+  expect(appJs).toContain('#/protection/hissar');
+  expect(appJs).toContain('Full cycle table');
+  expect(appJs).toContain('Protection table');
+  expect(appJs).toContain('Full cycle protection table');
+  expect(appJs).toContain('View public protection schedule');
+  expect(appJs).toContain('Investor view');
+  expect(appJs).toContain('Farmer view');
+  expect(appJs).toContain('Admin view');
 });
 
 test('existing login form and wallet login behavior remain available', () => {
