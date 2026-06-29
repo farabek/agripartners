@@ -5,6 +5,45 @@ const MY_NEAR_WALLET_URL = 'https://testnet.mynearwallet.com';
 const WALLET_AUTH_CHALLENGE_KEY = 'ap_wallet_auth_challenge';
 const AUTH_STORAGE_KEY = 'ap_auth';
 const LOCAL_MVP_ADMIN_WALLETS = ['farab.testnet'];
+const INVESTOR_PROTECTION_MODELS = {
+  fidlot: {
+    key: 'fidlot',
+    title: 'Fidlot v5.9',
+    rate: 44,
+    scheduledReserve: '$50,820',
+    minimumReserve: '$10,000',
+    investorPdfEn: 'assets/financial-models/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf',
+    investorPdfRu: 'assets/financial-models/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf',
+    schedule: [
+      ['Cycle 1', '$9,600', '$7,920', '$0', '$7,920', '$7,330'],
+      ['Cycle 2', '$19,200', '$7,920', '$0', '$15,840', '$7,330'],
+      ['Cycle 3', '$27,680', '$6,996', '$516', '$22,320', '$6,670'],
+      ['Cycle 4', '$36,160', '$6,996', '$15,476', '$13,840', '$21,630'],
+      ['Cycle 5', '$44,640', '$6,996', '$10,836', '$10,000', '$16,990'],
+      ['Cycle 6', '$53,120', '$6,996', '$6,996', '$10,000', '$13,150'],
+      ['Cycle 7', '$61,600', '$6,996', '$6,996', '$10,000', '$13,150'],
+      ['Completion', '$82,000', '$0', '$10,000', '$0', '$10,000'],
+    ],
+  },
+  hissar: {
+    key: 'hissar',
+    title: 'Hissar / VariantB v2.1',
+    rate: 53,
+    scheduledReserve: '$50,752.80',
+    minimumReserve: '$10,000',
+    investorPdfEn: 'assets/financial-models/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf',
+    investorPdfRu: 'assets/financial-models/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf',
+    schedule: [
+      ['Cycle 1', '$9,792', '$9,730.80', '$0', '$9,730.80', '$5,529.20'],
+      ['Cycle 2', '$19,584', '$9,730.80', '$0', '$19,461.60', '$5,529.20'],
+      ['Cycle 3', '$29,956', '$7,822.80', '$7,240.40', '$20,044', '$11,077.60'],
+      ['Cycle 4', '$40,328', '$7,822.80', '$17,866.80', '$10,000', '$21,704'],
+      ['Cycle 5', '$50,700', '$7,822.80', '$7,822.80', '$10,000', '$11,660'],
+      ['Cycle 6', '$61,072', '$7,822.80', '$7,822.80', '$10,000', '$11,660'],
+      ['Completion', '$81,672', '$0', '$10,000', '$0', '$16,000'],
+    ],
+  },
+};
 
 // --- Auth state ---
 
@@ -1205,6 +1244,126 @@ if (document.readyState === 'loading') {
 
 // --- Login ---
 
+function renderProtectionSchedule(model) {
+  return `
+    <div class="protection-schedule-scroll">
+      <table class="protection-schedule-table">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Investor cash</th>
+            <th>Contribution</th>
+            <th>Farmer release</th>
+            <th>Reserve balance</th>
+            <th>Farmer cash</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${model.schedule.map(row => `
+            <tr>
+              ${row.map((value, index) => `<${index === 0 ? 'th' : 'td'}>${escapeHtml(value)}</${index === 0 ? 'th' : 'td'}>`).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderHomeInvestorProtection() {
+  const fidlot = INVESTOR_PROTECTION_MODELS.fidlot;
+  const hissar = INVESTOR_PROTECTION_MODELS.hissar;
+  return `
+    <section id="investment-protection" class="landing-section investment-protection-home" aria-labelledby="investment-protection-title">
+      <div class="landing-section-heading">
+        <span>Investor protection</span>
+        <h2 id="investment-protection-title">Understand the Protection Reserve Before You Choose a Deal</h2>
+      </div>
+
+      <div class="protection-lead-grid">
+        <div>
+          <p class="protection-intro">
+            A model-specific portion of the farmer share is temporarily allocated to a Protection Reserve.
+            If a contractually Confirmed Loss occurs, the legally available reserve may reduce the investor's loss.
+            If no Confirmed Loss requires its use, the unused balance is intended to be released to the farmer under the staged rules.
+          </p>
+          <p class="protection-intro">
+            The reserve accumulates only after successful cycles. It is not fully funded at the start, so early-cycle exposure remains.
+          </p>
+        </div>
+        <aside class="protection-formula-card" aria-label="Current model release rule">
+          <span>Current $50,000 pilot rule</span>
+          <code>Required reserve = max($10,000; $50,000 &minus; investor cash received)</code>
+          <small>Investor cash includes profit distributions and capital returns. The final $10,000 stays reserved until completion and performance of obligations.</small>
+        </aside>
+      </div>
+
+      <div class="protection-model-grid" aria-label="Protection reserve by model">
+        ${[fidlot, hissar].map(model => `
+          <article class="protection-model-card">
+            <div>
+              <span class="protection-model-label">Model-specific reserve</span>
+              <h3>${escapeHtml(model.title)}</h3>
+            </div>
+            <strong class="protection-rate">${escapeHtml(model.rate)}%</strong>
+            <dl>
+              <div><dt>Scheduled contributions</dt><dd>${escapeHtml(model.scheduledReserve)}</dd></div>
+              <div><dt>Minimum until completion</dt><dd>${escapeHtml(model.minimumReserve)}</dd></div>
+            </dl>
+            <div class="protection-document-actions">
+              <a href="${model.investorPdfEn}" target="_blank" rel="noopener noreferrer">Investor PDF · EN</a>
+              <a href="${model.investorPdfRu}" target="_blank" rel="noopener noreferrer">Investor PDF · RU</a>
+            </div>
+          </article>
+        `).join('')}
+      </div>
+
+      <ol class="protection-flow" aria-label="How the Protection Reserve works">
+        <li><span>1</span><div><strong>Farmer share is calculated</strong><p>The 60/40 split is applied after the model's pre-split costs.</p></div></li>
+        <li><span>2</span><div><strong>The reserve accumulates</strong><p>44% for Fidlot or 53% for VariantB is allocated from the farmer share.</p></div></li>
+        <li><span>3</span><div><strong>Losses require confirmation</strong><p>Evidence, approval, legal authority, and available funds are required before reserve use.</p></div></li>
+        <li><span>4</span><div><strong>Unused reserve is released</strong><p>In the no-loss model, verified excess is released in stages and the final $10,000 at completion.</p></div></li>
+      </ol>
+
+      <details class="protection-details">
+        <summary>View the full staged-release schedules</summary>
+        <div class="protection-schedule-grid">
+          <section>
+            <h3>${escapeHtml(fidlot.title)} · ${fidlot.rate}%</h3>
+            ${renderProtectionSchedule(fidlot)}
+          </section>
+          <section>
+            <h3>${escapeHtml(hissar.title)} · ${hissar.rate}%</h3>
+            <p class="protection-capital-note">$2,500 in cycles 3–6 is returned to the investor before the 60/40 split as partial capital return; no Performance Fee applies.</p>
+            ${renderProtectionSchedule(hissar)}
+          </section>
+        </div>
+      </details>
+
+      <details class="protection-details protection-russian-details">
+        <summary>Полное объяснение на русском</summary>
+        <div class="protection-russian-copy">
+          <p>Резерв формируется из доли фермера: 44% для Fidlot и 53% для Hissar / VariantB. Он накапливается постепенно после успешных циклов и не существует в полном объёме в начале проекта.</p>
+          <p>При договорно подтверждённом убытке фактически накопленный и юридически доступный резерв может уменьшить потери инвестора. Если подтверждённых убытков нет, неиспользованный остаток предполагается поэтапно вернуть фермеру по установленным правилам.</p>
+          <p>В VariantB по $2,500 в циклах 3–6 возвращаются инвестору до разделения прибыли как частичный возврат капитала. Performance Fee на эти суммы не начисляется.</p>
+          <p>Юридическая принадлежность заблокированных средств, полномочия на списание и порядок разрешения споров должны быть закреплены договорами.</p>
+        </div>
+      </details>
+
+      <div class="protection-warning" role="note">
+        <strong>Important:</strong>
+        The Protection Reserve reduces risk only under defined conditions. It is not insurance and does not guarantee income,
+        profit, capital preservation, payout, or settlement. Legal ownership while funds are locked remains subject to contract and legal review.
+      </div>
+
+      <div class="protection-home-actions">
+        <a class="landing-btn landing-btn-primary" href="#/marketplace">Compare Pilot Deals</a>
+        <a class="landing-btn" href="https://github.com/farabek/agripartners/tree/main/docs/platform/investor-protection" target="_blank" rel="noopener noreferrer">Read Full Framework</a>
+      </div>
+    </section>
+  `;
+}
+
 function showHome() {
   showView('view-home');
   const el = document.getElementById('view-home');
@@ -1324,6 +1483,7 @@ function showHome() {
                 <span>7 cycles</span>
                 <span>5 months each</span>
                 <span>60 / 40 split</span>
+                <span class="financial-protection-badge">Protection reserve 44%</span>
               </div>
             </header>
             <div class="financial-model-audiences">
@@ -1365,6 +1525,7 @@ function showHome() {
                 <span>6 cycles</span>
                 <span>6 months each</span>
                 <span>60 / 40 split</span>
+                <span class="financial-protection-badge">Protection reserve 53%</span>
               </div>
             </header>
             <div class="financial-model-audiences">
@@ -1397,6 +1558,8 @@ function showHome() {
           </article>
         </div>
       </section>
+
+      ${renderHomeInvestorProtection()}
     </main>
 
     ${renderPublicFooter()}
@@ -2472,6 +2635,7 @@ function renderDealCard(d) {
         <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${d.farmer ? formatAddress(d.farmer) : 'Unknown'}</span></p>
         <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${d.investor ? formatAddress(d.investor) : 'Unknown'}</span></p>
         <p class="text-sm text-slate-500">${d.total_cycles ?? 'Unknown'} cycle(s) × ${d.cycle_duration_days == null ? 'Unknown' : escapeHtml(d.cycle_duration_days)} days  ·  ${formatOptionalYoctoDisplay(d.investment_amount)}</p>
+        <span class="inline-flex text-xs font-semibold text-blue-200 bg-blue-950 border border-blue-800 rounded-full px-2.5 py-1 mt-2">Protection reserve: ${d.escrow_pct == null ? 'model rate unavailable' : `${escapeHtml(d.escrow_pct)}%`}</span>
       </div>
       <a href="#deals/${d.id}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open →</a>
     </div>
@@ -2624,6 +2788,7 @@ function renderAdminDemoProjectProfile(deal) {
     ['Funding', deal.funding],
     [deal.roiLabel, deal.roi],
     ['Simple annualized ROI', deal.simpleAnnualizedRoi],
+    ['Protection reserve', `${deal.reserveRate}%`],
     ['Cycles', deal.cycles],
     ['Status', deal.status],
   ];
@@ -4456,6 +4621,7 @@ const INVESTOR_DEMO_PILOTS = [
     roi: '64%',
     roiPercent: 64,
     simpleAnnualizedRoi: '21.9%',
+    reserveRate: 44,
     cycles: '7',
     cycleDurationDays: 150,
     status: 'Completed',
@@ -4482,6 +4648,7 @@ const INVESTOR_DEMO_PILOTS = [
     roi: '63.3%',
     roiPercent: 63.3,
     simpleAnnualizedRoi: '21.1%',
+    reserveRate: 53,
     cycles: '6',
     cycleDurationDays: 180,
     status: 'Active',
@@ -4539,6 +4706,7 @@ function investorDemoDealFromPilot(pilot, connectedWalletAccount) {
     display_outstanding_amount: pilot.displayOutstandingAmount,
     display_currency: 'USD',
     roi_percent: pilot.roiPercent,
+    escrow_pct: pilot.reserveRate,
     status: { status: pilot.status, current_cycle: pilot.currentCycle },
     balances: null,
   };
@@ -4958,6 +5126,7 @@ function investorProjectProfile(deal = {}, status) {
       roi: pilot?.roi || 'Unavailable',
       roiLabel: projectStatus === 'Completed' ? 'ROI' : 'Projected ROI',
       simpleAnnualizedRoi: pilot?.simpleAnnualizedRoi || 'Unavailable',
+      reserveRate: pilot?.reserveRate != null ? `${pilot.reserveRate}%` : 'Unavailable',
       cycles: pilot?.cycles || String(deal.total_cycles ?? 'Unavailable'),
       description: pilot?.description || deal.description || 'Unavailable',
       status: projectStatus,
@@ -4980,6 +5149,7 @@ function investorProjectProfile(deal = {}, status) {
         : deal.apr_pct != null
           ? `${deal.apr_pct}%`
           : 'Unavailable',
+    reserveRate: deal.escrow_pct != null ? `${deal.escrow_pct}%` : 'Unavailable',
     cycles: deal.total_cycles != null ? String(deal.total_cycles) : 'Unavailable',
     description: deal.description || 'Unavailable',
     status: projectStatus,
@@ -5012,6 +5182,7 @@ function renderProjectProfile(deal, status, statusError = null) {
     ['Investment', profile.investment],
     [profile.roiLabel, profile.roi],
     ['Simple annualized ROI', profile.simpleAnnualizedRoi],
+    ['Protection reserve', profile.reserveRate],
     ['Cycles', profile.cycles],
     ['Status', profile.status],
   ];
@@ -5026,7 +5197,7 @@ function renderProjectProfile(deal, status, statusError = null) {
         </div>
         <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">${escapeHtml(profileBadge)}</span>
       </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-6 gap-3">
         ${metrics.map(([label, value]) => `
           <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
             <span class="block text-xs text-slate-500">${label}</span>
@@ -5051,6 +5222,14 @@ function renderInvestorDealCard(deal) {
   const farmer = deal.farmer ? formatAddress(deal.farmer) : 'Unknown';
   const contract = deal.contract_address ? formatAddress(deal.contract_address) : 'Unknown';
   const reportsState = investorDealReportsState(deal);
+  const protectionText = `${deal.pilot_key || ''} ${deal.title || ''} ${deal.deal_type || ''}`.toLowerCase();
+  const protectionRate = deal.escrow_pct != null
+    ? deal.escrow_pct
+    : protectionText.includes('fidlot')
+      ? 44
+      : protectionText.includes('hissar')
+        ? 53
+        : null;
   return `
     <article class="bg-slate-800 rounded-xl p-5">
       <div class="min-w-0">
@@ -5059,6 +5238,7 @@ function renderInvestorDealCard(deal) {
           <div class="flex flex-wrap items-center gap-2 mt-2">
             <span class="text-xs font-semibold border px-2 py-0.5 rounded ${performance.className}">${escapeHtml(performance.label)}</span>
             <span class="text-xs text-slate-500">${escapeHtml(dealBadge)}</span>
+            <span data-protection-rate-badge class="text-xs font-semibold text-blue-200 bg-blue-950 border border-blue-800 px-2 py-0.5 rounded">Protection reserve: ${protectionRate == null ? 'Unavailable' : `${escapeHtml(protectionRate)}%`}</span>
           </div>
         </div>
       </div>
@@ -5236,6 +5416,7 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
 
     ${renderProjectProfile(deal, status)}
     ${renderFundingProgressPanel(deal)}
+    ${renderInvestorProtectionPanel(deal, deal.balances)}
 
     <div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 mb-6 text-sm text-amber-100">
       Investor demo profile: this screen is prepared for presentation and screenshot readiness. It does not deploy or modify a smart contract.
@@ -5446,6 +5627,7 @@ function renderInvestorDealDetail(el, bundle) {
     <div id="investor-detail-overview">
       ${renderProjectProfile(deal, status, resourceErrors.status)}
       ${renderLiveFundingProgressPanel(deal)}
+      ${renderInvestorProtectionPanel(deal, balances)}
     </div>
 
     <div id="investor-detail-returns">
@@ -5494,6 +5676,69 @@ function renderInvestorDealDetail(el, bundle) {
   bindInvestorDetailSectionLink('btn-investor-section-activity', 'investor-detail-activity');
   bindInvestorDetailSectionLink('btn-investor-section-technical', 'investor-detail-technical');
   bindInvestorDetailSectionLink('btn-investor-section-ledger', 'investor-detail-ledger');
+}
+
+function renderInvestorProtectionPanel(deal = {}, balances = null) {
+  const descriptor = `${deal.pilot_key || deal.key || ''} ${deal.title || ''} ${deal.deal_type || ''}`.toLowerCase();
+  const modelKey = descriptor.includes('fidlot') ? 'fidlot' : descriptor.includes('hissar') ? 'hissar' : null;
+  const modeledRate = modelKey === 'fidlot' ? 44 : modelKey === 'hissar' ? 53 : null;
+  const reserveRate = deal.escrow_pct != null ? deal.escrow_pct : modeledRate;
+  const modeledContributions = modelKey === 'fidlot' ? '$50,820' : modelKey === 'hissar' ? '$50,752.80' : 'Agreement-specific';
+  const modelTitle = modelKey === 'fidlot' ? 'Fidlot v5.9' : modelKey === 'hissar' ? 'Hissar / VariantB v2.1' : 'Model-specific deal';
+  const reserveRaw = balances?.escrow ?? deal.balances?.escrow;
+  let currentReserve = 'Not available from the current deal data';
+  if (reserveRaw != null && reserveRaw !== '') {
+    try {
+      const amount = BigInt(reserveRaw);
+      const oneNear = BigInt('1000000000000000000000000');
+      const whole = amount / oneNear;
+      const fraction = ((amount % oneNear) * BigInt(100)) / oneNear;
+      currentReserve = `${whole}.${fraction.toString().padStart(2, '0')} NEAR`;
+    } catch {
+      currentReserve = 'Unavailable';
+    }
+  } else if (deal.isDemoPilot) {
+    currentReserve = 'Projection only — no live contract balance';
+  }
+  const pdfBase = modelKey === 'fidlot'
+    ? 'Agri-Investor-Fidlot-v5.9-6040'
+    : modelKey === 'hissar'
+      ? 'Agri-Investor-VariantB-v2.1-6040'
+      : null;
+  const documents = pdfBase ? `
+    <div class="flex flex-wrap gap-2 mt-4">
+      <a class="text-sm font-semibold text-green-300 hover:text-green-200" href="assets/financial-models/en/${pdfBase}-EN.pdf" target="_blank" rel="noopener noreferrer">Detailed model · EN ↗</a>
+      <a class="text-sm font-semibold text-green-300 hover:text-green-200" href="assets/financial-models/ru/${pdfBase}-RU.pdf" target="_blank" rel="noopener noreferrer">Подробная модель · RU ↗</a>
+    </div>
+  ` : '';
+
+  return `
+    <section id="investor-protection-panel" data-investor-protection-panel class="investor-protection-panel mb-6">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <span class="text-xs font-semibold text-blue-300 uppercase tracking-wide">Investment Protection</span>
+          <h2 class="text-xl font-semibold text-slate-50 mt-1">Protection Reserve · ${escapeHtml(modelTitle)}</h2>
+          <p class="text-sm text-slate-300 mt-2 max-w-3xl">
+            A model-specific portion of the farmer share is reserved over time. After a contractually Confirmed Loss,
+            legally available funds may reduce investor loss. In the no-loss model, unused funds are released to the farmer under the staged rules.
+          </p>
+        </div>
+        <span class="protection-panel-rate">${reserveRate == null ? 'Rate unavailable' : `${escapeHtml(reserveRate)}% reserve rate`}</span>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+        <div class="protection-panel-metric"><span>Current contract reserve</span><strong>${escapeHtml(currentReserve)}</strong></div>
+        <div class="protection-panel-metric"><span>Modeled contributions</span><strong>${escapeHtml(modeledContributions)}</strong></div>
+        <div class="protection-panel-metric"><span>Minimum until completion</span><strong>${modelKey ? '$10,000' : 'Agreement-specific'}</strong></div>
+        <div class="protection-panel-metric"><span>Release status</span><strong>${deal.isDemoPilot ? 'Modeled no-loss schedule' : 'Requires verified cycle and checks'}</strong></div>
+      </div>
+      <p class="text-xs text-amber-100 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2 mt-4">
+        Not insurance or a guarantee. Release may be reduced or suspended by a Confirmed Loss, overdue mandatory report,
+        default, or dispute. Legal ownership while funds are locked depends on the governing agreements.
+      </p>
+      ${modelKey === 'hissar' ? '<p class="text-xs text-slate-400 mt-3">$2,500 in cycles 3–6 is modeled as partial capital return before the 60/40 split, without a Performance Fee.</p>' : ''}
+      ${documents}
+    </section>
+  `;
 }
 
 function bindInvestorDetailSectionLink(buttonId, sectionId) {
@@ -5954,6 +6199,7 @@ async function refreshInvestorDeal(id) {
     const cycleEl = document.getElementById('investor-cycle-text');
     const profileEl = document.getElementById('investor-project-profile');
     const fundingEl = document.getElementById('investor-funding-progress');
+    const protectionEl = document.getElementById('investor-protection-panel');
     const technicalEl = document.getElementById('investor-technical-data');
     const eventsEl = document.getElementById('investor-events-list');
     const reportsEl = document.getElementById('investor-reports-list');
@@ -5968,6 +6214,7 @@ async function refreshInvestorDeal(id) {
     if (cycleEl) cycleEl.textContent = `Cycle ${status?.current_cycle ?? '—'}`;
     if (profileEl) profileEl.outerHTML = renderProjectProfile(deal, status, resourceErrors.status);
     if (fundingEl) fundingEl.outerHTML = renderLiveFundingProgressPanel(deal);
+    if (protectionEl) protectionEl.outerHTML = renderInvestorProtectionPanel(deal, balances);
     if (technicalEl) technicalEl.innerHTML = renderInvestorDealParams(deal, status, balances?.investor ?? null, resourceErrors);
     if (eventsEl) eventsEl.innerHTML = resourceErrors.events
       ? renderInvestorResourceUnavailable('Event history', resourceErrors.events)

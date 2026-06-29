@@ -66,6 +66,22 @@ test('landing publishes bilingual investor and farmer financial models with disc
   expect(appJs).toContain('Agri-Farmer-VariantB-v2.1-6040-EN.pdf');
 });
 
+test('landing explains model-specific investor protection immediately after financial models', () => {
+  const homeStart = appJs.indexOf('function showHome()');
+  const homeEnd = appJs.indexOf('function renderPublicFooter()', homeStart);
+  const homeSource = appJs.slice(homeStart, homeEnd);
+
+  expect(homeSource.indexOf('landing-financial-models')).toBeGreaterThanOrEqual(0);
+  expect(homeSource.indexOf('renderHomeInvestorProtection()')).toBeGreaterThan(homeSource.indexOf('landing-financial-models'));
+  expect(appJs).toContain('Understand the Protection Reserve Before You Choose a Deal');
+  expect(appJs).toContain('Protection reserve 44%');
+  expect(appJs).toContain('Protection reserve 53%');
+  expect(appJs).toContain('Required reserve = max($10,000; $50,000');
+  expect(appJs).toContain('View the full staged-release schedules');
+  expect(appJs).toContain('Полное объяснение на русском');
+  expect(appJs).toContain('It is not insurance');
+});
+
 test('landing CTAs route to explicit demo and login destinations', () => {
   expect(appJs).toContain('Explore Investor Demo');
   expect(appJs).toContain('href="#/investor/pilots/fidlot"');

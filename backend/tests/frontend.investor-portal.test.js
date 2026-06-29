@@ -576,6 +576,7 @@ test('live investor detail follows the investor-first reading order', () => {
 
   const orderedSections = [
     'Deal Overview',
+    'Investment Protection',
     'Investment Summary',
     'Returns Summary',
     'ROI Progress',
@@ -1261,6 +1262,29 @@ test('live deal card prioritizes title, performance, three financial KPIs and Vi
   expect(html).not.toContain('Projected Total Payout');
   expect(html).not.toContain('Projected ROI');
   expect(html).not.toContain('Return Status');
+});
+
+test('investor deal cards disclose the model-specific protection reserve rate', () => {
+  const { renderInvestorDealCard } = loadInvestorDealCardHelpers();
+  const explicit = renderInvestorDealCard({
+    id: 12,
+    title: 'Custom Deal',
+    escrow_pct: 47,
+    status: { status: 'Funded' },
+  });
+  const inferred = renderInvestorDealCard({
+    id: 'demo-hissar',
+    pilot_key: 'hissar',
+    title: 'Hissar Sheep Breeding Project',
+    status: { status: 'CycleActive' },
+  });
+
+  expect(explicit).toContain('Protection reserve: 47%');
+  expect(inferred).toContain('Protection reserve: 53%');
+  expect(explicit).toContain('data-protection-rate-badge');
+  expect(appJs).toContain('function renderInvestorProtectionPanel');
+  expect(appJs).toContain('Current contract reserve');
+  expect(appJs).toContain('Not insurance or a guarantee');
 });
 
 test('deal card secondary information is visually de-emphasized and missing values stay unknown', () => {
