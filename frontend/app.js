@@ -1101,6 +1101,11 @@ function route() {
     return;
   }
 
+  if (hash === '#farmer/pilots') {
+    showFarmerPilotSelector();
+    return;
+  }
+
   const farmerPilot = hash.match(/^#farmer\/pilots\/([a-z0-9-]+)$/);
   if (farmerPilot) {
     showFarmerPilotProfile(farmerPilot[1]);
@@ -1393,7 +1398,7 @@ function showHome() {
           </p>
           <div class="landing-actions" aria-label="Primary actions">
             <a class="landing-btn landing-btn-primary" href="#/investor/pilots/fidlot">Explore Investor Demo</a>
-            <a class="landing-btn" href="#farmer/pilots/hissar">Explore Farmer Demo</a>
+            <a class="landing-btn" href="#farmer/pilots">Explore Farmer Demo</a>
             <a class="landing-btn" href="#demo/admin">Explore Admin Demo</a>
             <button type="button" id="home-login-wallet" class="landing-btn landing-btn-wallet">Login with NEAR Wallet</button>
           </div>
@@ -3441,6 +3446,60 @@ function normalizeFarmerBalancesPayload(payload) {
     throw new Error('Farmer balances returned malformed data');
   }
   return payload;
+}
+
+function showFarmerPilotSelector() {
+  showView('view-farmer');
+  const el = document.getElementById('view-farmer');
+  const cards = INVESTOR_DEMO_PILOTS.map((pilot) => {
+    const model = INVESTOR_PROTECTION_MODELS[pilot.key];
+    const buttonLabel = pilot.key === 'fidlot' ? 'Open Fidlot Farmer View' : 'Open Hissar Farmer View';
+    return `
+      <article class="farmer-pilot-selector-card">
+        <div class="farmer-pilot-selector-card-header">
+          <div>
+            <span>${escapeHtml(pilot.type)}</span>
+            <h2>${escapeHtml(pilot.title)}</h2>
+          </div>
+          <span class="farmer-pilot-selector-status is-${pilot.status.toLowerCase()}">${escapeHtml(pilot.status)}</span>
+        </div>
+        <p>${escapeHtml(pilot.description)}</p>
+        <div class="farmer-pilot-selector-metrics">
+          <div><span>Funding</span><strong>${escapeHtml(pilot.displayAmount)}</strong></div>
+          <div><span>Protection reserve</span><strong>${escapeHtml(pilot.reserveRate)}%</strong></div>
+          <div><span>Cycles</span><strong>${escapeHtml(pilot.cycles)}</strong></div>
+          <div><span>Schedule</span><strong>${model ? `${model.schedule.length - 1} cycles + completion` : 'Unavailable'}</strong></div>
+        </div>
+        <div class="farmer-pilot-selector-note">
+          Includes the same cycle table for reserve contributions, releases, farmer payments, ending balance, and program totals.
+        </div>
+        <a href="#farmer/pilots/${escapeHtml(pilot.key)}" class="landing-btn landing-btn-primary">
+          ${escapeHtml(buttonLabel)}
+        </a>
+      </article>
+    `;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="farmer-pilot-selector">
+      <a href="#home" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition mb-6">
+        <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
+        Back home
+      </a>
+      <div class="farmer-pilot-selector-heading">
+        <span>Farmer demo</span>
+        <h1>Choose a Pilot Model</h1>
+        <p>
+          Compare both farmer workflows. Each model has its own reserve rate, cycle schedule,
+          staged releases, and farmer payment totals.
+        </p>
+      </div>
+      <div class="farmer-pilot-selector-grid">${cards}</div>
+      <div class="farmer-pilot-selector-warning">
+        Pilot pages are model projections for demonstration. Live balances require wallet-linked access and authoritative contract data.
+      </div>
+    </div>
+  `;
 }
 
 function showFarmerPilotProfile(key) {

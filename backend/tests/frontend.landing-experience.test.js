@@ -86,7 +86,7 @@ test('landing CTAs route to explicit demo and login destinations', () => {
   expect(appJs).toContain('Explore Investor Demo');
   expect(appJs).toContain('href="#/investor/pilots/fidlot"');
   expect(appJs).toContain('Explore Farmer Demo');
-  expect(appJs).toContain('href="#farmer/pilots/hissar"');
+  expect(appJs).toContain('href="#farmer/pilots"');
   expect(appJs).toContain('Explore Admin Demo');
   expect(appJs).toContain('href="#demo/admin"');
   expect(appJs).toContain('id="home-login-wallet"');
@@ -101,6 +101,7 @@ test('demo routes are public while live protected routes still require auth', ()
 
   const publicRoutesSource = appJs.slice(publicRoutesStart, authGuardIndex);
   expect(publicRoutesSource).toContain('showInvestorPilotProfile(investorPilot[1])');
+  expect(publicRoutesSource).toContain('showFarmerPilotSelector()');
   expect(publicRoutesSource).toContain('showFarmerPilotProfile(farmerPilot[1])');
   expect(publicRoutesSource).toContain('showAdminPilotDetail(adminPilot[1])');
   expect(publicRoutesSource).toContain('showAdminDemoPortal()');

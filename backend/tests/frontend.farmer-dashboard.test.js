@@ -490,6 +490,16 @@ test('explicit farmer demo pilot route remains available', () => {
   expect(appJs).toContain('const dealHref = deal.isDemoPilot ? `#farmer/pilots/${deal.pilot_key}`');
 });
 
+test('farmer demo landing lets users choose Fidlot or Hissar', () => {
+  expect(appJs).toContain("if (hash === '#farmer/pilots')");
+  expect(appJs).toContain('function showFarmerPilotSelector');
+  expect(appJs).toContain('Choose a Pilot Model');
+  expect(appJs).toContain('Open Fidlot');
+  expect(appJs).toContain('Open Hissar');
+  expect(appJs).toContain('href="#farmer/pilots/${escapeHtml(pilot.key)}"');
+  expect(appJs).toContain('Includes the same cycle table for reserve contributions');
+});
+
 test('farmer pilot demo pages link back to public home', () => {
   const demoStart = appJs.indexOf('function renderFarmerDemoDealDetail');
   const demoEnd = appJs.indexOf('function renderFarmerProjectProfile');
