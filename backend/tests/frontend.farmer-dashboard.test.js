@@ -225,12 +225,16 @@ test('farmer demo deal detail renders project profile and report cycle status', 
 test('farmer deal detail explains reserve and payment for every model cycle', () => {
   expect(appJs).toContain('function renderFarmerReserveBreakdown');
   expect(appJs).toContain('Reserve and Farmer Payment by Cycle');
-  expect(appJs).toContain('Farmer cash before reserve · after expenses');
+  expect(appJs).toContain('Before reserve · after expenses');
   expect(appJs).toContain('Added to reserve');
   expect(appJs).toContain('Released to farmer');
   expect(appJs).toContain('Farmer receives');
   expect(appJs).toContain('Ending reserve');
-  expect(appJs).toContain('cash after reserve and expenses + reserve released = farmer receives');
+  expect(appJs).toContain('farmer’s gross 60% profit share × reserve rate = reserve contribution');
+  expect(appJs).toContain('gross farmer share − operating expenses − reserve contribution + reserve released = farmer receives');
+  expect(appJs).toContain('the ${reserveRate == null ? \'model-specific\' : `${escapeHtml(reserveRate)}%`} rate is calculated before operating expenses');
+  expect(appJs).toContain('$18,360 × 53% = $9,730.80 reserve contribution');
+  expect(appJs).toContain('$18,360 − $3,100 expenses = $15,260 before reserve');
   expect(appJs).toContain('Model projection only — this pilot profile has no live contract reserve or withdrawable balance.');
   expect(appJs).toContain('Contract reserve · live');
   expect(appJs).toContain('Farmer available · live');

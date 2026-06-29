@@ -3678,7 +3678,7 @@ function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balanc
             <tr>
               <th>Stage</th>
               <th>Status</th>
-              <th>Farmer cash before reserve · after expenses</th>
+              <th>Before reserve · after expenses</th>
               <th>Added to reserve</th>
               <th>Released to farmer</th>
               <th>Farmer receives</th>
@@ -3730,8 +3730,24 @@ function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balanc
       ${liveBalanceView}
 
       <div class="farmer-protection-formula">
-        <span>How “Farmer receives” is calculated</span>
-        <code>cash after reserve and expenses + reserve released = farmer receives</code>
+        <span>How the reserve and farmer payment are calculated</span>
+        <code>farmer’s gross 60% profit share × reserve rate = reserve contribution</code>
+        <code>gross farmer share − operating expenses − reserve contribution + reserve released = farmer receives</code>
+      </div>
+
+      <div class="farmer-protection-basis-note">
+        <strong>Important: the ${reserveRate == null ? 'model-specific' : `${escapeHtml(reserveRate)}%`} rate is calculated before operating expenses.</strong>
+        <p>
+          “Before reserve · after expenses” is not the percentage base. It shows the farmer cash after costs,
+          before subtracting the reserve contribution.
+        </p>
+        ${modelKey === 'hissar' ? `
+          <div class="farmer-protection-example">
+            <span>Hissar cycles 1–2 example</span>
+            <code>$18,360 × 53% = $9,730.80 reserve contribution</code>
+            <code>$18,360 − $3,100 expenses = $15,260 before reserve</code>
+          </div>
+        ` : ''}
       </div>
 
       <div class="farmer-protection-schedule-heading">

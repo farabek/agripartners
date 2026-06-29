@@ -871,6 +871,58 @@
   overflow-wrap: anywhere;
 }
 
+.farmer-protection-formula code + code {
+  margin-top: 4px;
+}
+
+.farmer-protection-basis-note {
+  background:
+    linear-gradient(90deg, rgb(37 99 235 / 0.18), transparent),
+    #0f172a;
+  border: 1px solid #3b82f6;
+  border-left-width: 4px;
+  border-radius: 8px;
+  margin-top: 12px;
+  padding: 13px 14px;
+}
+
+.farmer-protection-basis-note > strong {
+  color: #dbeafe;
+  display: block;
+  font-size: 0.84rem;
+}
+
+.farmer-protection-basis-note > p {
+  color: #cbd5e1;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+.farmer-protection-example {
+  background-color: rgb(15 23 42 / 0.72);
+  border-radius: 6px;
+  display: grid;
+  gap: 3px;
+  margin-top: 9px;
+  padding: 9px 10px;
+}
+
+.farmer-protection-example span {
+  color: #93c5fd;
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.farmer-protection-example code {
+  color: #f8fafc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.74rem;
+  overflow-wrap: anywhere;
+}
+
 .farmer-protection-schedule-heading {
   align-items: flex-end;
   display: flex;
@@ -939,6 +991,8 @@
   background-color: #0f2b26;
   color: #d1fae5;
   font-weight: 800;
+  line-height: 1.25;
+  white-space: normal;
 }
 
 .farmer-protection-table tbody tr:last-child td {
