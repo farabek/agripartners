@@ -90,6 +90,10 @@ Farmer -- fiat --> AgriPartners OÜ -- contractual settlement --> Investor
 
 AgriPartners OÜ receives and reconciles farmer payments before calculating and executing any investor settlement under the applicable agreement. The precise payment instruments, safeguarding structure, fees, taxes, currency conversion, and timing require legal, banking, and accounting approval.
 
+The [Financial Operating Model](FINANCIAL_OPERATING_MODEL.md) defines the intended funding,
+crypto-to-fiat conversion, farmer disbursement, farmer return, reconciliation, and investor
+settlement flows, including the roles of banking and licensed CASP / Exchange partners.
+
 ### Reporting
 
 ```text

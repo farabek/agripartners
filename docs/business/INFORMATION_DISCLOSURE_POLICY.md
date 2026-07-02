@@ -177,6 +177,7 @@ the applicable privacy, security, incident, and communications procedures.
 ## 10. Cross References
 
 - [AgriPartners v2 Operating Model](OPERATING_MODEL.md)
+- [Financial Operating Model](FINANCIAL_OPERATING_MODEL.md)
 - [Pilot 1.0 Plan](../platform/pilot/PILOT_1_PLAN.md)
 - [Pilot Readiness Checklist](../platform/pilot/PILOT_READINESS_CHECKLIST.md)
 - [Pilot Operations Guide](../platform/pilot/PILOT_OPERATIONS_GUIDE.md)

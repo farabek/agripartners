@@ -4,6 +4,9 @@ This directory contains the official documentation describing the AgriPartners p
 
 The canonical AgriPartners v2 business architecture is defined in the [Operating Model](../business/OPERATING_MODEL.md). It places AgriPartners OÜ between external investors and farmers as the legal and operational counterparty for both.
 
+The movement of investment funds and the roles of banking, licensed CASP / Exchange, and NEAR
+infrastructure are defined in the [Financial Operating Model](../business/FINANCIAL_OPERATING_MODEL.md).
+
 These documents explain:
 
 - platform vision;
