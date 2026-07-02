@@ -31,3 +31,5 @@ This section is documentation only. It is not a legal agreement, an offer, finan
 - [Scenario Validation](SCENARIOS.md)
 - [Legal Notes](LEGAL_NOTES.md)
 - [Open Questions](OPEN_QUESTIONS.md)
+- [Decision Memo v1 — Русский](DECISION_MEMO_V1_RU.md)
+- [Technical Gap Audit — Русский](TECHNICAL_GAP_AUDIT_RU.md)
