@@ -9,6 +9,8 @@ Each item must have an owner, evidence link or location, review date, and status
 - [ ] AgriPartners OÜ registration and beneficial ownership records are complete.
 - [ ] Directors, authorized signers, delegated authorities, and approval limits are documented.
 - [ ] The pilot scope, currency, duration, participant limits, and funding cap are approved.
+- [ ] Pilot 1.0 is documented as one complete Project lifecycle, not one Production Cycle.
+- [ ] One Master Investment Model and its Project-specific adaptation are approved.
 - [ ] Conflicts of interest are disclosed and managed.
 - [ ] A named Pilot Director has authority to stop activity.
 
@@ -26,6 +28,10 @@ Each item must have an owner, evidence link or location, review date, and status
 ## 3. Banking, Treasury, and Accounting
 
 - [ ] Approved AgriPartners OÜ bank/payment accounts are active.
+- [ ] Required bank, payment institution, licensed CASP, or other compliant provider arrangements
+      are approved for the selected route.
+- [ ] No documentation implies that a specific financial provider has already been selected when
+      it has not.
 - [ ] The safeguarding or segregation approach for participant funds is documented and approved.
 - [ ] Payment initiation and approval require separate authorized people.
 - [ ] Bank-detail setup and changes require independent verification.
@@ -49,6 +55,8 @@ Each item must have an owner, evidence link or location, review date, and status
 ## 5. Investor Readiness
 
 - [ ] Investor identity, eligibility, bank details, and source-of-funds checks are complete.
+- [ ] Any supported crypto-asset route is approved, attributable to the Investor, and reconciled
+      through AgriPartners infrastructure before Farmer disbursement.
 - [ ] The investor agreement is executed before funds are accepted.
 - [ ] The investor understands that AgriPartners OÜ, not the farmer, is the counterparty.
 - [ ] Risk, illiquidity, timing, loss, fee, and non-guarantee disclosures are acknowledged.
@@ -84,7 +92,8 @@ Each item must have an owner, evidence link or location, review date, and status
 - [ ] Fraud, security, privacy, safeguarding, payment, agricultural, and legal incident playbooks are ready.
 - [ ] Complaint, dispute, late-payment, and default logs are ready.
 - [ ] Investor and farmer update templates distinguish projected, recorded, received, paid, and reconciled states.
-- [ ] No public material implies a live Marketplace, guaranteed return, insurance, or active protection reserve.
+- [ ] No public material implies a launched Marketplace, guaranteed return, insurance, or active
+      protection reserve.
 - [ ] Internal and external incident communication authority is documented.
 
 ## 9. Final Go/No-Go
@@ -110,5 +119,9 @@ Each item must have an owner, evidence link or location, review date, and status
 ## Related Documents
 
 - [AgriPartners v2 Operating Model](../../business/OPERATING_MODEL.md)
+- [Financial Operating Model](../../business/FINANCIAL_OPERATING_MODEL.md)
+- [Information Disclosure Policy](../../business/INFORMATION_DISCLOSURE_POLICY.md)
+- [Feedlot Master Investment Model](../../business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+- [Hissar Sheep Master Investment Model](../../business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
 - [Pilot 1.0 Plan](PILOT_1_PLAN.md)
 - [Pilot Operations Guide](PILOT_OPERATIONS_GUIDE.md)

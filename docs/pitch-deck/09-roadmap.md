@@ -10,7 +10,9 @@ Establish AgriPartners OÜ and the legal, banking, accounting, governance, and c
 
 ## Phase 3 — Pilot 1.0
 
-Validate one tightly controlled end-to-end cycle. Investors and farmers contract with AgriPartners OÜ; all farmer receipts and returns are fiat.
+Validate one tightly controlled, complete investment Project lifecycle. Pilot 1.0 includes all
+approved Production Cycles and is not a single Production Cycle. Investors and Farmers contract
+with AgriPartners OÜ; all Farmer receipts and returns are fiat.
 
 ## Phase 4 — Pilot 2.0
 

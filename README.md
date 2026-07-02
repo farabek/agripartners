@@ -36,6 +36,11 @@ Farmer
 
 Under the target v2 model, AgriPartners OÜ is the legal counterparty for both investors and farmers. Investors interact only with AgriPartners; farmers also interact only with AgriPartners and receive and return funds in fiat currency. Farmers do not use cryptocurrency, wallets, tokens, or blockchain interfaces.
 
+Investors may use supported crypto assets through selected AgriPartners financial infrastructure.
+Cryptocurrency is limited to the infrastructure between the Investor and AgriPartners OÜ. The
+final bank, payment institution, licensed CASP, or other compliant provider depends on company
+registration, partner setup, and legal review; no provider is selected by this documentation.
+
 NEAR is limited to technical infrastructure for transparency, audit trails, automation, and settlement records. It does not replace contracts, banking, accounting, compliance, or authoritative fiat settlement records.
 
 See the canonical [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md) and [Pilot 1.0 Plan](docs/platform/pilot/PILOT_1_PLAN.md).
@@ -47,7 +52,7 @@ AgriPartners Alpha v1.2 currently includes:
 | Module | Status |
 | --- | --- |
 | Public Landing | Implemented |
-| Marketplace | Implemented |
+| Opportunity Catalog (Alpha demo) | Implemented |
 | Investor Portal | Implemented |
 | Farmer Portal | Implemented |
 | Admin Portal | Implemented |
@@ -99,14 +104,16 @@ The Treasury Dashboard and Treasury Shadow Accounting layer show how capital act
 
 Presentation Mode turns the product into a guided demo with audience-specific profiles for investors, NEAR ecosystem reviewers, accelerators, and enterprise partners. It is the recommended first entry point for external review.
 
-## Demonstration Models
+## Master Investment Models and Alpha Demonstrations
 
-AgriPartners currently uses two livestock demonstration models to validate workflows and product experience. These are demonstration profiles, not production investment offerings.
+Feedlot and Hissar Sheep are the official reusable Master Investment Models. The current Alpha
+uses demonstration Project profiles derived from them to validate workflows and product
+experience. The Alpha profiles are not production investment offerings.
 
-| Model | Status | Purpose |
+| Model | Alpha demonstration status | Purpose |
 | --- | --- | --- |
-| Feedlot / Fidlot | Completed demo | Shows completed workflow, investment terms, reports, recorded returns, return progress, and treasury visibility. |
-| Hissar Sheep | Active demo | Shows active opportunity review, farmer progress, reporting context, and projected return visibility. |
+| [Feedlot Master Investment Model](docs/business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md) | Completed demo Project | Shows completed workflow, investment terms, reports, recorded returns, return progress, and treasury visibility. |
+| [Hissar Sheep Master Investment Model](docs/business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md) | Active demo Project | Shows active opportunity review, farmer progress, reporting context, and projected return visibility. |
 
 ## Why NEAR?
 
@@ -125,7 +132,7 @@ Mainnet evaluation should follow stronger security, custody, reconciliation, tre
 ```text
 Users
   |
-  |-- Public Landing / Marketplace
+  |-- Public Landing / Opportunity Catalog
   |-- Investor Portal
   |-- Farmer Portal
   |-- Admin Portal
@@ -183,6 +190,8 @@ Useful public entry points:
 - [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md)
 - [Financial Operating Model](docs/business/FINANCIAL_OPERATING_MODEL.md)
 - [Information Disclosure Policy](docs/business/INFORMATION_DISCLOSURE_POLICY.md)
+- [Feedlot Master Investment Model](docs/business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+- [Hissar Sheep Master Investment Model](docs/business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
 - [Pilot 1.0 Documentation](docs/platform/pilot/PILOT_1_PLAN.md)
 - [NEAR materials](docs/near/)
 - [Investor materials](docs/investors/)
@@ -194,10 +203,12 @@ Recommended reading order:
 1. [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md)
 2. [Financial Operating Model](docs/business/FINANCIAL_OPERATING_MODEL.md)
 3. [Information Disclosure Policy](docs/business/INFORMATION_DISCLOSURE_POLICY.md)
-4. [Pilot 1.0 Plan](docs/platform/pilot/PILOT_1_PLAN.md)
-5. [Pilot 1.0 Readiness Checklist](docs/platform/pilot/PILOT_READINESS_CHECKLIST.md)
-6. [NEAR executive one-pager](docs/near/executive-one-pager.md)
-7. [Investor executive one-pager](docs/investors/investor-executive-one-pager.md)
+4. [Feedlot Master Investment Model](docs/business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+5. [Hissar Sheep Master Investment Model](docs/business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
+6. [Pilot 1.0 Plan](docs/platform/pilot/PILOT_1_PLAN.md)
+7. [Pilot 1.0 Readiness Checklist](docs/platform/pilot/PILOT_READINESS_CHECKLIST.md)
+8. [NEAR executive one-pager](docs/near/executive-one-pager.md)
+9. [Investor executive one-pager](docs/investors/investor-executive-one-pager.md)
 
 ## Roadmap
 
@@ -207,7 +218,7 @@ The v2 business roadmap replaces the former Alpha/Beta/Pilot Expansion sequence:
 | --- | --- | --- |
 | 1 | Alpha | Validate product concepts, workflows, and documentation. |
 | 2 | Company Registration | Establish AgriPartners OÜ and its legal, banking, accounting, governance, and contracting foundation. |
-| 3 | Pilot 1.0 | Validate one tightly controlled end-to-end cycle with fiat farmer flows. |
+| 3 | Pilot 1.0 | Validate one complete, tightly controlled investment Project lifecycle with fiat-only Farmer flows. |
 | 4 | Pilot 2.0 | Repeat and broaden the operating model using Pilot 1.0 evidence. |
 | 5 | Production Ready | Complete production-grade operational, compliance, security, monitoring, and support readiness. |
 | 6 | Investor Protection | Finalize and approve investor-protection mechanisms. |

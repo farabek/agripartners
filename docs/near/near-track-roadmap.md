@@ -10,7 +10,7 @@ The NEAR Track is the structured business and ecosystem engagement track for Agr
 
 This is not a new technical sprint and does not introduce new backend, frontend, smart contract, API, migration, or financial logic work. The purpose is to prepare AgriPartners for professional ecosystem conversations: feedback, introductions, technical review, founder support, and future partnership or grant opportunities.
 
-AgriPartners is now ready to begin structured NEAR ecosystem engagement because the product has moved beyond a concept deck. It has role-based portals, marketplace and pilot demonstrations, Presentation Mode, NEAR Testnet integration, Treasury Shadow Mode, and a passing automated test suite. The right next step is relationship-building and validation, not an immediate funding request.
+AgriPartners is now ready to begin structured NEAR ecosystem engagement because the product has moved beyond a concept deck. It has role-based portals, an Opportunity Catalog demo, pilot demonstrations, Presentation Mode, NEAR Testnet integration, Treasury Shadow Mode, and a passing automated test suite. The right next step is relationship-building and validation, not an immediate funding request.
 
 ## 2. Current Product Status
 
@@ -18,7 +18,7 @@ AgriPartners current status:
 
 - Alpha v1.2 tagged.
 - Public Landing Experience implemented.
-- Marketplace implemented.
+- Opportunity Catalog demo implemented.
 - Investor Portal implemented.
 - Farmer Portal implemented.
 - Admin Portal implemented.
@@ -49,7 +49,8 @@ NEAR is relevant to AgriPartners because the project needs user-friendly blockch
 
 Key reasons NEAR is a fit:
 
-- Wallet experience: NEAR wallet-based identity can support investor, farmer, and operator access patterns in a way that is easier to explain than many raw blockchain flows.
+- Wallet experience: NEAR wallet-based identity may support Investor and operator infrastructure
+  where approved. Farmers never use crypto wallets or interact with blockchain directly.
 - Testnet and smart contract experimentation: NEAR Testnet gives AgriPartners a safe environment for validating deal lifecycle logic, transaction references, and wallet-linked workflows before production decisions.
 - Low-cost and scalable transactions: agricultural finance workflows may require many operational events, reports, status changes, and settlement references over time; low-friction infrastructure matters.
 - Ecosystem support for real-world use cases: AgriPartners is a practical agriculture and real-world asset workflow rather than a purely speculative crypto product.
@@ -103,7 +104,7 @@ The founder should treat early conversations as discovery and credibility buildi
 | Alpha v1.2 Release Summary | To create | Needed as the single current release-status document. |
 | FAQ | To create | Should cover Alpha/Testnet, projected vs recorded returns, Treasury Shadow Mode, Mainnet readiness, grants, compliance, and production limitations. |
 | Technical Architecture Summary | Needs update | Existing architecture docs exist; create a short NEAR-facing technical summary. |
-| Roadmap to Beta | Needs update | Should connect Presentation Mode, reconciliation, Treasury enforcement, Mainnet readiness, and production controls. |
+| Business roadmap alignment | Needs update | Should align ecosystem materials with the seven-phase v2 business roadmap and current architecture decisions. |
 
 ## 7. Ecosystem Mapping
 
@@ -158,7 +159,10 @@ Hi [Name],
 
 I am building AgriPartners, an Alpha-stage agricultural investment workflow platform using NEAR Testnet for wallet-linked demo flows and contract experimentation.
 
-We now have a working Alpha v1.2 with investor, farmer, admin, marketplace, Presentation Mode, and Treasury Shadow Mode views. I am not reaching out to ask for funding yet. I would value feedback on whether this real-world agriculture/RWA use case fits anywhere in the NEAR ecosystem and who would be best to learn from.
+We now have a working Alpha v1.2 with Investor, Farmer, Admin, Opportunity Catalog,
+Presentation Mode, and Treasury Shadow Mode views. I am not reaching out to ask for funding yet.
+I would value feedback on whether this real-world agriculture/RWA use case fits anywhere in the
+NEAR ecosystem and who would be best to learn from.
 
 Would you be open to a short feedback conversation or pointing me toward the right person?
 
@@ -186,7 +190,10 @@ Could we share a short demo and ask where this kind of agriculture/RWA workflow 
 
 Hi [Name],
 
-I am the founder of AgriPartners, an Alpha-stage platform for transparent agricultural investment workflows. We have a working product with public landing, marketplace, investor/farmer/admin portals, multi-audience Presentation Mode, NEAR Testnet integration, and Treasury Shadow Mode.
+I am the founder of AgriPartners, an Alpha-stage platform for transparent agricultural investment
+workflows. We have a working product with public landing, Opportunity Catalog,
+Investor/Farmer/Admin portals, multi-audience Presentation Mode, NEAR Testnet integration, and
+Treasury Shadow Mode.
 
 I am exploring whether this is a fit for accelerator or founder-support programs connected to Web3, RWA, or real-world financial infrastructure. I am not looking to overclaim production readiness; the goal is feedback on positioning, roadmap, and program fit.
 

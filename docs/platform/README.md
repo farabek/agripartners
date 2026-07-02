@@ -66,13 +66,25 @@ External Investor -> AgriPartners OÜ -> Farmer
 ```
 
 - Investors interact only with AgriPartners OÜ.
+- Investors may use supported crypto assets through selected AgriPartners financial
+  infrastructure where approved.
 - Farmers interact only with AgriPartners OÜ.
 - Farmers receive and return fiat currency and never interact with cryptocurrency.
+- No bank, payment institution, CASP, exchange, or other provider is treated as selected until
+  company, partner, compliance, and legal approvals are complete.
 - NEAR is technical infrastructure for transparency, audit trails, automation, and settlement records.
 - Legal agreements, banking, accounting, and reconciliation remain authoritative.
 
 Disclosure of project, farmer, investor, and internal information is governed by the
 [Information Disclosure Policy](../business/INFORMATION_DISCLOSURE_POLICY.md).
+
+## Master Investment Models
+
+- [Feedlot Master Investment Model](../business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+- [Hissar Sheep Master Investment Model](../business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
+
+Each Master Investment Model may generate independent Projects. Pilot 1.0 selects one model and
+implements one complete Project lifecycle under separate approved agreements.
 
 ## Pilot 1.0
 

@@ -7,10 +7,13 @@ Status: Working operating procedure for Phase 3 Pilot 1.0. This guide must be ad
 1. Investors and farmers interact contractually and operationally only with AgriPartners OÜ.
 2. Farmers receive and return fiat only.
 3. Farmers do not use wallets, tokens, cryptocurrency, or blockchain interfaces.
-4. Every money movement requires agreement coverage, supporting evidence, dual approval, and reconciliation.
-5. Bank and approved accounting records are authoritative; NEAR records are supplementary.
-6. Operators never describe a projection or recorded event as paid or reconciled.
-7. Pilot limits cannot be increased informally.
+4. Investors may use supported crypto assets only through approved AgriPartners investment
+   infrastructure.
+5. Pilot 1.0 is one complete Project lifecycle, not one Production Cycle.
+6. Every money movement requires agreement coverage, supporting evidence, dual approval, and reconciliation.
+7. Bank, approved provider, and accounting records are authoritative; NEAR records are supplementary.
+8. Operators never describe a projection or recorded event as paid or reconciled.
+9. Pilot limits cannot be increased informally.
 
 ## Daily Control Rhythm
 
@@ -29,6 +32,7 @@ At the end of the day, the Treasury operator records reconciliation status. Any 
 
 Use a stable case identifier for every pilot project and participant relationship. The case file should contain:
 
+- selected Master Investment Model and approved Project adaptation;
 - approval and onboarding records;
 - agreement versions and signatures;
 - verified bank details;
@@ -69,14 +73,19 @@ Do not accept or allocate funds for an incomplete or expired investor file.
 
 ## Receiving Investor Funds
 
-1. Monitor only the approved AgriPartners OÜ account or payment channel.
-2. Match the receipt to the verified sender, agreement, currency, and expected amount.
-3. Record actual bank status; do not rely on screenshots or a participant's payment claim.
-4. Post the approved ledger entry.
-5. Have a second operator review the match.
-6. Issue an accurate receipt confirmation.
+1. Monitor only the selected AgriPartners OÜ financial infrastructure approved for the Project.
+2. Match the receipt to the verified sender, agreement, approved asset or currency, and expected
+   amount.
+3. For supported crypto assets, reconcile wallet, licensed provider, conversion, and fiat-credit
+   records before Farmer disbursement.
+4. Record actual provider and bank status; do not rely on screenshots or a participant's payment
+   claim.
+5. Post the approved ledger entry.
+6. Have a second operator review the match.
+7. Issue an accurate receipt confirmation.
 
-Quarantine and investigate any unmatched, third-party, excess, wrong-currency, or suspicious receipt. Do not forward it to a farmer.
+Quarantine and investigate any unmatched, third-party, excess, unsupported-asset, wrong-currency,
+or suspicious receipt. Do not forward crypto assets or unresolved funds to a Farmer.
 
 ## Disbursing Fiat to a Farmer
 
@@ -191,5 +200,9 @@ No NEAR transaction initiates or proves farmer fiat payment by itself.
 ## Related Documents
 
 - [AgriPartners v2 Operating Model](../../business/OPERATING_MODEL.md)
+- [Financial Operating Model](../../business/FINANCIAL_OPERATING_MODEL.md)
+- [Information Disclosure Policy](../../business/INFORMATION_DISCLOSURE_POLICY.md)
+- [Feedlot Master Investment Model](../../business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+- [Hissar Sheep Master Investment Model](../../business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
 - [Pilot 1.0 Plan](PILOT_1_PLAN.md)
 - [Pilot Readiness Checklist](PILOT_READINESS_CHECKLIST.md)

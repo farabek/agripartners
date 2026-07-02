@@ -51,6 +51,7 @@ Before an investment decision, a potential investor may review the approved disc
 for the relevant project. It may contain:
 
 - **Investment Model** — how the project is intended to operate economically;
+- **Master Investment Model** — the approved reusable model from which the Project is adapted;
 - **Project Summary** — the purpose, scope, and current status of the opportunity;
 - **Investment Amount** — the target amount, applicable limits, and disclosed funding status;
 - **Target ROI** — the projected return and its assumptions, clearly identified as a target rather
@@ -178,6 +179,8 @@ the applicable privacy, security, incident, and communications procedures.
 
 - [AgriPartners v2 Operating Model](OPERATING_MODEL.md)
 - [Financial Operating Model](FINANCIAL_OPERATING_MODEL.md)
+- [Feedlot Master Investment Model](investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+- [Hissar Sheep Master Investment Model](investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
 - [Pilot 1.0 Plan](../platform/pilot/PILOT_1_PLAN.md)
 - [Pilot Readiness Checklist](../platform/pilot/PILOT_READINESS_CHECKLIST.md)
 - [Pilot Operations Guide](../platform/pilot/PILOT_OPERATIONS_GUIDE.md)

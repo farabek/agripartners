@@ -19,8 +19,10 @@ compliance controls, and legal review in every relevant jurisdiction.
 ### External Investor
 
 The External Investor invests through AgriPartners OÜ under an approved investor agreement. The
-investor sends funds only through payment or digital-asset channels formally approved by
-AgriPartners OÜ and receives project reporting and settlement from AgriPartners.
+Investor sends funds only through financial infrastructure formally approved by AgriPartners OÜ
+and receives Project reporting and settlement from AgriPartners. Depending on the approved route,
+the Investor may use fiat or supported crypto assets through the AgriPartners investment
+infrastructure.
 
 ### AgriPartners OÜ
 
@@ -50,7 +52,8 @@ asset and fiat currency. Its exact role, licensing status, jurisdiction, safegua
 limits, and responsibilities must be verified and contractually approved before use.
 
 The CASP / Exchange Partner is a service provider to AgriPartners OÜ. It does not become the
-farmer's counterparty, and the Farmer does not interact with it.
+Farmer's counterparty, and the Farmer does not interact with it. No provider is selected or
+endorsed by this document.
 
 ### NEAR Infrastructure
 
@@ -66,6 +69,10 @@ financial institution, banking partner, exchange, custodian, or counterparty.
 - Farmers receive and return funds only in fiat currency, such as USD, EUR, or an approved local
   currency.
 - Farmers do not use cryptocurrency, crypto wallets, or smart contracts.
+- Investors may use supported crypto assets only through approved AgriPartners investment
+  infrastructure.
+- Cryptocurrency is limited to the investment infrastructure between the Investor and
+  AgriPartners OÜ.
 - NEAR is used as technical infrastructure for transparency, event history, audit trail, and
   automation.
 - Legal agreements, approved accounting records, and banking or payment records remain
@@ -84,19 +91,13 @@ External Investor
 AgriPartners OÜ
         |
         v
-Corporate Wallet / NEAR Infrastructure
+Selected financial infrastructure
+(bank, payment institution, licensed CASP,
+or other compliant provider depending on
+the final implementation)
         |
         v
-USDT or supported crypto asset
-        |
-        v
-Licensed CASP / Exchange Partner
-        |
-        v
-Corporate Bank / Payment Account
-        |
-        v
-USD / fiat transfer
+USD / EUR / Local Currency
         |
         v
 Farmer
@@ -105,22 +106,22 @@ Farmer
 Under this route:
 
 1. The investor participates under an agreement with AgriPartners OÜ.
-2. An approved crypto asset is received or managed through an authorized AgriPartners corporate
-   wallet and recorded using NEAR infrastructure where applicable.
-3. AgriPartners OÜ instructs an approved licensed CASP / Exchange Partner to convert the supported
-   crypto asset into fiat.
-4. Fiat proceeds are credited to an approved AgriPartners OÜ corporate bank or payment account.
+2. The Investor uses a supported fiat or crypto-asset route available through the approved
+   AgriPartners investment infrastructure.
+3. AgriPartners OÜ uses the selected compliant financial infrastructure to receive, convert,
+   safeguard, and transfer funds as required by the approved implementation.
+4. Fiat proceeds are made available through an approved AgriPartners OÜ bank or payment account.
 5. AgriPartners OÜ authorizes and reconciles the fiat transfer to the Farmer.
-6. The Farmer receives fiat only and does not participate in the crypto or conversion stages.
+6. The Farmer receives fiat only and does not participate in crypto, wallet, conversion, or
+   blockchain stages.
 
-The exact implementation depends on company registration, banking setup, the selected payment or
-CASP / Exchange Partner, supported assets and currencies, contractual allocation of custody and
-safeguarding duties, tax and accounting treatment, compliance controls, and legal review. Until
-these conditions are approved, the route is a target design rather than an active production
-funding rail.
-
-Alternative fiat-only investor funding routes may be used when approved. They must preserve the
-same counterparty, authorization, recordkeeping, reconciliation, and farmer fiat-only principles.
+The selected infrastructure may be a bank, payment institution, licensed CASP, or another
+compliant provider. No specific provider or conversion implementation is selected by this
+document. The exact route depends on company registration, banking relationships, payment
+partners, supported assets and currencies, contractual allocation of custody and safeguarding
+duties, tax and accounting treatment, compliance controls, and legal review. Until these
+conditions are approved, the route is a target design rather than an active production funding
+rail.
 
 ## 5. Farmer Return Flow
 
@@ -130,7 +131,7 @@ The intended farmer return route is:
 Farmer
         |
         v
-USD / fiat repayment
+USD / EUR / Local Currency
         |
         v
 AgriPartners OÜ
@@ -203,9 +204,14 @@ Personal data and confidential financial information must not be placed on a pub
 
 ## 9. Pilot Phase
 
-Pilot 1.0 and Pilot 2.0 use this financial operating model in a controlled way before any public
-Marketplace launch. Each pilot must operate within approved participant, project, currency,
-asset, exposure, and transaction limits.
+Pilot 1.0 is one complete investment Project, from Project Creation through Project Completion.
+It includes Funding, Farmer Confirmation, all approved Production Cycles, Reports, Settlement,
+and Project Completion. It is not a single Production Cycle.
+
+Pilot 1.0 and Pilot 2.0 use this financial operating model in a controlled way before any
+Marketplace launch. Each Pilot must operate within approved participant, Project, currency,
+asset, exposure, and transaction limits. Pilot 1.0 may use a smaller amount, for example
+USD 1,000, while preserving the complete Project lifecycle.
 
 Pilot controls include legal and partner approval, participant onboarding, verified payment
 instructions, dual authorization, manual oversight, bank and ledger reconciliation, documented
@@ -235,6 +241,8 @@ available service.
 
 - [AgriPartners v2 Operating Model](OPERATING_MODEL.md)
 - [Information Disclosure Policy](INFORMATION_DISCLOSURE_POLICY.md)
+- [Feedlot Master Investment Model](investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+- [Hissar Sheep Master Investment Model](investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
 - [Pilot 1.0 Plan](../platform/pilot/PILOT_1_PLAN.md)
 - [Pilot Readiness Checklist](../platform/pilot/PILOT_READINESS_CHECKLIST.md)
 - [Pilot Operations Guide](../platform/pilot/PILOT_OPERATIONS_GUIDE.md)

@@ -4,13 +4,36 @@ Status: Phase 3 planning document. No real-funds activity is authorized by this 
 
 ## Purpose
 
-Pilot 1.0 validates the AgriPartners v2 operating model through one small, controlled, reviewable agricultural financing cycle:
+Pilot 1.0 validates the AgriPartners v2 operating model through one small, controlled, complete
+investment Project:
 
 ```text
-External Investor -> AgriPartners OÜ -> Farmer
+Project Creation
+        |
+        v
+Funding
+        |
+        v
+Farmer Confirmation
+        |
+        v
+Production Cycles
+        |
+        v
+Reports
+        |
+        v
+Settlement
+        |
+        v
+Project Completion
 ```
 
-AgriPartners OÜ is the counterparty and operating coordinator for both participants. Farmers receive and return fiat only, interact only with AgriPartners, and do not use cryptocurrency or blockchain tools.
+Pilot 1.0 validates the complete operational lifecycle and is not a single Production Cycle.
+AgriPartners OÜ is the counterparty and operating coordinator for both participants. Investors may
+use supported crypto assets through approved AgriPartners investment infrastructure. Farmers
+receive and return fiat only, interact only with AgriPartners, and never use cryptocurrency,
+crypto wallets, or blockchain.
 
 ## Preconditions
 
@@ -28,12 +51,15 @@ If any required approval is missing, the team may run a dry rehearsal with synth
 
 Pilot 1.0 should include:
 
-- one agricultural project or one homogeneous farmer cohort;
+- one complete Project derived from a selected Master Investment Model;
+- a documented Project adaptation covering the full lifecycle and all approved Production Cycles;
 - one defined jurisdiction and approved fiat currency;
 - a small, pre-approved group of external investors;
-- a fixed funding cap and participant exposure limits approved before launch;
+- a fixed funding cap and participant exposure limits approved before launch; the amount may be
+  smaller, for example USD 1,000;
 - separate AgriPartners-investor and AgriPartners-farmer agreements;
-- controlled fiat receipt, disbursement, repayment, and settlement;
+- controlled Investor Funding through selected compliant financial infrastructure;
+- fiat-only Farmer disbursement, repayment, and settlement;
 - a defined reporting calendar and evidence standard;
 - manual dual approval and reconciliation for every money movement;
 - a complete operational and decision log.
@@ -53,6 +79,7 @@ The pilot excludes:
 Pilot 1.0 is successful when:
 
 - all participants have complete, approved onboarding records;
+- one selected Master Investment Model and its Project adaptation are approved;
 - all agreements are executed before related money movement;
 - every bank movement maps to an authorized internal ledger entry;
 - all farmer disbursements and returns occur in fiat;
@@ -82,7 +109,10 @@ Named individuals should be assigned before launch.
 ### 1. Design and Approval
 
 - Confirm project economics, duration, currency, cap, and exposure limits.
+- Select the Feedlot or Hissar Sheep Master Investment Model and approve the Project adaptation.
 - Complete legal, banking, tax, accounting, privacy, and compliance review.
+- Approve the selected bank, payment institution, licensed CASP, or other compliant infrastructure
+  required for the final implementation without assuming a provider in advance.
 - Approve agreements, disclosures, operational procedures, and decision rights.
 - Define which records, if any, may be anchored to NEAR.
 
@@ -100,7 +130,10 @@ Exit evidence: complete and independently reviewed participant files.
 ### 3. Funding Receipt
 
 - Issue approved payment instructions from AgriPartners OÜ.
-- Match each incoming fiat receipt to the investor and agreement.
+- Match each incoming Investor Funding receipt to the Investor, agreement, approved asset or
+  currency, and selected financial infrastructure.
+- Where supported crypto assets are used, verify conversion and provider records before treating
+  fiat as available for Farmer disbursement.
 - Record the receipt in the internal ledger.
 - Resolve unmatched, excess, late, or third-party payments before proceeding.
 
@@ -143,6 +176,9 @@ Exit evidence: signed settlement reconciliation.
 
 Exit evidence: signed pilot closeout report.
 
+Pilot 1.0 is complete only after the full Project lifecycle and all approved Production Cycles are
+closed. Completion of one Production Cycle does not by itself complete Pilot 1.0.
+
 ## Stop Conditions
 
 Pause new activity and escalate immediately if:
@@ -178,6 +214,10 @@ Retention, access, and personal-data handling must follow approved legal and pri
 ## Related Documents
 
 - [AgriPartners v2 Operating Model](../../business/OPERATING_MODEL.md)
+- [Financial Operating Model](../../business/FINANCIAL_OPERATING_MODEL.md)
+- [Information Disclosure Policy](../../business/INFORMATION_DISCLOSURE_POLICY.md)
+- [Feedlot Master Investment Model](../../business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+- [Hissar Sheep Master Investment Model](../../business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
 - [Pilot Readiness Checklist](PILOT_READINESS_CHECKLIST.md)
 - [Pilot Operations Guide](PILOT_OPERATIONS_GUIDE.md)
 - [Investor Protection Framework — deferred](../investor-protection/README.md)

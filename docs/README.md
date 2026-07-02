@@ -6,17 +6,23 @@ Alpha v1.2 is not a production investment, custody, payout, settlement, or Mainn
 
 AgriPartners v2 uses a company-centered operating model: External Investor -> AgriPartners OÜ -> Farmer. The operating model and pilot documents define the target business architecture without changing the current Alpha application.
 
+Investors may use supported fiat or crypto-asset routes through selected AgriPartners financial
+infrastructure; Farmers always receive and return fiat and never interact with crypto or
+blockchain.
+
 ## Recommended Reading Order
 
 1. [Root README](../README.md)
 2. [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
 3. [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md)
 4. [Information Disclosure Policy](business/INFORMATION_DISCLOSURE_POLICY.md)
-5. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
-6. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
-7. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
-8. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
-9. [Developer Review Overview](developer-review/README.md)
+5. [Feedlot Master Investment Model](business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+6. [Hissar Sheep Master Investment Model](business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
+7. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
+8. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
+9. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
+10. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
+11. [Developer Review Overview](developer-review/README.md)
 
 ## Product Overview
 
@@ -24,7 +30,7 @@ AgriPartners brings opportunity review, farmer reporting, return records, Treasu
 
 Current Alpha v1.2 modules include:
 
-- Public Landing and Marketplace.
+- Public Landing and Opportunity Catalog demo.
 - Investor Portal.
 - Farmer Portal.
 - Admin Portal.
@@ -101,6 +107,8 @@ Current Alpha v1.2 modules include:
 - [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
 - [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md)
 - [Information Disclosure Policy](business/INFORMATION_DISCLOSURE_POLICY.md)
+- [Feedlot Master Investment Model](business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+- [Hissar Sheep Master Investment Model](business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
 - [Platform Documentation](platform/README.md)
 - [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
 - [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)

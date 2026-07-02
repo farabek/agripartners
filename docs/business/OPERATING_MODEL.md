@@ -44,7 +44,9 @@ The investor:
 
 - completes the required identity, eligibility, risk, and source-of-funds checks;
 - enters into an agreement with AgriPartners OÜ;
-- transfers funds only to an approved AgriPartners OÜ account or payment channel;
+- transfers funds only through financial infrastructure approved by AgriPartners OÜ;
+- may use fiat or supported crypto assets when the approved AgriPartners investment
+  infrastructure and applicable law permit;
 - receives disclosures, project reporting, and settlement information from AgriPartners OÜ;
 - has no direct instruction, payment, or enforcement relationship with the farmer.
 
@@ -77,15 +79,47 @@ The farmer:
 ### Funding
 
 ```text
-Investor -- fiat --> AgriPartners OÜ -- fiat --> Farmer
+External Investor
+        |
+        v
+AgriPartners OÜ
+        |
+        v
+Selected financial infrastructure
+(bank, payment institution, licensed CASP,
+or other compliant provider)
+        |
+        v
+USD / EUR / Local Currency
+        |
+        v
+Farmer
 ```
 
-AgriPartners OÜ verifies contractual and operational conditions before accepting or disbursing funds. Investor funds are not represented as moving directly to the farmer.
+Investors may use supported crypto assets through the AgriPartners investment infrastructure.
+Cryptocurrency is limited to the investment infrastructure between the External Investor and
+AgriPartners OÜ. Farmers never use cryptocurrency, crypto wallets, or blockchain and always
+receive fiat.
+
+AgriPartners OÜ verifies contractual and operational conditions before accepting or disbursing
+funds. The selected infrastructure may use a bank, payment institution, licensed CASP, or another
+compliant provider depending on the approved implementation. No provider is selected by this
+document. The exact payment and conversion route depends on company registration, banking
+relationships, payment partners, and legal review.
 
 ### Return and Settlement
 
 ```text
-Farmer -- fiat --> AgriPartners OÜ -- contractual settlement --> Investor
+Farmer
+        |
+        v
+USD / EUR / Local Currency
+        |
+        v
+AgriPartners OÜ
+        |
+        v
+Investor Settlement
 ```
 
 AgriPartners OÜ receives and reconciles farmer payments before calculating and executing any investor settlement under the applicable agreement. The precise payment instruments, safeguarding structure, fees, taxes, currency conversion, and timing require legal, banking, and accounting approval.
@@ -107,6 +141,28 @@ AgriPartners validates reporting before presenting it as verified. Blockchain re
 The [Information Disclosure Policy](INFORMATION_DISCLOSURE_POLICY.md) defines what project
 information may be provided before and after investment, which records remain confidential, and
 how farmer verification and redacted agreement disclosures are handled.
+
+## Architecture Terminology
+
+- **External Investor** (or **Investor**) — a participant investing through AgriPartners OÜ.
+- **Master Investment Model** — a reusable business and operating model from which independent
+  Projects may be created.
+- **Project** — one separately approved and contracted implementation of a Master Investment
+  Model.
+- **Investor Funding** — funds received from an Investor through selected AgriPartners financial
+  infrastructure.
+- **Farmer Disbursement** — fiat funds transferred by AgriPartners OÜ to the Farmer.
+- **Production Cycle** — one agricultural operating period inside a Project.
+- **Settlement** — the approved calculation, reconciliation, and payment process under the
+  applicable agreements.
+- **Pilot 1.0** — one complete investment Project lifecycle, not one Production Cycle.
+- **Marketplace** — only the future public platform phase described as Phase 7. Current Alpha
+  opportunity-discovery screens are not the Marketplace business phase.
+
+The official reusable models are:
+
+- [Feedlot Master Investment Model](investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md);
+- [Hissar Sheep Master Investment Model](investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md).
 
 ## Role of NEAR
 
@@ -148,14 +204,20 @@ No single person should be able to approve a participant, release funds, alter t
 
 Pilot 1.0 validates the operating process with a deliberately narrow scope:
 
-- one approved agricultural project or cohort;
+- one complete approved Project derived from a selected Master Investment Model;
 - a limited number of approved participants;
+- a Project-specific adaptation, budget, disclosures, and agreements;
+- the complete lifecycle from Project Creation through Project Completion;
+- all required Production Cycles within that approved Project;
 - fiat movement only for farmers;
 - manual dual approval for every money movement;
 - bank and internal ledger reconciliation;
 - documented evidence and reporting cadence;
 - NEAR used only for selected technical records where ready and appropriate;
 - no public Marketplace offering.
+
+Pilot 1.0 is not a single Production Cycle. Its investment amount may be smaller, for example
+USD 1,000, while preserving the complete business and operational lifecycle.
 
 The detailed execution plan is in [Pilot 1.0 Plan](../platform/pilot/PILOT_1_PLAN.md).
 
@@ -171,7 +233,7 @@ This deferral does not reduce the need for baseline legal, operational, treasury
 | --- | --- | --- |
 | 1 | Alpha | Validate the product concept, workflows, and documentation without representing a live investment service. |
 | 2 | Company Registration | Establish AgriPartners OÜ and the legal, banking, accounting, governance, and contracting foundation. |
-| 3 | Pilot 1.0 | Validate one tightly controlled end-to-end operating cycle with fiat farmer flows and manual controls. |
+| 3 | Pilot 1.0 | Validate one complete, tightly controlled investment Project lifecycle with fiat-only Farmer flows and manual controls. |
 | 4 | Pilot 2.0 | Repeat the model with broader participation and improved, evidence-based operations. |
 | 5 | Production Ready | Complete the controls, monitoring, security, compliance, support, and operational acceptance required for production consideration. |
 | 6 | Investor Protection | Finalize the design and readiness of investor-protection mechanisms without yet launching a public Marketplace. |
@@ -187,6 +249,8 @@ This document is the canonical source for the v2 business relationship model. Pr
 - crypto payments to or from farmers;
 - farmers as blockchain users;
 - NEAR as the legal settlement or custody layer;
+- Pilot 1.0 as a single Production Cycle;
+- current Alpha opportunity-discovery screens as the Marketplace business phase;
 - Investor Protection as active before its roadmap phase.
 
 Any departure from these boundaries requires an explicit documented business decision plus legal and operational review.

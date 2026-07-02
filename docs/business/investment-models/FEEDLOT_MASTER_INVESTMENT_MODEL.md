@@ -50,6 +50,8 @@ Farmer
 ```
 
 - The Investor invests through AgriPartners OÜ.
+- The Investor may use supported crypto assets through approved AgriPartners investment
+  infrastructure.
 - AgriPartners OÜ is the legal counterparty to the Investor.
 - AgriPartners OÜ is the legal counterparty to the Farmer.
 - The Farmer works only with AgriPartners and receives and returns funds in fiat.
@@ -182,6 +184,9 @@ business and operational model:
 - the Farmer remains fiat-only;
 - the Feedlot lifecycle and reporting structure remain recognizable;
 - financial states remain controlled and reconciled.
+
+Pilot 1.0 implements one complete Feedlot Project lifecycle, including all approved Production
+Cycles, Reports, Settlement, and Project Completion. It is not a single Production Cycle.
 
 The smaller amount changes Project scale and may change unit economics, livestock quantity,
 costs, risks, and ROI. Pilot economics must therefore be recalculated and documented rather than
