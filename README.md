@@ -10,6 +10,9 @@ AgriPartners is an Alpha-stage platform for transparent agricultural investment 
 
 AgriPartners v2 introduces a company-centered operating model. The Alpha application remains a technical and product-validation environment; the v2 documentation defines how the future business should operate.
 
+> **Business Architecture v1.0 is frozen as of 2026-07-02.** Future architectural changes require
+> RFC review. See the [Business Architecture v1.0 Freeze](docs/business/BUSINESS_ARCHITECTURE_V1_FREEZE.md).
+
 ## What Is AgriPartners?
 
 AgriPartners is built around a simple trust problem: once agricultural capital leaves the investor's view, reporting and return visibility often become fragmented. The platform brings opportunity review, farmer reporting, return records, treasury visibility, and guided demos into one role-based product experience.

@@ -10,19 +10,23 @@ Investors may use supported fiat or crypto-asset routes through selected AgriPar
 infrastructure; Farmers always receive and return fiat and never interact with crypto or
 blockchain.
 
+> **AgriPartners Business Architecture v1.0 is frozen as of 2026-07-02.** Future architecture
+> changes require RFC review. See the [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md).
+
 ## Recommended Reading Order
 
 1. [Root README](../README.md)
-2. [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
-3. [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md)
-4. [Information Disclosure Policy](business/INFORMATION_DISCLOSURE_POLICY.md)
-5. [Feedlot Master Investment Model](business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
-6. [Hissar Sheep Master Investment Model](business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
-7. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
-8. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
-9. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
-10. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
-11. [Developer Review Overview](developer-review/README.md)
+2. [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
+3. [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
+4. [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md)
+5. [Information Disclosure Policy](business/INFORMATION_DISCLOSURE_POLICY.md)
+6. [Feedlot Master Investment Model](business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+7. [Hissar Sheep Master Investment Model](business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
+8. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
+9. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
+10. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
+11. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
+12. [Developer Review Overview](developer-review/README.md)
 
 ## Product Overview
 
