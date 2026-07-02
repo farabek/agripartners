@@ -1,25 +1,31 @@
 # Roadmap
 
-## Alpha
+## Phase 1 — Alpha
 
-Current Alpha v1 demonstrates marketplace discovery, investor dashboard, farmer portal, admin dashboard, funding progress, ROI and returns, reporting, pilot deals and NEAR Testnet workflows.
+Валидация концепции продукта, ролевых процессов, финансовой терминологии и документации без позиционирования Alpha как действующего инвестиционного сервиса.
 
-## Beta
+## Phase 2 — Company Registration
 
-Refine product experience, improve demo asset coverage, expand reporting evidence, strengthen wallet UX and prepare clearer pilot operating processes.
+Регистрация AgriPartners OÜ и создание юридической, банковской, бухгалтерской, управленческой и договорной основы централизованной операционной модели.
 
-## Pilot Expansion
+## Phase 3 — Pilot 1.0
 
-Validate additional agricultural partners, add more pilot deal profiles and test repeatable funding and reporting workflows.
+Валидация одного строго контролируемого сквозного цикла. Инвесторы и фермеры заключают договоры с AgriPartners OÜ; все поступления и возвраты фермера выполняются в фиатной валюте.
 
-## Regional Growth
+## Phase 4 — Pilot 2.0
 
-Expand from Uzbekistan starting point into additional agricultural regions with similar financing and transparency needs.
+Повторение и расширение модели с учетом данных и корректирующих действий Pilot 1.0.
 
-## Institutional Investors
+## Phase 5 — Production Ready
 
-Build readiness for funds, ecosystem partners, agricultural finance institutions and strategic investors.
+Завершение операционных контролей, compliance, security, monitoring, support, reconciliation и production acceptance.
 
-## Tokenization and Mainnet Readiness
+## Phase 6 — Investor Protection
 
-Treat tokenization, smart contract audit, legal review and NEAR Mainnet deployment as future stages after beta validation and pilot expansion.
+Финализация юридической, финансовой, операционной и технической готовности существующей модели Investor Protection. На этой фазе она еще не представляется как действующая.
+
+## Phase 7 — Marketplace
+
+Контролируемый запуск Marketplace только после прохождения всех предыдущих этапов. Активация одобренной модели Investor Protection относится к этой фазе.
+
+NEAR остается технической инфраструктурой для прозрачности, audit trail, автоматизации и записей о settlement. Фермеры не взаимодействуют с криптовалютой.

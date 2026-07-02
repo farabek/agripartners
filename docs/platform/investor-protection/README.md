@@ -2,6 +2,13 @@
 
 This section documents the AgriPartners Investor Protection Framework: a model-specific approach intended to reduce investor risk without eliminating it.
 
+> **Roadmap status: Deferred to Marketplace Phase.**
+>
+> This documentation remains valid as exploratory design work, but implementation and product
+> activation are deferred to the Marketplace program. It is excluded from Pilot 1.0, Pilot 2.0,
+> and the initial Production Ready scope. It will be revisited during Phase 6 (Investor Protection)
+> before the public Marketplace launch.
+
 The framework uses a Protection Reserve funded from a defined portion of the farmer share. The appropriate reserve rate depends on the economics and risk profile of each agricultural model. Fidlot uses 44% of the farmer share, while Hissar / VariantB uses 53% based on its separate six-cycle calculation. Neither rate is a platform-wide constant, and future models must be calculated and validated separately.
 
 The documents in this section describe:
@@ -15,6 +22,8 @@ The documents in this section describe:
 - unresolved product, legal, and financial questions.
 
 This section is documentation only. It is not a legal agreement, an offer, financial advice, or implementation logic. It does not describe functionality that is necessarily available in the current AgriPartners Alpha platform.
+
+Under the [AgriPartners v2 Operating Model](../../business/OPERATING_MODEL.md), AgriPartners OÜ remains the counterparty for investors and farmers. Nothing in this framework creates a direct investor-farmer relationship or requires farmers to use cryptocurrency.
 
 > **Warning:** This documentation does not create any guarantee of income, profit, capital preservation, insurance coverage, payout, or settlement.
 

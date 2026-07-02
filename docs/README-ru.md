@@ -4,15 +4,17 @@ AgriPartners Alpha v1.2 - рабочая Alpha-платформа для про�
 
 Alpha v1.2 не является production investment, custody, payout, settlement или Mainnet-системой. Документацию нужно читать с учетом этого ограничения.
 
+В AgriPartners v2 действует централизованная операционная модель: External Investor -> AgriPartners OÜ -> Farmer. AgriPartners OÜ является контрагентом для обеих сторон; фермеры получают и возвращают только фиат и не взаимодействуют с криптовалютой. Документы v2 описывают целевую бизнес-архитектуру без изменения текущего Alpha-приложения.
+
 ## Рекомендуемый порядок чтения
 
 1. [Root README](../README.md)
-2. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
-3. [NEAR Executive One Pager](near/executive-one-pager.md)
-4. [NEAR Ecosystem One Pager](near/near-ecosystem-one-pager.md)
-5. [Investor Executive One Pager](investors/investor-executive-one-pager.md)
-6. [Developer Review Overview](developer-review/README.md)
-7. [Public Deployment Plan](deployment/01-public-deployment-plan.md)
+2. [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
+3. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
+4. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
+5. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
+6. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
+7. [Developer Review Overview](developer-review/README.md)
 
 ## Обзор продукта
 
@@ -94,6 +96,14 @@ AgriPartners объединяет opportunity review, farmer reporting, return r
 - [Investor Pack](investor-pack/README.md)
 - [Screenshots](screenshots/)
 - [Screenshot Checklist](investor-package/screenshot-checklist.md)
+
+## Business Architecture и Pilot 1.0
+
+- [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
+- [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
+- [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
+- [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
+- [Investor Protection Framework — deferred to Marketplace](platform/investor-protection/README.md)
 
 ## Outreach материалы
 

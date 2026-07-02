@@ -1,25 +1,31 @@
 # Roadmap
 
-## Alpha
+## Phase 1 — Alpha
 
-Current Alpha v1 demonstrates marketplace discovery, investor dashboard, farmer portal, admin dashboard, funding progress, ROI and returns, reporting, pilot deals, and NEAR Testnet workflows.
+Validate the product concept, role-based workflows, financial-state language, and documentation without presenting the Alpha as a live investment service.
 
-## Beta
+## Phase 2 — Company Registration
 
-Refine the product experience, improve demo asset coverage, expand reporting evidence, strengthen wallet UX, and prepare clearer pilot operating processes.
+Establish AgriPartners OÜ and the legal, banking, accounting, governance, and contracting foundation for the company-centered operating model.
 
-## Pilot Expansion
+## Phase 3 — Pilot 1.0
 
-Validate additional agricultural partners, add more pilot deal profiles, and test repeatable funding and reporting workflows.
+Validate one tightly controlled end-to-end cycle. Investors and farmers contract with AgriPartners OÜ; all farmer receipts and returns are fiat.
 
-## Regional Growth
+## Phase 4 — Pilot 2.0
 
-Expand from Uzbekistan starting point into additional agricultural regions with similar financing and transparency needs.
+Repeat and broaden the model using evidence and remediation from Pilot 1.0.
 
-## Institutional Investors
+## Phase 5 — Production Ready
 
-Build readiness for funds, ecosystem partners, agricultural finance institutions, and strategic investors.
+Complete operational controls, compliance, security, monitoring, support, reconciliation, and production acceptance.
 
-## Tokenization and Mainnet Readiness
+## Phase 6 — Investor Protection
 
-Treat tokenization, smart contract audit, legal review, and NEAR Mainnet deployment as future stages after beta validation and pilot expansion.
+Finalize the legal, financial, operational, and technical readiness of the existing Investor Protection design. Do not represent it as active yet.
+
+## Phase 7 — Marketplace
+
+Introduce controlled Marketplace access only after all preceding gates are satisfied. Any approved Investor Protection activation belongs to this phase.
+
+NEAR remains technical infrastructure for transparency, audit trails, automation, and settlement records. Farmers do not interact with cryptocurrency.

@@ -8,6 +8,8 @@
 
 AgriPartners is an Alpha-stage platform for transparent agricultural investment workflows. It helps investors review pilot opportunities, helps farmers report operating progress, and helps platform operators track deals, returns, treasury activity, and lifecycle events. The current product uses NEAR Testnet for wallet-linked workflows and smart contract experimentation while remaining clear that it is not a production investment, custody, payout, or Mainnet settlement system.
 
+AgriPartners v2 introduces a company-centered operating model. The Alpha application remains a technical and product-validation environment; the v2 documentation defines how the future business should operate.
+
 ## What Is AgriPartners?
 
 AgriPartners is built around a simple trust problem: once agricultural capital leaves the investor's view, reporting and return visibility often become fragmented. The platform brings opportunity review, farmer reporting, return records, treasury visibility, and guided demos into one role-based product experience.
@@ -19,6 +21,24 @@ The Alpha v1.2 product focuses on:
 - **Operational workflows:** admins can manage deal lifecycle, reporting, return records, and oversight views.
 - **Treasury Shadow Accounting:** treasury activity is shown as an Alpha transparency layer before production enforcement.
 - **Presentation Mode:** guided demo flows explain the product to investors, NEAR ecosystem reviewers, accelerators, and strategic partners.
+
+## AgriPartners v2 Operating Model
+
+```text
+External Investor
+        |
+        v
+AgriPartners OÜ
+        |
+        v
+Farmer
+```
+
+Under the target v2 model, AgriPartners OÜ is the legal counterparty for both investors and farmers. Investors interact only with AgriPartners; farmers also interact only with AgriPartners and receive and return funds in fiat currency. Farmers do not use cryptocurrency, wallets, tokens, or blockchain interfaces.
+
+NEAR is limited to technical infrastructure for transparency, audit trails, automation, and settlement records. It does not replace contracts, banking, accounting, compliance, or authoritative fiat settlement records.
+
+See the canonical [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md) and [Pilot 1.0 Plan](docs/platform/pilot/PILOT_1_PLAN.md).
 
 ## Current Product Status
 
@@ -90,11 +110,11 @@ AgriPartners currently uses two livestock demonstration models to validate workf
 
 ## Why NEAR?
 
-NEAR is used as the Alpha testnet environment for wallet-linked workflows, smart contract experimentation, and future transparent workflow patterns. AgriPartners is evaluating how NEAR can support:
+NEAR is used as the Alpha testnet environment for wallet-linked workflows, smart contract experimentation, and future transparent workflow patterns. Under the v2 business model, investor-facing blockchain features may be evaluated separately, but farmers remain entirely within AgriPartners-managed fiat workflows. AgriPartners is evaluating how NEAR can support:
 
-- wallet-first access for investors, farmers, and operators;
+- investor and operator infrastructure where legally and operationally appropriate;
 - testnet validation before production or Mainnet decisions;
-- transaction references for lifecycle events and future reconciliation;
+- transparent references for lifecycle, audit, settlement, and reconciliation events;
 - developer-friendly smart contract experimentation;
 - clearer audit trails for real-world agricultural workflows.
 
@@ -160,6 +180,8 @@ agripartners/
 
 Useful public entry points:
 
+- [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md)
+- [Pilot 1.0 Documentation](docs/platform/pilot/PILOT_1_PLAN.md)
 - [NEAR materials](docs/near/)
 - [Investor materials](docs/investors/)
 - [Release notes](docs/releases/)
@@ -167,36 +189,27 @@ Useful public entry points:
 
 Recommended reading order:
 
-1. [NEAR executive one-pager](docs/near/executive-one-pager.md)
-2. [NEAR ecosystem one-pager](docs/near/near-ecosystem-one-pager.md)
-3. [Investor executive one-pager](docs/investors/investor-executive-one-pager.md)
-4. [Alpha v1.1 release review](docs/releases/alpha-v1.1-release-review.md)
+1. [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md)
+2. [Pilot 1.0 Plan](docs/platform/pilot/PILOT_1_PLAN.md)
+3. [Pilot 1.0 Readiness Checklist](docs/platform/pilot/PILOT_READINESS_CHECKLIST.md)
+4. [NEAR executive one-pager](docs/near/executive-one-pager.md)
+5. [Investor executive one-pager](docs/investors/investor-executive-one-pager.md)
 
 ## Roadmap
 
-### Current: Alpha v1.2
+The v2 business roadmap replaces the former Alpha/Beta/Pilot Expansion sequence:
 
-- Working role-based product.
-- Marketplace, Investor Portal, Farmer Portal, Admin Portal.
-- Presentation Mode for guided stakeholder demos.
-- Treasury Dashboard and Treasury Shadow Accounting.
-- Wallet authentication and NEAR Testnet integration.
+| Phase | Name | Primary outcome |
+| --- | --- | --- |
+| 1 | Alpha | Validate product concepts, workflows, and documentation. |
+| 2 | Company Registration | Establish AgriPartners OÜ and its legal, banking, accounting, governance, and contracting foundation. |
+| 3 | Pilot 1.0 | Validate one tightly controlled end-to-end cycle with fiat farmer flows. |
+| 4 | Pilot 2.0 | Repeat and broaden the operating model using Pilot 1.0 evidence. |
+| 5 | Production Ready | Complete production-grade operational, compliance, security, monitoring, and support readiness. |
+| 6 | Investor Protection | Finalize and approve investor-protection mechanisms. |
+| 7 | Marketplace | Launch controlled Marketplace access after all preceding gates are met. |
 
-### Next: Beta
-
-- Sharper product boundaries between demo, live, recorded, paid, and reconciled states.
-- Stronger reconciliation visibility.
-- Better public demo packaging.
-- More structured technical review and ecosystem feedback.
-- Improved operational readiness for controlled pilot conversations.
-
-### Future
-
-- Production pilot preparation.
-- Treasury enforcement for selected workflows.
-- Stronger custody, compliance, monitoring, and audit controls.
-- Mainnet evaluation.
-- Partner-specific reporting and integration paths.
+The existing Investor Protection documentation remains valid as exploratory work but is deferred to the Marketplace program: design and readiness are handled in Phase 6, while activation can occur only as part of an approved Phase 7 Marketplace.
 
 ## Screenshots
 

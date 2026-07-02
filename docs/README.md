@@ -4,15 +4,17 @@ AgriPartners Alpha v1.2 is a working Alpha platform for transparent agricultural
 
 Alpha v1.2 is not a production investment, custody, payout, settlement, or Mainnet system. Documentation should be read with that boundary in mind.
 
+AgriPartners v2 uses a company-centered operating model: External Investor -> AgriPartners OÜ -> Farmer. The operating model and pilot documents define the target business architecture without changing the current Alpha application.
+
 ## Recommended Reading Order
 
 1. [Root README](../README.md)
-2. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
-3. [NEAR Executive One Pager](near/executive-one-pager.md)
-4. [NEAR Ecosystem One Pager](near/near-ecosystem-one-pager.md)
-5. [Investor Executive One Pager](investors/investor-executive-one-pager.md)
-6. [Developer Review Overview](developer-review/README.md)
-7. [Public Deployment Plan](deployment/01-public-deployment-plan.md)
+2. [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
+3. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
+4. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
+5. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
+6. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
+7. [Developer Review Overview](developer-review/README.md)
 
 ## Product Overview
 
@@ -94,10 +96,16 @@ Current Alpha v1.2 modules include:
 
 ## Platform Documentation
 
+- [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
 - [Platform Documentation](platform/README.md)
+- [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
+- [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
+- [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
 - [Investor Protection Framework](platform/investor-protection/README.md)
 
 Official AgriPartners platform explanation documents in English and Russian.
+
+Investor Protection remains valid as exploratory documentation but is deferred to the Marketplace program. Phase 6 finalizes its design and readiness; any activation is gated by Phase 7 Marketplace approval.
 
 ## Outreach Materials
 

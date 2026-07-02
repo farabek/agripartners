@@ -2,6 +2,8 @@
 
 This directory contains the official documentation describing the AgriPartners platform.
 
+The canonical AgriPartners v2 business architecture is defined in the [Operating Model](../business/OPERATING_MODEL.md). It places AgriPartners OÜ between external investors and farmers as the legal and operational counterparty for both.
+
 These documents explain:
 
 - platform vision;
@@ -54,6 +56,24 @@ These documents are intended for:
 
 The platform documentation should be used to explain AgriPartners and support discussions with external stakeholders.
 
+## AgriPartners v2 Business Boundary
+
+```text
+External Investor -> AgriPartners OÜ -> Farmer
+```
+
+- Investors interact only with AgriPartners OÜ.
+- Farmers interact only with AgriPartners OÜ.
+- Farmers receive and return fiat currency and never interact with cryptocurrency.
+- NEAR is technical infrastructure for transparency, audit trails, automation, and settlement records.
+- Legal agreements, banking, accounting, and reconciliation remain authoritative.
+
+## Pilot 1.0
+
+- [Pilot 1.0 Plan](pilot/PILOT_1_PLAN.md)
+- [Pilot Readiness Checklist](pilot/PILOT_READINESS_CHECKLIST.md)
+- [Pilot Operations Guide](pilot/PILOT_OPERATIONS_GUIDE.md)
+
 ## Important Positioning
 
 AgriPartners is currently an Alpha platform on NEAR Testnet.
@@ -71,6 +91,18 @@ It should not be described as:
 - [Investor Protection Framework](investor-protection/README.md)
 
 Documents the protection reserve concept, the Fidlot 44% model, the Hissar / VariantB 53% model, staged release schedules, draft contract terms, legal notes, and open questions.
+
+The framework remains valid as exploratory documentation but is deferred. It is not part of Pilot 1.0, Pilot 2.0, or the initial Production Ready scope. Phase 6 addresses design and readiness; activation is considered only within an approved Phase 7 Marketplace.
+
+## Business Roadmap
+
+1. Phase 1 — Alpha
+2. Phase 2 — Company Registration
+3. Phase 3 — Pilot 1.0
+4. Phase 4 — Pilot 2.0
+5. Phase 5 — Production Ready
+6. Phase 6 — Investor Protection
+7. Phase 7 — Marketplace
 
 ## Planned Structure
 
