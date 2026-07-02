@@ -10,11 +10,12 @@ AgriPartners v2 uses a company-centered operating model: External Investor -> Ag
 
 1. [Root README](../README.md)
 2. [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
-3. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
-4. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
-5. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
-6. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
-7. [Developer Review Overview](developer-review/README.md)
+3. [Information Disclosure Policy](business/INFORMATION_DISCLOSURE_POLICY.md)
+4. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
+5. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
+6. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
+7. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
+8. [Developer Review Overview](developer-review/README.md)
 
 ## Product Overview
 
@@ -97,6 +98,7 @@ Current Alpha v1.2 modules include:
 ## Platform Documentation
 
 - [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
+- [Information Disclosure Policy](business/INFORMATION_DISCLOSURE_POLICY.md)
 - [Platform Documentation](platform/README.md)
 - [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
 - [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)

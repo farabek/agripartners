@@ -100,6 +100,10 @@ AgriPartners OÜ --> selected record anchors --> NEAR
 
 AgriPartners validates reporting before presenting it as verified. Blockchain records must reference or hash only data approved for that purpose; confidential or personal data must not be placed on a public chain.
 
+The [Information Disclosure Policy](INFORMATION_DISCLOSURE_POLICY.md) defines what project
+information may be provided before and after investment, which records remain confidential, and
+how farmer verification and redacted agreement disclosures are handled.
+
 ## Role of NEAR
 
 NEAR is a technical infrastructure layer for:

@@ -68,6 +68,9 @@ External Investor -> AgriPartners OÜ -> Farmer
 - NEAR is technical infrastructure for transparency, audit trails, automation, and settlement records.
 - Legal agreements, banking, accounting, and reconciliation remain authoritative.
 
+Disclosure of project, farmer, investor, and internal information is governed by the
+[Information Disclosure Policy](../business/INFORMATION_DISCLOSURE_POLICY.md).
+
 ## Pilot 1.0
 
 - [Pilot 1.0 Plan](pilot/PILOT_1_PLAN.md)

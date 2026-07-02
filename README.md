@@ -181,6 +181,7 @@ agripartners/
 Useful public entry points:
 
 - [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md)
+- [Information Disclosure Policy](docs/business/INFORMATION_DISCLOSURE_POLICY.md)
 - [Pilot 1.0 Documentation](docs/platform/pilot/PILOT_1_PLAN.md)
 - [NEAR materials](docs/near/)
 - [Investor materials](docs/investors/)
@@ -190,10 +191,11 @@ Useful public entry points:
 Recommended reading order:
 
 1. [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md)
-2. [Pilot 1.0 Plan](docs/platform/pilot/PILOT_1_PLAN.md)
-3. [Pilot 1.0 Readiness Checklist](docs/platform/pilot/PILOT_READINESS_CHECKLIST.md)
-4. [NEAR executive one-pager](docs/near/executive-one-pager.md)
-5. [Investor executive one-pager](docs/investors/investor-executive-one-pager.md)
+2. [Information Disclosure Policy](docs/business/INFORMATION_DISCLOSURE_POLICY.md)
+3. [Pilot 1.0 Plan](docs/platform/pilot/PILOT_1_PLAN.md)
+4. [Pilot 1.0 Readiness Checklist](docs/platform/pilot/PILOT_READINESS_CHECKLIST.md)
+5. [NEAR executive one-pager](docs/near/executive-one-pager.md)
+6. [Investor executive one-pager](docs/investors/investor-executive-one-pager.md)
 
 ## Roadmap
 
