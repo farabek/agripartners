@@ -2834,6 +2834,19 @@ function projectWorkspaceStatus(deal = {}, status = null) {
   return projectWorkspaceValue(status, deal.status?.status, deal.status);
 }
 
+function projectWorkspaceFarmer(deal = {}) {
+  const farmerProfile = deal.farmer_profile || deal.farmerProfile || {};
+  return projectWorkspaceValue(
+    deal.farmer_name,
+    deal.farmerName,
+    deal.farmer_display_name,
+    farmerProfile.displayName,
+    farmerProfile.organizationName,
+    deal.farmer_account,
+    deal.farmer
+  ) || 'Assigned Farmer';
+}
+
 function projectWorkspaceTimelineIndex({ deal = {}, status = null, cycles = [], reports = [], returns = [] } = {}) {
   const statusKey = (projectWorkspaceStatus(deal, status) || '').toLowerCase().replace(/[^a-z]/g, '');
   const statusStages = {
@@ -2890,6 +2903,7 @@ function renderProjectWorkspaceHeader({ deal = {}, status = null, cycles = [], r
     deal.deal_type
   ) || 'Investment Model unavailable';
   const projectStatus = projectWorkspaceStatus(deal, status) || 'Status unavailable';
+  const farmer = projectWorkspaceFarmer(deal);
   const timelineStages = ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed'];
   const currentIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
   const isCompleted = currentIndex === timelineStages.length - 1;
@@ -2903,7 +2917,7 @@ function renderProjectWorkspaceHeader({ deal = {}, status = null, cycles = [], r
         </div>
         <span class="text-xs font-semibold bg-slate-900 text-slate-200 border border-slate-600 px-3 py-1 rounded-full">${escapeHtml(projectStatus)}</span>
       </div>
-      <dl class="grid sm:grid-cols-3 gap-3 mt-5">
+      <dl class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
         <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
           <dt class="text-xs text-slate-500">Investment Model</dt>
           <dd class="text-sm font-semibold text-slate-100 mt-1">${escapeHtml(investmentModel)}</dd>
@@ -2915,6 +2929,10 @@ function renderProjectWorkspaceHeader({ deal = {}, status = null, cycles = [], r
         <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
           <dt class="text-xs text-slate-500">Project Operator</dt>
           <dd class="text-sm font-semibold text-slate-100 mt-1">AgriPartners</dd>
+        </div>
+        <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
+          <dt class="text-xs text-slate-500">Farmer</dt>
+          <dd class="text-sm font-semibold text-slate-100 mt-1 break-all">${escapeHtml(farmer)}</dd>
         </div>
       </dl>
       <div class="mt-5">

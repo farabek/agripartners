@@ -19,6 +19,7 @@ function loadProjectWorkspaceHeaderHelpers() {
     ${appJs.slice(start, end)}
     module.exports = {
       projectWorkspaceStatus,
+      projectWorkspaceFarmer,
       projectWorkspaceTimelineIndex,
       renderProjectWorkspaceHeader,
     };
@@ -36,6 +37,7 @@ test('shared Project Workspace Header renders required project identity fields a
       title: 'Hissar Sheep Pilot',
       deal_type: 'Hissar Sheep v1.0',
       status: 'Active',
+      farmer_name: 'Hissar Pilot Farm',
     },
   });
 
@@ -46,6 +48,9 @@ test('shared Project Workspace Header renders required project identity fields a
   expect(html).toContain('Active');
   expect(html).toContain('Project Operator');
   expect(html).toContain('AgriPartners');
+  expect(html).toContain('Farmer');
+  expect(html).toContain('Hissar Pilot Farm');
+  expect(html).toContain('sm:grid-cols-2 lg:grid-cols-4');
   for (const stage of ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed']) {
     expect(html).toContain(`data-project-stage="${stage}"`);
   }
@@ -58,6 +63,7 @@ test('shared Project Workspace Header uses placeholders when project data is una
   expect(html).toContain('Project name unavailable');
   expect(html).toContain('Investment Model unavailable');
   expect(html).toContain('Status unavailable');
+  expect(html).toContain('Assigned Farmer');
   expect(html).not.toContain('undefined');
   expect(html).not.toContain('null');
 });
@@ -76,6 +82,33 @@ test('shared Project Workspace Header derives completed, current and upcoming ti
   expect(activeHtml).toContain('data-project-stage="Production" data-stage-state="current"');
   expect(activeHtml).toContain('data-project-stage="Settlement" data-stage-state="upcoming"');
   expect(completedHtml.match(/data-stage-state="completed"/g)).toHaveLength(6);
+});
+
+test('shared Project Workspace Header reuses Farmer names, profiles and account identifiers', () => {
+  const { projectWorkspaceFarmer, renderProjectWorkspaceHeader } = loadProjectWorkspaceHeaderHelpers();
+
+  expect(projectWorkspaceFarmer({ farmer_name: 'Named Farm', farmer: 'farmer.testnet' })).toBe('Named Farm');
+  expect(projectWorkspaceFarmer({
+    farmer_profile: { displayName: 'Profile Farm' },
+    farmer: 'farmer.testnet',
+  })).toBe('Profile Farm');
+  expect(projectWorkspaceFarmer({ farmer: 'farmer.testnet' })).toBe('farmer.testnet');
+  expect(projectWorkspaceFarmer()).toBe('Assigned Farmer');
+
+  const escapedHtml = renderProjectWorkspaceHeader({ deal: { farmer: '<farmer.testnet>' } });
+  expect(escapedHtml).toContain('&lt;farmer.testnet&gt;');
+  expect(escapedHtml).not.toContain('<farmer.testnet>');
+});
+
+test('shared Project Workspace Header is view-only for every role', () => {
+  const { renderProjectWorkspaceHeader } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectWorkspaceHeader({
+    deal: { title: 'Feedlot Pilot 001', deal_type: 'Feedlot Livestock', status: 'Funding' },
+  });
+
+  expect(html).toContain('Feedlot Pilot 001');
+  expect(html).toContain('Feedlot Livestock');
+  expect(html).not.toMatch(/<(button|input|select|textarea)\b/);
 });
 
 test('all Admin, Farmer and Investor project detail variants use the shared header', () => {
