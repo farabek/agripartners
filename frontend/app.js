@@ -1095,6 +1095,13 @@ function route() {
     return;
   }
 
+  const loginEntry = hash.match(/^#login\/(investor|farmer|admin)$/);
+  if (loginEntry) {
+    if (auth) { redirectAuthenticatedUser(); return; }
+    showLogin(loginEntry[1]);
+    return;
+  }
+
   const investorPilot = hash.match(/^#\/?investor\/pilots\/([a-z0-9-]+)$/);
   if (investorPilot) {
     showInvestorPilotProfile(investorPilot[1]);
@@ -1377,6 +1384,54 @@ function renderHomeInvestorProtection() {
   `;
 }
 
+function renderEnvironmentBanner(mode, roleLabel) {
+  const isDemo = mode === 'demo';
+  return `
+    <aside class="${isDemo ? 'bg-amber-950 border-amber-800 text-amber-100' : 'bg-blue-950 border-blue-800 text-blue-100'} border rounded-lg px-4 py-3 mb-6" data-environment="${escapeHtml(mode)}">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <span class="text-sm font-semibold">${isDemo ? 'Alpha Demo / NEAR Testnet' : 'Pilot 1.0 Preparation'}${roleLabel ? ` · ${escapeHtml(roleLabel)}` : ''}</span>
+        <span class="text-xs">${isDemo ? 'Demonstration data and Testnet functionality' : 'AgriPartners-managed workflow'}</span>
+      </div>
+      <p class="text-xs mt-1 opacity-90">
+        ${isDemo
+          ? 'This is not a live Pilot 1.0 or production operation.'
+          : 'This workspace prepares future Pilot operations; it does not claim live production activity.'}
+      </p>
+    </aside>
+  `;
+}
+
+function renderRoleEntrySummary(role) {
+  const roleConfig = {
+    investor: {
+      title: 'Investor path',
+      description: 'Review AgriPartners-managed Projects without creating a direct contract or operating relationship with the Farmer.',
+      items: ['Projects', 'Investment Models', 'Portfolio'],
+    },
+    farmer: {
+      title: 'Farmer path',
+      description: 'Complete Project work through AgriPartners as Project Operator using the approved fiat workflow.',
+      items: ['My Projects', 'Funding Confirmation', 'Reports'],
+    },
+    admin: {
+      title: 'AgriPartners Operator path',
+      description: 'Operate one controlled Project on behalf of AgriPartners.',
+      items: ['Manage Projects', 'Farmer Assignment', 'Reports', 'Settlement'],
+    },
+  };
+  const config = roleConfig[role];
+  if (!config) return '';
+  return `
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 mb-6" data-role-entry="${escapeHtml(role)}">
+      <h2 class="text-sm font-semibold text-slate-100">${escapeHtml(config.title)}</h2>
+      <p class="text-xs text-slate-400 mt-1">${escapeHtml(config.description)}</p>
+      <div class="flex flex-wrap gap-2 mt-3">
+        ${config.items.map(item => `<span class="text-xs bg-slate-900 border border-slate-700 text-slate-200 rounded px-2 py-1">${escapeHtml(item)}</span>`).join('')}
+      </div>
+    </section>
+  `;
+}
+
 function showHome() {
   showView('view-home');
   const el = document.getElementById('view-home');
@@ -1386,7 +1441,7 @@ function showHome() {
       <div class="landing-nav-actions">
         <a href="#/platform">Platform</a>
         <a href="#/marketplace">Opportunity Catalog</a>
-        <a href="#login">Login</a>
+        <a href="#login">Pilot Access</a>
       </div>
     </header>
 
@@ -1396,7 +1451,7 @@ function showHome() {
           <div class="landing-badges" aria-label="Environment">
             <span>Alpha v1.2</span>
             <span>NEAR Testnet</span>
-            <span>Demo / Live separation</span>
+            <span>Alpha Demo / Pilot entry separation</span>
           </div>
           <h1>Structured agricultural investment Projects with managed operations, transparent reporting, and audit-ready records.</h1>
           <p>
@@ -1405,13 +1460,22 @@ function showHome() {
             transparency and auditability as platform infrastructure; future Farmer funding remains fiat-based.
           </p>
           <div class="landing-actions" aria-label="Primary actions">
+            <a class="landing-btn landing-btn-primary" href="#login/investor">Investor Pilot Entry</a>
+            <a class="landing-btn" href="#login/farmer">Farmer Pilot Entry</a>
+            <a class="landing-btn" href="#login/admin">AgriPartners Operator Entry</a>
+            <a class="landing-btn" href="#/marketplace">Browse Opportunity Catalog</a>
+          </div>
+          <p class="landing-note">
+            Pilot 1.0 is in preparation and is not a live production operation. Choose a role entry only if AgriPartners has invited you.
+          </p>
+          <div class="landing-actions" aria-label="Alpha demo actions">
             <a class="landing-btn landing-btn-primary" href="#/investor/pilots/fidlot">Explore Investor Demo</a>
             <a class="landing-btn" href="#farmer/pilots">Explore Farmer Demo</a>
             <a class="landing-btn" href="#demo/admin">Explore Admin Demo</a>
-            <button type="button" id="home-login-wallet" class="landing-btn landing-btn-wallet">Login with NEAR Wallet</button>
+            <button type="button" id="home-login-wallet" class="landing-btn landing-btn-wallet">Investor Testnet Login</button>
           </div>
           <p class="landing-note">
-            Demo pages use safe Pilot profiles. Live Investor and operator routes use Alpha authentication infrastructure.
+            Alpha Demo pages use demonstration profiles and NEAR Testnet functionality. They are separate from future real Pilot operations.
           </p>
         </div>
       </section>
@@ -1425,14 +1489,17 @@ function showHome() {
           <article class="landing-card">
             <h3>Investors</h3>
             <p>Review Projects, Investment Models, Project Progress, Farmer Reports, projected returns, and Settlement status without treating provisional data as realized performance.</p>
+            <a class="landing-btn landing-btn-primary mt-4" href="#login/investor">Projects / Investment Models / Portfolio</a>
           </article>
           <article class="landing-card">
             <h3>Farmers</h3>
             <p>Work through AgriPartners as Project Operator to review My Projects, confirm funding, follow Production Cycles, and submit Project Reports.</p>
+            <a class="landing-btn landing-btn-primary mt-4" href="#login/farmer">My Projects / Funding Confirmation / Reports</a>
           </article>
           <article class="landing-card">
             <h3>AgriPartners / Project Operators</h3>
             <p>Manage Projects, select Investment Models, assign Farmers, monitor Project Status, review Project Reports, and maintain Settlement and Treasury records.</p>
+            <a class="landing-btn landing-btn-primary mt-4" href="#login/admin">Manage Projects / Farmer Assignment / Settlement</a>
           </article>
         </div>
       </section>
@@ -1607,7 +1674,7 @@ function showPlatformDocumentation(lang = 'en') {
       <a href="#home" class="landing-brand">AgriPartners</a>
       <div class="landing-nav-actions">
         <a href="#/marketplace">Opportunity Catalog</a>
-        <a href="#login">Login</a>
+        <a href="#login">Pilot Access</a>
       </div>
     </header>
 
@@ -1653,6 +1720,25 @@ function showPlatformDocumentation(lang = 'en') {
 function showLogin() {
   showView('view-login');
   const el = document.getElementById('view-login');
+  const entryRole = arguments[0] || null;
+  const entryConfig = {
+    investor: {
+      title: 'Investor access',
+      description: 'Enter through Projects, Investment Models, and your Portfolio. AgriPartners is the Project Operator and counterparty.',
+    },
+    farmer: {
+      title: 'Farmer access',
+      description: 'Enter My Projects to confirm fiat Funding and submit Reports through AgriPartners as Project Operator.',
+    },
+    admin: {
+      title: 'AgriPartners Operator access',
+      description: 'Manage Projects, Farmer Assignment, Reports, and Settlement using an authorized operator account.',
+    },
+  }[entryRole] || {
+    title: 'AgriPartners access',
+    description: 'Choose the access method provided by AgriPartners.',
+  };
+  const showWalletAccess = entryRole == null || entryRole === 'investor';
   const pendingLoginError = sessionStorage.getItem('ap_login_error');
   sessionStorage.removeItem('ap_login_error');
   el.innerHTML = `
@@ -1664,9 +1750,13 @@ function showLogin() {
     </div>
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-green-400">AgriPartners</h1>
-      <p class="text-slate-400 mt-1">Explore public Project profiles or sign in to an Alpha portal.</p>
+      <p class="text-slate-100 font-semibold mt-2">${escapeHtml(entryConfig.title)}</p>
+      <p class="text-slate-400 mt-1">${escapeHtml(entryConfig.description)}</p>
     </div>
+    ${entryRole ? renderEnvironmentBanner('pilot', entryConfig.title) : ''}
+    ${entryRole ? renderRoleEntrySummary(entryRole) : ''}
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
+      ${showWalletAccess ? `
       <div class="bg-slate-900 border border-green-900 rounded-lg p-4 space-y-3">
         <div>
           <h2 class="text-sm font-semibold text-green-200">New to AgriPartners?</h2>
@@ -1674,6 +1764,7 @@ function showLogin() {
             Public demos do not require registration. NEAR login is Alpha infrastructure for Investors and operators.
             Farmers work through AgriPartners-managed onboarding and future fiat workflows.
           </p>
+          ${entryRole === 'investor' ? '<p class="text-sm text-slate-400 mt-2">NEAR/Testnet is AgriPartners infrastructure and does not create a direct Investor-to-Farmer relationship.</p>' : ''}
         </div>
         <button type="button" id="login-near-wallet"
           class="w-full bg-slate-100 hover:bg-white text-slate-950 py-2 rounded-lg font-medium transition">
@@ -1700,17 +1791,21 @@ function showLogin() {
           </a>
         </div>
       </div>
+      ` : ''}
       <div id="login-error" class="hidden bg-red-900 text-red-200 px-3 py-2 rounded text-sm"></div>
-      <div class="flex items-center gap-3 py-1">
-        <span class="h-px flex-1 bg-slate-700"></span>
-        <span class="text-xs uppercase tracking-wide text-slate-500">Platform account access</span>
-        <span class="h-px flex-1 bg-slate-700"></span>
-      </div>
+      ${showWalletAccess ? `
+        <div class="flex items-center gap-3 py-1">
+          <span class="h-px flex-1 bg-slate-700"></span>
+          <span class="text-xs uppercase tracking-wide text-slate-500">Platform account access</span>
+          <span class="h-px flex-1 bg-slate-700"></span>
+        </div>
+      ` : ''}
       <div class="bg-green-950/40 border border-green-800 rounded-lg px-4 py-3">
-        <p class="text-sm font-semibold text-green-200">For admin-provided accounts</p>
+        <p class="text-sm font-semibold text-green-200">${entryRole === 'admin' ? 'For authorized AgriPartners Operator accounts' : 'For admin-provided accounts'}</p>
         <p class="text-sm text-slate-300 mt-1">
           Sign in here only if a platform admin gave you a username and password.
         </p>
+        ${entryRole === 'farmer' ? '<p class="text-sm text-slate-300 mt-1">Your Farmer workspace covers My Projects, Funding Confirmation, and Reports. Contact AgriPartners if you do not have access.</p>' : ''}
       </div>
       <div>
         <label class="block text-sm text-slate-400 mb-1">Username</label>
@@ -1732,6 +1827,11 @@ function showLogin() {
         class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded-lg font-medium transition">
         Sign In
       </button>
+      <div class="flex flex-wrap justify-center gap-3 pt-2 text-xs">
+        <a href="#login/investor" class="text-slate-400 hover:text-green-300">Investor entry</a>
+        <a href="#login/farmer" class="text-slate-400 hover:text-green-300">Farmer entry</a>
+        <a href="#login/admin" class="text-slate-400 hover:text-green-300">Operator entry</a>
+      </div>
     </form>
   `;
   if (pendingLoginError) {
@@ -1758,7 +1858,7 @@ function showLogin() {
       btn.textContent = '👁';
     }
   });
-  document.getElementById('login-near-wallet').addEventListener('click', handleWalletLogin);
+  document.getElementById('login-near-wallet')?.addEventListener('click', handleWalletLogin);
 }
 
 async function handleLogin(username, password) {
@@ -1839,19 +1939,37 @@ function renderNav() {
   const auth = getAuth();
   if (!auth) return '';
   const labels = { farmer: 'Farmer', investor: 'Investor', admin: 'Administrator' };
+  const role = auth.user.role;
   const roleLabel = isWalletAuth() ? 'Secure Account' : (labels[auth.user.role] || auth.user.role);
   const displayName = isWalletAuth() ? auth.user.account_id : auth.user.username;
+  const roleLinks = {
+    investor: [
+      ['#investor', 'Projects / Portfolio'],
+      ['#/marketplace', 'Investment Models'],
+    ],
+    farmer: [
+      ['#farmer', 'My Projects'],
+      ['#farmer', 'Funding Confirmation'],
+      ['#farmer', 'Reports'],
+    ],
+    admin: [
+      ['#admin', 'Operator Home'],
+      ['#deals', 'Manage Projects'],
+      ['#admin/create', 'Farmer Assignment'],
+      ['#deals', 'Reports'],
+      ['#deals', 'Settlement'],
+      ['#admin/users', 'Users'],
+      ['#admin/treasury', 'Treasury'],
+    ],
+  }[role] || [['#deals', 'Projects']];
   return `
     <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
-      <span class="text-sm text-slate-400">${roleLabel}: <span class="text-slate-200 font-medium">${escapeHtml(displayName)}</span></span>
-      <div class="flex items-center gap-3">
-        <a href="#investor" class="text-sm text-slate-400 hover:text-green-400 transition">Investor Portal</a>
-        <a href="#/marketplace" class="text-sm text-slate-400 hover:text-green-400 transition">Opportunity Catalog</a>
-        <a href="#farmer" class="text-sm text-slate-400 hover:text-green-400 transition">Farmer Portal</a>
-        ${isAdmin() ? '<a href="#admin" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Portal</a>' : ''}
-        ${isAdmin() ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Manage Projects</a>' : ''}
-        ${isAdmin() ? '<a href="#admin/users" class="text-sm text-slate-400 hover:text-green-400 transition">Users</a>' : ''}
-        ${isAdmin() ? '<a href="#admin/treasury" class="text-sm text-slate-400 hover:text-green-400 transition">Treasury</a>' : ''}
+      <span class="text-sm text-slate-400">
+        ${role === 'admin' ? 'AgriPartners Operator' : roleLabel}:
+        <span class="text-slate-200 font-medium">${escapeHtml(displayName)}</span>
+      </span>
+      <div class="flex flex-wrap items-center justify-end gap-3">
+        ${roleLinks.map(([href, label]) => `<a href="${href}" class="text-sm text-slate-400 hover:text-green-400 transition">${label}</a>`).join('')}
         <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
       </div>
     </div>
@@ -1900,6 +2018,8 @@ async function showAdminCreatePortal() {
   const el = document.getElementById('view-admin');
   el.innerHTML = `
     ${renderNav()}
+    ${renderEnvironmentBanner('pilot', 'AgriPartners Operator')}
+    ${renderRoleEntrySummary('admin')}
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
       <div>
         <h1 class="text-3xl font-bold text-green-400 mb-1">AgriPartners Project Operator</h1>
@@ -2417,6 +2537,7 @@ function showAdminDemoPortal() {
   const deals = buildAdminDemoDataset();
   el.innerHTML = `
     ${renderNav()}
+    ${renderEnvironmentBanner('demo', 'Admin')}
     <div class="mb-6">
       <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
@@ -2425,8 +2546,8 @@ function showAdminDemoPortal() {
     </div>
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
       <div>
-        <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Portal</h1>
-        <p class="text-slate-400">Pilot operations overview prepared for investor screenshots.</p>
+        <h1 class="text-3xl font-bold text-green-400 mb-1">AgriPartners Operator Demo</h1>
+        <p class="text-slate-400">Alpha demonstration of Manage Projects, Farmer Assignment, Reports, and Settlement visibility.</p>
       </div>
       <button type="button" id="admin-demo-pilot-deals-btn" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">View Pilot Projects</button>
     </div>
@@ -2588,6 +2709,8 @@ async function showDeals() {
 function renderAdminDashboardShell(el) {
   el.innerHTML = `
     ${renderNav()}
+    ${renderEnvironmentBanner('pilot', 'AgriPartners Operator')}
+    ${renderRoleEntrySummary('admin')}
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
       <div>
         <h1 class="text-3xl font-bold text-green-400 mb-1">Manage Projects</h1>
@@ -2701,6 +2824,125 @@ function renderAdminDemoSummary(metrics) {
   `;
 }
 
+function projectWorkspaceValue(...values) {
+  const value = values.find(item => item != null && String(item).trim() !== '');
+  return value == null ? null : String(value);
+}
+
+function projectWorkspaceStatus(deal = {}, status = null) {
+  if (status && typeof status === 'object') return projectWorkspaceValue(status.status);
+  return projectWorkspaceValue(status, deal.status?.status, deal.status);
+}
+
+function projectWorkspaceTimelineIndex({ deal = {}, status = null, cycles = [], reports = [], returns = [] } = {}) {
+  const statusKey = (projectWorkspaceStatus(deal, status) || '').toLowerCase().replace(/[^a-z]/g, '');
+  const statusStages = {
+    initialized: 0,
+    draft: 0,
+    preparing: 0,
+    approved: 0,
+    fundingpending: 0,
+    funded: 1,
+    farmerconfirmationpending: 1,
+    active: 2,
+    cycleactive: 2,
+    inproduction: 2,
+    reportspending: 3,
+    cyclesettlement: 4,
+    settlementpending: 4,
+    settled: 4,
+    completed: 5,
+  };
+  let currentIndex = Object.prototype.hasOwnProperty.call(statusStages, statusKey)
+    ? statusStages[statusKey]
+    : -1;
+  const fundingStatus = projectWorkspaceValue(deal.fundingStatus, deal.funding_status);
+  if (fundingStatus && /(funded|confirmed|received)/i.test(fundingStatus)) currentIndex = Math.max(currentIndex, 1);
+  const farmerConfirmed = deal.farmerConfirmed === true
+    || deal.farmer_confirmed === true
+    || deal.funding_received_at != null
+    || cycles.some(cycle => cycle?.fundingReceived === true || cycle?.funding_received_at != null);
+  if (farmerConfirmed) currentIndex = Math.max(currentIndex, 2);
+  const productionStarted = cycles.some(cycle => {
+    const cycleStatus = projectWorkspaceValue(cycle?.cycleStatus, cycle?.status) || '';
+    return cycle?.fundingReceived === true
+      || cycle?.started_at != null
+      || /(active|started|reported|completed)/i.test(cycleStatus);
+  })
+    || /(active|production|completed)/i.test(projectWorkspaceValue(deal.cycleStatus, deal.cycle_status) || '');
+  if (productionStarted) currentIndex = Math.max(currentIndex, 2);
+  const reportRecorded = reports.length > 0
+    || /submitted|approved|published/i.test(projectWorkspaceValue(deal.reportStatus, deal.report_status) || '')
+    || cycles.some(cycle => cycle?.report || /submitted|approved|published/i.test(projectWorkspaceValue(cycle?.reportStatus, cycle?.report_status) || ''));
+  if (reportRecorded) currentIndex = Math.max(currentIndex, 3);
+  const settlementRecorded = returns.length > 0
+    || /recorded|approved|paid|reconciled|settled/i.test(projectWorkspaceValue(deal.returnStatus, deal.return_status) || '');
+  if (settlementRecorded) currentIndex = Math.max(currentIndex, 4);
+  return currentIndex;
+}
+
+function renderProjectWorkspaceHeader({ deal = {}, status = null, cycles = [], reports = [], returns = [] } = {}) {
+  const projectName = projectWorkspaceValue(deal.title, deal.project_name, deal.project_title, deal.name)
+    || (deal.id != null ? `Project #${deal.id}` : 'Project name unavailable');
+  const investmentModel = projectWorkspaceValue(
+    deal.investment_model_name,
+    deal.investment_model,
+    deal.deal_type
+  ) || 'Investment Model unavailable';
+  const projectStatus = projectWorkspaceStatus(deal, status) || 'Status unavailable';
+  const timelineStages = ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed'];
+  const currentIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
+  const isCompleted = currentIndex === timelineStages.length - 1;
+
+  return `
+    <section id="project-workspace-header" data-project-workspace-header class="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-6">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div class="min-w-0">
+          <span class="block text-xs font-semibold text-green-300 uppercase tracking-wide">Project Workspace</span>
+          <h1 aria-label="Project Name" class="text-2xl md:text-3xl font-bold text-slate-50 mt-1">${escapeHtml(projectName)}</h1>
+        </div>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-200 border border-slate-600 px-3 py-1 rounded-full">${escapeHtml(projectStatus)}</span>
+      </div>
+      <dl class="grid sm:grid-cols-3 gap-3 mt-5">
+        <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
+          <dt class="text-xs text-slate-500">Investment Model</dt>
+          <dd class="text-sm font-semibold text-slate-100 mt-1">${escapeHtml(investmentModel)}</dd>
+        </div>
+        <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
+          <dt class="text-xs text-slate-500">Project Status</dt>
+          <dd class="text-sm font-semibold text-slate-100 mt-1">${escapeHtml(projectStatus)}</dd>
+        </div>
+        <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
+          <dt class="text-xs text-slate-500">Project Operator</dt>
+          <dd class="text-sm font-semibold text-slate-100 mt-1">AgriPartners</dd>
+        </div>
+      </dl>
+      <div class="mt-5">
+        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Timeline</h2>
+        <ol class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" aria-label="Project timeline">
+          ${timelineStages.map((label, index) => {
+            const state = isCompleted || index < currentIndex
+              ? 'completed'
+              : (index === currentIndex ? 'current' : 'upcoming');
+            const stateClass = state === 'completed'
+              ? 'border-green-800 bg-green-950 text-green-200'
+              : (state === 'current'
+                ? 'border-blue-700 bg-blue-950 text-blue-100'
+                : 'border-slate-700 bg-slate-900 text-slate-400');
+            const marker = state === 'completed' ? '&#10003;' : (state === 'current' ? '&#8226;' : index + 1);
+            return `
+              <li data-project-stage="${escapeHtml(label)}" data-stage-state="${state}" class="border rounded-lg px-3 py-2 ${stateClass}" ${state === 'current' ? 'aria-current="step"' : ''}>
+                <span class="block text-xs opacity-75">${marker}</span>
+                <span class="block text-sm font-medium mt-1">${escapeHtml(label)}</span>
+              </li>
+            `;
+          }).join('')}
+        </ol>
+      </div>
+    </section>
+  `;
+}
+
 function renderAdminDemoDealCard(deal) {
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -2755,6 +2997,7 @@ function showAdminPilotDetail(key) {
 function renderAdminDemoDealDetail(el, deal) {
   el.innerHTML = `
     ${renderNav()}
+    ${renderEnvironmentBanner('demo', 'Admin Project')}
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
@@ -2768,6 +3011,7 @@ function renderAdminDemoDealDetail(el, deal) {
       ${statusBadge(deal.status)}
       ${deal.status === 'Active' ? `<span class="text-slate-400 text-sm">Production Cycle ${escapeHtml(deal.currentCycle)}</span>` : ''}
     </div>
+    ${renderProjectWorkspaceHeader({ deal, status: deal.status })}
     ${renderAdminDemoProjectProfile(deal)}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5">
@@ -2928,9 +3172,10 @@ async function showOnboarding() {
   }
 
   el.innerHTML = `
+    ${renderEnvironmentBanner('demo', 'Wallet onboarding')}
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-green-400 mb-1">Welcome to AgriPartners</h1>
-      <p class="text-slate-400">Create an Alpha participant profile for the authenticated account.</p>
+      <p class="text-slate-400">Create an Alpha/Testnet participant profile. Future Pilot Farmers use AgriPartners-provided access and fiat workflows.</p>
     </div>
 
     <form id="onboarding-form" class="bg-slate-800 rounded-xl p-6 space-y-5">
@@ -3063,9 +3308,10 @@ async function fetchFarmerJson(path, options = {}) {
 async function showFarmerPortal() {
   showView('view-farmer');
   const el = document.getElementById('view-farmer');
-  const connectedWalletAccount = getNearWalletAccount();
   el.innerHTML = `
     ${renderNav()}
+    ${renderEnvironmentBanner('pilot', 'Farmer')}
+    ${renderRoleEntrySummary('farmer')}
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-green-400 mb-1">My Projects</h1>
       <p class="text-slate-400">Farmer operations managed through AgriPartners.</p>
@@ -3078,15 +3324,6 @@ async function showFarmerPortal() {
   `;
 
   const contentEl = document.getElementById('farmer-dashboard-content');
-  if (!connectedWalletAccount) {
-    contentEl.innerHTML = `
-      <div class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-200">
-        Farmer Portal access requires an active secure account session. Contact AgriPartners for access.
-      </div>
-    `;
-    return;
-  }
-
   try {
     const [profileData, dealsData] = await Promise.all([
       fetchFarmerJson('/api/profile/me'),
@@ -3243,10 +3480,10 @@ function renderFarmerProfilePanel(profile, farmer) {
 }
 
 function renderFarmerSummaryCards(metrics) {
-  const totalFunding = metrics.displayTotalFunding || yoctoToNear(metrics.totalFunding);
+  const totalFunding = metrics.displayTotalFunding || 'Available in Project terms';
   const rawFunding = metrics.displayTotalFunding
     ? '<span class="metric-raw">Financial view in USD</span>'
-    : `<span class="metric-raw">${formatYoctoRaw(metrics.totalFunding)}</span>`;
+    : '<span class="metric-raw">AgriPartners-managed fiat workflow</span>';
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
       <div class="metric-box">
@@ -3379,11 +3616,7 @@ function renderFarmerDealCard(deal) {
 
 function formatFarmerFundingAmount(value) {
   if (value == null || value === '') return 'Unavailable';
-  try {
-    return yoctoToNear(value);
-  } catch {
-    return 'Unavailable';
-  }
+  return 'Available in Project terms';
 }
 
 async function showFarmerDeal(id, actionState = null) {
@@ -3556,6 +3789,7 @@ function showFarmerPilotSelector() {
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
         Back home
       </a>
+      ${renderEnvironmentBanner('demo', 'Farmer')}
       <div class="farmer-pilot-selector-heading">
         <span>Farmer demo</span>
         <h1>Choose an Investment Model</h1>
@@ -3601,6 +3835,7 @@ function showFarmerPilotProfile(key) {
 function renderFarmerDemoDealDetail(el, deal, cycles, events) {
   el.innerHTML = `
     ${renderNav()}
+    ${renderEnvironmentBanner('demo', 'Farmer')}
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
@@ -3612,6 +3847,7 @@ function renderFarmerDemoDealDetail(el, deal, cycles, events) {
       ${statusBadge(deal.status)}
     </div>
 
+    ${renderProjectWorkspaceHeader({ deal, status: deal.status, cycles })}
     ${renderFarmerProjectProfile(deal)}
     ${renderFarmerDealOperationsSummary(deal, cycles)}
     ${renderFarmerReserveBreakdown(deal, cycles)}
@@ -4024,7 +4260,7 @@ function renderFarmerDealDetail(el, bundle) {
   const canWithdrawFarmer = hasPositiveYoctoSafe(farmerBalance);
   const balanceDisplay = farmerBalance == null
     ? 'Unavailable'
-    : `${yoctoToNear(farmerBalance)} · ${formatYoctoRaw(farmerBalance)}`;
+    : (canWithdrawFarmer ? 'Available in Alpha demo' : 'No Alpha demo payout available');
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
@@ -4035,6 +4271,7 @@ function renderFarmerDealDetail(el, bundle) {
       <button id="btn-farmer-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
+    ${renderProjectWorkspaceHeader({ deal, status: deal.status, cycles })}
     ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
     ${renderFarmerProjectProfile(deal)}
     ${renderFarmerDealOperationsSummary(deal, cycles)}
@@ -4098,7 +4335,7 @@ function renderFarmerResourceUnavailable(label, message) {
 
 function renderFarmerDealParams(deal) {
   const rows = [
-    ['Farmer Assignment', deal.farmer || 'Unavailable'],
+    ['Farmer Assignment', deal.farmer ? 'Assigned by AgriPartners' : 'Unavailable'],
     ['Project Operator', 'AgriPartners'],
     ['Funding', formatFarmerFundingAmount(deal.amount ?? deal.investment_amount)],
     ['Project Status', deal.status || 'Unknown'],
@@ -4283,9 +4520,12 @@ async function showInvestorPortal() {
   const signedInLabel = connectedWalletAccount || auth.user.username;
   el.innerHTML = `
     ${renderNav()}
+    ${renderEnvironmentBanner('pilot', 'Investor')}
+    ${renderRoleEntrySummary('investor')}
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-green-400 mb-1">Investor Analytics Dashboard</h1>
-      <p class="text-slate-400">Projects, Investment Models, Project Progress, Farmer Reports, and Settlement / Returns visibility.</p>
+      <h1 class="text-3xl font-bold text-green-400 mb-1">Investor Portfolio</h1>
+      <p class="text-slate-400">Review your AgriPartners-managed Projects, Investment Models, approved Project progress, Reports, and Settlement / Returns visibility.</p>
+      <p class="text-slate-400 mt-1">AgriPartners is the Project Operator. NEAR/Testnet is supporting AgriPartners infrastructure.</p>
       <p class="text-slate-400">Signed in as <span class="text-slate-200 font-medium">${escapeHtml(signedInLabel)}</span></p>
     </div>
     <div id="near-wallet-section" class="mb-6"></div>
@@ -5122,6 +5362,7 @@ function showMarketplace(filter = 'all') {
 
   el.innerHTML = `
     ${renderNav()}
+    ${renderEnvironmentBanner('demo', 'Opportunity Catalog')}
     <div class="mb-6">
       <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
@@ -5715,6 +5956,7 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
   const profile = investorProjectProfile(deal, status);
   el.innerHTML = `
     ${renderNav()}
+    ${renderEnvironmentBanner('demo', 'Investor')}
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
@@ -5727,6 +5969,7 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
       <span class="text-slate-400 text-sm">Cycle ${status?.current_cycle ?? '-'}</span>
     </div>
 
+    ${renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns })}
     ${renderProjectProfile(deal, status)}
     ${renderFundingProgressPanel(deal)}
     ${renderInvestorProtectionPanel(deal, deal.balances)}
@@ -5929,6 +6172,7 @@ function renderInvestorDealDetail(el, bundle) {
       <button id="btn-investor-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
+    ${renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns })}
     <nav aria-label="Project sections" class="flex flex-wrap gap-2 mb-6 text-sm">
       <button type="button" id="btn-investor-section-overview" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Overview</button>
       <button type="button" id="btn-investor-section-returns" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Settlement / Returns</button>
@@ -6512,6 +6756,7 @@ async function refreshInvestorDeal(id) {
     const titleEl = document.getElementById('investor-deal-title');
     const badgeEl = document.getElementById('investor-status-badge');
     const cycleEl = document.getElementById('investor-cycle-text');
+    const workspaceHeaderEl = document.getElementById('project-workspace-header');
     const profileEl = document.getElementById('investor-project-profile');
     const fundingEl = document.getElementById('investor-funding-progress');
     const protectionEl = document.getElementById('investor-protection-panel');
@@ -6527,6 +6772,9 @@ async function refreshInvestorDeal(id) {
     if (titleEl) titleEl.textContent = investorProjectProfile(deal, status).title;
     if (badgeEl) badgeEl.innerHTML = statusBadge(status?.status);
     if (cycleEl) cycleEl.textContent = `Cycle ${status?.current_cycle ?? '—'}`;
+    if (workspaceHeaderEl) {
+      workspaceHeaderEl.outerHTML = renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns });
+    }
     if (profileEl) profileEl.outerHTML = renderProjectProfile(deal, status, resourceErrors.status);
     if (fundingEl) fundingEl.outerHTML = renderLiveFundingProgressPanel(deal);
     if (protectionEl) protectionEl.outerHTML = renderInvestorProtectionPanel(deal, balances);
@@ -6706,6 +6954,7 @@ function renderDealDetail(el, bundle) {
       <span id="cycle-text" class="text-slate-400 text-sm">${cycleText}</span>
       <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
+    ${renderProjectWorkspaceHeader({ deal, status, cycles, returns: adminReturns })}
     ${resourceErrors.status ? renderAdminResourceUnavailable('Status', resourceErrors.status) : ''}
     ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
     <div class="grid md:grid-cols-2 gap-6 mb-6">

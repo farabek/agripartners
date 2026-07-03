@@ -48,7 +48,7 @@ test('login copy explains wallet onboarding and platform credentials', () => {
 test('login screen links back to the home page', () => {
   const loginStart = appJs.indexOf('function showLogin()');
   expect(loginStart).toBeGreaterThan(-1);
-  const loginBody = appJs.slice(loginStart, loginStart + 1200);
+  const loginBody = appJs.slice(loginStart, loginStart + 2600);
   expect(loginBody).toContain('href="/"');
   expect(loginBody).toContain('text-lg leading-none');
   expect(loginBody).toContain('Back home');
@@ -60,4 +60,18 @@ test('login screen presents NEAR wallet before platform account access', () => {
   expect(walletIndex).toBeGreaterThan(-1);
   expect(platformIndex).toBeGreaterThan(-1);
   expect(walletIndex).toBeLessThan(platformIndex);
+});
+
+test('role-specific login entries preserve generic auth and keep Farmer access non-wallet-first', () => {
+  const routeStart = appJs.indexOf('function route()');
+  const routeBody = appJs.slice(routeStart, routeStart + 5200);
+  const loginStart = appJs.indexOf('function showLogin()');
+  const loginBody = appJs.slice(loginStart, loginStart + 9000);
+
+  expect(routeBody).toContain("hash.match(/^#login\\/(investor|farmer|admin)$/)");
+  expect(routeBody).toContain('showLogin(loginEntry[1])');
+  expect(loginBody).toContain("const showWalletAccess = entryRole == null || entryRole === 'investor'");
+  expect(loginBody).toContain("entryRole === 'farmer'");
+  expect(loginBody).toContain('My Projects, Funding Confirmation, and Reports');
+  expect(loginBody).toContain("document.getElementById('login-near-wallet')?.addEventListener");
 });

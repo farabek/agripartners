@@ -315,6 +315,7 @@ function loadInvestorDetailRenderer() {
     function escapeHtml(value) { return String(value ?? ''); }
     function investorProjectProfile(deal) { return { title: deal.title || 'Deal' }; }
     function statusBadge(value) { return '<span>Status:' + value + '</span>'; }
+    function renderProjectWorkspaceHeader() { return '<section>Project Workspace Header</section>'; }
     function renderProjectProfile(deal, status, error) { return '<section>Deal Overview' + (error ? '|error:Contract status:' + error : '') + '</section>'; }
     function renderLiveFundingProgressPanel() { return '<section>Funding Progress</section>'; }
     function renderInvestorReturnsManagement() { return '<section>Investment Summary|Returns Summary|ROI Progress|Actual vs Projected ROI</section>'; }
@@ -342,7 +343,7 @@ function loadRefreshInvestorDealHelper(bundle) {
   const elements = new Map();
   const ids = [
     'btn-investor-refresh', 'investor-deal-title', 'investor-status-badge', 'investor-cycle-text',
-    'investor-project-profile', 'investor-funding-progress', 'investor-technical-data',
+    'project-workspace-header', 'investor-project-profile', 'investor-funding-progress', 'investor-technical-data',
     'investor-events-list', 'investor-reports-list', 'investor-cycles-list',
     'investor-investment-summary', 'investor-returns-summary', 'investor-roi-progress',
     'investor-actual-vs-projected-roi', 'investor-returns-list', 'investor-available-balance',
@@ -354,6 +355,7 @@ function loadRefreshInvestorDealHelper(bundle) {
     async function fetchInvestorDealBundle() { return bundle; }
     function investorProjectProfile(deal) { return { title: deal.title }; }
     function statusBadge(value) { return \`status:\${value}\`; }
+    function renderProjectWorkspaceHeader({ deal }) { return \`workspace:\${deal.title}\`; }
     function renderProjectProfile(deal) { return \`profile:\${deal.title}\`; }
     function renderLiveFundingProgressPanel(deal) { return \`funding:\${deal.title}\`; }
     function renderInvestorDealParams(deal) { return \`technical:\${deal.title}\`; }
@@ -955,8 +957,8 @@ test('investor detail renders project profile before technical deal data', () =>
 
 test('investor home dashboard renders MVP metrics and preserves its sections', () => {
   expect(appJs).toContain('function investorMetrics');
-  expect(appJs).toContain('Investor Analytics Dashboard');
-  expect(appJs).toContain('Projects, Investment Models, Project Progress, Farmer Reports, and Settlement / Returns visibility.');
+  expect(appJs).toContain('Investor Portfolio');
+  expect(appJs).toContain('Review your AgriPartners-managed Projects, Investment Models, approved Project progress, Reports, and Settlement / Returns visibility.');
   expect(appJs).toContain('Portfolio Summary');
   expect(appJs).toContain('Projected Total Payout');
   expect(appJs).toContain('Recorded Off-chain Returns');

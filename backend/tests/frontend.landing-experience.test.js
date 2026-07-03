@@ -34,7 +34,7 @@ test('landing explains product audience and Alpha testnet context', () => {
   expect(appJs).toContain('AgriPartners / Project Operators');
   expect(appJs).toContain('Alpha v1.2');
   expect(appJs).toContain('NEAR Testnet');
-  expect(appJs).toContain('Demo / Live separation');
+  expect(appJs).toContain('Alpha Demo / Pilot entry separation');
 });
 
 test('landing describes core demonstration capabilities', () => {
@@ -92,6 +92,10 @@ test('landing CTAs route to explicit demo and login destinations', () => {
   expect(appJs).toContain('href="#demo/admin"');
   expect(appJs).toContain('id="home-login-wallet"');
   expect(appJs).toContain('href="#login"');
+  expect(appJs).toContain('href="#login/investor"');
+  expect(appJs).toContain('href="#login/farmer"');
+  expect(appJs).toContain('href="#login/admin"');
+  expect(appJs).toContain('Browse Opportunity Catalog');
 });
 
 test('demo routes are public while live protected routes still require auth', () => {
@@ -134,7 +138,7 @@ test('existing login form and wallet login behavior remain available', () => {
   expect(appJs).toContain('function showLogin()');
   expect(appJs).toContain('id="login-form"');
   expect(appJs).toContain('id="login-near-wallet"');
-  expect(appJs).toContain('document.getElementById(\'login-near-wallet\').addEventListener(\'click\', handleWalletLogin)');
+  expect(appJs).toContain('document.getElementById(\'login-near-wallet\')?.addEventListener(\'click\', handleWalletLogin)');
   expect(appJs).toContain('async function handleLogin(username, password)');
   expect(appJs).toContain("fetch(`${API_BASE}/api/auth/login`");
 });

@@ -37,7 +37,7 @@ test('admin treasury header renders required badges and derived warning', () => 
 test('admin navigation links to treasury without replacing existing dashboard behavior', () => {
   const nav = functionBody('renderNav', 2200);
   const shell = functionBody('renderAdminDashboardShell', 1600);
-  expect(nav).toContain('href="#admin/treasury"');
+  expect(nav).toContain("['#admin/treasury', 'Treasury']");
   expect(nav).toContain('Treasury');
   expect(shell).toContain('Treasury Dashboard');
   expect(shell).toContain('href="#admin/create"');
