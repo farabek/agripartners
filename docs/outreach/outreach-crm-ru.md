@@ -58,6 +58,7 @@ Track in Outreach CRM
 | Philipp Suarez | [near-foundation.md#philipp-suarez](near-directory/near-foundation.md#philipp-suarez) | Intro sent | 2026-06-25 | LinkedIn intro отправлено 2026-06-29 в 18:51 | Ответа пока нет | Если ответа не будет, отправить один follow-up 2026-07-03 | Connection принято. Finance-track contact. Не отправлять новое сообщение раньше даты follow-up. Profile details хранятся в Near Directory. |
 | Josh Ford | [near-foundation.md#josh-ford](near-directory/near-foundation.md#josh-ford) | Following | 2026-06-25 | Invite sent and followed on 2026-06-25 | No response yet | Monitor posts and engage; отправить DevX/product feedback intro после acceptance | Tier 2 DevX/Product contact. Profile details хранятся в Near Directory. |
 | Bowen Shen | [proximity-labs.md#bowen-shen](near-directory/proximity-labs.md#bowen-shen) | Following | 2026-06-25 | Invite sent on 2026-06-25 | No response yet | Monitor posts and engage; отправить DeFi/RWA fit intro после acceptance | Proximity Labs contact. Profile details хранятся в Near Directory. |
+| Alexander Scharrer | Ожидает добавления в Near Directory | Following | 2026-07-03 | Персонализированный запрос на подключение в LinkedIn отправлен 2026-07-03; приглашение ожидает принятия | Ответа пока нет | Дождаться принятия приглашения; после принятия не делать pitch сразу — наблюдать за публикациями и взаимодействовать естественно | NEAR Foundation, Head of Capital Markets. Категория: NEAR Foundation / Capital Markets. Приоритет: P1 / High. Стратегическая цель: Company Funding / Capital Markets / RWA positioning. Текст приглашения: "Hi Alexander, I'm building AgriPartners, an RWA agriculture platform on NEAR. I'd be glad to connect and exchange ideas around tokenized real-world assets." |
 
 ### Подготовленный follow-up — Philipp Suarez
 
@@ -67,7 +68,7 @@ Track in Outreach CRM
 >
 > Just following up on my message. We’ve prepared a public AgriPartners demo, including model-specific investor protection and transparent farmer payment schedules:
 >
-> https://frontend-omega-woad-90.vercel.app
+> [AgriPartners public demo](https://frontend-omega-woad-90.vercel.app)
 >
 > Would you be open to a brief 15-minute introduction next week?
 >
