@@ -2894,7 +2894,170 @@ function projectWorkspaceTimelineIndex({ deal = {}, status = null, cycles = [], 
   return currentIndex;
 }
 
-function renderProjectWorkspaceHeader({ deal = {}, status = null, cycles = [], reports = [], returns = [] } = {}) {
+function projectWorkspaceFormatDate(value) {
+  if (value == null || value === '') return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function projectWorkspaceItemDate(items, fields) {
+  for (const item of items) {
+    for (const field of fields) {
+      const date = projectWorkspaceFormatDate(item?.[field]);
+      if (date) return date;
+    }
+  }
+  return null;
+}
+
+function projectWorkspaceEventDate(events, pattern) {
+  const event = [...events].reverse().find(item => pattern.test(String(item?.event_type || '')));
+  return projectWorkspaceFormatDate(event?.created_at);
+}
+
+function projectWorkspaceStageDates({ deal = {}, cycles = [], reports = [], returns = [], events = [] } = {}) {
+  return [
+    projectWorkspaceFormatDate(projectWorkspaceValue(deal.funded_at, deal.funding_received_at))
+      || projectWorkspaceEventDate(events, /funded|funding confirmed/i),
+    projectWorkspaceFormatDate(projectWorkspaceValue(deal.farmer_confirmed_at, deal.farmer_confirmation_at))
+      || projectWorkspaceItemDate(cycles, ['funding_received_at', 'fundingReceivedAt'])
+      || projectWorkspaceEventDate(events, /farmer.*confirm/i),
+    projectWorkspaceFormatDate(deal.production_completed_at)
+      || projectWorkspaceItemDate([...cycles].reverse(), ['completed_at', 'completedAt'])
+      || projectWorkspaceEventDate(events, /cycle completed|cycle_completed|production completed/i),
+    projectWorkspaceFormatDate(deal.reports_completed_at)
+      || projectWorkspaceItemDate([...reports].reverse(), ['published_at', 'approved_at', 'submitted_at', 'created_at'])
+      || projectWorkspaceEventDate(events, /report approved|report published|report submitted|cycle_reported/i),
+    projectWorkspaceFormatDate(deal.settled_at)
+      || projectWorkspaceItemDate([...returns].reverse(), ['reconciled_at', 'paid_at'])
+      || projectWorkspaceEventDate(events, /settlement completed|settled|reconciled/i),
+    projectWorkspaceFormatDate(deal.completed_at)
+      || projectWorkspaceEventDate(events, /^completed$|project completed/i),
+  ];
+}
+
+function projectWorkspaceCurrentCycle(deal = {}, status = null, cycles = []) {
+  const statusCycle = status && typeof status === 'object' ? status.current_cycle : null;
+  const activeCycle = cycles.find(cycle => /active|started|funding_received/i.test(
+    projectWorkspaceValue(cycle?.cycleStatus, cycle?.status) || ''
+  )) || cycles[0];
+  return projectWorkspaceValue(
+    statusCycle,
+    deal.currentCycle,
+    deal.current_cycle,
+    deal.activeCycleId,
+    activeCycle?.cycle_num,
+    activeCycle?.cycleNumber,
+    activeCycle?.id
+  ) || 'Cycle unavailable';
+}
+
+function projectWorkspaceNextMilestone(deal, currentIndex, timelineStages) {
+  const explicitMilestone = projectWorkspaceValue(deal.next_milestone, deal.nextMilestone);
+  if (explicitMilestone) return explicitMilestone;
+  if (currentIndex < 0) return 'Milestone unavailable';
+  if (currentIndex >= timelineStages.length - 1) return 'No further milestone';
+  return timelineStages[currentIndex + 1];
+}
+
+function projectWorkspaceFarmerAction(deal, currentIndex, cycles, reports) {
+  const explicitAction = projectWorkspaceValue(deal.next_required_action, deal.next_action, deal.nextAction);
+  if (explicitAction) return explicitAction;
+  const reportStatus = projectWorkspaceValue(
+    deal.reportStatus,
+    deal.report_status,
+    reports[0]?.status,
+    cycles.find(cycle => cycle?.reportStatus)?.reportStatus
+  ) || '';
+  if (/changes required|correction|rejected/i.test(reportStatus)) return 'Update and resubmit the Project Report';
+  if (/submitted|under review/i.test(reportStatus)) return 'Wait for AgriPartners report review';
+  if (currentIndex < 0) return 'Required action unavailable';
+  if (currentIndex <= 1) return 'Confirm Funding receipt with AgriPartners';
+  if (currentIndex === 2) return 'Submit the next Project Report';
+  if (currentIndex === 3) return 'Complete report follow-up with AgriPartners';
+  if (currentIndex === 4) return 'Complete Project closeout requirements';
+  return 'No action required';
+}
+
+function projectWorkspaceDueInformation(deal, cycles, reports) {
+  const currentCycle = cycles.find(cycle => /active|started|due/i.test(
+    projectWorkspaceValue(cycle?.cycleStatus, cycle?.status, cycle?.reportStatus) || ''
+  )) || cycles[0];
+  const dueDate = projectWorkspaceFormatDate(projectWorkspaceValue(
+    deal.next_due_at,
+    deal.report_due_at,
+    currentCycle?.report_due_at,
+    currentCycle?.due_at,
+    reports[0]?.due_at
+  ));
+  return dueDate ? `Due ${dueDate}` : 'Due information unavailable';
+}
+
+function projectWorkspaceOperatorAttention(deal = {}) {
+  if (Array.isArray(deal.attention_items)) {
+    return deal.attention_items.length
+      ? `${deal.attention_items.length} attention item${deal.attention_items.length === 1 ? '' : 's'}`
+      : 'No attention items reported';
+  }
+  const count = Number(deal.attention_count ?? deal.exception_count);
+  if (Number.isFinite(count)) return count ? `${count} attention item${count === 1 ? '' : 's'}` : 'No attention items reported';
+  if (deal.attention_required === true || deal.action_required === true) return 'Attention required';
+  if (deal.attention_required === false && deal.action_required !== true) return 'No attention items reported';
+  return 'Attention data unavailable';
+}
+
+function projectWorkspacePendingItems(deal, cycles, reports, returns) {
+  const pending = [];
+  if (cycles.some(cycle => cycle?.fundingReceived === false
+    && /funding sent|funding_sent/i.test(projectWorkspaceValue(cycle?.status, cycle?.cycleStatus) || ''))) {
+    pending.push('Farmer confirmation');
+  }
+  const reportStatus = projectWorkspaceValue(deal.reportStatus, deal.report_status);
+  if (/submitted|under review/i.test(reportStatus || '')
+    || reports.some(report => /submitted|under review/i.test(String(report?.status || '')))) {
+    pending.push('Report review');
+  }
+  if (returns.some(entry => /recorded|approved|paid/i.test(String(entry?.payment_status || '')))) {
+    pending.push('Settlement review');
+  }
+  if (pending.length) return `${pending.join(', ')} pending`;
+  const hasOperationalData = cycles.length > 0 || reports.length > 0 || returns.length > 0
+    || reportStatus != null || deal.fundingStatus != null || deal.funding_status != null;
+  return hasOperationalData ? 'No pending confirmations or reviews' : 'Pending review data unavailable';
+}
+
+function projectWorkspaceRoleDetails({ role, deal, currentIndex, timelineStages, cycles, reports, returns }) {
+  const currentStage = currentIndex < 0 ? 'Stage unavailable' : timelineStages[currentIndex];
+  if (role === 'farmer') {
+    return [
+      ['Current stage', currentStage],
+      ['Next required action', projectWorkspaceFarmerAction(deal, currentIndex, cycles, reports)],
+      ['Due information', projectWorkspaceDueInformation(deal, cycles, reports)],
+    ];
+  }
+  if (role === 'operator') {
+    return [
+      ['Current stage', currentStage],
+      ['Operational attention', projectWorkspaceOperatorAttention(deal)],
+      ['Pending confirmations / reviews', projectWorkspacePendingItems(deal, cycles, reports, returns)],
+    ];
+  }
+  return [
+    ['Current stage', currentStage],
+    ['Next milestone', projectWorkspaceNextMilestone(deal, currentIndex, timelineStages)],
+  ];
+}
+
+function renderProjectWorkspaceHeader({
+  deal = {},
+  status = null,
+  cycles = [],
+  reports = [],
+  returns = [],
+  events = [],
+  role = 'investor',
+} = {}) {
   const projectName = projectWorkspaceValue(deal.title, deal.project_name, deal.project_title, deal.name)
     || (deal.id != null ? `Project #${deal.id}` : 'Project name unavailable');
   const investmentModel = projectWorkspaceValue(
@@ -2907,6 +3070,11 @@ function renderProjectWorkspaceHeader({ deal = {}, status = null, cycles = [], r
   const timelineStages = ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed'];
   const currentIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
   const isCompleted = currentIndex === timelineStages.length - 1;
+  const stageDates = projectWorkspaceStageDates({ deal, cycles, reports, returns, events });
+  const currentCycle = projectWorkspaceCurrentCycle(deal, status, cycles);
+  const roleDetails = projectWorkspaceRoleDetails({
+    role, deal, currentIndex, timelineStages, cycles, reports, returns,
+  });
 
   return `
     <section id="project-workspace-header" data-project-workspace-header class="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-6">
@@ -2939,23 +3107,41 @@ function renderProjectWorkspaceHeader({ deal = {}, status = null, cycles = [], r
         <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Timeline</h2>
         <ol class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" aria-label="Project timeline">
           ${timelineStages.map((label, index) => {
+            const isCurrentStage = index === currentIndex;
             const state = isCompleted || index < currentIndex
               ? 'completed'
-              : (index === currentIndex ? 'current' : 'upcoming');
-            const stateClass = state === 'completed'
+              : (isCurrentStage ? 'current' : 'upcoming');
+            const stageStatus = state === 'completed'
+              ? (isCurrentStage ? 'Completed · Current stage' : 'Completed')
+              : (state === 'current' ? 'Current' : 'Upcoming');
+            const completionText = state === 'completed'
+              ? `Completion: ${stageDates[index] || 'Date unavailable'}`
+              : (state === 'current' ? 'Completion: Pending' : 'Completion: Not available');
+            const stateClass = `${state === 'completed'
               ? 'border-green-800 bg-green-950 text-green-200'
               : (state === 'current'
                 ? 'border-blue-700 bg-blue-950 text-blue-100'
-                : 'border-slate-700 bg-slate-900 text-slate-400');
+                : 'border-slate-700 bg-slate-900 text-slate-400')}${isCurrentStage && isCompleted ? ' ring-2 ring-green-400' : ''}`;
             const marker = state === 'completed' ? '&#10003;' : (state === 'current' ? '&#8226;' : index + 1);
             return `
-              <li data-project-stage="${escapeHtml(label)}" data-stage-state="${state}" class="border rounded-lg px-3 py-2 ${stateClass}" ${state === 'current' ? 'aria-current="step"' : ''}>
+              <li data-project-stage="${escapeHtml(label)}" data-stage-state="${state}" class="border rounded-lg px-3 py-2 ${stateClass}" ${isCurrentStage ? 'aria-current="step"' : ''}>
                 <span class="block text-xs opacity-75">${marker}</span>
                 <span class="block text-sm font-medium mt-1">${escapeHtml(label)}</span>
+                <span class="block text-xs font-semibold mt-2">${stageStatus}</span>
+                <span class="block text-xs opacity-75 mt-1">${escapeHtml(completionText)}</span>
+                ${label === 'Production' ? `<span class="block text-xs opacity-75 mt-1">Current cycle: ${escapeHtml(currentCycle)}</span>` : ''}
               </li>
             `;
           }).join('')}
         </ol>
+        <dl class="grid sm:grid-cols-2 ${roleDetails.length > 2 ? 'lg:grid-cols-3' : ''} gap-2 mt-3" data-timeline-role="${escapeHtml(role)}">
+          ${roleDetails.map(([label, value]) => `
+            <div class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2">
+              <dt class="text-xs text-slate-500">${escapeHtml(label)}</dt>
+              <dd class="text-sm text-slate-200 mt-1">${escapeHtml(value)}</dd>
+            </div>
+          `).join('')}
+        </dl>
       </div>
     </section>
   `;
@@ -3029,7 +3215,12 @@ function renderAdminDemoDealDetail(el, deal) {
       ${statusBadge(deal.status)}
       ${deal.status === 'Active' ? `<span class="text-slate-400 text-sm">Production Cycle ${escapeHtml(deal.currentCycle)}</span>` : ''}
     </div>
-    ${renderProjectWorkspaceHeader({ deal, status: deal.status })}
+    ${renderProjectWorkspaceHeader({
+      deal,
+      status: deal.status,
+      events: adminDemoEvents(deal),
+      role: 'operator',
+    })}
     ${renderAdminDemoProjectProfile(deal)}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5">
@@ -3865,7 +4056,7 @@ function renderFarmerDemoDealDetail(el, deal, cycles, events) {
       ${statusBadge(deal.status)}
     </div>
 
-    ${renderProjectWorkspaceHeader({ deal, status: deal.status, cycles })}
+    ${renderProjectWorkspaceHeader({ deal, status: deal.status, cycles, events, role: 'farmer' })}
     ${renderFarmerProjectProfile(deal)}
     ${renderFarmerDealOperationsSummary(deal, cycles)}
     ${renderFarmerReserveBreakdown(deal, cycles)}
@@ -4289,7 +4480,7 @@ function renderFarmerDealDetail(el, bundle) {
       <button id="btn-farmer-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
-    ${renderProjectWorkspaceHeader({ deal, status: deal.status, cycles })}
+    ${renderProjectWorkspaceHeader({ deal, status: deal.status, cycles, role: 'farmer' })}
     ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
     ${renderFarmerProjectProfile(deal)}
     ${renderFarmerDealOperationsSummary(deal, cycles)}
@@ -5987,7 +6178,7 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
       <span class="text-slate-400 text-sm">Cycle ${status?.current_cycle ?? '-'}</span>
     </div>
 
-    ${renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns })}
+    ${renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns, events, role: 'investor' })}
     ${renderProjectProfile(deal, status)}
     ${renderFundingProgressPanel(deal)}
     ${renderInvestorProtectionPanel(deal, deal.balances)}
@@ -6190,7 +6381,7 @@ function renderInvestorDealDetail(el, bundle) {
       <button id="btn-investor-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
-    ${renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns })}
+    ${renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns, events, role: 'investor' })}
     <nav aria-label="Project sections" class="flex flex-wrap gap-2 mb-6 text-sm">
       <button type="button" id="btn-investor-section-overview" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Overview</button>
       <button type="button" id="btn-investor-section-returns" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Settlement / Returns</button>
@@ -6791,7 +6982,9 @@ async function refreshInvestorDeal(id) {
     if (badgeEl) badgeEl.innerHTML = statusBadge(status?.status);
     if (cycleEl) cycleEl.textContent = `Cycle ${status?.current_cycle ?? '—'}`;
     if (workspaceHeaderEl) {
-      workspaceHeaderEl.outerHTML = renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns });
+      workspaceHeaderEl.outerHTML = renderProjectWorkspaceHeader({
+        deal, status, cycles, reports, returns, events, role: 'investor',
+      });
     }
     if (profileEl) profileEl.outerHTML = renderProjectProfile(deal, status, resourceErrors.status);
     if (fundingEl) fundingEl.outerHTML = renderLiveFundingProgressPanel(deal);
@@ -6972,7 +7165,14 @@ function renderDealDetail(el, bundle) {
       <span id="cycle-text" class="text-slate-400 text-sm">${cycleText}</span>
       <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
-    ${renderProjectWorkspaceHeader({ deal, status, cycles, returns: adminReturns })}
+    ${renderProjectWorkspaceHeader({
+      deal,
+      status,
+      cycles,
+      returns: adminReturns,
+      events,
+      role: 'operator',
+    })}
     ${resourceErrors.status ? renderAdminResourceUnavailable('Status', resourceErrors.status) : ''}
     ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
