@@ -204,7 +204,7 @@ async function fetchMyProfile() {
   if (res.status === 401) {
     clearAuth();
     location.hash = '#login';
-    throw new Error('Wallet session expired');
+    throw new Error('Alpha portal session expired');
   }
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
@@ -352,12 +352,12 @@ const PRESENTATION_PROFILES = {
   investor: {
     id: 'investor',
     title: 'Investor',
-    description: 'A guided capital journey for investment opportunity, farmer transparency, return lifecycle, and withdrawal readiness.',
+    description: 'A guided journey through an agricultural investment Project, Farmer Reports, and Settlement readiness.',
     audience: 'Private investors, funds, angels, and pilot backers',
     objective: 'Help investors understand exactly what happened to their investment from opportunity to recorded return.',
     estimatedDuration: '~5 minutes',
     defaultFlow: 'quickDemo',
-    focus: ['Investment opportunity', 'Projected Return', 'Farmer transparency', 'Return lifecycle', 'Withdrawal readiness'],
+    focus: ['Investment Model', 'Project Progress', 'Farmer Reports', 'Return lifecycle', 'Settlement readiness'],
     stepOverrides: {},
     flows: {
       quickDemo: {
@@ -379,12 +379,12 @@ const PRESENTATION_PROFILES = {
           {
             title: 'Opportunity',
             audienceQuestion: 'Which pilot opportunities can I compare?',
-            keyMessage: 'The marketplace presents two flagship $50,000 pilot models: Hissar Sheep and Feedlot/Fidlot livestock.',
+            keyMessage: 'The Opportunity Catalog presents two flagship $50,000 Investment Models: Hissar Sheep and Feedlot/Fidlot livestock.',
             targetRoute: '#/marketplace',
-            targetLabel: 'Open Marketplace',
+            targetLabel: 'Open Opportunity Catalog',
             presenterNote: 'Keep the focus on comparable investment terms: amount, cycles, projected ROI, and status.',
             nextLabel: 'Next: Review investment terms',
-            topics: ['Pilot marketplace', 'Feedlot/Fidlot', 'Hissar Sheep'],
+            topics: ['Opportunity Catalog', 'Feedlot/Fidlot', 'Hissar Sheep'],
           },
           {
             title: 'Investment Terms',
@@ -423,25 +423,25 @@ const PRESENTATION_PROFILES = {
             targetRoute: '#admin/treasury',
             targetLabel: 'Open Treasury Dashboard',
             presenterNote: 'If not signed in as admin, stay on this card and explain the concept without forcing login.',
-            nextLabel: 'Next: Discuss withdrawal readiness',
+            nextLabel: 'Next: Discuss Settlement readiness',
             topics: ['Treasury Shadow Mode', 'Append-only trail', 'Duplicate-safe records'],
           },
           {
-            title: 'Withdrawal Readiness',
-            audienceQuestion: 'When can an investor withdraw?',
-            keyMessage: 'Withdrawal readiness depends on available balance, payment status, and future reconciliation controls.',
+            title: 'Settlement Readiness',
+            audienceQuestion: 'When can an Investor receive Settlement?',
+            keyMessage: 'Settlement readiness depends on approved payment status and reconciliation controls.',
             targetRoute: '#investor',
             targetLabel: 'Open Investor Portal',
-            presenterNote: 'Position withdrawal as Alpha/Testnet workflow readiness, not production payout authority.',
+            presenterNote: 'Position the Testnet action as infrastructure validation, not production Settlement authority or direct Farmer interaction.',
             nextLabel: 'Next: Summarize the story',
-            topics: ['Recorded vs Paid', 'Reconciliation', 'Investor withdrawal'],
+            topics: ['Recorded vs Paid', 'Reconciliation', 'Investor Settlement'],
           },
           {
             title: 'Summary / Next Steps',
             audienceQuestion: 'What should I remember from this demo?',
             keyMessage: 'AgriPartners already connects opportunity, farmer progress, recorded returns, and Treasury-ready accounting in one guided story.',
             targetRoute: '#/marketplace',
-            targetLabel: 'Return to Marketplace',
+            targetLabel: 'Return to Opportunity Catalog',
             presenterNote: 'Close with Beta focus: clarity, trust, reconciliation, and production readiness.',
             nextLabel: 'Restart demo',
             topics: ['Beta roadmap', 'Investor trust', 'Production readiness'],
@@ -466,15 +466,15 @@ PRESENTATION_PROFILES.near = {
       audienceQuestion: 'What real-world workflow is AgriPartners validating on NEAR Testnet?',
       keyMessage: 'AgriPartners uses NEAR Testnet to validate agricultural investment workflows before production settlement.',
       presenterNote: 'Lead with business utility, then explain why NEAR is useful as evidence and access infrastructure.',
-      transition: 'Next: show the pilot marketplace that gives the Testnet workflow a real use case.',
+      transition: 'Next: show the Opportunity Catalog that gives the Testnet workflow a real use case.',
     },
     Opportunity: {
-      keyMessage: 'The pilot marketplace gives NEAR activity a concrete agricultural finance use case instead of an abstract demo.',
+      keyMessage: 'The Opportunity Catalog gives NEAR infrastructure a concrete agricultural Project use case instead of an abstract demo.',
       presenterNote: 'Point out that the same screens are reused; the NEAR profile changes emphasis, not functionality.',
     },
     'Investment Terms': {
       audienceQuestion: 'Where does wallet-linked investor context meet pilot investment terms?',
-      keyMessage: 'The investor pilot screen connects deal economics to a wallet-aware application flow on NEAR Testnet.',
+      keyMessage: 'The Investor Project screen connects Investment Model economics to platform infrastructure on NEAR Testnet.',
       transition: 'Next: follow the off-chain operating workflow that surrounds the Testnet references.',
     },
     'Farmer Progress': {
@@ -489,10 +489,10 @@ PRESENTATION_PROFILES.near = {
       audienceQuestion: 'How does the architecture prepare for reliable settlement and reconciliation?',
       keyMessage: 'Treasury Shadow Mode creates an append-only accounting trail that can later be reconciled with blockchain evidence.',
       presenterNote: 'This is the key NEAR Foundation architecture moment. Keep it high level unless asked for details.',
-      transition: 'Next: connect Treasury discipline to future withdrawal readiness.',
+      transition: 'Next: connect Treasury discipline to future Settlement readiness.',
     },
-    'Withdrawal Readiness': {
-      keyMessage: 'Withdrawal readiness depends on payment status, reconciliation, and future production signer/custody decisions.',
+    'Settlement Readiness': {
+      keyMessage: 'Settlement readiness depends on payment status, reconciliation, and future production provider decisions.',
     },
     'Summary / Next Steps': {
       keyMessage: 'The NEAR story is applied infrastructure: wallet access, Testnet validation, evidence references, and a Treasury roadmap.',
@@ -525,17 +525,17 @@ PRESENTATION_PROFILES.accelerator = {
       transition: 'Next: show that this is not only a pitch deck; farmer workflow exists too.',
     },
     'Farmer Progress': {
-      keyMessage: 'Farmer progress shows product depth across both sides of the marketplace.',
-      presenterNote: 'This is a strong execution signal: investor and farmer surfaces both exist.',
+      keyMessage: 'Farmer Reports show operational depth within AgriPartners-managed Projects.',
+      presenterNote: 'Explain that Farmers work through AgriPartners as Project Operator, not directly with Investors.',
     },
     'Returns Recorded': {
       keyMessage: 'Recorded Return visibility shows a mature approach to financial language and investor trust.',
     },
     'Treasury Transparency': {
-      keyMessage: 'Treasury Transparency gives the roadmap credibility beyond a lightweight marketplace UI.',
+      keyMessage: 'Treasury Transparency gives the roadmap credibility beyond a lightweight Opportunity Catalog UI.',
     },
-    'Withdrawal Readiness': {
-      keyMessage: 'Withdrawal readiness is framed honestly as Alpha/Testnet workflow maturity, not premature production payout.',
+    'Settlement Readiness': {
+      keyMessage: 'Settlement readiness is framed honestly as Alpha/Testnet infrastructure maturity, not premature production payout.',
     },
     'Summary / Next Steps': {
       audienceQuestion: 'Why is this team ready for the next stage?',
@@ -579,8 +579,8 @@ PRESENTATION_PROFILES.enterprise = {
       keyMessage: 'Treasury Transparency is the bridge from operational workflow to auditable financial controls.',
       presenterNote: 'This is the enterprise anchor. Avoid raw account codes unless asked.',
     },
-    'Withdrawal Readiness': {
-      keyMessage: 'Withdrawal readiness highlights the need for partner-specific controls, reconciliation, and production integrations.',
+    'Settlement Readiness': {
+      keyMessage: 'Settlement readiness highlights the need for partner-specific controls, reconciliation, and production integrations.',
     },
     'Summary / Next Steps': {
       keyMessage: 'The enterprise opportunity is a repeatable operating layer for agricultural capital, reporting, Treasury, and integrations.',
@@ -616,7 +616,7 @@ const PRESENTATION_STEP_DETAILS = {
     speakingTips: ['Name both pilots.', 'Keep returns framed as projected unless discussing the completed demo story.'],
     expectedQuestions: ['Are these real pilots?', 'Why these two models?'],
     reminders: ['Avoid saying guaranteed return.'],
-    technicalAppendixLinks: [{ label: 'Marketplace', route: '#/marketplace' }],
+    technicalAppendixLinks: [{ label: 'Opportunity Catalog', route: '#/marketplace' }],
   },
   'Investment Terms': {
     icon: '$',
@@ -655,21 +655,21 @@ const PRESENTATION_STEP_DETAILS = {
     icon: 'TR',
     shortDescription: 'Explain the accounting trail.',
     whyItMatters: 'Treasury shows the path toward auditability while keeping Alpha Demo claims conservative.',
-    transition: 'Next: explain what must be true before withdrawal is ready.',
+    transition: 'Next: explain what must be true before Settlement is ready.',
     metrics: ['Treasury Transparency', 'Shadow Mode', 'Append-only Trail'],
     speakingTips: ['Describe Treasury as the accounting trail.', 'Avoid account codes unless the audience asks.'],
     expectedQuestions: ['Does Treasury control payouts now?', 'What does Shadow Mode mean?'],
     reminders: ['Shadow Mode observes and records; it does not enforce payouts yet.'],
     technicalAppendixLinks: [{ label: 'Admin Treasury route', route: '#admin/treasury' }],
   },
-  'Withdrawal Readiness': {
+  'Settlement Readiness': {
     icon: 'WD',
     shortDescription: 'Clarify payout readiness.',
     whyItMatters: 'The investor should understand payout maturity without assuming production custody is live.',
     transition: 'Next: summarize the complete investment story.',
-    metrics: ['Withdrawal Ready Path', 'Paid Return', 'Reconciled Return'],
+    metrics: ['Settlement Ready Path', 'Paid Return', 'Reconciled Return'],
     speakingTips: ['Separate availability from production payout authority.', 'Use the roadmap if asked about mainnet.'],
-    expectedQuestions: ['Can I withdraw today?', 'What controls are missing for production?'],
+    expectedQuestions: ['Can the Investor receive Settlement today?', 'What controls are missing for production?'],
     reminders: ['No production payout claim in Alpha Demo.'],
     technicalAppendixLinks: [{ label: 'Investor portal', route: '#investor' }],
   },
@@ -677,12 +677,12 @@ const PRESENTATION_STEP_DETAILS = {
     icon: 'NX',
     shortDescription: 'Close with the investment story.',
     whyItMatters: 'The closing ties product clarity to the Beta path: trust, reconciliation, and production readiness.',
-    transition: 'Next: restart the quick demo or open the marketplace for discussion.',
+    transition: 'Next: restart the quick demo or open the Opportunity Catalog for discussion.',
     metrics: ['1 Guided Story', '2 Pilot Models', 'Beta Readiness'],
     speakingTips: ['Summarize the capital journey in one sentence.', 'Invite questions by audience type.'],
     expectedQuestions: ['What is next for Beta?', 'What would make this production-ready?'],
     reminders: ['End with confidence and clear next steps.'],
-    technicalAppendixLinks: [{ label: 'Marketplace discussion point', route: '#/marketplace' }],
+    technicalAppendixLinks: [{ label: 'Opportunity Catalog discussion point', route: '#/marketplace' }],
   },
 };
 
@@ -1288,13 +1288,14 @@ function renderHomeInvestorProtection() {
     <section id="investment-protection" class="landing-section investment-protection-home" aria-labelledby="investment-protection-title">
       <div class="landing-section-heading">
         <span>Investor protection</span>
-        <h2 id="investment-protection-title">Understand the Protection Reserve Before You Choose a Deal</h2>
+        <h2 id="investment-protection-title">Explore the Future Protection Concept by Investment Model</h2>
       </div>
 
       <div class="protection-lead-grid">
         <div>
           <p class="protection-intro">
-            A model-specific portion of the farmer share is temporarily allocated to a Protection Reserve.
+            This exploratory, model-specific Protection Reserve concept is not active in Pilot 1.0.
+            In a future approved phase, a portion of the Farmer share could be allocated to a Protection Reserve.
             If a contractually Confirmed Loss occurs, the legally available reserve may reduce the investor's loss.
             If no Confirmed Loss requires its use, the unused balance is intended to be released to the farmer under the staged rules.
           </p>
@@ -1369,7 +1370,7 @@ function renderHomeInvestorProtection() {
       </div>
 
       <div class="protection-home-actions">
-        <a class="landing-btn landing-btn-primary" href="#/marketplace">Compare Pilot Deals</a>
+        <a class="landing-btn landing-btn-primary" href="#/marketplace">Compare Investment Models</a>
         <a class="landing-btn" href="https://github.com/farabek/agripartners/tree/main/docs/platform/investor-protection" target="_blank" rel="noopener noreferrer">Read Full Framework</a>
       </div>
     </section>
@@ -1384,7 +1385,7 @@ function showHome() {
       <a href="#home" class="landing-brand">AgriPartners</a>
       <div class="landing-nav-actions">
         <a href="#/platform">Platform</a>
-        <a href="#/marketplace">Marketplace</a>
+        <a href="#/marketplace">Opportunity Catalog</a>
         <a href="#login">Login</a>
       </div>
     </header>
@@ -1397,11 +1398,11 @@ function showHome() {
             <span>NEAR Testnet</span>
             <span>Demo / Live separation</span>
           </div>
-          <h1>Agricultural investment workflows with farmer reporting, investor visibility, and treasury-ready accounting.</h1>
+          <h1>Structured agricultural investment Projects with managed operations, transparent reporting, and audit-ready records.</h1>
           <p>
-            AgriPartners is an Alpha platform for transparent agricultural finance on NEAR. It connects investors,
-            farmers, and platform operators through live testnet workflows, structured reporting, typed return records,
-            reconciliation-safe status labels, and a growing Treasury Ledger foundation.
+            AgriPartners structures, manages, and monitors agricultural investment Projects. Investors participate
+            through AgriPartners, while Farmers work with AgriPartners as Project Operator. NEAR Testnet supports
+            transparency and auditability as platform infrastructure; future Farmer funding remains fiat-based.
           </p>
           <div class="landing-actions" aria-label="Primary actions">
             <a class="landing-btn landing-btn-primary" href="#/investor/pilots/fidlot">Explore Investor Demo</a>
@@ -1410,7 +1411,7 @@ function showHome() {
             <button type="button" id="home-login-wallet" class="landing-btn landing-btn-wallet">Login with NEAR Wallet</button>
           </div>
           <p class="landing-note">
-            Demo pages use safe pilot profiles. Live portal routes require authentication and wallet-linked access.
+            Demo pages use safe Pilot profiles. Live Investor and operator routes use Alpha authentication infrastructure.
           </p>
         </div>
       </section>
@@ -1423,15 +1424,15 @@ function showHome() {
         <div class="landing-card-grid">
           <article class="landing-card">
             <h3>Investors</h3>
-            <p>Review pilot deals, projected payouts, recorded off-chain returns, farmer reports, cycle history, and testnet references without treating provisional data as realized performance.</p>
+            <p>Review Projects, Investment Models, Project Progress, Farmer Reports, projected returns, and Settlement status without treating provisional data as realized performance.</p>
           </article>
           <article class="landing-card">
             <h3>Farmers</h3>
-            <p>Track assigned deals, confirm funding receipt, submit cycle reports, and maintain an operational history that investors and platform teams can inspect.</p>
+            <p>Work through AgriPartners as Project Operator to review My Projects, confirm funding, follow Production Cycles, and submit Project Reports.</p>
           </article>
           <article class="landing-card">
-            <h3>Admin / Platform Operators</h3>
-            <p>Create deals, monitor lifecycle events, record typed returns, transition return statuses, and inspect the foundation for append-only Treasury accounting.</p>
+            <h3>AgriPartners / Project Operators</h3>
+            <p>Manage Projects, select Investment Models, assign Farmers, monitor Project Status, review Project Reports, and maintain Settlement and Treasury records.</p>
           </article>
         </div>
       </section>
@@ -1442,9 +1443,9 @@ function showHome() {
           <h2>What is ready to show</h2>
         </div>
         <div class="landing-feature-list">
-          <div><strong>Live testnet workflows</strong><span>Wallet authentication, deal contracts, status checks, and transaction references on NEAR Testnet.</span></div>
-          <div><strong>Farmer reporting</strong><span>Funding confirmation, report submission, cycle history, and farmer-facing operational state.</span></div>
-          <div><strong>Investor visibility</strong><span>Portfolio summary, marketplace pilots, deal detail, reports, events, and return ledger visibility.</span></div>
+          <div><strong>NEAR infrastructure</strong><span>Investor/operator authentication and supplementary transaction references on NEAR Testnet support transparency and auditability.</span></div>
+          <div><strong>Farmer reporting</strong><span>Funding Confirmation, Project Reports, Production Cycle history, and AgriPartners-managed operational status.</span></div>
+          <div><strong>Investor visibility</strong><span>Project portfolio, Investment Models, Project Progress, Farmer Reports, events, and Settlement / Returns visibility.</span></div>
           <div><strong>Typed returns</strong><span>Principal, profit, and fee classification with recorded, approved, paid, and reconciled status language.</span></div>
           <div><strong>Treasury foundation</strong><span>Append-only double-entry ledger services with idempotent source references for future workflow integrations.</span></div>
         </div>
@@ -1605,7 +1606,7 @@ function showPlatformDocumentation(lang = 'en') {
     <header class="landing-nav">
       <a href="#home" class="landing-brand">AgriPartners</a>
       <div class="landing-nav-actions">
-        <a href="#/marketplace">Marketplace</a>
+        <a href="#/marketplace">Opportunity Catalog</a>
         <a href="#login">Login</a>
       </div>
     </header>
@@ -1663,14 +1664,15 @@ function showLogin() {
     </div>
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-green-400">AgriPartners</h1>
-      <p class="text-slate-400 mt-1">New users start with "Create NEAR Testnet Wallet."</p>
+      <p class="text-slate-400 mt-1">Explore public Project profiles or sign in to an Alpha portal.</p>
     </div>
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
       <div class="bg-slate-900 border border-green-900 rounded-lg p-4 space-y-3">
         <div>
           <h2 class="text-sm font-semibold text-green-200">New to AgriPartners?</h2>
           <p class="text-sm text-slate-400 mt-1">
-            Public demos do not require registration. Use wallet login only when you want to create a live testnet profile.
+            Public demos do not require registration. NEAR login is Alpha infrastructure for Investors and operators.
+            Farmers work through AgriPartners-managed onboarding and future fiat workflows.
           </p>
         </div>
         <button type="button" id="login-near-wallet"
@@ -1684,7 +1686,7 @@ function showLogin() {
           <ol class="mt-3 space-y-2 text-sm text-slate-300">
             <li><span class="font-semibold text-green-300">1.</span> Explore the public demo pages first if you only want to review the project.</li>
             <li><span class="font-semibold text-green-300">2.</span> Create or import a NEAR testnet wallet if you want to join the live testnet portal.</li>
-            <li><span class="font-semibold text-green-300">3.</span> Return here, click Login with NEAR Wallet, then create your Farmer or Investor profile.</li>
+            <li><span class="font-semibold text-green-300">3.</span> Return here, click Login with NEAR Wallet, then create an Investor or operator profile.</li>
           </ol>
         </details>
         <div class="grid gap-2 sm:grid-cols-2">
@@ -1837,17 +1839,17 @@ function renderNav() {
   const auth = getAuth();
   if (!auth) return '';
   const labels = { farmer: 'Farmer', investor: 'Investor', admin: 'Administrator' };
-  const roleLabel = isWalletAuth() ? 'Wallet Account' : (labels[auth.user.role] || auth.user.role);
+  const roleLabel = isWalletAuth() ? 'Secure Account' : (labels[auth.user.role] || auth.user.role);
   const displayName = isWalletAuth() ? auth.user.account_id : auth.user.username;
   return `
     <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
       <span class="text-sm text-slate-400">${roleLabel}: <span class="text-slate-200 font-medium">${escapeHtml(displayName)}</span></span>
       <div class="flex items-center gap-3">
         <a href="#investor" class="text-sm text-slate-400 hover:text-green-400 transition">Investor Portal</a>
-        <a href="#/marketplace" class="text-sm text-slate-400 hover:text-green-400 transition">Marketplace</a>
+        <a href="#/marketplace" class="text-sm text-slate-400 hover:text-green-400 transition">Opportunity Catalog</a>
         <a href="#farmer" class="text-sm text-slate-400 hover:text-green-400 transition">Farmer Portal</a>
         ${isAdmin() ? '<a href="#admin" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Portal</a>' : ''}
-        ${isAdmin() ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Admin Dashboard</a>' : ''}
+        ${isAdmin() ? '<a href="#deals" class="text-sm text-slate-400 hover:text-green-400 transition">Manage Projects</a>' : ''}
         ${isAdmin() ? '<a href="#admin/users" class="text-sm text-slate-400 hover:text-green-400 transition">Users</a>' : ''}
         ${isAdmin() ? '<a href="#admin/treasury" class="text-sm text-slate-400 hover:text-green-400 transition">Treasury</a>' : ''}
         <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
@@ -1900,8 +1902,8 @@ async function showAdminCreatePortal() {
     ${renderNav()}
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
       <div>
-        <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Portal</h1>
-        <p class="text-slate-400">Create a new deal for existing wallet profiles.</p>
+        <h1 class="text-3xl font-bold text-green-400 mb-1">AgriPartners Project Operator</h1>
+        <p class="text-slate-400">Create and assign an AgriPartners-managed Project using existing Alpha participant profiles.</p>
       </div>
       <a href="#deals" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open Dashboard</a>
     </div>
@@ -2063,8 +2065,8 @@ function renderAdminTreasuryShell(el) {
         <p class="text-slate-400 max-w-3xl">Treasury records are shown for Alpha visibility. Balances are derived from ledger entries and are not production settlement balances.</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <a href="#deals" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Admin Dashboard</a>
-        <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Deal</a>
+        <a href="#deals" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Manage Projects</a>
+        <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Project</a>
       </div>
     </div>
     <div id="admin-treasury-content" role="status" aria-live="polite">
@@ -2223,7 +2225,7 @@ function renderAdminTreasuryFilters(accounts) {
       <label class="text-xs text-slate-400">Currency
         <input id="treasury-filter-currency" class="mt-1 w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100" placeholder="NEAR" />
       </label>
-      <label class="text-xs text-slate-400">Deal id
+      <label class="text-xs text-slate-400">Project id
         <input id="treasury-filter-deal" class="mt-1 w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100" placeholder="7" />
       </label>
       <label class="text-xs text-slate-400">Investor
@@ -2276,7 +2278,7 @@ function renderAdminTreasuryLedger(ledgerEntries) {
             <th class="py-2 pr-3">Direction</th>
             <th class="py-2 pr-3">Amount</th>
             <th class="py-2 pr-3">Currency</th>
-            <th class="py-2 pr-3">Related deal</th>
+            <th class="py-2 pr-3">Related Project</th>
             <th class="py-2 pr-3">Related investor</th>
             <th class="py-2 pr-3">Related farmer</th>
           </tr>
@@ -2426,10 +2428,10 @@ function showAdminDemoPortal() {
         <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Portal</h1>
         <p class="text-slate-400">Pilot operations overview prepared for investor screenshots.</p>
       </div>
-      <button type="button" id="admin-demo-pilot-deals-btn" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">View Pilot Deals</button>
+      <button type="button" id="admin-demo-pilot-deals-btn" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">View Pilot Projects</button>
     </div>
     ${renderAdminDemoSummary(adminDemoMetrics(deals))}
-    <h2 id="admin-demo-pilot-deals" class="text-xl font-semibold mb-4">Pilot Deals</h2>
+    <h2 id="admin-demo-pilot-deals" class="text-xl font-semibold mb-4">Pilot Projects</h2>
     <div class="grid gap-4">
       ${deals.map(renderAdminDemoDealCard).join('')}
     </div>
@@ -2446,14 +2448,14 @@ function renderAdminCreateForm(el, farmers, investors) {
     <form id="admin-create-deal-form" class="space-y-4">
       <div class="grid md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm text-slate-400 mb-1" for="admin-investor">Investor</label>
+          <label class="block text-sm text-slate-400 mb-1" for="admin-investor">Investor Assignment</label>
           <select id="admin-investor" required
             class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500">
             ${renderProfileOptions(investors)}
           </select>
         </div>
         <div>
-          <label class="block text-sm text-slate-400 mb-1" for="admin-farmer">Farmer</label>
+          <label class="block text-sm text-slate-400 mb-1" for="admin-farmer">Farmer Assignment</label>
           <select id="admin-farmer" required
             class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500">
             ${renderProfileOptions(farmers)}
@@ -2467,27 +2469,27 @@ function renderAdminCreateForm(el, farmers, investors) {
             class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
         </div>
         <div>
-          <label class="block text-sm text-slate-400 mb-1" for="admin-reserve-rate">Model-specific reserve rate (%)</label>
+          <label class="block text-sm text-slate-400 mb-1" for="admin-reserve-rate">Legacy Alpha model parameter (%)</label>
           <input id="admin-reserve-rate" type="number" min="0" max="100" step="1" required placeholder="Fidlot 44; Hissar 53"
             class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
         </div>
       </div>
       <div>
-        <label class="block text-sm text-slate-400 mb-1" for="admin-title">Title</label>
+        <label class="block text-sm text-slate-400 mb-1" for="admin-title">Project Title</label>
         <input id="admin-title" type="text" maxlength="120" required placeholder="Greenhouse expansion"
           class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
       </div>
       <div>
-        <label class="block text-sm text-slate-400 mb-1" for="admin-description">Description</label>
-        <textarea id="admin-description" rows="4" required placeholder="Short deal summary"
+        <label class="block text-sm text-slate-400 mb-1" for="admin-description">Project Description</label>
+        <textarea id="admin-description" rows="4" required placeholder="Short Project summary"
           class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500"></textarea>
       </div>
       <div id="admin-create-result" class="hidden rounded-lg px-4 py-3 text-sm"></div>
       <button type="submit" ${hasProfiles ? '' : 'disabled'}
         class="bg-green-600 hover:bg-green-500 disabled:bg-slate-700 disabled:text-slate-400 text-white px-4 py-2 rounded-lg font-medium transition">
-        Create Deal
+        Create Project
       </button>
-      ${hasProfiles ? '' : `<p class="text-sm text-slate-400">${farmers.length === 0 && investors.length === 0 ? 'No farmer or investor profiles are available.' : farmers.length === 0 ? 'No farmer profiles are available.' : 'No investor profiles are available.'} Add the missing profile before creating a deal.</p>`}
+      ${hasProfiles ? '' : `<p class="text-sm text-slate-400">${farmers.length === 0 && investors.length === 0 ? 'No Farmer or Investor profiles are available.' : farmers.length === 0 ? 'No Farmer profiles are available.' : 'No Investor profiles are available.'} Add the missing profile before creating a Project.</p>`}
     </form>
   `;
 
@@ -2508,7 +2510,7 @@ async function createAdminDeal(event) {
   const btn = form.querySelector('button[type="submit"]');
   btn.disabled = true;
   btn.textContent = 'Creating...';
-  showAdminCreateResult('success', 'Creating deal and deploying contract...');
+  showAdminCreateResult('success', 'Creating Project in the Alpha platform...');
 
   const payload = {
     investor_wallet: document.getElementById('admin-investor').value,
@@ -2526,21 +2528,21 @@ async function createAdminDeal(event) {
     });
     const dealId = created.deal_id || created.id;
     showAdminCreateResult('success', `
-      <div class="font-semibold">Deal created successfully</div>
-      <div class="mt-2">Deal #${escapeHtml(dealId)}</div>
-      <div class="font-mono break-all text-xs mt-1">Contract address: ${escapeHtml(created.contract_address || 'Pending deployment')}</div>
+      <div class="font-semibold">Project created successfully</div>
+      <div class="mt-2">Project #${escapeHtml(dealId)}</div>
+      <div class="font-mono break-all text-xs mt-1">NEAR Testnet infrastructure reference: ${escapeHtml(created.contract_address || 'Pending')}</div>
       <div class="flex flex-wrap gap-2 mt-3">
-        <a href="#deals/${escapeHtml(dealId)}" class="underline">Open Admin Deal</a>
+        <a href="#deals/${escapeHtml(dealId)}" class="underline">Open Admin Project</a>
         <a href="#farmer" class="underline">View in Farmer Portal</a>
         <a href="#investor" class="underline">View in Investor Portal</a>
       </div>
     `);
     form.reset();
   } catch (err) {
-    showAdminCreateResult('error', `Create deal failed: ${escapeHtml(err.message)}`);
+    showAdminCreateResult('error', `Create Project failed: ${escapeHtml(err.message)}`);
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Create Deal';
+    btn.textContent = 'Create Project';
   }
 }
 
@@ -2556,7 +2558,7 @@ async function showDeals() {
   el.innerHTML = `
     ${renderNav()}
     <h1 class="text-3xl font-bold text-green-400 mb-1">AgriPartners</h1>
-    <p class="text-slate-400 mb-6">Agricultural investments on NEAR Protocol</p>
+    <p class="text-slate-400 mb-6">AgriPartners-managed agricultural Projects with NEAR Testnet infrastructure.</p>
     <div class="mb-6">
       <a href="#investor" class="inline-flex bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Open Investor Portal</a>
       <a href="#farmer" class="inline-flex bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition ml-2">Open Farmer Portal</a>
@@ -2570,7 +2572,7 @@ async function showDeals() {
     const deals = await res.json();
     el.querySelector('.spinner').remove();
     if (deals.length === 0) {
-      el.innerHTML += '<p class="text-slate-400 mt-4">No deals found</p>';
+      el.innerHTML += '<p class="text-slate-400 mt-4">No Projects found</p>';
       return;
     }
     const grid = document.createElement('div');
@@ -2588,18 +2590,18 @@ function renderAdminDashboardShell(el) {
     ${renderNav()}
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
       <div>
-        <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Dashboard</h1>
-        <p class="text-slate-400">Live deals from the AgriPartners backend.</p>
+        <h1 class="text-3xl font-bold text-green-400 mb-1">Manage Projects</h1>
+        <p class="text-slate-400">AgriPartners Project Operator view for Project Status, Farmer Assignment, Project Reports, and Settlement / Returns.</p>
       </div>
       <div class="flex flex-wrap gap-2">
         <a href="#admin/treasury" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Treasury Dashboard</a>
         <a href="#admin/users" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create User</a>
-        <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Deal</a>
+        <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Project</a>
       </div>
     </div>
     <div id="admin-dashboard-state" role="status" aria-live="polite">
       <div class="spinner"></div>
-      <p class="text-slate-400 text-sm mt-3">Loading live deals...</p>
+      <p class="text-slate-400 text-sm mt-3">Loading live Projects...</p>
     </div>
   `;
 }
@@ -2621,8 +2623,8 @@ async function showLiveAdminDashboard(el) {
     if (data.length === 0) {
       stateEl.innerHTML = `
         <div class="bg-slate-800 rounded-xl p-6 text-center" data-admin-empty-state>
-          <h2 class="text-lg font-semibold text-slate-200">No live deals yet</h2>
-          <p class="text-slate-400 text-sm mt-1">Create a deal to start live admin operations.</p>
+          <h2 class="text-lg font-semibold text-slate-200">No live Projects yet</h2>
+          <p class="text-slate-400 text-sm mt-1">Create a Project to start AgriPartners operator workflows.</p>
         </div>
       `;
       return;
@@ -2643,10 +2645,10 @@ function renderDealCard(d) {
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex justify-between items-center gap-4">
       <div class="space-y-1 min-w-0">
-        <h2 class="text-lg font-semibold text-slate-100 truncate">Deal #${escapeHtml(d.id)} &mdash; ${escapeHtml(dealTitle)}</h2>
+        <h2 class="text-lg font-semibold text-slate-100 truncate">Project #${escapeHtml(d.id)} &mdash; ${escapeHtml(dealTitle)}</h2>
         ${d.description ? `<p class="text-sm text-slate-300">${escapeHtml(d.description)}</p>` : ''}
-        <p class="text-sm text-slate-400">Farmer: <span class="text-slate-200">${d.farmer ? formatAddress(d.farmer) : 'Unknown'}</span></p>
-        <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${d.investor ? formatAddress(d.investor) : 'Unknown'}</span></p>
+        <p class="text-sm text-slate-400">Farmer Assignment: <span class="text-slate-200">${d.farmer ? formatAddress(d.farmer) : 'Unknown'}</span></p>
+        <p class="text-sm text-slate-400">Investor Assignment: <span class="text-slate-200">${d.investor ? formatAddress(d.investor) : 'Unknown'}</span></p>
         <p class="text-sm text-slate-500">${d.total_cycles ?? 'Unknown'} cycle(s) × ${d.cycle_duration_days == null ? 'Unknown' : escapeHtml(d.cycle_duration_days)} days  ·  ${formatOptionalYoctoDisplay(d.investment_amount)}</p>
         <span class="inline-flex text-xs font-semibold text-blue-200 bg-blue-950 border border-blue-800 rounded-full px-2.5 py-1 mt-2">Protection reserve: ${d.escrow_pct == null ? 'model rate unavailable' : `${escapeHtml(d.escrow_pct)}%`}</span>
       </div>
@@ -2667,10 +2669,10 @@ function renderAdminDemoDashboard(el) {
         <h1 class="text-3xl font-bold text-green-400 mb-1">Admin Dashboard</h1>
         <p class="text-slate-400">Clean pilot operations view for investor-ready screenshots.</p>
       </div>
-      <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Deal</a>
+        <a href="#admin/create" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">Create Project</a>
     </div>
     ${renderAdminDemoSummary(adminDemoMetrics(deals))}
-    <h2 class="text-xl font-semibold mb-4">Pilot Deals</h2>
+    <h2 class="text-xl font-semibold mb-4">Pilot Projects</h2>
     <div class="grid gap-4">
       ${deals.map(renderAdminDemoDealCard).join('')}
     </div>
@@ -2680,8 +2682,8 @@ function renderAdminDemoDashboard(el) {
 function renderAdminDemoSummary(metrics) {
   const cards = [
     ['Total Pilot Funding', metrics.totalPilotFunding],
-    ['Active Deals', metrics.activeDeals],
-    ['Completed Deals', metrics.completedDeals],
+    ['Active Projects', metrics.activeDeals],
+    ['Completed Projects', metrics.completedDeals],
     ['Reports Submitted', metrics.reportsSubmitted],
     ['Reports Pending', metrics.reportsPending],
     ['Returns Recorded', metrics.returnsRecorded],
@@ -2704,14 +2706,14 @@ function renderAdminDemoDealCard(deal) {
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="space-y-2 min-w-0">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">Pilot Deal</span>
+          <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">Pilot Project</span>
           ${statusBadge(deal.status)}
           <span class="text-xs text-slate-500">${escapeHtml(deal.cycles)} cycles</span>
         </div>
         <h2 class="text-xl font-semibold text-slate-100">${escapeHtml(deal.title)}</h2>
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-2 text-sm">
-          <p class="text-slate-400">Farmer: <span class="text-slate-200">${escapeHtml(deal.farmer)}</span></p>
-          <p class="text-slate-400">Investor: <span class="text-slate-200">${escapeHtml(deal.investor)}</span></p>
+          <p class="text-slate-400">Farmer Assignment: <span class="text-slate-200">${escapeHtml(deal.farmer)}</span></p>
+          <p class="text-slate-400">Project Operator: <span class="text-slate-200">AgriPartners</span></p>
           <p class="text-slate-400">Funding: <span class="text-slate-100 font-mono">${escapeHtml(deal.funding)}</span></p>
           <p class="text-slate-400">${escapeHtml(deal.roiLabel)}: <span class="text-slate-100 font-mono">${escapeHtml(deal.roi)}</span></p>
           <p class="text-slate-400">Simple annualized ROI: <span class="text-slate-100 font-mono">${escapeHtml(deal.simpleAnnualizedRoi)}</span></p>
@@ -2762,9 +2764,9 @@ function renderAdminDemoDealDetail(el, deal) {
       <a href="#demo/admin" class="text-slate-400 hover:text-white text-sm">Back to Admin Dashboard</a>
       <span class="text-slate-600">|</span>
       <span class="font-semibold">${escapeHtml(deal.title)}</span>
-      <span class="text-xs text-slate-500">Pilot Deal</span>
+      <span class="text-xs text-slate-500">Pilot Project</span>
       ${statusBadge(deal.status)}
-      ${deal.status === 'Active' ? `<span class="text-slate-400 text-sm">Current Cycle ${escapeHtml(deal.currentCycle)}</span>` : ''}
+      ${deal.status === 'Active' ? `<span class="text-slate-400 text-sm">Production Cycle ${escapeHtml(deal.currentCycle)}</span>` : ''}
     </div>
     ${renderAdminDemoProjectProfile(deal)}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
@@ -2773,17 +2775,17 @@ function renderAdminDemoDealDetail(el, deal) {
         ${renderAdminDemoStatusRows([
           ['Funding Status', deal.fundingStatus],
           ['Funding', deal.funding],
-          ['Farmer', deal.farmer],
-          ['Investor', deal.investor],
+          ['Farmer Assignment', deal.farmer],
+          ['Project Operator', 'AgriPartners'],
         ])}
       </div>
       <div class="bg-slate-800 rounded-xl p-5">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
         ${renderAdminDemoStatusRows([
-          ['Cycle Status', deal.cycleStatus],
-          ['Cycles', deal.cycles],
-          ['Current Cycle', deal.status === 'Active' ? deal.currentCycle : 'Completed'],
-          ['Report', deal.reportStatus],
+          ['Production Cycle Status', deal.cycleStatus],
+          ['Production Cycles', deal.cycles],
+          ['Current Production Cycle', deal.status === 'Active' ? deal.currentCycle : 'Completed'],
+          ['Project Report', deal.reportStatus],
         ])}
       </div>
     </div>
@@ -2808,8 +2810,8 @@ function renderAdminDemoProjectProfile(deal) {
     [deal.roiLabel, deal.roi],
     ['Simple annualized ROI', deal.simpleAnnualizedRoi],
     ['Protection reserve', `${deal.reserveRate}%`],
-    ['Cycles', deal.cycles],
-    ['Status', deal.status],
+    ['Production Cycles', deal.cycles],
+    ['Project Status', deal.status],
   ];
   return `
     <section class="bg-slate-800 border border-green-900 rounded-lg p-5 mb-6">
@@ -2819,7 +2821,7 @@ function renderAdminDemoProjectProfile(deal) {
           <h1 class="text-2xl md:text-3xl font-bold text-slate-50 mt-1">${escapeHtml(deal.title)}</h1>
           <p class="text-sm text-slate-400 mt-2 max-w-3xl">${escapeHtml(deal.description)}</p>
         </div>
-        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">${escapeHtml(deal.deal_type)}</span>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">Investment Model: ${escapeHtml(deal.deal_type)}</span>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
         ${metrics.map(([label, value]) => `
@@ -2907,7 +2909,7 @@ async function showOnboarding() {
   if (!isWalletAuth() || !wallet) {
     el.innerHTML = `
       <div class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-200">
-        Wallet login is required to create a profile.
+        An authenticated Alpha session is required to create a profile.
       </div>
     `;
     return;
@@ -2928,7 +2930,7 @@ async function showOnboarding() {
   el.innerHTML = `
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-green-400 mb-1">Welcome to AgriPartners</h1>
-      <p class="text-slate-400">Create a wallet-linked profile for <span class="text-slate-200 font-mono">${escapeHtml(wallet)}</span></p>
+      <p class="text-slate-400">Create an Alpha participant profile for the authenticated account.</p>
     </div>
 
     <form id="onboarding-form" class="bg-slate-800 rounded-xl p-6 space-y-5">
@@ -2937,11 +2939,11 @@ async function showOnboarding() {
         <div class="onboarding-role-grid">
           <button type="button" class="onboarding-role-btn is-selected" data-role="farmer">
             <span class="onboarding-role-title">Farmer</span>
-            <span class="onboarding-role-note">Manage farm deals and submit cycle reports.</span>
+            <span class="onboarding-role-note">Work with AgriPartners to manage Projects and submit Project Reports.</span>
           </button>
           <button type="button" class="onboarding-role-btn" data-role="investor">
             <span class="onboarding-role-title">Investor</span>
-            <span class="onboarding-role-note">Track investments, balances, and withdrawals.</span>
+            <span class="onboarding-role-note">Review Projects, Farmer Reports, and Settlement / Returns.</span>
           </button>
         </div>
       </div>
@@ -3048,11 +3050,11 @@ async function fetchFarmerJson(path, options = {}) {
   }
   if (res.status === 401) {
     clearAuth();
-    throw new Error('Wallet session expired');
+    throw new Error('Farmer Portal session expired');
   }
   if (parseError) throw parseError;
   if (res.status === 403 || res.status === 404) {
-    throw new Error(data.error || 'Farmer deal not found');
+    throw new Error(data.error || 'Farmer Project not found');
   }
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
@@ -3065,12 +3067,12 @@ async function showFarmerPortal() {
   el.innerHTML = `
     ${renderNav()}
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-green-400 mb-1">Farmer Operations Dashboard</h1>
-      <p class="text-slate-400">Operational view for agricultural deals.</p>
-      <p class="text-slate-400 mt-2">Wallet / Account: <span class="text-slate-200 font-medium">${escapeHtml(connectedWalletAccount || 'Not connected')}</span></p>
+      <h1 class="text-3xl font-bold text-green-400 mb-1">My Projects</h1>
+      <p class="text-slate-400">Farmer operations managed through AgriPartners.</p>
+      <p class="text-slate-400 mt-2">Project Operator: <span class="text-slate-200 font-medium">AgriPartners</span></p>
     </div>
     <div id="farmer-dashboard-content">
-      <h2 class="text-xl font-semibold mb-4">Active Deals</h2>
+      <h2 class="text-xl font-semibold mb-4">Active Projects</h2>
       <div class="spinner"></div>
     </div>
   `;
@@ -3079,7 +3081,7 @@ async function showFarmerPortal() {
   if (!connectedWalletAccount) {
     contentEl.innerHTML = `
       <div class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-200">
-        Farmer Portal access requires a signed NEAR wallet session.
+        Farmer Portal access requires an active secure account session. Contact AgriPartners for access.
       </div>
     `;
     return;
@@ -3101,10 +3103,10 @@ async function showFarmerPortal() {
 
 function normalizeFarmerDashboardPayload(payload) {
   if (!payload || typeof payload !== 'object' || !Array.isArray(payload.deals)) {
-    throw new Error('Farmer deals returned malformed data');
+    throw new Error('Farmer Projects returned malformed data');
   }
   if (!payload.deals.every(deal => deal && typeof deal === 'object' && !Array.isArray(deal))) {
-    throw new Error('Farmer deals returned malformed data');
+    throw new Error('Farmer Projects returned malformed data');
   }
   return {
     farmer: payload.farmer || getNearWalletAccount() || '',
@@ -3248,16 +3250,16 @@ function renderFarmerSummaryCards(metrics) {
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
       <div class="metric-box">
-        <span class="metric-label">Deal Funding</span>
+        <span class="metric-label">Project Funding</span>
         <span class="metric-value">${escapeHtml(totalFunding)}</span>
         ${rawFunding}
       </div>
       <div class="metric-box">
-        <span class="metric-label">Active Deals</span>
+        <span class="metric-label">Active Projects</span>
         <span class="metric-value">${metrics.activeDeals}</span>
       </div>
       <div class="metric-box">
-        <span class="metric-label">Current Cycle</span>
+        <span class="metric-label">Production Cycle</span>
         <span class="metric-value">${escapeHtml(metrics.currentCycle)}</span>
       </div>
       <div class="metric-box">
@@ -3275,23 +3277,23 @@ function renderFarmerSummaryCards(metrics) {
 function renderFarmerEmptyState(farmer) {
   return `
     <div class="bg-slate-800 border border-slate-700 rounded-xl p-6">
-      <h2 class="text-xl font-semibold text-slate-100 mb-2">No active deals yet</h2>
+      <h2 class="text-xl font-semibold text-slate-100 mb-2">No active Projects yet</h2>
       <p class="text-slate-400 mb-4">
-        Your farmer profile is ready. Once an admin creates or assigns a farming deal to your wallet, it will appear here.
+        Your Farmer profile is ready. Once AgriPartners assigns a Project, it will appear here.
       </p>
       <div class="bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 mb-4">
-        <span class="block text-xs uppercase text-slate-500 font-semibold">Wallet</span>
+        <span class="block text-xs uppercase text-slate-500 font-semibold">Secure account reference</span>
         <span id="farmer-wallet-copy-value" class="text-slate-100 font-mono break-all">${escapeHtml(farmer || 'Not connected')}</span>
       </div>
       <div class="mb-4">
         <h3 class="text-sm font-semibold text-slate-300 mb-2">Next steps</h3>
         <ul class="list-disc list-inside text-sm text-slate-400 space-y-1">
-          <li>Share your wallet account with AgriPartners admin</li>
+          <li>Confirm your secure account reference with AgriPartners</li>
           <li>Prepare your farm information</li>
-          <li>Wait for your first deal to be assigned</li>
+          <li>Wait for your first Project to be assigned</li>
         </ul>
       </div>
-      <button id="btn-copy-farmer-wallet" type="button" class="admin-action-btn">Copy Wallet Account</button>
+      <button id="btn-copy-farmer-wallet" type="button" class="admin-action-btn">Copy Account Reference</button>
       <span id="farmer-wallet-copy-state" class="ml-3 text-sm text-green-300 hidden">Copied</span>
     </div>
   `;
@@ -3327,7 +3329,7 @@ function renderFarmerDashboard(el, deals, farmer, profile = null) {
   el.innerHTML = `
     ${renderFarmerProfilePanel(profile, farmer)}
     ${renderFarmerSummaryCards(metrics)}
-    <h2 class="text-xl font-semibold mb-4">Active Deals</h2>
+    <h2 class="text-xl font-semibold mb-4">Active Projects</h2>
     <div class="grid gap-4">
       ${deals.map(renderFarmerDealCard).join('')}
     </div>
@@ -3338,8 +3340,8 @@ function farmerDealNextAction(deal) {
   if (deal.reportStatus === 'submitted') return 'Review submitted report and cycle status';
   if (deal.reportStatus === 'due' || deal.reportStatus === 'pending') return 'Prepare next farmer report';
   if (deal.fundingStatus && !String(deal.fundingStatus).toLowerCase().includes('confirmed')) return 'Confirm funding received';
-  if (deal.status === 'Completed') return 'Review completed deal summary';
-  return 'Open deal to review current cycle';
+  if (deal.status === 'Completed') return 'Review completed Project summary';
+  return 'Open Project to review the current Production Cycle';
 }
 
 function farmerDealProjectedRoi(deal) {
@@ -3349,7 +3351,7 @@ function farmerDealProjectedRoi(deal) {
 }
 
 function renderFarmerDealCard(deal) {
-  const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`;
+  const dealBadge = deal.isDemoPilot ? 'Pilot Project' : `Project #${deal.id}`;
   const dealHref = deal.isDemoPilot ? `#farmer/pilots/${deal.pilot_key}` : `#farmer/deals/${deal.id}`;
   const amount = deal.display_amount || formatFarmerFundingAmount(deal.amount ?? deal.investment_amount);
   const activeCycle = deal.activeCycleId ?? 'Unavailable';
@@ -3359,18 +3361,18 @@ function renderFarmerDealCard(deal) {
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-xs font-semibold bg-slate-700 px-2 py-0.5 rounded text-slate-300">${escapeHtml(dealBadge)}</span>
           ${statusBadge(deal.status)}
-          <span class="text-xs text-slate-500">Active Cycle: ${escapeHtml(activeCycle)}</span>
+          <span class="text-xs text-slate-500">Production Cycle: ${escapeHtml(activeCycle)}</span>
         </div>
-        <h3 class="text-lg font-semibold text-slate-100">${escapeHtml(deal.title || `Deal #${deal.id}`)}</h3>
-        <p class="text-sm text-slate-400">Investor: <span class="text-slate-200">${escapeHtml(formatAddress(deal.investor))}</span></p>
+        <h3 class="text-lg font-semibold text-slate-100">${escapeHtml(deal.title || `Project #${deal.id}`)}</h3>
+        <p class="text-sm text-slate-400">Project Operator: <span class="text-slate-200">AgriPartners</span></p>
         <p class="text-sm text-slate-400">Funding: <span class="text-slate-100 font-mono">${escapeHtml(amount)}</span></p>
-        <p class="text-sm text-slate-400">Current Cycle: <span class="text-slate-200">${escapeHtml(activeCycle)}</span></p>
-        <p class="text-sm text-slate-400">Funding Status: <span class="text-slate-200">${escapeHtml(deal.fundingStatus || 'Unavailable')}</span></p>
-        <p class="text-sm text-slate-400">Report Status: <span class="text-slate-200">${escapeHtml(deal.reportLabel || 'Unavailable')}</span></p>
+        <p class="text-sm text-slate-400">Production Cycle: <span class="text-slate-200">${escapeHtml(activeCycle)}</span></p>
+        <p class="text-sm text-slate-400">Funding Confirmation: <span class="text-slate-200">${escapeHtml(deal.fundingStatus || 'Unavailable')}</span></p>
+        <p class="text-sm text-slate-400">Project Report: <span class="text-slate-200">${escapeHtml(deal.reportLabel || 'Unavailable')}</span></p>
         <p class="text-sm text-slate-400">Projected ROI: <span class="text-slate-200">${escapeHtml(farmerDealProjectedRoi(deal))}</span></p>
         <p class="text-sm text-green-300">Next action: ${escapeHtml(farmerDealNextAction(deal))}</p>
       </div>
-      <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open Deal</a>
+      <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open Project</a>
     </div>
   `;
 }
@@ -3399,7 +3401,7 @@ async function showFarmerDeal(id, actionState = null) {
     if (actionState) showFarmerActionResult(actionState.type, actionState.message);
   } catch (err) {
     el.querySelector('.spinner')?.remove();
-    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Deal unavailable: ${escapeHtml(err.message)}</div>`;
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Project unavailable: ${escapeHtml(err.message)}</div>`;
   }
 }
 
@@ -3425,13 +3427,13 @@ async function fetchFarmerDealBundle(id) {
 
 function readMandatoryFarmerDealResult(result) {
   if (result.status === 'rejected') {
-    throw new Error(result.reason?.message || 'Farmer deal request failed');
+    throw new Error(result.reason?.message || 'Farmer Project request failed');
   }
   const payload = result.value;
   if (!payload || typeof payload !== 'object'
     || !payload.deal || typeof payload.deal !== 'object' || Array.isArray(payload.deal)
     || (payload.raw != null && (typeof payload.raw !== 'object' || Array.isArray(payload.raw)))) {
-    throw new Error('Farmer deal returned malformed data');
+    throw new Error('Farmer Project returned malformed data');
   }
   return normalizeLiveFarmerDeal({ ...(payload.raw || {}), ...payload.deal });
 }
@@ -3479,7 +3481,7 @@ function showPublicProtectionModel(key) {
       <a href="#home" class="landing-brand">AgriPartners</a>
       <div class="landing-nav-actions">
         <a href="#home">Home</a>
-        <a href="#/marketplace">Marketplace</a>
+        <a href="#/marketplace">Opportunity Catalog</a>
         <a href="#farmer/pilots">Farmer Demo</a>
       </div>
     </header>
@@ -3556,7 +3558,7 @@ function showFarmerPilotSelector() {
       </a>
       <div class="farmer-pilot-selector-heading">
         <span>Farmer demo</span>
-        <h1>Choose a Pilot Model</h1>
+        <h1>Choose an Investment Model</h1>
         <p>
           Compare both farmer workflows. Each model has its own reserve rate, cycle schedule,
           staged releases, and farmer payment totals.
@@ -3564,7 +3566,7 @@ function showFarmerPilotSelector() {
       </div>
       <div class="farmer-pilot-selector-grid">${cards}</div>
       <div class="farmer-pilot-selector-warning">
-        Pilot pages are model projections for demonstration. Live balances require wallet-linked access and authoritative contract data.
+        Pilot pages are Investment Model projections for demonstration. Future Farmer funding and payments are fiat through AgriPartners.
       </div>
     </div>
   `;
@@ -3660,10 +3662,10 @@ function renderFarmerProjectProfile(deal) {
       <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
           <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Project Profile</span>
-          <h1 class="text-2xl md:text-3xl font-bold text-slate-50 mt-1">${escapeHtml(deal.title || `Deal #${deal.id}`)}</h1>
+          <h1 class="text-2xl md:text-3xl font-bold text-slate-50 mt-1">${escapeHtml(deal.title || `Project #${deal.id}`)}</h1>
           <p class="text-sm text-slate-400 mt-2 max-w-3xl">${escapeHtml(deal.description || 'Unavailable')}</p>
         </div>
-        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">${escapeHtml(deal.deal_type || 'Unavailable')}</span>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">Investment Model: ${escapeHtml(deal.deal_type || 'Unavailable')}</span>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
         ${metrics.map(([label, value]) => `
@@ -3681,7 +3683,7 @@ function renderFarmerFundingStatus(deal) {
   const rows = [
     ['Funding Status', deal.fundingStatus || 'Unavailable'],
     ['Funding Amount', deal.display_amount || formatFarmerFundingAmount(deal.amount ?? deal.investment_amount)],
-    ['Investor', deal.investor ? formatAddress(deal.investor) : 'Unavailable'],
+    ['Project Operator', 'AgriPartners'],
     ['Return Status', deal.returnLabel || 'Unavailable'],
   ];
   return rows.map(([k, v]) => `
@@ -3709,14 +3711,14 @@ function renderFarmerDealOperationsSummary(deal, cycles) {
   const cycle = currentFarmerCycle(cycles);
   const reportSubmitted = farmerReportSubmitted(cycle);
   const summaryRows = [
-    ['Deal Summary', deal.description || 'Unavailable'],
-    ['Funding Status', deal.fundingStatus || (cycle ? (cycle.fundingReceived ? 'Funding Confirmed' : 'Not confirmed') : 'Unavailable')],
-    ['Current Cycle Status', cycle?.cycleStatus || cycle?.status || deal.cycleStatus || 'Unavailable'],
-    ['Report Status', reportSubmitted ? 'Report Submitted' : (deal.reportLabel || (cycle ? 'Not submitted' : 'Unavailable'))],
+    ['Project Summary', deal.description || 'Unavailable'],
+    ['Funding Confirmation', deal.fundingStatus || (cycle ? (cycle.fundingReceived ? 'Funding Confirmed' : 'Not confirmed') : 'Unavailable')],
+    ['Production Cycle Status', cycle?.cycleStatus || cycle?.status || deal.cycleStatus || 'Unavailable'],
+    ['Project Report Status', reportSubmitted ? 'Report Submitted' : (deal.reportLabel || (cycle ? 'Not submitted' : 'Unavailable'))],
   ];
   return `
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-6">
-      <h2 class="text-lg font-semibold text-slate-100 mb-4">Deal Operations Summary</h2>
+      <h2 class="text-lg font-semibold text-slate-100 mb-4">Project Progress</h2>
       <div class="grid md:grid-cols-2 gap-3">
         ${summaryRows.map(([label, value]) => `
           <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
@@ -3774,8 +3776,6 @@ function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balanc
   const modelKey = deal?.pilot_key || pilot?.key || pilotKeyFromText(`${deal?.title || ''} ${deal?.deal_type || ''}`);
   const model = INVESTOR_PROTECTION_MODELS[modelKey];
   const reserveRate = deal?.escrow_pct ?? pilot?.reserveRate ?? model?.rate;
-  const contractReserve = formatFarmerProtectionContractBalance(balances?.escrow);
-  const farmerAvailable = formatFarmerProtectionContractBalance(balances?.farmer);
   const scheduleTotals = model?.schedule.reduce((totals, [_stage, _investorCash, contribution, release, _endingReserve, farmerCash]) => {
     totals.contribution += farmerProtectionUsdNumber(contribution);
     totals.release += farmerProtectionUsdNumber(release);
@@ -3786,25 +3786,13 @@ function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balanc
     return totals;
   }, { beforeReserve: 0, contribution: 0, release: 0, farmerCash: 0 });
 
-  const liveBalanceView = deal?.isDemoPilot
-    ? `
-      <div class="farmer-protection-demo-note">
-        Model projection only — this pilot profile has no live contract reserve or withdrawable balance.
-      </div>
-    `
-    : `
-      <div class="farmer-protection-live-grid">
-        <div>
-          <span>Contract reserve · live</span>
-          <strong>${escapeHtml(contractReserve)}</strong>
-        </div>
-        <div>
-          <span>Farmer available · live</span>
-          <strong>${escapeHtml(farmerAvailable)}</strong>
-        </div>
-      </div>
-      ${balancesError ? `<div class="farmer-protection-data-warning">Live balances unavailable: ${escapeHtml(balancesError)}</div>` : ''}
-    `;
+  const liveBalanceView = `
+    <div class="farmer-protection-demo-note">
+      Investment Model projection only. This concept is not active in Pilot 1.0.
+      Future Farmer funding and payments are fiat and managed by AgriPartners as Project Operator.
+    </div>
+    ${balancesError ? '<div class="farmer-protection-data-warning">Alpha technical balance data is unavailable. Farmer operations can continue through AgriPartners.</div>' : ''}
+  `;
 
   const scheduleView = model
     ? `
@@ -3856,7 +3844,7 @@ function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balanc
     `
     : `
       <div class="farmer-protection-data-warning">
-        A cycle-by-cycle USD schedule has not been configured for this deal. Live contract balances above remain authoritative.
+        A cycle-by-cycle USD projection has not been configured for this Project.
       </div>
     `;
 
@@ -3900,7 +3888,7 @@ function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balanc
       <div class="farmer-protection-schedule-heading">
         <div>
           <h3>${model ? `${escapeHtml(model.title)} staged schedule` : 'Cycle schedule unavailable'}</h3>
-          <p>USD model projection. It is separate from the live NEAR contract balances shown above.</p>
+          <p>USD Investment Model projection. It is not an active Pilot 1.0 payment schedule.</p>
         </div>
         ${model ? `<span>Minimum reserve until completion: ${escapeHtml(model.minimumReserve)}</span>` : ''}
       </div>
@@ -3937,17 +3925,17 @@ function farmerTimelineSteps(cycle) {
     ? farmerCycleCompleted(cycle)
     : null;
   return [
-    ['Funding Sent', fundingSent],
-    ['Funding Confirmed', fundingConfirmed],
-    ['Cycle Started', cycleStarted],
-    ['Report Submitted', reportSubmitted],
-    ['Cycle Completed', cycleCompleted],
+    ['Funding Sent by AgriPartners', fundingSent],
+    ['Funding Confirmation', fundingConfirmed],
+    ['Production Cycle Started', cycleStarted],
+    ['Project Report Submitted', reportSubmitted],
+    ['Production Cycle Completed', cycleCompleted],
   ];
 }
 
 function renderFarmerCycleTimeline(cycles) {
   if (!cycles.length) {
-    return '<p class="text-slate-500 text-sm">Cycle timeline will appear once a deal cycle is created.</p>';
+    return '<p class="text-slate-500 text-sm">Production Cycle timeline will appear once a Project cycle is created.</p>';
   }
   return cycles.map((cycle) => `
     <div class="mb-5 last:mb-0">
@@ -4042,7 +4030,7 @@ function renderFarmerDealDetail(el, bundle) {
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <a href="#farmer" class="text-slate-400 hover:text-white text-sm">Back to Farmer Portal</a>
       <span class="text-slate-600">|</span>
-      <span class="font-semibold">Deal #${deal.id}</span>
+      <span class="font-semibold">Project #${deal.id}</span>
       ${statusBadge(deal.status)}
       <button id="btn-farmer-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
@@ -4053,34 +4041,34 @@ function renderFarmerDealDetail(el, bundle) {
     ${renderFarmerReserveBreakdown(deal, cycles, balances, resourceErrors.balances)}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
-        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Deal Summary</h3>
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Project Summary</h3>
         ${renderFarmerDealParams(deal)}
       </div>
       <div class="bg-slate-800 rounded-xl p-5">
-        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Actions</h3>
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Project Actions</h3>
         <div class="mb-4 text-sm">
-          <span class="block text-slate-500">Farmer Available</span>
+          <span class="block text-slate-500">Alpha Demo Payout Status</span>
           <span id="farmer-available-balance" class="text-slate-100 font-mono">${escapeHtml(balanceDisplay)}</span>
         </div>
         ${resourceErrors.balances ? renderFarmerResourceUnavailable('Farmer balances', resourceErrors.balances) : ''}
-        <button id="btn-farmer-withdraw" class="admin-action-btn action-fund w-full mb-4" ${canWithdrawFarmer ? '' : 'disabled'}>${canWithdrawFarmer ? 'Withdraw Farmer Balance' : (resourceErrors.balances ? 'Balance Unavailable' : 'No Farmer Balance')}</button>
-        <p class="text-xs text-slate-400 mb-4">Withdrawals use backend signer support. Confirm received funding and submit text reports for active cycles.</p>
+        <button id="btn-farmer-withdraw" class="admin-action-btn action-fund w-full mb-4" ${canWithdrawFarmer ? '' : 'disabled'}>${canWithdrawFarmer ? 'Request Alpha Demo Payout' : (resourceErrors.balances ? 'Demo Payout Unavailable' : 'No Demo Payout Available')}</button>
+        <p class="text-xs text-slate-400 mb-4">Alpha demonstration only. Future Farmer funding and payments are fiat through AgriPartners. Confirm Funding and submit Project Reports for active Production Cycles.</p>
         <div id="farmer-action-result" class="hidden rounded-lg px-4 py-3 text-sm"></div>
       </div>
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Production Cycles</h3>
       <div id="farmer-cycles-list">${resourceErrors.cycles ? renderFarmerResourceUnavailable('Cycle status', resourceErrors.cycles) : renderFarmerCycles(deal.id, cycles)}</div>
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mt-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Timeline</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Production Cycle Timeline</h3>
       ${resourceErrors.cycles ? renderFarmerResourceUnavailable('Cycle timeline', resourceErrors.cycles) : renderFarmerCycleTimeline(cycles)}
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mt-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Reports History</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Project Reports</h3>
       ${resourceErrors.cycles ? renderFarmerResourceUnavailable('Reports history', resourceErrors.cycles) : renderFarmerReportsHistory(cycles)}
     </div>
   `;
@@ -4110,12 +4098,12 @@ function renderFarmerResourceUnavailable(label, message) {
 
 function renderFarmerDealParams(deal) {
   const rows = [
-    ['Farmer', deal.farmer || 'Unavailable'],
-    ['Investor', deal.investor || 'Unavailable'],
-    ['Amount', formatFarmerFundingAmount(deal.amount ?? deal.investment_amount)],
-    ['Status', deal.status || 'Unknown'],
-    ['Active Cycle', deal.activeCycleId ?? 'Unavailable'],
-    ['Contract', deal.contract_address || 'Unavailable'],
+    ['Farmer Assignment', deal.farmer || 'Unavailable'],
+    ['Project Operator', 'AgriPartners'],
+    ['Funding', formatFarmerFundingAmount(deal.amount ?? deal.investment_amount)],
+    ['Project Status', deal.status || 'Unknown'],
+    ['Production Cycle', deal.activeCycleId ?? 'Unavailable'],
+    ['Investment Model', deal.deal_type || 'Unavailable'],
   ];
   return rows.map(([k, v]) => `
     <div class="flex justify-between text-sm gap-3">
@@ -4148,17 +4136,17 @@ function renderFarmerCycles(dealId, cycles) {
       <div class="farmer-cycle-row">
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2 mb-2">
-            <span class="font-semibold text-slate-100">Cycle #${cycle.id}</span>
+            <span class="font-semibold text-slate-100">Production Cycle #${cycle.id}</span>
             <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(cycleLabel)}</span>
           </div>
-          <p class="text-sm text-slate-400">Funding Status: <span class="text-slate-200">${fundingLabel}</span></p>
-          <p class="text-sm text-slate-400">Cycle Status: <span class="text-slate-200">${escapeHtml(cycle.cycleStatus || cycle.status || 'Unknown')}</span></p>
-          <p class="text-sm text-slate-400">Farmer Report: <span class="text-slate-200">${reportLabel}</span></p>
+          <p class="text-sm text-slate-400">Funding Confirmation: <span class="text-slate-200">${fundingLabel}</span></p>
+          <p class="text-sm text-slate-400">Production Cycle Status: <span class="text-slate-200">${escapeHtml(cycle.cycleStatus || cycle.status || 'Unknown')}</span></p>
+          <p class="text-sm text-slate-400">Project Report: <span class="text-slate-200">${reportLabel}</span></p>
           ${reportSubmitted ? renderFarmerReportSummary(cycle.report) : ''}
         </div>
         ${isDemoPilot ? '' : `<div class="farmer-cycle-actions">
-          <button type="button" class="admin-action-btn farmer-confirm-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${canConfirmFunding ? '' : 'disabled'}>Confirm funding received</button>
-          <button type="button" class="admin-action-btn farmer-report-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${canSubmitReport ? '' : 'disabled'}>${reportSubmitted ? 'Report submitted' : (cycle.fundingReceived ? 'Submit report' : 'Confirm funding first')}</button>
+          <button type="button" class="admin-action-btn farmer-confirm-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${canConfirmFunding ? '' : 'disabled'}>Confirm Funding</button>
+          <button type="button" class="admin-action-btn farmer-report-btn" data-deal-id="${dealId}" data-cycle-id="${cycle.id}" ${canSubmitReport ? '' : 'disabled'}>${reportSubmitted ? 'Project Report submitted' : (cycle.fundingReceived ? 'Submit Project Report' : 'Confirm Funding first')}</button>
         </div>`}
       </div>
     `;
@@ -4207,34 +4195,33 @@ function showFarmerActionResult(type, message) {
 async function withdrawFarmerWithWallet(deal) {
   const connectedWallet = getNearWalletAccount();
   if (connectedWallet !== deal.farmer) {
-    showFarmerActionResult('error', `Connected wallet must be ${deal.farmer}`);
+    showFarmerActionResult('error', `The active secure account must match ${deal.farmer}`);
     return;
   }
-  if (!confirm(`Withdraw farmer balance to ${deal.farmer}?`)) return;
+  if (!confirm('Run the Alpha demo payout action? This is not a Pilot 1.0 fiat payment.')) return;
 
   const btn = document.getElementById('btn-farmer-withdraw');
   if (btn) {
     btn.disabled = true;
-    btn.textContent = 'Withdrawing...';
+    btn.textContent = 'Submitting...';
   }
-  showFarmerActionResult('success', 'Farmer withdrawal submitted...');
+  showFarmerActionResult('success', 'Alpha demo payout action submitted...');
 
   try {
     const result = await fetchFarmerJson(`/api/farmer/deals/${deal.id}/withdraw`, {
       method: 'POST',
       body: JSON.stringify({}),
     });
-    const txHash = result.tx_hash || '';
-    const message = txHash
-      ? `Farmer withdrawal completed. Tx: ${txHash}`
-      : 'Farmer withdrawal completed.';
+    const message = result.tx_hash
+      ? 'Alpha demo payout action completed with a supplementary infrastructure reference.'
+      : 'Alpha demo payout action completed.';
     await showFarmerDeal(deal.id, { type: 'success', message });
   } catch (err) {
-    showFarmerActionResult('error', `Farmer withdrawal failed: ${err.message}`);
+    showFarmerActionResult('error', `Alpha demo payout action failed: ${err.message}`);
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = 'Withdraw Farmer Balance';
+      btn.textContent = 'Request Alpha Demo Payout';
     }
   }
 }
@@ -4298,7 +4285,7 @@ async function showInvestorPortal() {
     ${renderNav()}
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-green-400 mb-1">Investor Analytics Dashboard</h1>
-      <p class="text-slate-400">Portfolio performance, pilot deals, returns, and reporting visibility.</p>
+      <p class="text-slate-400">Projects, Investment Models, Project Progress, Farmer Reports, and Settlement / Returns visibility.</p>
       <p class="text-slate-400">Signed in as <span class="text-slate-200 font-medium">${escapeHtml(signedInLabel)}</span></p>
     </div>
     <div id="near-wallet-section" class="mb-6"></div>
@@ -4589,7 +4576,7 @@ async function enrichDealsForInvestor(deals) {
       fetch(`${API_BASE}/api/investor/deals/${deal.id}/balances`, { headers })
     ]);
     const [detailResult, statusResult, balancesResult] = await Promise.all([
-      readInvestorEnrichmentResult(detailRes, 'deal details', {}),
+      readInvestorEnrichmentResult(detailRes, 'Project details', {}),
       readInvestorEnrichmentResult(statusRes, 'contract status', null),
       readInvestorEnrichmentResult(balancesRes, 'contract balances', null),
     ]);
@@ -4648,7 +4635,7 @@ async function readInvestorEnrichmentResult(result, label, fallback) {
 }
 
 function normalizeInvestorDealsPayload(payload) {
-  if (!Array.isArray(payload)) throw new Error('Investor deals response is not a list');
+  if (!Array.isArray(payload)) throw new Error('Investor Projects response is not a list');
   return payload.filter(deal => deal && typeof deal === 'object').map(normalizeInvestorDeal);
 }
 
@@ -4916,7 +4903,7 @@ function renderLiveFundingProgressPanel(deal) {
         <span class="text-sm text-green-300 font-semibold">${escapeHtml(summary)}</span>
       </div>
       ${funding.percentage == null
-        ? renderInvestorResourceUnavailable('Funding progress', 'Authoritative funding progress is not available for this deal')
+        ? renderInvestorResourceUnavailable('Funding progress', 'Authoritative funding progress is not available for this Project')
         : renderFundingProgressBar(funding.percentage)}
       <div class="grid sm:grid-cols-2 lg:grid-cols-6 gap-3 mt-4">
         ${rows.map(([label, value]) => `
@@ -5143,12 +5130,12 @@ function showMarketplace(filter = 'all') {
     </div>
     <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
       <div>
-        <h1 class="text-3xl font-bold text-green-400 mb-1">Marketplace</h1>
-        <p class="text-slate-400">Browse available AgriPartners pilot deals prepared for investor review.</p>
+        <h1 class="text-3xl font-bold text-green-400 mb-1">Opportunity Catalog</h1>
+        <p class="text-slate-400">Explore AgriPartners Investment Models and Pilot Project profiles in a curated Alpha catalog, not a live transaction venue.</p>
       </div>
     </div>
     ${renderMarketplaceStats(marketplaceMetrics(deals))}
-    ${renderDashboardSection('Available Deals', `
+    ${renderDashboardSection('Available Investment Models', `
       ${renderMarketplaceFilters(filter)}
       <div id="marketplace-deals" class="grid lg:grid-cols-2 gap-4 mt-4">
         ${filteredDeals.map(renderMarketplaceDealCard).join('')}
@@ -5163,9 +5150,9 @@ function showMarketplace(filter = 'all') {
 
 function renderMarketplaceStats(metrics) {
   const rows = [
-    ['Total Deals', metrics.totalDeals],
-    ['Active Deals', metrics.activeDeals],
-    ['Completed Deals', metrics.completedDeals],
+    ['Total Projects', metrics.totalDeals],
+    ['Active Projects', metrics.activeDeals],
+    ['Completed Projects', metrics.completedDeals],
     ['Average ROI', `${metrics.averageRoi.toFixed(1)}%`],
     ['Average simple annualized ROI', `${metrics.averageSimpleAnnualizedRoi.toFixed(1)}%`],
   ];
@@ -5187,7 +5174,7 @@ function renderMarketplaceFilters(activeFilter) {
     ['all', 'All'],
     ['active', 'Active'],
     ['completed', 'Completed'],
-    ['pilot', 'Pilot Deals'],
+    ['pilot', 'Pilot Projects'],
   ];
 
   return `
@@ -5216,10 +5203,10 @@ function renderMarketplaceDealCard(deal) {
     <article class="bg-slate-800 border border-green-900 rounded-lg p-5">
       <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
-          <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Pilot Deal #${deal.number}</span>
+          <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Pilot Project #${deal.number}</span>
           <h3 class="text-xl font-bold text-slate-50 mt-1">${escapeHtml(deal.title)}</h3>
         </div>
-        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">${escapeHtml(deal.type)}</span>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">Investment Model: ${escapeHtml(deal.type)}</span>
       </div>
       <div class="marketplace-deal-stats">
         ${metrics.map(([label, value]) => `
@@ -5231,7 +5218,7 @@ function renderMarketplaceDealCard(deal) {
       </div>
       ${renderFundingProgressCompact(deal)}
       <div class="flex flex-wrap gap-2 mt-4">
-        <a href="#/investor/pilots/${deal.key}" class="inline-flex bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
+        <a href="#/investor/pilots/${deal.key}" class="inline-flex bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Project</a>
         <a href="#/protection/${deal.key}" class="protection-cta">✦ Protection table</a>
       </div>
     </article>
@@ -5280,8 +5267,8 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount, portfolioRes
     dashboard.innerHTML = `
       ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention, financialError))}
       ${renderDashboardSection('Attention Required', renderInvestorAttention(attention))}
-      ${renderDashboardSection('Active Investments', `<p class="text-slate-400">No active investments found for connected wallet account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>`)}
-      ${renderDashboardSection('Completed Investments', renderEmptyDashboardSection('No completed deals yet'))}
+      ${renderDashboardSection('Active Projects', `<p class="text-slate-400">No active Projects found for the connected Investor account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>`)}
+      ${renderDashboardSection('Completed Projects', renderEmptyDashboardSection('No completed Projects yet'))}
       ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics, financialError))}
       ${renderDashboardSection('Recent Activity', renderRecentActivity())}
       ${renderDashboardSection('Reporting Information', renderInvestorReportingSignals())}
@@ -5293,8 +5280,8 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount, portfolioRes
   dashboard.innerHTML = `
     ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention, financialError))}
     ${renderDashboardSection('Attention Required', renderInvestorAttention(attention))}
-    ${renderDashboardSection('Active Investments', renderDealSection(activeDeals, 'No active deals'))}
-    ${renderDashboardSection('Completed Investments', renderDealSection(completedDeals, 'No completed deals yet'))}
+    ${renderDashboardSection('Active Projects', renderDealSection(activeDeals, 'No active Projects'))}
+    ${renderDashboardSection('Completed Projects', renderDealSection(completedDeals, 'No completed Projects yet'))}
     ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics, financialError))}
     ${renderDashboardSection('Recent Activity', renderRecentActivity())}
     ${renderDashboardSection('Reporting Information', renderInvestorReportingSignals())}
@@ -5341,10 +5328,10 @@ function renderInvestorAttention(attention) {
   return `<div class="grid gap-3">${attention.items.map(deal => `
     <div class="bg-slate-800 border border-amber-800 rounded-lg px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <p class="font-semibold text-slate-100">${escapeHtml(deal.title || `Deal #${deal.id ?? 'Unknown'}`)}</p>
+        <p class="font-semibold text-slate-100">${escapeHtml(deal.title || `Project #${deal.id ?? 'Unknown'}`)}</p>
         <p class="text-sm text-amber-200">${escapeHtml(deal.attention_reason || 'Backend attention flag is active.')}</p>
       </div>
-      ${deal.id == null ? '' : `<a href="#investor/deals/${escapeHtml(deal.id)}" class="text-sm text-green-400 hover:underline">View Deal</a>`}
+      ${deal.id == null ? '' : `<a href="#investor/deals/${escapeHtml(deal.id)}" class="text-sm text-green-400 hover:underline">View Project</a>`}
     </div>
   `).join('')}</div>`;
 }
@@ -5398,8 +5385,8 @@ function renderPortfolioPerformance(metrics, financialError = null) {
     ['Weighted Projected ROI', portfolioPercentLabel(metrics.weightedProjectedRoi, 'Unavailable')],
     ['Realized Profit', 'Not yet authoritative'],
     ['Realized ROI', 'Not yet authoritative'],
-    ['Active Deals', metrics.activeDeals],
-    ['Completed Deals', metrics.completedDeals],
+    ['Active Projects', metrics.activeDeals],
+    ['Completed Projects', metrics.completedDeals],
   ];
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -5415,15 +5402,15 @@ function renderPortfolioPerformance(metrics, financialError = null) {
 }
 
 function renderRecentActivity() {
-  return '<p class="text-sm text-slate-500">Authoritative recent activity is not available in the portfolio summary. Open a deal to view its event and return history.</p>';
+  return '<p class="text-sm text-slate-500">Authoritative recent activity is not available in the portfolio summary. Open a Project to view its event and Settlement / Returns history.</p>';
 }
 
 function renderInvestorReportingSignals() {
   const signals = [
-    ['Reports visible in deal detail', 'Available in deal detail'],
-    ['Cycle status visible', 'Available in deal detail'],
-    ['Event history available', 'Available in deal detail'],
-    ['Farmer reports available', 'Available in deal detail'],
+    ['Project Reports', 'Available in Project detail'],
+    ['Production Cycles', 'Available in Project detail'],
+    ['Project Progress', 'Available in Project detail'],
+    ['Farmer Reports', 'Available in Project detail'],
   ];
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -5440,7 +5427,7 @@ function renderInvestorReportingSignals() {
 function investorPilotLabel(deal) {
   const pilot = getPilotForDeal(deal);
   if (pilot) return pilot.title;
-  return deal.title || `Deal #${deal.id}`;
+  return deal.title || `Project #${deal.id}`;
 }
 
 function investorProjectProfile(deal = {}, status) {
@@ -5465,7 +5452,7 @@ function investorProjectProfile(deal = {}, status) {
   const investment = deal.display_amount
     || formatOptionalNearDisplay(deal.investmentAmount);
   return {
-    title: deal.title || `Deal #${deal.id ?? 'Unknown'}`,
+    title: deal.title || `Project #${deal.id ?? 'Unknown'}`,
     investment,
     roi: projectedRoi != null && Number.isFinite(Number(projectedRoi)) ? `${projectedRoi}%` : 'Unavailable',
     roiLabel: 'Projected ROI',
@@ -5504,14 +5491,14 @@ function investorDealReportsState(deal = {}) {
 
 function renderProjectProfile(deal, status, statusError = null) {
   const profile = investorProjectProfile(deal, status);
-  const profileBadge = deal.isDemoPilot ? 'Pilot Profile' : `Deal #${deal.id}`;
+  const profileBadge = deal.isDemoPilot ? 'Pilot Project' : `Project #${deal.id}`;
   const metrics = [
     ['Investment', profile.investment],
     [profile.roiLabel, profile.roi],
     ['Simple annualized ROI', profile.simpleAnnualizedRoi],
     ['Protection reserve', profile.reserveRate],
-    ['Cycles', profile.cycles],
-    ['Status', profile.status],
+    ['Production Cycles', profile.cycles],
+    ['Project Status', profile.status],
   ];
 
   return `
@@ -5532,14 +5519,14 @@ function renderProjectProfile(deal, status, statusError = null) {
           </div>
         `).join('')}
       </div>
-      ${statusError ? renderInvestorResourceUnavailable('Contract status', statusError) : ''}
+      ${statusError ? renderInvestorResourceUnavailable('NEAR Testnet status', statusError) : ''}
     </section>
   `;
 }
 
 function renderInvestorDealCard(deal) {
   const pilotLabel = investorPilotLabel(deal);
-  const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`;
+  const dealBadge = deal.isDemoPilot ? 'Pilot Project' : `Project #${deal.id}`;
   const dealHref = deal.isDemoPilot ? `#investor/pilots/${deal.pilot_key}` : `#investor/deals/${deal.id}`;
   const invested = deal.display_amount || formatNearDisplay(deal.investmentAmount);
   const returned = deal.display_returned_amount || formatNearDisplay(deal.recordedReturns);
@@ -5547,7 +5534,6 @@ function renderInvestorDealCard(deal) {
   const performance = investorDealPerformanceState(deal);
   const currentCycle = deal.status?.current_cycle ?? 'Unknown';
   const farmer = deal.farmer ? formatAddress(deal.farmer) : 'Unknown';
-  const contract = deal.contract_address ? formatAddress(deal.contract_address) : 'Unknown';
   const reportsState = investorDealReportsState(deal);
   const protectionText = `${deal.pilot_key || ''} ${deal.title || ''} ${deal.deal_type || ''}`.toLowerCase();
   const protectionRate = deal.escrow_pct != null
@@ -5584,13 +5570,13 @@ function renderInvestorDealCard(deal) {
         </div>
       </div>
       <div class="flex justify-end mt-4">
-        <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Deal</a>
+        <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Project</a>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mt-4 pt-3 border-t border-slate-700 text-xs text-slate-500">
-        <span>Farmer: <span class="text-slate-300">${escapeHtml(farmer)}</span></span>
-        <span>Contract: <span class="text-slate-300 font-mono">${escapeHtml(contract)}</span></span>
-        <span>Current cycle: <span class="text-slate-300">${escapeHtml(currentCycle)}</span></span>
-        <span>Reports: <span class="text-slate-300">${escapeHtml(reportsState)}</span></span>
+        <span>Farmer Assignment: <span class="text-slate-300">${escapeHtml(farmer)}</span></span>
+        <span>Project Operator: <span class="text-slate-300">AgriPartners</span></span>
+        <span>Production Cycle: <span class="text-slate-300">${escapeHtml(currentCycle)}</span></span>
+        <span>Farmer Reports: <span class="text-slate-300">${escapeHtml(reportsState)}</span></span>
       </div>
       ${renderLiveFundingProgressCompact(deal)}
     </article>
@@ -5787,7 +5773,7 @@ async function showInvestorDeal(id) {
     renderInvestorDealDetail(el, bundle);
   } catch (e) {
     el.querySelector('.spinner')?.remove();
-    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Deal unavailable: ${escapeHtml(e.message)}</div>`;
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Project unavailable: ${escapeHtml(e.message)}</div>`;
   }
 }
 
@@ -5805,8 +5791,8 @@ async function fetchInvestorDealBundle(id) {
 
   const deal = normalizeInvestorDeal(await readMandatoryInvestorDeal(dealRes));
   const resources = await Promise.all([
-    readOptionalInvestorResource(statusRes, 'Contract status', normalizeInvestorObjectPayload, null),
-    readOptionalInvestorResource(balancesRes, 'Contract balances', normalizeInvestorObjectPayload, null),
+    readOptionalInvestorResource(statusRes, 'NEAR Testnet status', normalizeInvestorObjectPayload, null),
+    readOptionalInvestorResource(balancesRes, 'NEAR Testnet balances', normalizeInvestorObjectPayload, null),
     readOptionalInvestorResource(eventsRes, 'Event history', normalizeInvestorArrayPayload, []),
     readOptionalInvestorResource(cyclesRes, 'Cycle status', normalizeInvestorCyclesPayload, []),
     readOptionalInvestorResource(reportsRes, 'Farmer reports', normalizeInvestorReportsPayload, []),
@@ -5848,14 +5834,14 @@ function investorResponseError(label, status) {
 }
 
 async function readMandatoryInvestorDeal(result) {
-  if (result.status === 'rejected') throw new Error('Investor deal request failed: network unavailable');
+  if (result.status === 'rejected') throw new Error('Investor Project request failed: network unavailable');
   if (!result.value.ok) {
     if (result.value.status === 401) clearAuth();
-    throw new Error(investorResponseError('Investor deal', result.value.status));
+    throw new Error(investorResponseError('Investor Project', result.value.status));
   }
-  const payload = await readInvestorResponseJson(result.value, 'Investor deal');
+  const payload = await readInvestorResponseJson(result.value, 'Investor Project');
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
-    throw new Error('Investor deal returned malformed data');
+    throw new Error('Investor Project returned malformed data');
   }
   return payload;
 }
@@ -5913,7 +5899,7 @@ function renderInvestorDealAccessMessage(el) {
     ${renderNav()}
     <a href="#investor" class="text-slate-400 hover:text-white text-sm mb-6 inline-block">Back to Investor Portal</a>
     <div class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-200">
-      <p>This deal is not linked to the connected wallet account.</p>
+      <p>This Project is not linked to the connected Investor account.</p>
     </div>
   `;
 }
@@ -5937,16 +5923,16 @@ function renderInvestorDealDetail(el, bundle) {
       <a href="#investor" class="text-slate-400 hover:text-white text-sm">Back to Investor Portal</a>
       <span class="text-slate-600">|</span>
       <span id="investor-deal-title" class="font-semibold">${escapeHtml(profile.title)}</span>
-      <span class="text-xs text-slate-500">Deal #${escapeHtml(deal.id)}</span>
+      <span class="text-xs text-slate-500">Project #${escapeHtml(deal.id)}</span>
       <span id="investor-status-badge">${statusBadge(status?.status)}</span>
-      <span id="investor-cycle-text" class="text-slate-400 text-sm">Cycle ${status?.current_cycle ?? '—'}</span>
+      <span id="investor-cycle-text" class="text-slate-400 text-sm">Production Cycle ${status?.current_cycle ?? '—'}</span>
       <button id="btn-investor-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
-    <nav aria-label="Deal sections" class="flex flex-wrap gap-2 mb-6 text-sm">
+    <nav aria-label="Project sections" class="flex flex-wrap gap-2 mb-6 text-sm">
       <button type="button" id="btn-investor-section-overview" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Overview</button>
-      <button type="button" id="btn-investor-section-returns" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Returns</button>
-      <button type="button" id="btn-investor-section-reports" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Reports</button>
+      <button type="button" id="btn-investor-section-returns" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Settlement / Returns</button>
+      <button type="button" id="btn-investor-section-reports" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Farmer Reports</button>
       <button type="button" id="btn-investor-section-activity" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Activity</button>
       <button type="button" id="btn-investor-section-technical" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Technical</button>
     </nav>
@@ -5963,9 +5949,9 @@ function renderInvestorDealDetail(el, bundle) {
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Investor Actions</h3>
-      <p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2 mb-4">Testnet MVP: investor withdrawal is executed through backend signer support.</p>
-      <button id="btn-investor-withdraw" class="admin-action-btn w-full">Withdraw Investor</button>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Settlement Infrastructure</h3>
+      <p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2 mb-4">Alpha/Testnet infrastructure action only. It is not production Settlement and does not create direct Investor-to-Farmer interaction.</p>
+      <button id="btn-investor-withdraw" class="admin-action-btn w-full">Run Testnet Settlement Action</button>
       <div id="investor-action-result" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></div>
     </div>
 
@@ -5975,12 +5961,12 @@ function renderInvestorDealDetail(el, bundle) {
     </div>
 
     <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Production Cycles</h3>
       <div id="investor-cycles-list">${resourceErrors.cycles ? renderInvestorResourceUnavailable('Cycle status', resourceErrors.cycles) : renderCycleStatusCards(cycles)}</div>
     </div>
 
     <div id="investor-detail-ledger" class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Recorded Off-chain Returns Ledger</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Settlement / Returns Ledger</h3>
       <div id="investor-returns-list">${resourceErrors.returns ? renderInvestorResourceUnavailable('Returns ledger', resourceErrors.returns) : renderInvestorTypedReturnLedger(returns)}</div>
     </div>
 
@@ -5990,7 +5976,7 @@ function renderInvestorDealDetail(el, bundle) {
     </div>
 
     <div id="investor-detail-technical" class="bg-slate-800 rounded-xl p-5 space-y-2">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Technical Deal Data</h3>
+      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">NEAR Testnet Infrastructure</h3>
       <div id="investor-technical-data">${renderInvestorDealParams(deal, status, investorBalance, resourceErrors)}</div>
     </div>
   `;
@@ -6011,9 +5997,9 @@ function renderInvestorProtectionPanel(deal = {}, balances = null) {
   const modeledRate = modelKey === 'fidlot' ? 44 : modelKey === 'hissar' ? 53 : null;
   const reserveRate = deal.escrow_pct != null ? deal.escrow_pct : modeledRate;
   const modeledContributions = modelKey === 'fidlot' ? '$50,820' : modelKey === 'hissar' ? '$50,752.80' : 'Agreement-specific';
-  const modelTitle = modelKey === 'fidlot' ? 'Fidlot v5.9' : modelKey === 'hissar' ? 'Hissar / VariantB v2.1' : 'Model-specific deal';
+  const modelTitle = modelKey === 'fidlot' ? 'Fidlot v5.9' : modelKey === 'hissar' ? 'Hissar / VariantB v2.1' : 'Model-specific Project';
   const reserveRaw = balances?.escrow ?? deal.balances?.escrow;
-  let currentReserve = 'Not available from the current deal data';
+  let currentReserve = 'Not available from the current Project data';
   if (reserveRaw != null && reserveRaw !== '') {
     try {
       const amount = BigInt(reserveRaw);
@@ -6045,16 +6031,16 @@ function renderInvestorProtectionPanel(deal = {}, balances = null) {
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div>
           <span class="text-xs font-semibold text-blue-300 uppercase tracking-wide">Investment Protection</span>
-          <h2 class="text-xl font-semibold text-slate-50 mt-1">Protection Reserve · ${escapeHtml(modelTitle)}</h2>
+          <h2 class="text-xl font-semibold text-slate-50 mt-1">Future Protection Concept · ${escapeHtml(modelTitle)}</h2>
           <p class="text-sm text-slate-300 mt-2 max-w-3xl">
-            A model-specific portion of the farmer share is reserved over time. After a contractually Confirmed Loss,
-            legally available funds may reduce investor loss. In the no-loss model, unused funds are released to the farmer under the staged rules.
+            This exploratory concept is not active in Pilot 1.0. If approved in a future phase,
+            a model-specific portion of the Farmer share could support defined loss-mitigation procedures.
           </p>
         </div>
         <span class="protection-panel-rate">${reserveRate == null ? 'Rate unavailable' : `${escapeHtml(reserveRate)}% reserve rate`}</span>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
-        <div class="protection-panel-metric"><span>Current contract reserve</span><strong>${escapeHtml(currentReserve)}</strong></div>
+        <div class="protection-panel-metric"><span>Alpha infrastructure reserve reference</span><strong>${escapeHtml(currentReserve)}</strong></div>
         <div class="protection-panel-metric"><span>Modeled contributions</span><strong>${escapeHtml(modeledContributions)}</strong></div>
         <div class="protection-panel-metric"><span>Minimum until completion</span><strong>${modelKey ? '$10,000' : 'Agreement-specific'}</strong></div>
         <div class="protection-panel-metric"><span>Release status</span><strong>${deal.isDemoPilot ? 'Modeled no-loss schedule' : 'Requires verified cycle and checks'}</strong></div>
@@ -6391,8 +6377,8 @@ function renderInvestorReports(reports) {
       <p class="text-sm text-slate-400 mt-2">${escapeHtml(report.description)}</p>
       <div class="grid sm:grid-cols-3 gap-3 mt-3 text-xs">
         <div>
-          <span class="block text-slate-500">Farmer</span>
-          <span class="text-slate-200 font-mono break-all">${escapeHtml(report.farmer_wallet)}</span>
+          <span class="block text-slate-500">Report Source</span>
+          <span class="text-slate-200">Farmer report managed by AgriPartners</span>
         </div>
         <div>
           <span class="block text-slate-500">Amount used</span>
@@ -6460,20 +6446,21 @@ function renderInvestorDealParams(deal, status, investorBalance, resourceErrors 
     ? 'Unavailable'
     : formatOptionalYoctoDisplay(investorBalance);
   const rows = [
-    ['Contract ID',        deal.contract_address || 'Unavailable'],
-    ['Farmer',             deal.farmer || 'Unavailable'],
-    ['Investor',           deal.investor || 'Unavailable'],
+    ['NEAR Infrastructure Reference', deal.contract_address || 'Unavailable'],
+    ['Project Operator',    'AgriPartners'],
+    ['Farmer Assignment',   deal.farmer || 'Unavailable'],
+    ['Investor Account',    deal.investor || 'Unavailable'],
     ['Investment Amount',  investmentAmount],
-    ['Status',             status?.status || 'Unknown'],
-    ['Current Cycle',      status?.current_cycle ?? '—'],
-    ['Investor Available', availableBalance],
+    ['Project Status',     status?.status || 'Unknown'],
+    ['Production Cycle',   status?.current_cycle ?? '—'],
+    ['Investor Testnet Available', availableBalance],
   ];
   return `${rows.map(([k, v]) => `
     <div class="flex justify-between text-sm gap-3">
       <span class="text-slate-400 shrink-0">${k}</span>
-      <span ${k === 'Investor Available' ? 'id="investor-available-balance"' : ''} class="text-slate-100 font-mono text-right break-all">${escapeHtml(v)}</span>
+      <span ${k === 'Investor Testnet Available' ? 'id="investor-available-balance"' : ''} class="text-slate-100 font-mono text-right break-all">${escapeHtml(v)}</span>
     </div>
-  `).join('')}${resourceErrors.balances ? renderInvestorResourceUnavailable('Contract balances', resourceErrors.balances) : ''}`;
+  `).join('')}${resourceErrors.balances ? renderInvestorResourceUnavailable('NEAR Testnet balances', resourceErrors.balances) : ''}`;
 }
 
 function showInvestorActionResult(type, message, txHash) {
@@ -6489,11 +6476,11 @@ function showInvestorActionResult(type, message, txHash) {
 }
 
 async function withdrawInvestorFromPortal(deal) {
-  if (!confirm(`Withdraw investor balance to ${deal.investor}?`)) return;
+  if (!confirm('Run the Alpha/Testnet Settlement infrastructure action? This is not production Settlement.')) return;
 
   const btn = document.getElementById('btn-investor-withdraw');
-  if (btn) { btn.disabled = true; btn.textContent = 'Withdrawing...'; }
-  showInvestorActionResult('success', 'Investor withdrawal submitted...');
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+  showInvestorActionResult('success', 'Testnet Settlement action submitted...');
 
   try {
     const res = await fetch(`${API_BASE}/api/investor/deals/${deal.id}/withdraw`, {
@@ -6503,15 +6490,15 @@ async function withdrawInvestorFromPortal(deal) {
     const data = await res.json().catch(() => ({}));
     if (res.status === 401) {
       clearAuth();
-      throw new Error('Wallet session expired while submitting investor withdrawal');
+      throw new Error('Investor session expired while submitting the Testnet Settlement action');
     }
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-    showInvestorActionResult('success', 'Investor withdrawal completed successfully', data.tx_hash);
+    showInvestorActionResult('success', 'Testnet Settlement action completed successfully', data.tx_hash);
     await refreshInvestorDeal(deal.id);
   } catch (err) {
-    showInvestorActionResult('error', `Investor withdrawal failed: ${err.message}`);
+    showInvestorActionResult('error', `Testnet Settlement action failed: ${err.message}`);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Withdraw Investor'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Run Testnet Settlement Action'; }
   }
 }
 
@@ -6697,10 +6684,10 @@ async function showDeal(id) {
     renderDealDetail(el, bundle);
   } catch (err) {
     el.querySelector('.spinner')?.remove();
-    const message = err.status === 404 ? 'Deal not found'
-      : err.status === 401 ? 'Authentication required to load this deal.'
-      : err.status === 403 ? 'Access denied while loading this deal.'
-      : `Deal unavailable: ${err.message || 'Network request failed'}`;
+    const message = err.status === 404 ? 'Project not found'
+      : err.status === 401 ? 'Authentication required to load this Project.'
+      : err.status === 403 ? 'Access denied while loading this Project.'
+      : `Project unavailable: ${err.message || 'Network request failed'}`;
     el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4" data-main-deal-error>${escapeHtml(message)}</div>`;
   }
 }
@@ -6739,7 +6726,7 @@ function renderDealDetail(el, bundle) {
     ${isAdmin() ? renderAdminReturnsLedger(adminReturns, resourceErrors.returns) : ''}
     ${isAdmin() ? `
       <div class="bg-slate-800 rounded-xl p-5 mb-6">
-        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Cycle Status</h3>
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Production Cycles</h3>
         <div id="admin-cycles-list">${resourceErrors.cycles ? renderAdminResourceUnavailable('Cycles', resourceErrors.cycles) : renderCycleStatusCards(cycles)}</div>
       </div>
     ` : ''}
@@ -6931,15 +6918,16 @@ function findAdminReturnElement(attribute, returnId) {
 function renderParams(deal) {
   const optionalPercent = value => value == null ? 'Unknown' : `${escapeHtml(value)}%`;
   const rows = [
-    ['Farmer',             deal.farmer ? formatAddress(deal.farmer) : 'Unknown'],
-    ['Investor',           deal.investor ? formatAddress(deal.investor) : 'Unknown'],
-    ['Administrator',      deal.admin ? formatAddress(deal.admin) : 'Unknown'],
-    ['Platform',           deal.platform ? formatAddress(deal.platform) : 'Unknown'],
+    ['Investment Model',   deal.deal_type || 'Unknown'],
+    ['Farmer Assignment',  deal.farmer ? formatAddress(deal.farmer) : 'Unknown'],
+    ['Investor Assignment', deal.investor ? formatAddress(deal.investor) : 'Unknown'],
+    ['Project Operator',   'AgriPartners'],
+    ['Operator Account',   deal.admin ? formatAddress(deal.admin) : 'Unknown'],
     ['Split',              deal.farmer_split_pct == null && deal.investor_split_pct == null ? 'Unknown' : `${optionalPercent(deal.farmer_split_pct)} / ${optionalPercent(deal.investor_split_pct)}`],
     ['Escrow',             optionalPercent(deal.escrow_pct)],
     ['Performance Fee',    optionalPercent(deal.performance_fee_pct)],
-    ['Cycle duration',     deal.cycle_duration_days == null ? 'Unknown' : `${escapeHtml(deal.cycle_duration_days)} days`],
-    ['Total cycles',       deal.total_cycles ?? 'Unknown'],
+    ['Production Cycle duration', deal.cycle_duration_days == null ? 'Unknown' : `${escapeHtml(deal.cycle_duration_days)} days`],
+    ['Production Cycles',  deal.total_cycles ?? 'Unknown'],
     ['Investment',         formatOptionalYoctoDisplay(deal.investment_amount)],
     ['Capital return',     formatOptionalYoctoDisplay(deal.capital_return_near)],
   ];
@@ -6998,22 +6986,22 @@ function renderAdminActions(deal, status) {
   return `
     <div id="admin-actions" data-status="${escapeHtml(status || 'Unknown')}" class="bg-slate-800 rounded-xl p-5 mb-6">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Admin Actions</h3>
-        <span class="text-xs text-slate-500">Blockchain transactions require confirmation</span>
+        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Manage Project</h3>
+        <span class="text-xs text-slate-500">Legacy NEAR actions remain Alpha/Testnet infrastructure only</span>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-        ${renderAdminActionButton('fund', 'Fund', status, deal, 'action-fund')}
-        ${renderAdminActionButton('start-cycle', 'Start Cycle', status, deal)}
-        ${renderAdminActionButton('report-profit', 'Report Profit', status, deal)}
-        ${renderAdminActionButton('withdraw-farmer', 'Withdraw Farmer', status, deal)}
-        ${renderAdminActionButton('withdraw-investor', 'Withdraw Investor', status, deal)}
-        ${renderAdminActionButton('withdraw-platform', 'Withdraw Platform', status, deal)}
+        ${renderAdminActionButton('fund', 'Fund Project (Testnet)', status, deal, 'action-fund')}
+        ${renderAdminActionButton('start-cycle', 'Start Production Cycle', status, deal)}
+        ${renderAdminActionButton('report-profit', 'Record Cycle Result', status, deal)}
+        ${renderAdminActionButton('withdraw-farmer', 'Farmer Demo Payout', status, deal)}
+        ${renderAdminActionButton('withdraw-investor', 'Investor Testnet Settlement', status, deal)}
+        ${renderAdminActionButton('withdraw-platform', 'Operator Testnet Transfer', status, deal)}
       </div>
-      ${IS_PRODUCTION_BUILD ? '<p class="text-xs text-amber-300 mt-3">Fund-as and withdraw-as controls are disabled in production because those backend endpoints are non-production workflows.</p>' : ''}
+      ${IS_PRODUCTION_BUILD ? '<p class="text-xs text-amber-300 mt-3">Legacy Testnet transfer controls are disabled in production because they are non-production workflows.</p>' : ''}
       <form id="admin-return-form" class="mt-5 border-t border-slate-700 pt-4 space-y-3">
         <h4 class="text-sm font-semibold text-slate-300">Record Return</h4>
         <p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2">
-          Recording a return updates the admin ledger only. It does not execute a smart contract transfer.
+          Recording a return updates the Alpha ledger only. It is not production Settlement.
         </p>
         <div class="grid sm:grid-cols-[160px_160px_1fr_auto] gap-2">
           <input id="admin-return-amount" name="amount_near" type="text" inputmode="decimal" placeholder="Amount (NEAR)"
@@ -7182,31 +7170,31 @@ function adminActionConfig(deal, action) {
   const base = `${API_BASE}/api/admin/deals/${deal.id}`;
   const configs = {
     fund: {
-      label: 'Fund deal',
-      confirm: `Fund this deal as investor ${deal.investor}?`,
+      label: 'Fund Project (Testnet)',
+      confirm: `Run the Alpha/Testnet funding action for Project #${deal.id}?`,
       url: `${base}/fund-as`,
       body: { account_id: deal.investor }
     },
     'start-cycle': {
       label: 'Start cycle',
-      confirm: 'Start the next contract cycle?',
+      confirm: 'Start the next Alpha Production Cycle?',
       url: `${base}/start-cycle`
     },
     'withdraw-farmer': {
-      label: 'Withdraw farmer',
-      confirm: `Withdraw farmer balance to ${deal.farmer}?`,
+      label: 'Farmer demo payout',
+      confirm: 'Run the Farmer Alpha demo payout action? This is not a Pilot 1.0 fiat payment.',
       url: `${base}/withdraw-as`,
       body: { account_id: deal.farmer }
     },
     'withdraw-investor': {
-      label: 'Withdraw investor',
-      confirm: `Withdraw investor balance to ${deal.investor}?`,
+      label: 'Investor Testnet Settlement',
+      confirm: 'Run the Investor Testnet Settlement action? This is not production Settlement.',
       url: `${base}/withdraw-as`,
       body: { account_id: deal.investor }
     },
     'withdraw-platform': {
-      label: 'Withdraw platform',
-      confirm: `Withdraw platform balance to ${deal.platform}?`,
+      label: 'Operator Testnet transfer',
+      confirm: 'Run the AgriPartners operator Testnet transfer?',
       url: deal.platform === deal.admin ? `${base}/withdraw` : `${base}/withdraw-as`,
       body: deal.platform === deal.admin ? null : { account_id: deal.platform }
     }
@@ -7237,7 +7225,7 @@ async function runAdminAction(deal, action) {
   }
   const currentStatus = document.getElementById('admin-actions')?.dataset.status;
   if (!isAdminActionEnabled(action, currentStatus)) {
-    showAdminActionResult('error', `${action} is not available while deal status is ${currentStatus || 'Unknown'}.`);
+    showAdminActionResult('error', `${action} is not available while Project Status is ${currentStatus || 'Unknown'}.`);
     return;
   }
 

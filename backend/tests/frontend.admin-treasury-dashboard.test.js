@@ -71,7 +71,7 @@ test('admin treasury accounts table renders catalog and derived activity label',
 
 test('admin treasury ledger renders required columns and explicit empty state', () => {
   const ledger = functionBody('renderAdminTreasuryLedger', 5500);
-  for (const label of ['Date', 'Transaction id', 'Account', 'Direction', 'Amount', 'Currency', 'Related deal', 'Related investor', 'Related farmer']) {
+  for (const label of ['Date', 'Transaction id', 'Account', 'Direction', 'Amount', 'Currency', 'Related Project', 'Related investor', 'Related farmer']) {
     expect(ledger).toContain(label);
   }
   expect(ledger).toContain('No ledger entries');

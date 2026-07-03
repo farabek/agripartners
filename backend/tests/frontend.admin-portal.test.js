@@ -28,15 +28,15 @@ test('admin demo dashboard CTA stays inside public demo flow', () => {
   const body = functionBody('showAdminDemoPortal', 1800);
   expect(body).not.toContain('href="#deals"');
   expect(body).toContain('id="admin-demo-pilot-deals-btn"');
-  expect(body).toContain('View Pilot Deals');
+  expect(body).toContain('View Pilot Projects');
   expect(body).toContain('scrollIntoView');
 });
 
 test('live dashboard has loading, zero-deal, auth, server, network and malformed JSON states', () => {
   const body = functionBody('showLiveAdminDashboard');
-  expect(appJs).toContain('Loading live deals...');
+  expect(appJs).toContain('Loading live Projects...');
   expect(body).toContain('data.length === 0');
-  expect(body).toContain('No live deals yet');
+  expect(body).toContain('No live Projects yet');
   expect(body).toContain('Malformed deal list payload');
   expect(appJs).toContain("status === 401");
   expect(appJs).toContain("status === 403");
@@ -50,12 +50,12 @@ test('admin create handles success, request errors, partial profile failures and
   expect(portal).toContain('Promise.allSettled');
   expect(portal).toContain("index === 0 ? 'Farmer' : 'Investor'");
   expect(portal).toContain('profiles unavailable:');
-  expect(appJs).toContain('No farmer or investor profiles are available.');
-  expect(appJs).toContain('Model-specific reserve rate (%)');
+  expect(appJs).toContain('No Farmer or Investor profiles are available.');
+  expect(appJs).toContain('Legacy Alpha model parameter (%)');
   expect(create).toContain("document.getElementById('admin-reserve-rate').value");
   expect(create).toContain("fetchAdminJson('/api/admin/deals'");
   expect(create).toContain('form.reset()');
-  expect(create).toContain('Create deal failed:');
+  expect(create).toContain('Create Project failed:');
 });
 
 test('admin users screen creates pre-created platform accounts', () => {
@@ -239,6 +239,6 @@ test('production disables fund-as and withdraw-as controls with a clear explanat
   expect(body).toContain("action === 'fund'");
   expect(body).toContain("action === 'withdraw-farmer'");
   expect(body).toContain("action === 'withdraw-investor'");
-  expect(appJs).toContain('Fund-as and withdraw-as controls are disabled in production');
+  expect(appJs).toContain('Legacy Testnet transfer controls are disabled in production');
   expect(appJs).toContain("btn.dataset.productionDisabled === 'true'");
 });

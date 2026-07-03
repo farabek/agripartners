@@ -31,7 +31,7 @@ test('landing explains product audience and Alpha testnet context', () => {
   expect(appJs).toContain('What AgriPartners is');
   expect(appJs).toContain('Investors');
   expect(appJs).toContain('Farmers');
-  expect(appJs).toContain('Admin / Platform Operators');
+  expect(appJs).toContain('AgriPartners / Project Operators');
   expect(appJs).toContain('Alpha v1.2');
   expect(appJs).toContain('NEAR Testnet');
   expect(appJs).toContain('Demo / Live separation');
@@ -39,7 +39,7 @@ test('landing explains product audience and Alpha testnet context', () => {
 
 test('landing describes core demonstration capabilities', () => {
   for (const phrase of [
-    'Live testnet workflows',
+    'NEAR infrastructure',
     'Farmer reporting',
     'Investor visibility',
     'Typed returns',
@@ -73,7 +73,8 @@ test('landing explains model-specific investor protection immediately after fina
 
   expect(homeSource.indexOf('landing-financial-models')).toBeGreaterThanOrEqual(0);
   expect(homeSource.indexOf('renderHomeInvestorProtection()')).toBeGreaterThan(homeSource.indexOf('landing-financial-models'));
-  expect(appJs).toContain('Understand the Protection Reserve Before You Choose a Deal');
+  expect(appJs).toContain('Explore the Future Protection Concept by Investment Model');
+  expect(appJs).toContain('not active in Pilot 1.0');
   expect(appJs).toContain('Protection reserve 44%');
   expect(appJs).toContain('Protection reserve 53%');
   expect(appJs).toContain('Required reserve = max($10,000; $50,000');

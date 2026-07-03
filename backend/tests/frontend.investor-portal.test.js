@@ -557,7 +557,7 @@ test('investor detail renders ROI and returns management sections', () => {
   expect(appJs).toContain('Realized ROI');
   expect(appJs).toContain("['Realized Profit', 'Not yet authoritative']");
   expect(appJs).toContain("['Realized ROI', 'Not yet authoritative']");
-  expect(appJs).toContain('Recorded Off-chain Returns Ledger');
+  expect(appJs).toContain('Settlement / Returns Ledger');
   expect(appJs).toContain('<th class="text-left py-2 pr-3">Note</th>');
   expect(appJs).toContain('No returns recorded yet.');
   expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
@@ -580,12 +580,12 @@ test('live investor detail follows the investor-first reading order', () => {
     'Investment Summary',
     'Returns Summary',
     'ROI Progress',
-    'Investor Actions',
-    'Farmer Reports',
-    'Cycle Status',
-    'Returns Ledger',
-    'Event History',
-    'Technical Deal Data',
+    'Settlement Infrastructure',
+    'id="investor-detail-reports"',
+    'Production Cycles',
+    'id="investor-detail-ledger"',
+    'id="investor-detail-activity"',
+    'id="investor-detail-technical"',
   ];
   const positions = orderedSections.map(section => el.innerHTML.indexOf(section));
   expect(positions.every(position => position >= 0)).toBe(true);
@@ -601,7 +601,7 @@ test('live investor detail navigation exposes and scrolls to returns, reports, a
     reports: [], cycles: [], returns: [], events: [], resourceErrors: {},
   });
 
-  expect(el.innerHTML).toContain('aria-label="Deal sections"');
+  expect(el.innerHTML).toContain('aria-label="Project sections"');
   expect(el.innerHTML).toContain('id="btn-investor-section-overview"');
   expect(el.innerHTML).toContain('id="btn-investor-section-returns"');
   expect(el.innerHTML).toContain('id="btn-investor-section-reports"');
@@ -613,7 +613,7 @@ test('live investor detail navigation exposes and scrolls to returns, reports, a
   expect(el.innerHTML).toContain('id="investor-reports-list"');
   expect(el.innerHTML.indexOf('id="investor-detail-ledger"'))
     .toBeLessThan(el.innerHTML.indexOf('Returns Ledger'));
-  expect(el.innerHTML.indexOf('Cycle Status'))
+  expect(el.innerHTML.indexOf('Production Cycles'))
     .toBeLessThan(el.innerHTML.indexOf('id="investor-detail-ledger"'));
 
   const ledgerListener = listeners.find(listener => listener.id === 'btn-investor-section-ledger');
@@ -676,8 +676,8 @@ test('investor deal bundle loads all live resources successfully', async () => {
 
 test.each([
   ['401', () => Promise.resolve(testResponse(401, {})), 'wallet session expired'],
-  ['404', () => Promise.resolve(testResponse(404, {})), 'Investor deal not found'],
-  ['500', () => Promise.resolve(testResponse(500, {})), 'Investor deal unavailable (HTTP 500)'],
+  ['404', () => Promise.resolve(testResponse(404, {})), 'Investor Project not found'],
+  ['500', () => Promise.resolve(testResponse(500, {})), 'Investor Project unavailable (HTTP 500)'],
   ['network failure', () => Promise.reject(new Error('offline')), 'network unavailable'],
   ['invalid JSON', () => Promise.resolve(testResponse(200, null, { invalidJson: true })), 'invalid JSON'],
 ])('mandatory investor deal request exposes %s errors', async (_name, mainResponse, expected) => {
@@ -692,8 +692,8 @@ test.each([
 });
 
 test.each([
-  ['/status', 'status', 'Contract status unavailable (HTTP 500)'],
-  ['/balances', 'balances', 'Contract balances unavailable (HTTP 500)'],
+  ['/status', 'status', 'NEAR Testnet status unavailable (HTTP 500)'],
+  ['/balances', 'balances', 'NEAR Testnet balances unavailable (HTTP 500)'],
   ['/events', 'events', 'Event history unavailable (HTTP 500)'],
   ['/cycles', 'cycles', 'Cycle status unavailable (HTTP 500)'],
   ['/reports', 'reports', 'Farmer reports unavailable (HTTP 500)'],
@@ -945,8 +945,8 @@ test('investor detail renders project profile before technical deal data', () =>
   expect(appJs).toContain("roiLabel: projectStatus === 'Completed' ? 'ROI' : 'Projected ROI'");
   expect(appJs).toContain('Livestock fattening operation based on a real pilot agricultural agreement');
   expect(appJs).toContain('Sheep breeding operation based on a real pilot agricultural agreement');
-  expect(appJs).toContain('Technical Deal Data');
-  expect(appJs).toContain('Deal #${escapeHtml(deal.id)}');
+  expect(appJs).toContain('NEAR Testnet Infrastructure');
+  expect(appJs).toContain('Project #${escapeHtml(deal.id)}');
   expect(appJs).toContain('function getPilotForDeal');
   expect(appJs).toContain('function pilotKeyFromText');
   expect(appJs).not.toContain('[1, 7].includes');
@@ -956,7 +956,7 @@ test('investor detail renders project profile before technical deal data', () =>
 test('investor home dashboard renders MVP metrics and preserves its sections', () => {
   expect(appJs).toContain('function investorMetrics');
   expect(appJs).toContain('Investor Analytics Dashboard');
-  expect(appJs).toContain('Portfolio performance, pilot deals, returns, and reporting visibility.');
+  expect(appJs).toContain('Projects, Investment Models, Project Progress, Farmer Reports, and Settlement / Returns visibility.');
   expect(appJs).toContain('Portfolio Summary');
   expect(appJs).toContain('Projected Total Payout');
   expect(appJs).toContain('Recorded Off-chain Returns');
@@ -965,10 +965,8 @@ test('investor home dashboard renders MVP metrics and preserves its sections', (
   expect(appJs).toContain("['Realized Profit', 'Not yet authoritative']");
   expect(appJs).not.toContain('Calculated Realized Profit');
   expect(appJs).not.toContain('Capital Returned %');
-  expect(appJs).toContain('Active Deals');
-  expect(appJs).toContain('Completed Deals');
-  expect(appJs).toContain('Active Investments');
-  expect(appJs).toContain('Completed Investments');
+  expect(appJs).toContain('Active Projects');
+  expect(appJs).toContain('Completed Projects');
   expect(appJs).toContain('Fidlot Livestock Project');
   expect(appJs).toContain('Hissar Sheep Breeding Project');
   expect(appJs).toContain('21.9%');
@@ -1000,7 +998,7 @@ test('live investor dashboard has no demo controls or static dataset entry', () 
 
 test('live mode has explicit error and empty portfolio states without demo fallback', () => {
   expect(appJs).toContain('Investor Portal unavailable: ${e.message}');
-  expect(appJs).toContain('No active investments found for connected wallet account:');
+  expect(appJs).toContain('No active Projects found for the connected Investor account:');
   expect(appJs).not.toContain('Featured pilot profiles are available in explicit Demo Mode.');
   expect(appJs).not.toContain('INVESTOR_DEMO_DATASET_ENABLED');
 });
@@ -1031,7 +1029,7 @@ test('live deal payload normalization handles missing and null fields safely', (
     status: { status: 'Unknown' },
     balances: null,
   })]);
-  expect(() => normalizeInvestorDealsPayload({ deals: [] })).toThrow('Investor deals response is not a list');
+  expect(() => normalizeInvestorDealsPayload({ deals: [] })).toThrow('Investor Projects response is not a list');
 });
 
 test('camelCase deal financial DTO fields take priority over legacy aliases', () => {
@@ -1161,7 +1159,7 @@ test('per-deal authorization failure remains an explicit live mode error', async
   const { enrichDealsForInvestor } = loadInvestorLiveDataHelpers(fetchImpl);
 
   await expect(enrichDealsForInvestor([{ id: 7 }]))
-    .rejects.toThrow('Investor authorization failed while loading deal details');
+    .rejects.toThrow('Investor authorization failed while loading Project details');
 });
 
 test('investor analytics dashboard renders Phase 9 analytics sections', () => {
@@ -1176,16 +1174,16 @@ test('investor analytics dashboard renders Phase 9 analytics sections', () => {
   expect(appJs).toContain('Weighted Projected ROI');
   expect(appJs).toContain('Recorded Return Status');
   expect(appJs).toContain('Reporting Information');
-  expect(appJs).toContain('Reports visible in deal detail');
-  expect(appJs).toContain('Cycle status visible');
-  expect(appJs).toContain('Event history available');
-  expect(appJs).toContain('Farmer reports available');
-  expect(appJs).toContain('Available in deal detail');
+  expect(appJs).toContain('Project Reports');
+  expect(appJs).toContain('Production Cycles');
+  expect(appJs).toContain('Project Progress');
+  expect(appJs).toContain('Farmer Reports');
+  expect(appJs).toContain('Available in Project detail');
   expect(appJs).toContain('Attention Required');
   expect(appJs).toContain('No authoritative attention signals are available');
   expect(dashboardSource).not.toContain('Portfolio Health');
   expect(dashboardSource).not.toContain('Risk / Attention Panel');
-  expect(appJs).toContain('View Deal');
+  expect(appJs).toContain('View Project');
 });
 
 test('funding progress metrics derive demo-safe marketplace values', () => {
@@ -1254,7 +1252,7 @@ test('live deal card prioritizes title, performance, three financial KPIs and Vi
     contract_address: 'deal.testnet',
   });
 
-  const orderedLabels = ['Live Orchard', 'Active', 'Total Invested', 'Recorded Off-chain Returns', 'Projected Outstanding', 'View Deal'];
+  const orderedLabels = ['Live Orchard', 'Active', 'Total Invested', 'Recorded Off-chain Returns', 'Projected Outstanding', 'View Project'];
   const positions = orderedLabels.map(label => html.indexOf(label));
   expect(positions.every(position => position >= 0)).toBe(true);
   expect(positions).toEqual([...positions].sort((a, b) => a - b));
@@ -1283,7 +1281,8 @@ test('investor deal cards disclose the model-specific protection reserve rate', 
   expect(inferred).toContain('Protection reserve: 53%');
   expect(explicit).toContain('data-protection-rate-badge');
   expect(appJs).toContain('function renderInvestorProtectionPanel');
-  expect(appJs).toContain('Current contract reserve');
+  expect(appJs).toContain('Alpha infrastructure reserve reference');
+  expect(appJs).toContain('This exploratory concept is not active in Pilot 1.0.');
   expect(appJs).toContain('Not insurance or a guarantee');
 });
 
@@ -1293,10 +1292,10 @@ test('deal card secondary information is visually de-emphasized and missing valu
   const secondaryStart = html.indexOf('border-t border-slate-700 text-xs text-slate-500');
 
   expect(secondaryStart).toBeGreaterThan(-1);
-  expect(html.indexOf('Farmer:', secondaryStart)).toBeGreaterThan(secondaryStart);
-  expect(html.indexOf('Contract:', secondaryStart)).toBeGreaterThan(secondaryStart);
-  expect(html.indexOf('Current cycle:', secondaryStart)).toBeGreaterThan(secondaryStart);
-  expect(html.indexOf('Reports:', secondaryStart)).toBeGreaterThan(secondaryStart);
+  expect(html.indexOf('Farmer Assignment:', secondaryStart)).toBeGreaterThan(secondaryStart);
+  expect(html.indexOf('Project Operator:', secondaryStart)).toBeGreaterThan(secondaryStart);
+  expect(html.indexOf('Production Cycle:', secondaryStart)).toBeGreaterThan(secondaryStart);
+  expect(html.indexOf('Farmer Reports:', secondaryStart)).toBeGreaterThan(secondaryStart);
   expect(html).toContain('Awaiting data');
   expect(html).toContain('Unavailable');
   expect(html).toContain('Unknown');
@@ -1331,7 +1330,7 @@ test('active and completed cards share the same financial and secondary structur
   const active = renderInvestorDealCard({ ...base, status: { status: 'Funded', current_cycle: 0 } });
   const completed = renderInvestorDealCard({ ...base, status: { status: 'Completed', current_cycle: 3 } });
 
-  for (const label of ['Total Invested', 'Recorded Off-chain Returns', 'Projected Outstanding', 'Farmer:', 'Contract:', 'Current cycle:', 'Reports:', 'View Deal']) {
+  for (const label of ['Total Invested', 'Recorded Off-chain Returns', 'Projected Outstanding', 'Farmer Assignment:', 'Project Operator:', 'Production Cycle:', 'Farmer Reports:', 'View Project']) {
     expect(active).toContain(label);
     expect(completed).toContain(label);
   }
@@ -1435,8 +1434,8 @@ test('dashboard sections follow the investor-first hierarchy', () => {
   const titles = [
     'Portfolio Summary',
     'Attention Required',
-    'Active Investments',
-    'Completed Investments',
+    'Active Projects',
+    'Completed Projects',
     'Portfolio Performance',
     'Recent Activity',
     'Reporting Information',
@@ -1573,7 +1572,7 @@ test('investor withdrawal success still refreshes the live bundle', async () => 
     'https://agripartners-zlp2.onrender.com/api/investor/deals/7/withdraw',
     expect.objectContaining({ method: 'POST' })
   );
-  expect(actionResult).toHaveBeenCalledWith('success', 'Investor withdrawal completed successfully', 'tx-123');
+  expect(actionResult).toHaveBeenCalledWith('success', 'Testnet Settlement action completed successfully', 'tx-123');
   expect(refresh).toHaveBeenCalledWith(7);
 });
 
@@ -1583,7 +1582,7 @@ test('investor withdrawal error remains visible and does not refresh', async () 
 
   await withdrawInvestorFromPortal({ id: 7, investor: 'investor.testnet' });
 
-  expect(actionResult).toHaveBeenCalledWith('error', 'Investor withdrawal failed: withdraw failed');
+  expect(actionResult).toHaveBeenCalledWith('error', 'Testnet Settlement action failed: withdraw failed');
   expect(refresh).not.toHaveBeenCalled();
 });
 
@@ -1599,8 +1598,8 @@ test('investor demo dataset hides test records and renders clean pilot routes', 
   expect(appJs).toContain('#investor/pilots/${deal.pilot_key}');
   expect(appJs).toContain('renderInvestorDemoDealDetail');
   expect(appJs).toContain('Investor demo profile: this screen is prepared for presentation and screenshot readiness.');
-  expect(appJs).toContain("const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`");
-  expect(appJs).not.toContain("const dealBadge = deal.isDemoPilot ? 'Demo Pilot' : `Deal #${deal.id}`");
+  expect(appJs).toContain("const dealBadge = deal.isDemoPilot ? 'Pilot Project' : `Project #${deal.id}`");
+  expect(appJs).not.toContain("const dealBadge = deal.isDemoPilot ? 'Demo Pilot' : `Project #${deal.id}`");
   expect(appJs).not.toContain('Demo Pilot');
   expect(appJs).not.toContain('QA Admin Deal');
   expect(appJs).not.toContain('Deal #4 Unknown');

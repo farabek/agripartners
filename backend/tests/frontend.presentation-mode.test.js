@@ -91,7 +91,7 @@ test('Investor Quick Demo includes all eight required presentation steps', () =>
     'Farmer Progress',
     'Returns Recorded',
     'Treasury Transparency',
-    'Withdrawal Readiness',
+    'Settlement Readiness',
     'Summary / Next Steps',
   ]);
 });

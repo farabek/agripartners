@@ -38,7 +38,8 @@ test('frontend uses browser-safe wallet redirect and the Render API', () => {
 });
 
 test('login copy explains wallet onboarding and platform credentials', () => {
-  expect(appJs).toContain('New users start with "Create NEAR Testnet Wallet."');
+  expect(appJs).toContain('NEAR login is Alpha infrastructure for Investors and operators.');
+  expect(appJs).toContain('Farmers work through AgriPartners-managed onboarding and future fiat workflows.');
   expect(appJs).toContain('For admin-provided accounts');
   expect(appJs).toContain('Sign in here only if a platform admin gave you a username and password.');
   expect(appJs).toContain('Need help? Show step-by-step guide');

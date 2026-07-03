@@ -64,10 +64,10 @@ test('farmer report submission refreshes cycle state', () => {
 
 test('submitted farmer reports render summary and disable repeat submission', () => {
   expect(appJs).toContain('function renderFarmerReportSummary');
-  expect(appJs).toContain('Report submitted');
+  expect(appJs).toContain('Project Report submitted');
   expect(appJs).toContain('const canSubmitReport = cycle.fundingReceived && !reportSubmitted');
   expect(appJs).toContain("${canSubmitReport ? '' : 'disabled'}");
-  expect(appJs).toContain('Confirm funding first');
+  expect(appJs).toContain('Confirm Funding first');
 });
 
 test('farmer confirmation posts to cycle endpoint', () => {

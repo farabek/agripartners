@@ -58,6 +58,19 @@ used for Pilot money movement. If AgriPartners later wants a contract to represe
 lifecycle, contract changes are required and should be handled as a separately approved design,
 not hidden inside a Deal-to-Project rename.
 
+## Sprint 1 Implementation Note
+
+Sprint 1 performs frontend terminology alignment only. User-facing copy now presents Projects,
+Investment Models, the Opportunity Catalog, AgriPartners as Project Operator, Project Progress,
+Farmer Reports, Production Cycles, and Settlement / Returns in line with Business Architecture
+v1.0.
+
+For migration safety, this step intentionally keeps the existing backend service names, hash
+routes, API endpoints, API fields, database tables and columns, smart contract interface, and
+business logic unchanged. Terms such as `deal`, `deal_id`, `/api/deals`, and existing contract
+actions therefore remain in internal code and compatibility interfaces until the later
+implementation phases defined by this plan.
+
 ## Audit Scope and Evidence
 
 | Layer | Primary implementation reviewed |

@@ -143,24 +143,25 @@ test('farmer dashboard loads profile and deals together', () => {
 });
 
 test('new farmer empty state is friendly and actionable', () => {
-  expect(appJs).toContain('No active deals yet');
-  expect(appJs).toContain('Your farmer profile is ready');
-  expect(appJs).toContain('Share your wallet account with AgriPartners admin');
-  expect(appJs).toContain('Copy Wallet Account');
+  expect(appJs).toContain('No active Projects yet');
+  expect(appJs).toContain('Your Farmer profile is ready');
+  expect(appJs).toContain('Confirm your secure account reference with AgriPartners');
+  expect(appJs).toContain('Copy Account Reference');
 });
 
 test('farmer dashboard renders profile fields and summary cards', () => {
   expect(appJs).toContain('renderFarmerProfilePanel');
-  expect(appJs).toContain('Farmer Operations Dashboard');
-  expect(appJs).toContain('Operational view for agricultural deals.');
+  expect(appJs).toContain('My Projects');
+  expect(appJs).toContain('Farmer operations managed through AgriPartners.');
+  expect(appJs).toContain('Project Operator:');
   expect(appJs).toContain('Farm Profile');
   expect(appJs).toContain('Farm Name');
   expect(appJs).toContain('Region');
   expect(appJs).toContain('Activity / Livestock Type');
   expect(appJs).toContain('Farmer Account');
-  expect(appJs).toContain('Deal Funding');
-  expect(appJs).toContain('Active Deals');
-  expect(appJs).toContain('Current Cycle');
+  expect(appJs).toContain('Project Funding');
+  expect(appJs).toContain('Active Projects');
+  expect(appJs).toContain('Production Cycle');
   expect(appJs).toContain('Reports Submitted');
   expect(appJs).toContain('Next Report Due');
   expect(appJs).not.toContain('Farhod Investor');
@@ -169,11 +170,11 @@ test('farmer dashboard renders profile fields and summary cards', () => {
 test('farmer deal cards remain linked to the detail page', () => {
   expect(appJs).toContain('function renderFarmerDealCard');
   expect(appJs).toContain('const dealHref = deal.isDemoPilot ? `#farmer/pilots/${deal.pilot_key}` : `#farmer/deals/${deal.id}`');
-  expect(appJs).toContain("const dealBadge = deal.isDemoPilot ? 'Pilot Deal' : `Deal #${deal.id}`");
-  expect(appJs).not.toContain("const dealBadge = deal.isDemoPilot ? 'Demo Pilot' : `Deal #${deal.id}`");
-  expect(appJs).toContain('Open Deal');
-  expect(appJs).toContain('Funding Status');
-  expect(appJs).toContain('Report Status');
+  expect(appJs).toContain("const dealBadge = deal.isDemoPilot ? 'Pilot Project' : `Project #${deal.id}`");
+  expect(appJs).not.toContain("const dealBadge = deal.isDemoPilot ? 'Demo Pilot' : `Project #${deal.id}`");
+  expect(appJs).toContain('Open Project');
+  expect(appJs).toContain('Funding Confirmation');
+  expect(appJs).toContain('Project Report');
   expect(appJs).toContain('Projected ROI');
   expect(appJs).toContain('Next action:');
 });
@@ -200,20 +201,20 @@ test('farmer summary metrics use known live states safely', () => {
   expect(appJs).toContain("displayAmount: '$50,000'");
   expect(appJs).toContain('Financial view in USD');
   expect(appJs).not.toContain('Demo financial view in USD');
-  expect(appJs).toContain('Deal Funding');
+  expect(appJs).toContain('Project Funding');
 });
 
 test('farmer demo deal detail renders project profile and report cycle status', () => {
   expect(appJs).toContain('showFarmerPilotProfile(farmerPilot[1])');
   expect(appJs).toContain('function renderFarmerDemoDealDetail');
   expect(appJs).toContain('Project Profile');
-  expect(appJs).toContain('Deal Operations Summary');
-  expect(appJs).toContain('Deal Summary');
-  expect(appJs).toContain('Funding Status');
-  expect(appJs).toContain('Current Cycle Status');
-  expect(appJs).toContain('Report Status');
-  expect(appJs).toContain('Cycle Timeline');
-  expect(appJs).toContain('Reports History');
+  expect(appJs).toContain('Project Progress');
+  expect(appJs).toContain('Project Summary');
+  expect(appJs).toContain('Funding Confirmation');
+  expect(appJs).toContain('Production Cycle Status');
+  expect(appJs).toContain('Project Report Status');
+  expect(appJs).toContain('Production Cycle Timeline');
+  expect(appJs).toContain('Project Reports');
   expect(appJs).toContain('Farmer Report');
   expect(appJs).toContain('Event History');
   expect(appJs).toContain('Funding Confirmed');
@@ -240,9 +241,8 @@ test('farmer deal detail explains reserve and payment for every model cycle', ()
   expect(appJs).toContain('the ${reserveRate == null ? \'model-specific\' : `${escapeHtml(reserveRate)}%`} rate is calculated before operating expenses');
   expect(appJs).toContain('$18,360 × 53% = $9,730.80 reserve contribution');
   expect(appJs).toContain('$18,360 − $3,100 expenses = $15,260 before reserve');
-  expect(appJs).toContain('Model projection only — this pilot profile has no live contract reserve or withdrawable balance.');
-  expect(appJs).toContain('Contract reserve · live');
-  expect(appJs).toContain('Farmer available · live');
+  expect(appJs).toContain('Investment Model projection only. This concept is not active in Pilot 1.0.');
+  expect(appJs).toContain('Future Farmer funding and payments are fiat and managed by AgriPartners as Project Operator.');
   expect(appJs).toContain('Swipe horizontally to compare every amount');
   expect(appJs).toContain('Hissar cycles 3–6 include a $2,500 partial capital return');
 });
@@ -292,8 +292,8 @@ test('farmer withdraw button is hidden behind positive farmer balance', () => {
   expect(detailBody).toContain('const canWithdrawFarmer = hasPositiveYoctoSafe(farmerBalance)');
   expect(detailBody).toContain('id="btn-farmer-withdraw"');
   expect(detailBody).toContain("${canWithdrawFarmer ? '' : 'disabled'}");
-  expect(detailBody).toContain('Withdraw Farmer Balance');
-  expect(detailBody).toContain('No Farmer Balance');
+  expect(detailBody).toContain('Request Alpha Demo Payout');
+  expect(detailBody).toContain('No Demo Payout Available');
 });
 
 test('farmer withdraw uses authenticated backend API without browser Node modules', () => {
@@ -305,7 +305,7 @@ test('farmer withdraw uses authenticated backend API without browser Node module
   expect(withdrawBody).toContain("method: 'POST'");
   expect(withdrawBody).toContain('connectedWallet !== deal.farmer');
   expect(withdrawBody).toContain("await showFarmerDeal(deal.id, { type: 'success', message })");
-  expect(withdrawBody).toContain("btn.textContent = 'Withdrawing...'");
+  expect(withdrawBody).toContain("btn.textContent = 'Submitting...'");
   expect(withdrawBody).not.toContain('signAndSendWalletFunctionCall');
 });
 
@@ -330,7 +330,7 @@ test('farmer zero-deal empty state renders explicitly', () => {
   const { renderFarmerEmptyState } = loadFarmerEmptyState();
   const html = renderFarmerEmptyState('farmer.testnet');
 
-  expect(html).toContain('No active deals yet');
+  expect(html).toContain('No active Projects yet');
   expect(html).toContain('farmer.testnet');
   expect(html).not.toContain('Fidlot Livestock Project');
   expect(html).not.toContain('Hissar Sheep Breeding Project');
@@ -355,7 +355,7 @@ test('live farmer profile uses neutral missing values instead of demo defaults',
 });
 
 test.each([
-  [401, 'Wallet session expired'],
+  [401, 'Farmer Portal session expired'],
   [403, 'forbidden'],
   [404, 'missing'],
   [500, 'HTTP 500'],
@@ -409,11 +409,11 @@ test('owned farmer detail loads successfully and merges raw live fields', async 
 });
 
 test.each([
-  ['401', 'Wallet session expired'],
+  ['401', 'Farmer Portal session expired'],
   ['403', 'Only deal farmer can access this deal'],
-  ['404', 'Farmer deal not found'],
+  ['404', 'Farmer Project not found'],
   ['network', 'offline'],
-  ['malformed', 'Farmer deal returned malformed data'],
+  ['malformed', 'Farmer Project returned malformed data'],
 ])('mandatory farmer detail exposes %s failure', async (kind, expected) => {
   const fetchFarmerJson = jest.fn(path => {
     if (!path.endsWith('/deals/9')) return Promise.resolve(successfulFarmerBundleResponse(path));
@@ -493,9 +493,9 @@ test('explicit farmer demo pilot route remains available', () => {
 test('farmer demo landing lets users choose Fidlot or Hissar', () => {
   expect(appJs).toContain("if (hash === '#farmer/pilots')");
   expect(appJs).toContain('function showFarmerPilotSelector');
-  expect(appJs).toContain('Choose a Pilot Model');
-  expect(appJs).toContain('Open Fidlot');
-  expect(appJs).toContain('Open Hissar');
+  expect(appJs).toContain('Choose an Investment Model');
+  expect(appJs).toContain('Open Fidlot Farmer View');
+  expect(appJs).toContain('Open Hissar Farmer View');
   expect(appJs).toContain('href="#farmer/pilots/${escapeHtml(pilot.key)}"');
   expect(appJs).toContain('Includes the same cycle table for reserve contributions');
 });
@@ -522,9 +522,9 @@ test('farmer withdrawal success refreshes detail and preserves success state', a
   expect(fetchImpl).toHaveBeenCalledWith('/api/farmer/deals/9/withdraw', expect.objectContaining({ method: 'POST' }));
   expect(showDeal).toHaveBeenCalledWith(9, {
     type: 'success',
-    message: 'Farmer withdrawal completed. Tx: tx-farmer-1',
+    message: 'Alpha demo payout action completed with a supplementary infrastructure reference.',
   });
-  expect(actionResult).toHaveBeenCalledWith('success', 'Farmer withdrawal submitted...');
+  expect(actionResult).toHaveBeenCalledWith('success', 'Alpha demo payout action submitted...');
 });
 
 test('farmer withdrawal error remains visible without refresh', async () => {
@@ -533,6 +533,6 @@ test('farmer withdrawal error remains visible without refresh', async () => {
 
   await withdrawFarmerWithWallet({ id: 9, farmer: 'farmer.testnet' });
 
-  expect(actionResult).toHaveBeenCalledWith('error', 'Farmer withdrawal failed: signer unavailable');
+  expect(actionResult).toHaveBeenCalledWith('error', 'Alpha demo payout action failed: signer unavailable');
   expect(showDeal).not.toHaveBeenCalled();
 });
