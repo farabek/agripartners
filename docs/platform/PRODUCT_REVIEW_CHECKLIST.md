@@ -44,6 +44,15 @@ that every finding for that area has been fixed.
 | Mobile Review | Pending | — | Review navigation, density, readability, actions, and overflow on mobile layouts. |
 | Demo Readiness | Pending | — | Complete the final cross-role Alpha demonstration walkthrough. |
 
+### Specification Deliverables
+
+Specification deliverables support the review program but do not change the review-stage
+completion percentage above.
+
+| Deliverable | Status | Notes |
+| --- | --- | --- |
+| [Canonical Workspace Specification](CANONICAL_PROJECT_WORKSPACE_SPEC.md) | ✓ Completed | Single source of truth for the structure, hierarchy, role visibility, empty states, environment rules, consistency, and acceptance criteria of every **View Project** Workspace. |
+
 ## 3. Review Rules
 
 Each product-area review should answer:
