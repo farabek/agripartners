@@ -20,7 +20,7 @@ that every finding for that area has been fixed.
 
 ## 2. Review Progress
 
-**Progress:** 5 of 14 review sections completed (**36%**)
+**Progress:** 6 of 15 review sections completed (**40%**)
 
 **Estimated remaining:** 9 review sections
 
@@ -32,6 +32,7 @@ that every finding for that area has been fixed.
 | Opportunity Catalog | ✓ Reviewed | Product Review | Catalog positioning, Project cards, status, funding, ROI, and primary action reviewed. |
 | Feedlot Workspace | ✓ Reviewed | Product Review | Investor Workspace flow and supporting sections reviewed. |
 | Hissar Active Workspace | ✓ Reviewed | Product Review | Active Project state, lifecycle, financials, documents, activity, returns, and history reviewed. |
+| Project Workspace Review | ✓ Reviewed | Product Review | Shared live and demo View Project layouts reviewed for hierarchy, section order, duplication, readability, and presentation quality. |
 | Investor Entry / Login | ✓ Reviewed | Product Review | Reviewed from a first-time international Investor perspective; findings recorded in the UX/UI Audit Log. |
 | Investor Dashboard | → Next Review | — | Review entry points, priorities, navigation, and unavailable states. |
 | Investor Portfolio | Pending | — | Review aggregation, financial semantics, and routes into Project Workspaces. |

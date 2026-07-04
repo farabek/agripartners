@@ -47,6 +47,7 @@ end-to-end role review.
 | Opportunity Catalog | Reviewed | 9.6/10 | 0 | 0 | 0 | Clear positioning, strong Project cards, visible status and funding context. |
 | Investor Project Workspace — Fidlot | Reviewed | 9.8/10 | 0 | 2 | 0 | Strong end-to-end Workspace structure; some unavailable and date wording needs refinement. |
 | Hissar Sheep Breeding Project Workspace | Reviewed | 9.0/10 | 0 | 7 | 2 | Strong active-Project Workspace; hierarchy, repetition, contextual states, density, and history polish remain. |
+| Project Workspace Standardization | Reviewed | 8.4/10 | 0 | 5 | 2 | Strong shared foundation; live and demo composition, hierarchy, section order, duplication, and presentation framing should be unified. |
 | Investor Entry / Login | Reviewed | 8.7/10 | 0 | 6 | 3 | Strong role framing and access separation; first-time path choice, wallet trust, support, post-login expectations, and accessibility need refinement. |
 | Farmer Journey | Not Reviewed | — | 0 | 0 | 0 | Full journey review pending. |
 | Operator Journey | Not Reviewed | — | 0 | 0 | 0 | Full journey review pending. |
@@ -273,6 +274,141 @@ previewing the post-login destination, and closing accessibility gaps would mate
 Investor confidence and self-service onboarding. No P0 blocker was identified in this
 documentation-only review.
 
+## Project Workspace Review
+
+Status: Reviewed
+
+Overall score: **8.4 / 10**
+
+Review perspective: an Investor opening every current **View Project** destination and expecting
+Fidlot, Hissar, other demo instances, and live assigned Projects to behave as instances of one
+professional Project Workspace.
+
+### Coverage and Shared Foundation
+
+The review covered both current Investor workspace compositions:
+
+- demo pilot routes rendered through the shared demo-detail renderer, including Fidlot Livestock
+  Project, Hissar Sheep Breeding Project, and any additional pilot instance using the same
+  renderer;
+- authenticated live Project routes rendered from Investor API data.
+
+Both paths reuse the same Project Workspace header, six-stage Timeline, role-aware Project
+Financial Overview, Project Activity Feed, and Project Documents components. This is a strong
+technical and visual foundation, but the pages do not yet use one complete shared section
+composition. Demo and live routes assemble the remaining Funding, Production, Reports, Returns,
+History, Protection, and technical content independently.
+
+### Strengths
+
+- A consistent dark visual system, card language, typography, status badges, and spacing makes
+  the workspace recognizably part of AgriPartners.
+- The shared Timeline communicates Funding, Farmer Confirmation, Production, Reports,
+  Settlement, and Completion as one lifecycle.
+- Role-aware financial and activity components protect the Investor view from most
+  operator-only detail.
+- Funding, Production Cycles, Farmer Reports, Returns, Documents, and Event History are all
+  represented in the current experience.
+- Fidlot and Hissar use the same demo renderer, so Project-specific content does not require a
+  separate page design.
+- Live Project navigation preserves clear routes back to the Investor Portal and into the
+  important Reports, Returns, Activity, and technical areas.
+- Protection language is careful and does not imply guaranteed returns.
+
+### Desired Structure Assessment
+
+| Desired section | Current state | Review |
+| --- | --- | --- |
+| Project Header | Partial | Project name, status, Farmer, Investment Model, and operator are visible. Location is absent, while Investment, ROI, and APR appear later in Profile or Financial cards instead of the primary header. Status and identity are repeated in the route row, Workspace header, Project Profile, and financial overview. |
+| Timeline | Present | The lifecycle is clear and shared, but it is nested inside the large Workspace header card rather than operating as a distinct second section. |
+| Financial Overview | Present | Shared and role-aware, but it is also nested inside the header and overlaps with Project Profile metrics and Returns summaries. |
+| Funding | Present | Demo and live workspaces both expose Funding, although their renderers and unavailable states differ. |
+| Production | Present, inconsistent order | Demo pages show Cycle Status before Farmer Reports. Live pages place Farmer Reports before Production Cycles, which breaks the intended lifecycle reading order. |
+| Farmer Reports | Present | Report cards are useful, but the surrounding Workspace already includes report-related timeline, financial, activity, and document signals. |
+| Returns | Present, duplicated | Returns Management/Summary and a later Returns Ledger both appear. The distinction is valid, but the current hierarchy reads as repeated Returns content rather than summary followed by evidence. |
+| Project Documents | Present, misplaced | Documents are shared and useful, but they render inside the Workspace header before Funding, Production, Reports, and Returns. |
+| Event History | Present, duplicated | A curated Project Activity Feed appears inside the header and a raw Event History appears near the bottom. Their different purposes are not explained. |
+
+### Duplicated Information
+
+- Project name, status, Project number or Pilot label, and current cycle appear in the route row
+  and again in the Workspace header.
+- Project status appears in both the header badge and a header metric card.
+- Investment, ROI, cycle, and status information is repeated across Project Profile, Project
+  Financial Overview, Funding, and Returns sections.
+- The Project Activity Feed and Event History both represent lifecycle events without a clear
+  “high-level updates versus audit history” distinction.
+- Returns Management, Returns Summary, ROI progress, and the Returns Ledger repeat adjacent
+  financial concepts before the user reaches the underlying entries.
+- Demo pages add a second presentation disclaimer after the environment banner, while live pages
+  add Settlement Infrastructure and NEAR Testnet Infrastructure blocks inside the main Investor
+  reading flow.
+
+### Presentation-Hostile Wording
+
+The following wording reduces Investor confidence or exposes internal demonstration mechanics:
+
+- “prepared for presentation and screenshot readiness” describes internal QA intent rather than
+  the Project;
+- “Run Testnet Settlement Action” presents an infrastructure control inside the Investor
+  narrative;
+- “NEAR Testnet Infrastructure” and technical fields receive the same section weight as
+  investment information;
+- generic states such as “Project name unavailable,” “Status unavailable,” “Stage unavailable,”
+  “Cycle unavailable,” “Date unavailable,” and “Completion: Not available” are visible in shared
+  Workspace components;
+- “Pilot Profile,” “demo profile,” and repeated Alpha/Testnet warnings compete with the actual
+  Project story when shown in several adjacent blocks.
+
+The fallback wording overlaps existing findings
+[UX-INV-001](#53-investor-project-workspace--fidlot),
+[UX-INV-002](#53-investor-project-workspace--fidlot), and
+[UX-HIS-003](#hissar-sheep-breeding-project-workspace). Those findings remain the primary
+backlog entries for contextual availability and date labels.
+
+### Prioritized Findings and Recommendations
+
+| ID | Status | Priority | Finding | Evidence | Recommendation | Verification |
+| --- | --- | --- | --- | --- | --- | --- |
+| UX-WS-001 | Open | P1 | Demo and live **View Project** pages share primitives but use separate body compositions, so section order and emphasis differ by route. | Demo pilot renderer and authenticated live Project renderer. | Create one frontend Project Workspace composition that receives Project-specific data and optional sections while preserving existing route, auth, and data-loading behavior. | Fidlot, Hissar, another demo instance, and one live Project show the same major-section order and visual hierarchy. |
+| UX-WS-002 | Open | P1 | The Workspace header is overloaded and does not match the Investor decision hierarchy. Location is absent, while Investment, ROI, and APR are displaced into later or repeated cards. | Shared Workspace header and Project Profile. | Make the first section a compact Project Header with Project Name, Status, Farmer, Location when available, Investment, ROI, and APR; hide fields with no presentation value rather than inventing placeholders. | A first-screen comparison across representative Projects exposes the same decision-ready fields without duplicated status cards. |
+| UX-WS-003 | Open | P1 | Major sections do not follow the intended lifecycle order. Activity and Documents appear before Funding, while live Projects place Farmer Reports before Production. | Shared header composition, demo detail order, and live detail order. | Standardize the order as Header, Timeline, Financial Overview, Funding, Production, Farmer Reports, Returns, Project Documents, and Event History. Place optional Protection content after Financial Overview or Funding without interrupting lifecycle order. | DOM/source and rendered reviews confirm the same ordered headings for every **View Project** route. |
+| UX-WS-004 | Open | P1 | Repeated identity, status, financial, activity, and Returns content makes the page longer and weakens the distinction between summary and evidence. | Route row, Workspace header, Project Profile, Financial Overview, Activity Feed, Returns Management, Ledger, and Event History. | Keep one summary for each concept. Treat the Activity Feed as concise updates and Event History as expandable audit evidence; treat Returns Overview as the summary and Returns Ledger as supporting records. | An Investor can identify one authoritative summary and one evidence area for each concept without encountering conflicting values. |
+| UX-WS-005 | Open | P1 | Internal demo and Testnet mechanics receive primary-page emphasis and can make the Workspace feel like a QA console. | Demo screenshot-readiness notice, Settlement Infrastructure action, and NEAR Testnet Infrastructure section. | Retain necessary Alpha/Testnet disclosure, but move technical controls and raw infrastructure fields into a clearly secondary expandable area. Remove internal screenshot/QA wording from Investor-facing content. | The default Investor view tells the Project story first; technical evidence remains discoverable without dominating the presentation. |
+| UX-WS-006 | Open | P2 | Live Projects provide section shortcuts, while demo Projects do not, and the shortcut labels do not map directly to the desired canonical sections. | Live Project section navigation versus demo Project page. | Use one optional sticky or compact section navigation generated from the canonical Workspace sections on all sufficiently long Project pages. | Demo and live pages expose the same labels, anchors, focus behavior, and responsive wrapping. |
+| UX-WS-007 | Open | P2 | Protection, disclaimers, technical details, and dense metric groups create a long continuous scroll even when the core Investor story is complete. | Fidlot and Hissar demo workspaces and live Project detail. | Apply progressive disclosure to secondary risk detail, raw ledger evidence, and technical infrastructure while keeping material disclaimers visible. | A desktop and mobile walkthrough reaches Reports and Returns quickly without hiding required risk or authority context. |
+
+### Recommended Canonical Workspace
+
+1. **Project Header** — Project Name, Status, Farmer, Location when present, Investment, ROI,
+   and APR.
+2. **Timeline** — lifecycle stage, current cycle, next milestone, and meaningful dates.
+3. **Financial Overview** — projected values, recorded values, funding state, and settlement
+   state without repeating header metrics.
+4. **Funding** — funding goal, confirmed amount, progress, and approved context.
+5. **Production** — current Production Cycle and operational progress.
+6. **Farmer Reports** — approved or submitted Project reports and evidence.
+7. **Returns** — concise Returns Overview followed by ledger entries when present.
+8. **Project Documents** — approved documents and clear document states.
+9. **Event History** — expandable audit history after the Investor-facing narrative.
+
+Protection content should sit contextually after Financial Overview or Funding. Alpha/Testnet
+technical evidence should follow Event History in a secondary disclosure area. These additions
+should not become extra competing primary sections.
+
+### Summary
+
+The Project Workspace is structurally strong and already has reusable components suitable for
+standardization. Its main presentation risk is composition rather than missing capability.
+Investors can find the required information, but they must navigate repeated summaries,
+different live/demo ordering, early Documents and Activity content, and internal Testnet
+mechanics before completing the Project story.
+
+One shared frontend composition, a decision-ready header, canonical lifecycle order, and clear
+summary-versus-evidence boundaries would make every current and future Project feel like an
+instance of the same professional Workspace. No P0 blocker or backend dependency was identified
+in this documentation-only review.
+
 ## 6. Open Backlog
 
 ### P0
@@ -301,6 +437,15 @@ Hissar active Project Workspace reviews or the Investor Entry / Login review.
   density.
 - [UX-HIS-007](#hissar-sheep-breeding-project-workspace) — distinguish major sections
   visually.
+- [UX-WS-001](#project-workspace-review) — use one shared live/demo Project Workspace
+  composition.
+- [UX-WS-002](#project-workspace-review) — make the Project Header decision-ready and remove
+  duplicated header information.
+- [UX-WS-003](#project-workspace-review) — standardize major sections in lifecycle order.
+- [UX-WS-004](#project-workspace-review) — separate concise summaries from supporting evidence
+  and remove repeated sections.
+- [UX-WS-005](#project-workspace-review) — move internal demo and Testnet mechanics out of the
+  primary Investor narrative.
 - [UX-ENT-001](#investor-entry--login) — clarify whether Investor Path items are previews or
   actionable destinations.
 - [UX-ENT-002](#investor-entry--login) — explain which access method each Investor should use.
@@ -318,6 +463,10 @@ Hissar active Project Workspace reviews or the Investor Entry / Login review.
   user-journey and responsive review.
 - [UX-HIS-008](#hissar-sheep-breeding-project-workspace) — add icons to Event History.
 - [UX-HIS-009](#hissar-sheep-breeding-project-workspace) — improve long-block readability.
+- [UX-WS-006](#project-workspace-review) — align section navigation across live and demo
+  Workspaces.
+- [UX-WS-007](#project-workspace-review) — use progressive disclosure for secondary risk,
+  ledger, and technical detail.
 - [UX-ENT-007](#investor-entry--login) — simplify and standardize Alpha/Testnet terminology.
 - [UX-ENT-008](#investor-entry--login) — reduce entry-page density and repeated explanation.
 - [UX-ENT-009](#investor-entry--login) — clarify external wallet transitions and return steps.
@@ -331,6 +480,7 @@ Hissar active Project Workspace reviews or the Investor Entry / Login review.
 | 2026-07-04 | Fidlot Investor Project Workspace | Vercel screenshots | Reviewed; score 9.8/10; Workspace, Reports, Returns, and Protection findings logged. |
 | 2026-07-04 | Hissar Sheep Breeding Project Workspace | Alpha Workspace review | Reviewed; score 9.0/10; seven P1 and two P2 findings logged. |
 | 2026-07-04 | Investor Entry / Login | Current Alpha walkthrough and rendered-content review | Reviewed from a first-time international Investor perspective; score 8.7/10; six P1 and three P2 findings logged; no P0 blocker identified. |
+| 2026-07-04 | Project Workspace Standardization | Shared frontend renderers and current demo/live **View Project** routes | Reviewed; score 8.4/10; five P1 and two P2 standardization findings logged; no P0 blocker or backend dependency identified. |
 
 Future entries should record the date, product area, evidence source, and resulting finding or
 status changes. Existing entries should not be deleted when a finding is fixed; append a new
@@ -339,6 +489,11 @@ verification entry and update the finding status.
 ## 8. Next Review Steps
 
 1. Review the Investor Dashboard.
-2. Review the Farmer Journey.
-3. Review the Operator Journey.
-4. Review mobile and responsive views.
+2. Review the Investor Portfolio.
+3. Review the Farmer Dashboard.
+4. Review the Farmer Workspace.
+5. Review the Operator Dashboard.
+6. Review the Operator Workspace.
+7. Complete the Responsive Review.
+8. Complete the Mobile Review.
+9. Complete Demo Readiness.
