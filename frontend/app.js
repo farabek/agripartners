@@ -3238,6 +3238,397 @@ function renderProjectFinancialOverview({
   `;
 }
 
+function projectActivityDefinition(value) {
+  const raw = projectWorkspaceValue(value) || '';
+  const normalized = raw.toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const definitions = [
+    [/farmer.*(?:funding|funds).*(?:confirm|receiv)|funding received/, 'farmer_confirmation', 'Farmer Funding Confirmation', 'Confirmed', '&#10003;'],
+    [/farmer.*report.*(?:approv|publish)|report.*(?:approv|publish)/, 'report_approved', 'Farmer Report Approved', 'Approved', '&#128196;'],
+    [/farmer.*report.*submit|report submitted|cycle reported/, 'report_submitted', 'Farmer Report Submitted', 'Submitted', '&#128196;'],
+    [/settlement completed|settled|reconciled|^completed$/, 'settlement_completed', 'Settlement Completed', 'Completed', '&#8644;'],
+    [/settlement started|return recorded|return approved/, 'settlement_started', 'Settlement Started', 'In progress', '&#8644;'],
+    [/cycle completed|production completed/, 'cycle_completed', 'Cycle Completed', 'Completed', '&#10003;'],
+    [/cycle updated|production cycle updated/, 'production_updated', 'Production Cycle Updated', 'Updated', '&#8635;'],
+    [/production started|cycle active|cycle started|funding received/, 'production_started', 'Production Started', 'In progress', '&#9654;'],
+    [/funding confirmed|project funded|^funded$/, 'funding_confirmed', 'Funding Confirmed', 'Completed', '&#36;'],
+  ];
+  const match = definitions.find(([pattern]) => pattern.test(normalized));
+  if (match) {
+    return {
+      type: match[1],
+      title: match[2],
+      status: match[3],
+      icon: match[4],
+      known: true,
+    };
+  }
+  const title = normalized
+    ? normalized.replace(/\b\w/g, character => character.toUpperCase())
+    : 'Internal Workflow Update';
+  return {
+    type: 'internal_workflow',
+    title,
+    status: 'Internal',
+    icon: '&#8226;',
+    known: false,
+  };
+}
+
+function projectActivityTimestampValue(item = {}) {
+  return projectWorkspaceValue(
+    item.created_at,
+    item.createdAt,
+    item.timestamp,
+    item.occurred_at,
+    item.occurredAt,
+    item.updated_at,
+    item.updatedAt
+  );
+}
+
+function projectActivityFormatTimestamp(value) {
+  if (!value) return 'Timestamp unavailable';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Timestamp unavailable';
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+function projectActivityCycleLabel(item = {}) {
+  const cycle = projectWorkspaceValue(
+    item.cycle_num,
+    item.cycleNumber,
+    item.cycle_number,
+    item.cycle
+  );
+  return cycle ? ` Production Cycle ${cycle}.` : '';
+}
+
+function projectActivityDescription(definition, item = {}, role = 'investor') {
+  if (role === 'operator') {
+    const operatorDescription = projectWorkspaceValue(
+      item.internal_note,
+      item.operator_note,
+      item.description,
+      item.summary,
+      item.note
+    );
+    if (operatorDescription) return operatorDescription;
+  }
+  const cycleLabel = projectActivityCycleLabel(item);
+  const descriptions = {
+    funding_confirmed: 'Investor Funding has been confirmed by AgriPartners.',
+    farmer_confirmation: `The Farmer confirmed receipt of fiat Funding.${cycleLabel}`,
+    production_started: `Agricultural production has started.${cycleLabel}`,
+    production_updated: `Production progress was updated.${cycleLabel}`,
+    report_submitted: `The Farmer submitted a Project Report to AgriPartners.${cycleLabel}`,
+    report_approved: `AgriPartners approved a Farmer Project Report.${cycleLabel}`,
+    cycle_completed: `The Production Cycle was completed.${cycleLabel}`,
+    settlement_started: 'The Project Settlement workflow has started.',
+    settlement_completed: 'Project Settlement has been completed and recorded.',
+    internal_workflow: 'An internal Project workflow update was recorded.',
+  };
+  return descriptions[definition.type];
+}
+
+function projectActivityItem(raw = {}, role = 'investor', forcedType = null) {
+  const definition = projectActivityDefinition(forcedType || raw.event_type || raw.type || raw.title || raw.status);
+  const timestamp = projectActivityTimestampValue(raw);
+  const isInternal = raw.internal === true
+    || raw.operator_only === true
+    || /operator|internal/i.test(projectWorkspaceValue(raw.visibility, raw.audience) || '')
+    || definition.type === 'internal_workflow';
+  return {
+    ...definition,
+    description: projectActivityDescription(definition, raw, role),
+    timestamp,
+    timestampLabel: projectActivityFormatTimestamp(timestamp),
+    sortTimestamp: timestamp && !Number.isNaN(new Date(timestamp).getTime())
+      ? new Date(timestamp).getTime()
+      : Number.NEGATIVE_INFINITY,
+    cycle: projectWorkspaceValue(raw.cycle_num, raw.cycleNumber, raw.cycle_number, raw.cycle),
+    isInternal,
+  };
+}
+
+function projectActivityReportItems(reports = [], cycles = [], role = 'investor') {
+  const cycleReports = cycles
+    .filter(cycle => cycle?.report)
+    .map(cycle => ({
+      ...cycle.report,
+      cycle_num: cycle.cycle_num ?? cycle.cycleNumber ?? cycle.id,
+      status: cycle.report.status ?? cycle.reportStatus ?? cycle.report_status,
+      submitted_at: cycle.report.submitted_at ?? cycle.report.submittedAt,
+      approved_at: cycle.report.approved_at ?? cycle.report.approvedAt,
+      published_at: cycle.report.published_at ?? cycle.report.publishedAt,
+    }));
+  return [...reports, ...cycleReports].flatMap(report => {
+    const status = projectWorkspaceValue(report?.status, report?.reportStatus, report?.report_status) || '';
+    const cycle = report?.cycle_num ?? report?.cycleNumber ?? report?.cycle_number;
+    const items = [];
+    if (/approved|published/i.test(status)
+      || report?.approved_at
+      || report?.approvedAt
+      || report?.published_at
+      || report?.publishedAt) {
+      items.push(projectActivityItem({
+        ...report,
+        cycle_num: cycle,
+        created_at: report.approved_at
+          || report.approvedAt
+          || report.published_at
+          || report.publishedAt
+          || report.updated_at
+          || report.updatedAt
+          || report.created_at
+          || report.createdAt,
+      }, role, 'Farmer Report Approved'));
+    } else if (/submitted|under review|changes required/i.test(status)
+      || report?.submitted_at
+      || report?.submittedAt
+      || report?.created_at
+      || report?.createdAt) {
+      items.push(projectActivityItem({
+        ...report,
+        cycle_num: cycle,
+        created_at: report.submitted_at || report.submittedAt || report.created_at || report.createdAt,
+      }, role, 'Farmer Report Submitted'));
+    }
+    return items;
+  });
+}
+
+function projectActivityCycleItems(cycles = [], role = 'investor') {
+  return cycles.flatMap(cycle => {
+    const items = [];
+    const cycleNumber = cycle?.cycle_num ?? cycle?.cycleNumber ?? cycle?.id;
+    if (cycle?.fundingReceived === true || cycle?.funding_received_at) {
+      items.push(projectActivityItem({
+        cycle_num: cycleNumber,
+        created_at: cycle.funding_received_at || cycle.fundingReceivedAt,
+      }, role, 'Farmer Funding Confirmation'));
+    }
+    const cycleStatus = projectWorkspaceValue(cycle?.cycleStatus, cycle?.status) || '';
+    if (cycle?.started_at || /active|started|funding_received/i.test(cycleStatus)) {
+      items.push(projectActivityItem({
+        cycle_num: cycleNumber,
+        created_at: cycle.started_at || cycle.start_date || cycle.created_at,
+      }, role, 'Production Started'));
+    }
+    if (cycle?.completed_at || /completed/i.test(cycleStatus)) {
+      items.push(projectActivityItem({
+        cycle_num: cycleNumber,
+        created_at: cycle.completed_at || cycle.updated_at,
+      }, role, 'Cycle Completed'));
+    } else if (cycle?.updated_at && !cycle?.started_at) {
+      items.push(projectActivityItem({
+        cycle_num: cycleNumber,
+        created_at: cycle.updated_at,
+      }, role, 'Production Cycle Updated'));
+    }
+    return items;
+  });
+}
+
+function projectActivityReturnItems(returns = [], role = 'investor') {
+  return returns.flatMap(entry => {
+    const returnStatus = projectWorkspaceValue(
+      entry?.settlement_status,
+      entry?.payment_status,
+      entry?.status
+    ) || '';
+    const completed = /paid|reconciled|settled|completed/i.test(returnStatus);
+    const started = /recorded|approved|pending|processing/i.test(returnStatus);
+    if (!completed && !started) return [];
+    return [projectActivityItem({
+      ...entry,
+      created_at: completed
+        ? (entry.reconciled_at
+          || entry.reconciledAt
+          || entry.paid_at
+          || entry.paidAt
+          || entry.updated_at
+          || entry.updatedAt
+          || entry.created_at
+          || entry.createdAt)
+        : (entry.approved_at || entry.approvedAt || entry.created_at || entry.createdAt),
+    }, role, completed ? 'Settlement Completed' : 'Settlement Started')];
+  });
+}
+
+function projectActivityAlertItems(deal = {}, role = 'operator') {
+  if (role !== 'operator' || !Array.isArray(deal.attention_items)) return [];
+  return deal.attention_items.map(item => {
+    const source = item && typeof item === 'object' ? item : { description: item };
+    const activity = projectActivityItem({
+      ...source,
+      event_type: 'Operational Alert',
+      operator_only: true,
+    }, role);
+    return {
+      ...activity,
+      type: 'operational_alert',
+      title: 'Operational Alert',
+      status: 'Alert',
+      icon: '&#33;',
+    };
+  });
+}
+
+function projectActivityItems({
+  deal = {},
+  cycles = [],
+  reports = [],
+  returns = [],
+  events = [],
+  role = 'investor',
+} = {}) {
+  const visibleRole = role === 'farmer' || role === 'operator' ? role : 'investor';
+  const embeddedActivities = Array.isArray(deal.activities)
+    ? deal.activities
+    : (Array.isArray(deal.activity) ? deal.activity : []);
+  const eventItems = [...events, ...embeddedActivities].map(event => projectActivityItem(event, visibleRole));
+  const allItems = [
+    ...eventItems,
+    ...projectActivityReportItems(reports, cycles, visibleRole),
+    ...projectActivityCycleItems(cycles, visibleRole),
+    ...projectActivityReturnItems(returns, visibleRole),
+    ...projectActivityAlertItems(deal, visibleRole),
+  ];
+  const investorTypes = new Set([
+    'funding_confirmed',
+    'farmer_confirmation',
+    'production_started',
+    'production_updated',
+    'report_approved',
+    'cycle_completed',
+    'settlement_started',
+    'settlement_completed',
+  ]);
+  const farmerTypes = new Set([
+    'funding_confirmed',
+    'farmer_confirmation',
+    'production_started',
+    'production_updated',
+    'report_submitted',
+    'report_approved',
+    'cycle_completed',
+    'settlement_started',
+    'settlement_completed',
+  ]);
+  const visibleItems = allItems.filter(item => {
+    if (visibleRole === 'operator') return true;
+    if (item.isInternal) return false;
+    return visibleRole === 'farmer' ? farmerTypes.has(item.type) : investorTypes.has(item.type);
+  });
+  const seen = new Set();
+  return visibleItems
+    .filter(item => {
+      const key = `${item.type}|${item.timestamp || ''}|${item.cycle || ''}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((left, right) => right.sortTimestamp - left.sortTimestamp);
+}
+
+function projectActivityContext({ role, deal, status, cycles, reports, returns }) {
+  const timelineStages = ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed'];
+  const currentIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
+  if (role === 'farmer') {
+    return [
+      ['Next required action', projectWorkspaceFarmerAction(deal, currentIndex, cycles, reports)],
+    ];
+  }
+  if (role === 'operator') {
+    const farmerConfirmation = projectFinancialFarmerConfirmation(deal, cycles);
+    return [
+      ['Pending approvals', projectFinancialPendingReports(deal, cycles, reports)],
+      ['Pending confirmations', farmerConfirmation === 'Pending' ? 'Farmer confirmation pending' : farmerConfirmation],
+      ['Operational alerts', projectWorkspaceOperatorAttention(deal)],
+      ['Internal workflow status', projectWorkspaceStatus(deal, status) || 'Not available'],
+    ];
+  }
+  return [
+    ['Next expected milestone', projectWorkspaceNextMilestone(deal, currentIndex, timelineStages)],
+  ];
+}
+
+function renderProjectActivityFeed({
+  deal = {},
+  status = null,
+  cycles = [],
+  reports = [],
+  returns = [],
+  events = [],
+  role = 'investor',
+} = {}) {
+  const visibleRole = role === 'farmer' || role === 'operator' ? role : 'investor';
+  const items = projectActivityItems({ deal, cycles, reports, returns, events, role: visibleRole });
+  const context = projectActivityContext({
+    role: visibleRole, deal, status, cycles, reports, returns,
+  });
+  const statusClasses = {
+    Completed: 'border-green-800 bg-green-950 text-green-200',
+    Confirmed: 'border-green-800 bg-green-950 text-green-200',
+    Approved: 'border-green-800 bg-green-950 text-green-200',
+    Submitted: 'border-blue-800 bg-blue-950 text-blue-200',
+    'In progress': 'border-blue-800 bg-blue-950 text-blue-200',
+    Updated: 'border-slate-600 bg-slate-800 text-slate-200',
+    Alert: 'border-amber-700 bg-amber-950 text-amber-200',
+    Internal: 'border-purple-800 bg-purple-950 text-purple-200',
+  };
+  return `
+    <section data-project-activity-feed data-activity-role="${escapeHtml(visibleRole)}" class="mt-5 pt-5 border-t border-slate-700">
+      <div class="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Project Activity Feed</h2>
+          <p class="text-xs text-slate-500 mt-1">Newest Project activity appears first.</p>
+        </div>
+      </div>
+      <dl class="grid sm:grid-cols-2 ${context.length > 2 ? 'lg:grid-cols-4' : ''} gap-2 mt-3" data-activity-context>
+        ${context.map(([label, value]) => `
+          <div class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2">
+            <dt class="text-xs text-slate-500">${escapeHtml(label)}</dt>
+            <dd class="text-sm text-slate-200 mt-1">${escapeHtml(value)}</dd>
+          </div>
+        `).join('')}
+      </dl>
+      ${items.length ? `
+        <ol class="grid gap-3 mt-4" aria-label="Project activity, newest first">
+          ${items.map(item => `
+            <li data-activity-type="${escapeHtml(item.type)}" class="bg-slate-900 border border-slate-700 rounded-lg p-3 sm:p-4">
+              <div class="flex items-start gap-3">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-800 border border-slate-600 text-green-300 text-base" aria-hidden="true">${item.icon}</span>
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                    <div class="min-w-0">
+                      <h3 class="text-sm font-semibold text-slate-100">${escapeHtml(item.title)}</h3>
+                      <p class="text-sm text-slate-400 mt-1">${escapeHtml(item.description)}</p>
+                    </div>
+                    <span class="self-start shrink-0 text-xs font-semibold border rounded-full px-2 py-0.5 ${statusClasses[item.status] || statusClasses.Updated}">${escapeHtml(item.status)}</span>
+                  </div>
+                  <time class="block text-xs text-slate-500 mt-2" ${item.timestamp ? `datetime="${escapeHtml(item.timestamp)}"` : ''}>${escapeHtml(item.timestampLabel)}</time>
+                </div>
+              </div>
+            </li>
+          `).join('')}
+        </ol>
+      ` : `
+        <div data-activity-empty class="bg-slate-900 border border-dashed border-slate-700 rounded-lg px-4 py-6 mt-4 text-center">
+          <p class="text-sm font-medium text-slate-300">No Project activity yet</p>
+          <p class="text-xs text-slate-500 mt-1">Milestones, reports, and workflow updates will appear here.</p>
+        </div>
+      `}
+    </section>
+  `;
+}
+
 function renderProjectWorkspaceHeader({
   deal = {},
   status = null,
@@ -3341,6 +3732,15 @@ function renderProjectWorkspaceHeader({
         role,
         currentStage: currentIndex < 0 ? 'Stage unavailable' : timelineStages[currentIndex],
         currentCycle,
+      })}
+      ${renderProjectActivityFeed({
+        deal,
+        status,
+        cycles,
+        reports,
+        returns,
+        events,
+        role,
       })}
     </section>
   `;

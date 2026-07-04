@@ -28,6 +28,8 @@ function loadProjectWorkspaceHeaderHelpers() {
       projectWorkspaceRoleDetails,
       projectFinancialOverviewItems,
       renderProjectFinancialOverview,
+      projectActivityItems,
+      renderProjectActivityFeed,
       renderProjectWorkspaceHeader,
     };
   `;
@@ -283,6 +285,107 @@ test('Project Financial Overview is responsive, read-only and included in the sh
   expect(overview).toContain('sm:grid-cols-2 lg:grid-cols-4');
   expect(overview).not.toMatch(/<(button|input|select|textarea)\b/);
   expect(workspace).toContain('data-project-financial-overview');
+});
+
+test('Investor Project Activity Feed shows approved chronological activity and next milestone', () => {
+  const { renderProjectActivityFeed } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectActivityFeed({
+    role: 'investor',
+    deal: { status: 'Active' },
+    events: [
+      { event_type: 'Funding Confirmed', created_at: '2026-07-01T09:00:00Z' },
+      { event_type: 'Production Started', created_at: '2026-07-02T09:00:00Z' },
+      { event_type: 'Farmer Report Submitted', created_at: '2026-07-03T09:00:00Z' },
+      { event_type: 'Farmer Report Approved', created_at: '2026-07-04T09:00:00Z' },
+    ],
+  });
+
+  expect(html).toContain('data-activity-role="investor"');
+  expect(html).toContain('Next expected milestone');
+  expect(html).toContain('Farmer Report Approved');
+  expect(html).not.toContain('Farmer Report Submitted');
+  expect(html.indexOf('Farmer Report Approved')).toBeLessThan(html.indexOf('Production Started'));
+  expect(html).toContain('datetime="2026-07-04T09:00:00Z"');
+  expect(html).toContain('Approved');
+});
+
+test('Farmer Project Activity Feed shows own reports and actions but hides internal notes', () => {
+  const { renderProjectActivityFeed } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectActivityFeed({
+    role: 'farmer',
+    deal: { status: 'CycleActive' },
+    cycles: [{ id: 1, status: 'active', fundingReceived: true }],
+    events: [
+      { event_type: 'Farmer Report Submitted', created_at: '2026-07-03T09:00:00Z' },
+      {
+        event_type: 'Internal Risk Review',
+        created_at: '2026-07-04T09:00:00Z',
+        internal_note: 'Operator-only risk note',
+        operator_only: true,
+      },
+    ],
+  });
+
+  expect(html).toContain('data-activity-role="farmer"');
+  expect(html).toContain('Farmer Funding Confirmation');
+  expect(html).toContain('Production Started');
+  expect(html).toContain('Farmer Report Submitted');
+  expect(html).toContain('Next required action');
+  expect(html).not.toContain('Internal Risk Review');
+  expect(html).not.toContain('Operator-only risk note');
+});
+
+test('Operator Project Activity Feed shows workflow, pending items and operational alerts', () => {
+  const { renderProjectActivityFeed } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectActivityFeed({
+    role: 'operator',
+    deal: {
+      status: 'ReportsPending',
+      farmerConfirmed: false,
+      attention_items: ['Missing receipt evidence'],
+    },
+    reports: [{ status: 'submitted', submitted_at: '2026-07-03T09:00:00Z' }],
+    events: [{
+      event_type: 'Internal Risk Review',
+      created_at: '2026-07-04T09:00:00Z',
+      internal_note: 'Operator-only risk note',
+      operator_only: true,
+    }],
+  });
+
+  expect(html).toContain('data-activity-role="operator"');
+  expect(html).toContain('Pending approvals');
+  expect(html).toContain('Pending confirmations');
+  expect(html).toContain('Operational alerts');
+  expect(html).toContain('Internal workflow status');
+  expect(html).toContain('Farmer Report Submitted');
+  expect(html).toContain('Operational Alert');
+  expect(html).toContain('Operator-only risk note');
+});
+
+test('Project Activity Feed supports an empty state', () => {
+  const { renderProjectActivityFeed } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectActivityFeed();
+
+  expect(html).toContain('data-activity-empty');
+  expect(html).toContain('No Project activity yet');
+  expect(html).not.toContain('<ol');
+});
+
+test('Project Activity Feed is responsive and included below the shared Financial Overview', () => {
+  const { renderProjectActivityFeed, renderProjectWorkspaceHeader } = loadProjectWorkspaceHeaderHelpers();
+  const feed = renderProjectActivityFeed({
+    events: [{ event_type: 'Funding Confirmed' }],
+  });
+  const workspace = renderProjectWorkspaceHeader();
+
+  expect(feed).toContain('sm:grid-cols-2');
+  expect(feed).toContain('sm:flex-row');
+  expect(feed).toContain('sm:p-4');
+  expect(feed).toContain('Timestamp unavailable');
+  expect(workspace).toContain('data-project-activity-feed');
+  expect(workspace.indexOf('data-project-financial-overview'))
+    .toBeLessThan(workspace.indexOf('data-project-activity-feed'));
 });
 
 test('all Admin, Farmer and Investor project detail variants use the shared header', () => {
