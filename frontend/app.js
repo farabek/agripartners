@@ -3959,13 +3959,13 @@ function projectCustomDocuments(documents = [], role = 'investor') {
 
 function renderProjectDocumentAction(document) {
   if (document.status !== 'Available' || !document.url) {
-    return `<button type="button" disabled class="w-full sm:w-auto bg-slate-800 text-slate-500 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-not-allowed">Coming Soon</button>`;
+    return `<button type="button" disabled class="workspace-document-action is-disabled">Coming Soon</button>`;
   }
   const externalAttributes = document.url.startsWith('#')
     ? ''
     : ' target="_blank" rel="noopener noreferrer"';
   const downloadAttribute = document.action === 'Download' ? ' download' : '';
-  return `<a href="${escapeHtml(document.url)}"${externalAttributes}${downloadAttribute} class="inline-flex w-full sm:w-auto items-center justify-center bg-green-700 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">${escapeHtml(document.action)}</a>`;
+  return `<a href="${escapeHtml(document.url)}"${externalAttributes}${downloadAttribute} class="workspace-document-action">${escapeHtml(document.action)}</a>`;
 }
 
 function renderProjectDocuments({
@@ -4001,7 +4001,7 @@ function renderProjectDocuments({
                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-800 border border-slate-600 text-green-300" aria-hidden="true">&#128196;</span>
                 <div class="min-w-0 flex-1">
                   <h3 class="text-sm font-semibold text-slate-100">${escapeHtml(document.title)}</h3>
-                  <p class="text-xs text-slate-500 mt-1">${escapeHtml(document.category)}</p>
+                  <p class="text-xs text-slate-500 mt-1">Audience: ${escapeHtml(document.category)}</p>
                 </div>
                 <span class="shrink-0 text-xs font-semibold border rounded-full px-2 py-0.5 ${statusClasses[document.status]}">${escapeHtml(document.status)}</span>
               </div>
@@ -4020,6 +4020,461 @@ function renderProjectDocuments({
   `;
 }
 
+function renderInvestorWorkspaceTimeline({
+  deal = {},
+  status = null,
+  cycles = [],
+  reports = [],
+  returns = [],
+  events = [],
+} = {}) {
+  const timelineStages = PROJECT_WORKSPACE_TIMELINE_STAGES;
+  const currentIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
+  const isCompleted = currentIndex === timelineStages.length - 1;
+  const stageDates = projectWorkspaceStageDates({ deal, cycles, reports, returns, events });
+  const currentCycle = projectWorkspaceCurrentCycle(deal, status, cycles);
+  return `
+    <section class="workspace-section" data-investor-timeline>
+      <div class="workspace-section-heading">
+        <h2>Project Timeline</h2>
+        <p>Six-stage lifecycle from funding through completion.</p>
+      </div>
+      <ol class="workspace-timeline" aria-label="Project timeline">
+        ${timelineStages.map((label, index) => {
+          const isCurrentStage = index === currentIndex;
+          const state = isCompleted || index < currentIndex
+            ? 'completed'
+            : (isCurrentStage ? 'current' : 'upcoming');
+          const stageStatus = state === 'completed'
+            ? (isCurrentStage ? 'Completed · Current stage' : 'Completed')
+            : (state === 'current' ? 'Current' : 'Upcoming');
+          const stageContext = projectWorkspaceStageContext({
+            index,
+            state,
+            date: stageDates[index],
+            timelineStages,
+          });
+          const marker = state === 'completed' ? '&#10003;' : (state === 'current' ? '&#8226;' : index + 1);
+          return `
+            <li class="workspace-timeline-stage is-${state}" data-project-stage="${escapeHtml(label)}" data-stage-state="${state}" ${isCurrentStage ? 'aria-current="step"' : ''}>
+              <span class="workspace-timeline-marker" aria-hidden="true">${marker}</span>
+              <span class="workspace-timeline-name">${escapeHtml(label)}</span>
+              <span class="workspace-timeline-status">${stageStatus}</span>
+              <span class="workspace-timeline-context">${escapeHtml(stageContext)}</span>
+              ${label === 'Production' ? `<span class="workspace-timeline-context">Current cycle: ${escapeHtml(currentCycle)}</span>` : ''}
+            </li>
+          `;
+        }).join('')}
+      </ol>
+    </section>
+  `;
+}
+
+function investorFinancialValue(value, fallback = 'Pending confirmation') {
+  const resolved = projectWorkspaceValue(value);
+  return resolved == null ? fallback : resolved;
+}
+
+function investorFinancialAmount(deal = {}, fields = [], fallback = 'Pending confirmation') {
+  const value = projectWorkspaceValue(...fields.map(field => deal[field]));
+  if (value == null) return fallback;
+  if (/[$€£]|\b(?:USD|EUR|NEAR|UZS)\b/i.test(value)) return value;
+  return `${value} NEAR`;
+}
+
+function investorWorkspaceReturnMetrics(deal = {}) {
+  const number = value => {
+    const parsed = Number(String(value ?? '0').replace(/[^0-9.-]/g, ''));
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+  const rawExpected = deal.display_expected_return ?? deal.projectedTotalPayout ?? deal.expected_return;
+  const rawReturned = deal.display_returned_amount ?? deal.recordedReturns ?? deal.returned_amount;
+  if (rawExpected == null || rawReturned == null) return { completionPercent: null };
+  const expected = number(rawExpected);
+  const returned = number(rawReturned);
+  return {
+    completionPercent: expected > 0 ? Math.min(100, (returned / expected) * 100) : 0,
+  };
+}
+
+function renderInvestorFinancialDashboard({
+  deal = {},
+  status = null,
+  cycles = [],
+  reports = [],
+  returns = [],
+} = {}) {
+  const stageIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
+  const currentStage = stageIndex < 0 ? 'Pending project update' : PROJECT_WORKSPACE_TIMELINE_STAGES[stageIndex];
+  const metrics = investorWorkspaceReturnMetrics(deal);
+  const roi = projectWorkspaceDisplayPercent(
+    deal.projectedRoi,
+    deal.projected_roi_pct,
+    deal.roi_percent,
+    deal.roi
+  ) || 'Pending confirmation';
+  const apr = projectWorkspaceDisplayPercent(
+    deal.simpleAnnualizedRoi,
+    deal.simple_annualized_roi,
+    deal.apr,
+    deal.apr_pct
+  ) || 'Pending confirmation';
+  const completion = metrics.completionPercent == null
+    ? 'Awaiting return records'
+    : `${Math.max(0, Math.min(100, metrics.completionPercent)).toFixed(1)}%`;
+  const items = [
+    ['Investment', investorFinancialAmount(deal, [
+      'display_amount', 'displayAmount', 'investmentAmount', 'invested_amount', 'amount',
+    ])],
+    ['Funding Status', projectFinancialFundingStatus(deal, status)],
+    ['Current Stage', currentStage],
+    ['Projected Return', investorFinancialAmount(deal, [
+      'display_expected_return', 'displayExpectedReturn', 'projectedTotalPayout', 'expected_return',
+    ])],
+    ['Cash Returned', investorFinancialAmount(deal, [
+      'display_returned_amount', 'recordedReturns', 'returned_amount',
+    ], 'No returns recorded yet')],
+    ['Outstanding Return', investorFinancialAmount(deal, [
+      'display_outstanding_amount', 'projectedOutstanding', 'outstanding_amount',
+    ])],
+    ['ROI', roi],
+    ['APR', apr],
+    ['Completion Progress', completion],
+  ];
+  const progressWidth = metrics.completionPercent == null
+    ? 0
+    : Math.max(0, Math.min(100, metrics.completionPercent));
+  return `
+    <section id="project-financial-overview" class="workspace-financial-dashboard" data-project-financial-overview data-financial-role="investor">
+      <div class="workspace-section-heading">
+        <h2>Project Financial Dashboard</h2>
+        <p>One authoritative view of projected and recorded Project financials.</p>
+      </div>
+      <dl class="workspace-financial-grid">
+        ${items.map(([label, value]) => `
+          <div class="workspace-metric" data-financial-field="${escapeHtml(label)}">
+            <dt>${escapeHtml(label)}</dt>
+            <dd>${escapeHtml(investorFinancialValue(value))}</dd>
+            ${label === 'Completion Progress' ? `
+              <span class="workspace-progress-track" aria-hidden="true">
+                <span class="workspace-progress-fill" style="width: ${progressWidth.toFixed(1)}%"></span>
+              </span>
+            ` : ''}
+          </div>
+        `).join('')}
+      </dl>
+      <p class="workspace-investment-disclaimer">Projected returns are estimates and are not guaranteed.</p>
+    </section>
+  `;
+}
+
+function investorCycleReports(cycles = []) {
+  return cycles.flatMap(cycle => {
+    if (!cycle?.report) return [];
+    return [{
+      ...cycle.report,
+      cycle_id: cycle.report.cycle_id ?? cycle.cycle_num ?? cycle.cycleNumber ?? cycle.id,
+      title: cycle.report.title ?? cycle.report.report_title ?? 'Cycle Report',
+      description: cycle.report.description ?? cycle.report.report_body ?? 'Cycle progress submitted by the Farmer.',
+      submitted_at: cycle.report.submitted_at ?? cycle.report.submittedAt ?? cycle.report.created_at,
+    }];
+  });
+}
+
+function renderInvestorWorkspaceReports(reports = []) {
+  if (!reports.length) return '<p class="workspace-empty-state">No Farmer Reports submitted yet.</p>';
+  return reports.map(report => `
+    <article class="workspace-report-card">
+      <div>
+        <span>Production Cycle ${escapeHtml(report.cycle_id ?? report.cycle_num ?? '—')}</span>
+        <h3>${escapeHtml(projectWorkspaceValue(report.title, report.report_title) || 'Project Report')}</h3>
+      </div>
+      <span class="workspace-report-status">Submitted</span>
+      <p>${escapeHtml(projectWorkspaceValue(report.description, report.report_body) || 'Project progress submitted by the Farmer.')}</p>
+      <dl>
+        <div><dt>Amount used</dt><dd>${escapeHtml(report.amount_used || 'Available in detailed report')}</dd></div>
+        <div><dt>Submitted</dt><dd>${escapeHtml(projectWorkspaceFormatDate(report.submitted_at || report.created_at) || 'Recorded')}</dd></div>
+      </dl>
+    </article>
+  `).join('');
+}
+
+function renderInvestorWorkspaceCycles(cycles = []) {
+  if (!cycles.length) return '<p class="workspace-empty-state">Production begins after funding confirmation.</p>';
+  return `
+    <div class="workspace-cycle-grid" id="investor-cycles-list">
+      ${cycles.map(cycle => {
+        const cycleNumber = cycle.cycle_num ?? cycle.cycleNumber ?? cycle.cycle_number ?? cycle.id ?? '—';
+        const cycleStatus = projectWorkspaceValue(cycle.cycleStatus, cycle.status) || 'Scheduled';
+        const reportStatus = projectWorkspaceValue(cycle.reportStatus, cycle.report_status)
+          || (cycle.report ? 'Report submitted' : 'Report pending');
+        return `
+          <article>
+            <span>Production Cycle ${escapeHtml(cycleNumber)}</span>
+            <strong>${escapeHtml(cycleStatus.replace(/_/g, ' '))}</strong>
+            <small>${escapeHtml(reportStatus.replace(/_/g, ' '))}</small>
+          </article>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function investorWorkspaceReturnType(entry = {}) {
+  if (entry.legacyUntyped || entry.entry_type == null) return 'Investment Return';
+  return {
+    principal: 'Principal Return',
+    profit: 'Investment Profit',
+    fee: 'Project Fee',
+    correction: 'Return Adjustment',
+  }[entry.entry_type] || 'Investment Return';
+}
+
+function renderInvestorWorkspaceReturnLedger(returns = []) {
+  if (!returns.length) return '<p class="workspace-empty-state">No Returns recorded yet.</p>';
+  return `
+    <div class="overflow-x-auto" id="investor-returns-list">
+      <table class="workspace-returns-table">
+        <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th><th>Note</th></tr></thead>
+        <tbody>
+          ${returns.map(entry => `
+            <tr>
+              <td>${escapeHtml(projectWorkspaceFormatDate(entry.created_at) || 'Recorded')}</td>
+              <td>${escapeHtml(investorWorkspaceReturnType(entry))}</td>
+              <td>${escapeHtml(investorFinancialValue(entry.amount_near, 'Recorded in Project ledger'))}</td>
+              <td>${escapeHtml(projectWorkspaceValue(entry.payment_status, entry.status) || 'Recorded')}</td>
+              <td>${escapeHtml(entry.note || 'Project return entry')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderInvestorWorkspaceResourceError(label) {
+  return `<p class="workspace-resource-state">${escapeHtml(label)} could not be loaded. Please refresh the Project.</p>`;
+}
+
+function investorEventLabel(value) {
+  const normalized = String(value || '').toLowerCase().replace(/[\s-]+/g, '_');
+  const labels = {
+    demo_profile_created: 'Project Profile Created',
+    project_profile_created: 'Project Profile Created',
+    pilot_terms_reviewed: 'Project Terms Reviewed',
+    cycle_reported: 'Cycle Report Submitted',
+    report_submitted: 'Cycle Report Submitted',
+    cycle_started: 'Production Cycle Started',
+    cycle_active: 'Production Cycle Active',
+    completed: 'Project Completed',
+    project_completed: 'Project Completed',
+    funding_confirmed: 'Funding Confirmed',
+    return_recorded: 'Investment Return Recorded',
+    next_report_due: 'Next Report Due',
+  };
+  if (labels[normalized]) return labels[normalized];
+  return normalized
+    ? normalized.replace(/_/g, ' ').replace(/\b\w/g, character => character.toUpperCase())
+    : 'Project Update';
+}
+
+function renderInvestorEventHistory(events = []) {
+  if (!events.length) return '<p class="workspace-empty-state">No Project history recorded yet.</p>';
+  return events.map(event => {
+    const parsedDate = event.created_at ? new Date(event.created_at) : null;
+    const date = parsedDate && !Number.isNaN(parsedDate.getTime())
+      ? parsedDate.toLocaleDateString('en-US')
+      : 'Date pending';
+    return `
+      <article class="workspace-history-item">
+        <span class="workspace-history-icon" aria-hidden="true">&#9679;</span>
+        <div>
+          <h3>${escapeHtml(investorEventLabel(event.event_type))}</h3>
+          <p>${event.cycle_num != null ? `Production Cycle ${escapeHtml(event.cycle_num)} · ` : ''}${escapeHtml(date)}</p>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+function renderInvestorReturnsDashboard(deal = {}, returns = []) {
+  const explicitStatus = projectWorkspaceValue(deal.returnStatus, deal.return_status);
+  const returnStatus = explicitStatus
+    ? explicitStatus.replace(/_/g, ' ')
+    : (returns.length ? 'Returns recorded' : 'No returns recorded');
+  return `
+    <section class="workspace-section">
+      <div class="workspace-section-heading">
+        <h2>Returns Dashboard</h2>
+        <p>Recorded return activity and current Settlement state.</p>
+      </div>
+      <dl class="workspace-summary-grid">
+        <div><dt>Return Status</dt><dd>${escapeHtml(returnStatus)}</dd></div>
+        <div><dt>Ledger Entries</dt><dd>${returns.length}</dd></div>
+      </dl>
+    </section>
+  `;
+}
+
+function renderInvestorWorkspaceTabs({
+  deal = {},
+  status = null,
+  cycles = [],
+  reports = [],
+  returns = [],
+  events = [],
+  resourceErrors = {},
+} = {}) {
+  const timelineIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
+  const nextMilestone = projectWorkspaceNextMilestone(deal, timelineIndex, PROJECT_WORKSPACE_TIMELINE_STAGES);
+  const cycleReports = investorCycleReports(cycles);
+  const tabs = [
+    ['overview', 'Overview'],
+    ['activity', 'Activity'],
+    ['documents', 'Documents'],
+    ['reports', 'Reports'],
+    ['returns', 'Returns'],
+    ['history', 'History'],
+  ];
+  return `
+    <div class="workspace-tabs-shell">
+      <div class="workspace-tabs-scroll">
+        <div class="workspace-tabs" role="tablist" aria-label="Investor Workspace" data-workspace-tabs>
+          ${tabs.map(([id, label], index) => `
+            <button type="button" role="tab" id="workspace-tab-${id}" class="workspace-tab${index === 0 ? ' is-active' : ''}" aria-selected="${index === 0}" aria-controls="workspace-panel-${id}" tabindex="${index === 0 ? '0' : '-1'}" data-workspace-tab="${id}">${label}</button>
+          `).join('')}
+        </div>
+      </div>
+      <div id="workspace-panel-overview" class="workspace-tab-panel" role="tabpanel" aria-labelledby="workspace-tab-overview" data-workspace-panel="overview">
+        ${renderInvestorWorkspaceTimeline({ deal, status, cycles, reports, returns, events })}
+        <section class="workspace-next-milestone">
+          <span>Next Milestone</span>
+          <strong>${escapeHtml(nextMilestone)}</strong>
+        </section>
+      </div>
+      <div id="workspace-panel-activity" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-activity" data-workspace-panel="activity" hidden>
+        ${renderProjectActivityFeed({ deal, status, cycles, reports, returns, events, role: 'investor' })}
+        <section class="workspace-section">
+          <div class="workspace-section-heading"><h2>Lifecycle Activity</h2><p>Production Cycle progress and reported states.</p></div>
+          ${resourceErrors.cycles ? renderInvestorWorkspaceResourceError('Lifecycle activity') : renderInvestorWorkspaceCycles(cycles)}
+        </section>
+      </div>
+      <div id="workspace-panel-documents" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-documents" data-workspace-panel="documents" hidden>
+        ${renderProjectDocuments({ deal, cycles, reports, role: 'investor' })}
+      </div>
+      <div id="workspace-panel-reports" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-reports" data-workspace-panel="reports" hidden>
+        <section class="workspace-section">
+          <div class="workspace-section-heading"><h2>Farmer Reports</h2><p>Project updates submitted by the Farmer.</p></div>
+          <div id="investor-reports-list">${resourceErrors.reports ? renderInvestorWorkspaceResourceError('Farmer reports') : renderInvestorWorkspaceReports(reports)}</div>
+        </section>
+        <section class="workspace-section">
+          <div class="workspace-section-heading"><h2>Cycle Reports</h2><p>Reports associated with individual Production Cycles.</p></div>
+          ${cycleReports.length ? renderInvestorWorkspaceReports(cycleReports) : '<p class="workspace-empty-state">No Cycle Reports submitted yet.</p>'}
+        </section>
+      </div>
+      <div id="workspace-panel-returns" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-returns" data-workspace-panel="returns" hidden>
+        ${renderInvestorReturnsDashboard(deal, returns)}
+        <section class="workspace-section">
+          <div class="workspace-section-heading"><h2>Returns Ledger</h2><p>Recorded Investment Return entries and supporting evidence.</p></div>
+          ${resourceErrors.returns ? renderInvestorWorkspaceResourceError('Returns ledger') : renderInvestorWorkspaceReturnLedger(returns)}
+        </section>
+        ${!deal.isDemoPilot && deal.id != null ? `
+          <section class="workspace-settlement-action">
+            <div><h2>Settlement Action</h2><p>Available according to the current Project Settlement status.</p></div>
+            <button id="btn-investor-withdraw" class="workspace-primary-button" type="button">Request Settlement</button>
+            <div id="investor-action-result" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></div>
+          </section>
+        ` : ''}
+      </div>
+      <div id="workspace-panel-history" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-history" data-workspace-panel="history" hidden>
+        <section class="workspace-section">
+          <div class="workspace-section-heading"><h2>Event History</h2><p>Chronological Project evidence and lifecycle records.</p></div>
+          ${resourceErrors.events ? renderInvestorWorkspaceResourceError('Event history') : renderInvestorEventHistory(events)}
+        </section>
+      </div>
+    </div>
+  `;
+}
+
+function bindInvestorWorkspaceTabs(root = document) {
+  root.querySelectorAll('[data-investor-workspace]').forEach(workspace => {
+    if (workspace.dataset.workspaceTabsBound === 'true') return;
+    const tabs = Array.from(workspace.querySelectorAll('[data-workspace-tab]'));
+    const panels = Array.from(workspace.querySelectorAll('[data-workspace-panel]'));
+    const activate = (tab, focus = false) => {
+      const target = tab.dataset.workspaceTab;
+      tabs.forEach(item => {
+        const selected = item === tab;
+        item.classList.toggle('is-active', selected);
+        item.setAttribute('aria-selected', String(selected));
+        item.tabIndex = selected ? 0 : -1;
+      });
+      panels.forEach(panel => {
+        const selected = panel.dataset.workspacePanel === target;
+        panel.hidden = !selected;
+        panel.classList.toggle('hidden', !selected);
+      });
+      if (focus) tab.focus();
+    };
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activate(tab));
+      tab.addEventListener('keydown', event => {
+        let nextIndex = null;
+        if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+        if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+        if (event.key === 'Home') nextIndex = 0;
+        if (event.key === 'End') nextIndex = tabs.length - 1;
+        if (nextIndex == null) return;
+        event.preventDefault();
+        activate(tabs[nextIndex], true);
+      });
+    });
+    workspace.dataset.workspaceTabsBound = 'true';
+  });
+}
+
+function renderInvestorCanonicalWorkspace({
+  deal = {},
+  status = null,
+  cycles = [],
+  reports = [],
+  returns = [],
+  events = [],
+  resourceErrors = {},
+} = {}) {
+  const projectName = projectWorkspaceValue(deal.title, deal.project_name, deal.project_title, deal.name)
+    || (deal.id != null ? `Project #${deal.id}` : 'Project');
+  const projectStatus = projectWorkspaceStatus(deal, status) || 'Pending project update';
+  const description = projectWorkspaceValue(deal.description, deal.project_description);
+  const investmentModel = projectWorkspaceValue(deal.investment_model_name, deal.investment_model, deal.deal_type);
+  const identityFields = projectWorkspaceHeaderFields({ deal, status, cycles, role: 'investor' })
+    .filter(([label]) => label === 'Farmer' || label === 'Location');
+  return `
+    <section id="project-workspace-header" class="investor-workspace" data-project-workspace-header data-investor-workspace>
+      <header class="workspace-project-header">
+        <div class="workspace-project-heading">
+          <span>Project Workspace</span>
+          <h1 aria-label="Project Name">${escapeHtml(projectName)}</h1>
+          ${description ? `<p>${escapeHtml(description)}</p>` : ''}
+        </div>
+        <div class="workspace-project-state">
+          <span class="workspace-status-badge">${escapeHtml(projectStatus)}</span>
+          ${investmentModel ? `<span class="workspace-model-badge">${escapeHtml(investmentModel)}</span>` : ''}
+        </div>
+        ${identityFields.length ? `
+          <dl class="workspace-identity-grid" data-project-header-fields data-header-role="investor">
+            ${identityFields.map(([label, value]) => `
+              <div data-header-field="${escapeHtml(label)}"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>
+            `).join('')}
+          </dl>
+        ` : ''}
+      </header>
+      ${renderInvestorFinancialDashboard({ deal, status, cycles, reports, returns })}
+      ${renderInvestorWorkspaceTabs({ deal, status, cycles, reports, returns, events, resourceErrors })}
+    </section>
+  `;
+}
+
 function renderProjectWorkspaceHeader({
   deal = {},
   status = null,
@@ -4028,7 +4483,13 @@ function renderProjectWorkspaceHeader({
   returns = [],
   events = [],
   role = 'investor',
+  resourceErrors = {},
 } = {}) {
+  if (role === 'investor') {
+    return renderInvestorCanonicalWorkspace({
+      deal, status, cycles, reports, returns, events, resourceErrors,
+    });
+  }
   const projectName = projectWorkspaceValue(deal.title, deal.project_name, deal.project_title, deal.name)
     || (deal.id != null ? `Project #${deal.id}` : 'Project');
   const investmentModel = projectWorkspaceValue(
@@ -7115,35 +7576,9 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
     </div>
 
     ${renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns, events, role: 'investor' })}
-    ${renderFundingProgressPanel(deal)}
     ${renderInvestorProtectionPanel(deal, deal.balances)}
-
-    <div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 mb-6 text-sm text-amber-100">
-      Investor demo profile: this screen is prepared for presentation and screenshot readiness. It does not deploy or modify a smart contract.
-    </div>
-
-    ${renderInvestorReturnsManagement(deal, returns)}
-
-    <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Cycle Status</h3>
-      <div id="investor-cycles-list">${renderCycleStatusCards(cycles)}</div>
-    </div>
-
-    <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Reports</h3>
-      <div id="investor-reports-list">${renderInvestorReports(reports)}</div>
-    </div>
-
-    <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Returns Ledger</h3>
-      <div id="investor-returns-list">${renderRepaymentHistory(returns)}</div>
-    </div>
-
-    <div class="bg-slate-800 rounded-xl p-5">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
-      <div id="investor-events-list">${renderEvents(events)}</div>
-    </div>
   `;
+  bindInvestorWorkspaceTabs(el);
 }
 
 async function showInvestorDeal(id) {
@@ -7310,67 +7745,15 @@ function renderInvestorDealDetail(el, bundle) {
       <button id="btn-investor-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
-    ${renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns, events, role: 'investor' })}
-    <nav aria-label="Project sections" class="flex flex-wrap gap-2 mb-6 text-sm">
-      <button type="button" id="btn-investor-section-overview" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Overview</button>
-      <button type="button" id="btn-investor-section-returns" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Settlement / Returns</button>
-      <button type="button" id="btn-investor-section-reports" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Farmer Reports</button>
-      <button type="button" id="btn-investor-section-activity" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Activity</button>
-      <button type="button" id="btn-investor-section-technical" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded transition">Technical</button>
-    </nav>
-
-    <div id="investor-detail-overview">
-      ${resourceErrors.status ? renderInvestorResourceUnavailable('NEAR Testnet status', resourceErrors.status) : ''}
-      ${renderLiveFundingProgressPanel(deal)}
-      ${renderInvestorProtectionPanel(deal, balances)}
-    </div>
-
-    <div id="investor-detail-returns">
-      ${renderInvestorReturnsManagement(deal, returns)}
-      <button type="button" id="btn-investor-section-ledger" class="text-sm text-green-400 hover:underline mb-6">View ledger entries</button>
-    </div>
-
-    <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Settlement Infrastructure</h3>
-      <p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2 mb-4">Alpha/Testnet infrastructure action only. It is not production Settlement and does not create direct Investor-to-Farmer interaction.</p>
-      <button id="btn-investor-withdraw" class="admin-action-btn w-full">Run Testnet Settlement Action</button>
-      <div id="investor-action-result" class="hidden mt-4 rounded-lg px-4 py-3 text-sm"></div>
-    </div>
-
-    <div id="investor-detail-reports" class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Farmer Reports</h3>
-      <div id="investor-reports-list">${resourceErrors.reports ? renderInvestorResourceUnavailable('Farmer reports', resourceErrors.reports) : renderInvestorReports(reports)}</div>
-    </div>
-
-    <div class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Production Cycles</h3>
-      <div id="investor-cycles-list">${resourceErrors.cycles ? renderInvestorResourceUnavailable('Cycle status', resourceErrors.cycles) : renderCycleStatusCards(cycles)}</div>
-    </div>
-
-    <div id="investor-detail-ledger" class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Settlement / Returns Ledger</h3>
-      <div id="investor-returns-list">${resourceErrors.returns ? renderInvestorResourceUnavailable('Returns ledger', resourceErrors.returns) : renderInvestorTypedReturnLedger(returns)}</div>
-    </div>
-
-    <div id="investor-detail-activity" class="bg-slate-800 rounded-xl p-5 mb-6">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Event History</h3>
-      <div id="investor-events-list">${resourceErrors.events ? renderInvestorResourceUnavailable('Event history', resourceErrors.events) : renderEvents(events)}</div>
-    </div>
-
-    <div id="investor-detail-technical" class="bg-slate-800 rounded-xl p-5 space-y-2">
-      <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">NEAR Testnet Infrastructure</h3>
-      <div id="investor-technical-data">${renderInvestorDealParams(deal, status, investorBalance, resourceErrors)}</div>
-    </div>
+    ${renderProjectWorkspaceHeader({
+      deal, status, cycles, reports, returns, events, role: 'investor', resourceErrors,
+    })}
+    ${renderInvestorProtectionPanel(deal, balances)}
   `;
 
+  bindInvestorWorkspaceTabs(el);
   document.getElementById('btn-investor-refresh').addEventListener('click', () => refreshInvestorDeal(deal.id));
-  document.getElementById('btn-investor-withdraw').addEventListener('click', () => withdrawInvestorFromPortal(deal));
-  bindInvestorDetailSectionLink('btn-investor-section-overview', 'investor-detail-overview');
-  bindInvestorDetailSectionLink('btn-investor-section-returns', 'investor-detail-returns');
-  bindInvestorDetailSectionLink('btn-investor-section-reports', 'investor-detail-reports');
-  bindInvestorDetailSectionLink('btn-investor-section-activity', 'investor-detail-activity');
-  bindInvestorDetailSectionLink('btn-investor-section-technical', 'investor-detail-technical');
-  bindInvestorDetailSectionLink('btn-investor-section-ledger', 'investor-detail-ledger');
+  document.getElementById('btn-investor-withdraw')?.addEventListener('click', () => withdrawInvestorFromPortal(deal));
 }
 
 function renderInvestorProtectionPanel(deal = {}, balances = null) {
@@ -7381,7 +7764,7 @@ function renderInvestorProtectionPanel(deal = {}, balances = null) {
   const modeledContributions = modelKey === 'fidlot' ? '$50,820' : modelKey === 'hissar' ? '$50,752.80' : 'Agreement-specific';
   const modelTitle = modelKey === 'fidlot' ? 'Fidlot v5.9' : modelKey === 'hissar' ? 'Hissar / VariantB v2.1' : 'Model-specific Project';
   const reserveRaw = balances?.escrow ?? deal.balances?.escrow;
-  let currentReserve = 'Not available from the current Project data';
+  let currentReserve = 'Defined in Project terms';
   if (reserveRaw != null && reserveRaw !== '') {
     try {
       const amount = BigInt(reserveRaw);
@@ -7390,7 +7773,7 @@ function renderInvestorProtectionPanel(deal = {}, balances = null) {
       const fraction = ((amount % oneNear) * BigInt(100)) / oneNear;
       currentReserve = `${whole}.${fraction.toString().padStart(2, '0')} NEAR`;
     } catch {
-      currentReserve = 'Unavailable';
+      currentReserve = 'Defined in Project terms';
     }
   } else if (deal.isDemoPilot) {
     currentReserve = 'Projection only — no live contract balance';
@@ -7410,29 +7793,26 @@ function renderInvestorProtectionPanel(deal = {}, balances = null) {
 
   return `
     <section id="investor-protection-panel" data-investor-protection-panel class="investor-protection-panel mb-6">
-      <div class="flex flex-wrap items-start justify-between gap-3">
+      <div class="protection-compact-summary">
         <div>
           <span class="text-xs font-semibold text-blue-300 uppercase tracking-wide">Investment Protection</span>
-          <h2 class="text-xl font-semibold text-slate-50 mt-1">Future Protection Concept · ${escapeHtml(modelTitle)}</h2>
-          <p class="text-sm text-slate-300 mt-2 max-w-3xl">
-            This exploratory concept is not active in Pilot 1.0. If approved in a future phase,
-            a model-specific portion of the Farmer share could support defined loss-mitigation procedures.
-          </p>
+          <h2 class="text-base font-semibold text-slate-50 mt-1">${escapeHtml(modelTitle)} protection concept</h2>
+          <p class="text-sm text-slate-300 mt-1">A future model-specific reserve may support defined loss-mitigation procedures.</p>
         </div>
-        <span class="protection-panel-rate">${reserveRate == null ? 'Rate unavailable' : `${escapeHtml(reserveRate)}% reserve rate`}</span>
+        <span class="protection-panel-rate">${reserveRate == null ? 'Rate defined by Project terms' : `${escapeHtml(reserveRate)}% modeled reserve`}</span>
       </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
-        <div class="protection-panel-metric"><span>Alpha infrastructure reserve reference</span><strong>${escapeHtml(currentReserve)}</strong></div>
-        <div class="protection-panel-metric"><span>Modeled contributions</span><strong>${escapeHtml(modeledContributions)}</strong></div>
-        <div class="protection-panel-metric"><span>Minimum until completion</span><strong>${modelKey ? '$10,000' : 'Agreement-specific'}</strong></div>
-        <div class="protection-panel-metric"><span>Release status</span><strong>${deal.isDemoPilot ? 'Modeled no-loss schedule' : 'Requires verified cycle and checks'}</strong></div>
-      </div>
-      <p class="text-xs text-amber-100 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2 mt-4">
-        Not insurance or a guarantee. Release may be reduced or suspended by a Confirmed Loss, overdue mandatory report,
-        default, or dispute. Legal ownership while funds are locked depends on the governing agreements.
-      </p>
-      ${modelKey === 'hissar' ? '<p class="text-xs text-slate-400 mt-3">$2,500 in cycles 3–6 is modeled as partial capital return before the 60/40 split, without a Performance Fee.</p>' : ''}
-      ${documents}
+      <details class="protection-details">
+        <summary>View protection details</summary>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
+          <div class="protection-panel-metric"><span>Current reserve reference</span><strong>${escapeHtml(currentReserve)}</strong></div>
+          <div class="protection-panel-metric"><span>Modeled contributions</span><strong>${escapeHtml(modeledContributions)}</strong></div>
+          <div class="protection-panel-metric"><span>Minimum until completion</span><strong>${modelKey ? '$10,000' : 'Agreement-specific'}</strong></div>
+          <div class="protection-panel-metric"><span>Release status</span><strong>${deal.isDemoPilot ? 'Modeled schedule' : 'Subject to Project checks'}</strong></div>
+        </div>
+        <p class="protection-caveat">This concept is not insurance or a guarantee. Release conditions depend on Project reports, confirmed losses, defaults, disputes, and governing agreements.</p>
+        ${modelKey === 'hissar' ? '<p class="text-xs text-slate-400 mt-3">$2,500 in cycles 3–6 is modeled as partial capital return before the 60/40 split, without a Performance Fee.</p>' : ''}
+        ${documents}
+      </details>
     </section>
   `;
 }
@@ -7683,13 +8063,13 @@ function renderActualVsProjectedRoi(deal) {
 }
 
 function investorReturnTypeLabel(entry) {
-  if (entry.legacyUntyped || entry.entry_type == null) return 'Legacy / Untyped';
+  if (entry.legacyUntyped || entry.entry_type == null) return 'Investment Return';
   return {
-    principal: 'Principal',
-    profit: 'Profit',
-    fee: 'Fee',
-    correction: 'Correction',
-  }[entry.entry_type] || 'Unknown type';
+    principal: 'Principal Return',
+    profit: 'Investment Profit',
+    fee: 'Project Fee',
+    correction: 'Return Adjustment',
+  }[entry.entry_type] || 'Investment Return';
 }
 
 function investorReturnPaymentStatusLabel(paymentStatus) {
@@ -7764,7 +8144,7 @@ function renderInvestorReports(reports) {
         </div>
         <div>
           <span class="block text-slate-500">Amount used</span>
-          <span class="text-slate-200">${escapeHtml(report.amount_used || 'Not provided')}</span>
+          <span class="text-slate-200">${escapeHtml(report.amount_used || 'Available in detailed report')}</span>
         </div>
         <div>
           <span class="block text-slate-500">Submitted</span>
@@ -7858,11 +8238,11 @@ function showInvestorActionResult(type, message, txHash) {
 }
 
 async function withdrawInvestorFromPortal(deal) {
-  if (!confirm('Run the Alpha/Testnet Settlement infrastructure action? This is not production Settlement.')) return;
+  if (!confirm('Request Settlement for this Project?')) return;
 
   const btn = document.getElementById('btn-investor-withdraw');
   if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
-  showInvestorActionResult('success', 'Testnet Settlement action submitted...');
+  showInvestorActionResult('success', 'Settlement request submitted...');
 
   try {
     const res = await fetch(`${API_BASE}/api/investor/deals/${deal.id}/withdraw`, {
@@ -7872,15 +8252,15 @@ async function withdrawInvestorFromPortal(deal) {
     const data = await res.json().catch(() => ({}));
     if (res.status === 401) {
       clearAuth();
-      throw new Error('Investor session expired while submitting the Testnet Settlement action');
+      throw new Error('Investor session expired while submitting the Settlement request');
     }
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-    showInvestorActionResult('success', 'Testnet Settlement action completed successfully', data.tx_hash);
+    showInvestorActionResult('success', 'Settlement request completed successfully', data.tx_hash);
     await refreshInvestorDeal(deal.id);
   } catch (err) {
-    showInvestorActionResult('error', `Testnet Settlement action failed: ${err.message}`);
+    showInvestorActionResult('error', `Settlement request failed: ${err.message}`);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Run Testnet Settlement Action'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Request Settlement'; }
   }
 }
 
@@ -7905,8 +8285,10 @@ async function refreshInvestorDeal(id) {
     const returnsEl = document.getElementById('investor-returns-list');
     if (workspaceHeaderEl) {
       workspaceHeaderEl.outerHTML = renderProjectWorkspaceHeader({
-        deal, status, cycles, reports, returns, events, role: 'investor',
+        deal, status, cycles, reports, returns, events, role: 'investor', resourceErrors,
       });
+      bindInvestorWorkspaceTabs();
+      document.getElementById('btn-investor-withdraw')?.addEventListener('click', () => withdrawInvestorFromPortal(deal));
     }
     if (fundingEl) fundingEl.outerHTML = renderLiveFundingProgressPanel(deal);
     if (protectionEl) protectionEl.outerHTML = renderInvestorProtectionPanel(deal, balances);

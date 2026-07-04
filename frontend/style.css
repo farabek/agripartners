@@ -1859,6 +1859,526 @@
   font-weight: 700;
 }
 
+.investor-workspace {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.workspace-project-header,
+.workspace-financial-dashboard,
+.workspace-tabs-shell {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+}
+
+.workspace-project-header {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 20px;
+}
+
+.workspace-project-heading > span {
+  color: #86efac;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.workspace-project-heading h1 {
+  color: #f8fafc;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 750;
+  line-height: 1.2;
+  margin-top: 4px;
+}
+
+.workspace-project-heading p {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-top: 8px;
+  max-width: 720px;
+}
+
+.workspace-project-state {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.workspace-status-badge,
+.workspace-model-badge {
+  border: 1px solid #475569;
+  border-radius: 999px;
+  color: #e2e8f0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 5px 10px;
+}
+
+.workspace-status-badge {
+  background-color: #0f172a;
+}
+
+.workspace-model-badge {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.workspace-identity-grid {
+  border-top: 1px solid #334155;
+  display: grid;
+  gap: 12px;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-top: 14px;
+}
+
+.workspace-identity-grid dt,
+.workspace-metric dt,
+.workspace-summary-grid dt {
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.workspace-identity-grid dd,
+.workspace-summary-grid dd {
+  color: #f1f5f9;
+  font-size: 0.875rem;
+  font-weight: 650;
+  margin-top: 3px;
+}
+
+.workspace-financial-dashboard {
+  padding: 20px;
+}
+
+.workspace-section-heading h2 {
+  color: #f8fafc;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.workspace-section-heading p {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.workspace-financial-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.workspace-metric {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  min-width: 0;
+  padding: 12px;
+}
+
+.workspace-metric dd {
+  color: #f8fafc;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+
+.workspace-progress-track {
+  background-color: #334155;
+  border-radius: 999px;
+  display: block;
+  height: 5px;
+  margin-top: 9px;
+  overflow: hidden;
+}
+
+.workspace-progress-fill {
+  background-color: #22c55e;
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+}
+
+.workspace-tabs-shell {
+  overflow: hidden;
+}
+
+.workspace-tabs-scroll {
+  border-bottom: 1px solid #334155;
+  overflow-x: auto;
+}
+
+.workspace-tabs {
+  display: flex;
+  min-width: max-content;
+  padding: 0 12px;
+}
+
+.workspace-tab {
+  border-bottom: 2px solid transparent;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 650;
+  padding: 13px 14px 11px;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.workspace-tab:hover,
+.workspace-tab:focus-visible {
+  color: #e2e8f0;
+}
+
+.workspace-tab.is-active {
+  border-bottom-color: #4ade80;
+  color: #f8fafc;
+}
+
+.workspace-tab-panel {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+}
+
+.workspace-tab-panel[hidden] {
+  display: none;
+}
+
+.workspace-section {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.workspace-tab-panel [data-project-activity-feed],
+.workspace-tab-panel [data-project-documents] {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.workspace-timeline {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.workspace-timeline-stage {
+  background-color: #111827;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  min-width: 0;
+  padding: 11px;
+  position: relative;
+}
+
+.workspace-timeline-stage.is-completed {
+  background-color: #052e24;
+  border-color: #166534;
+}
+
+.workspace-timeline-stage.is-current {
+  background-color: #172554;
+  border-color: #1d4ed8;
+}
+
+.workspace-timeline-marker {
+  align-items: center;
+  background-color: #334155;
+  border-radius: 999px;
+  color: #cbd5e1;
+  display: flex;
+  font-size: 0.7rem;
+  font-weight: 800;
+  height: 20px;
+  justify-content: center;
+  width: 20px;
+}
+
+.is-completed .workspace-timeline-marker {
+  background-color: #15803d;
+  color: white;
+}
+
+.is-current .workspace-timeline-marker {
+  background-color: #2563eb;
+  color: white;
+}
+
+.workspace-timeline-name,
+.workspace-timeline-status,
+.workspace-timeline-context {
+  display: block;
+}
+
+.workspace-timeline-name {
+  color: #f8fafc;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-top: 7px;
+}
+
+.workspace-timeline-status {
+  color: #cbd5e1;
+  font-size: 0.7rem;
+  font-weight: 650;
+  margin-top: 5px;
+}
+
+.workspace-timeline-context {
+  color: #94a3b8;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  margin-top: 3px;
+}
+
+.workspace-next-milestone,
+.workspace-settlement-action {
+  align-items: center;
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.workspace-settlement-action #investor-action-result {
+  flex-basis: 100%;
+}
+
+.workspace-next-milestone span {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.workspace-next-milestone strong,
+.workspace-settlement-action h2 {
+  color: #f8fafc;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.workspace-settlement-action p {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.workspace-primary-button,
+.workspace-document-action {
+  align-items: center;
+  background-color: #15803d;
+  border: 1px solid #16a34a;
+  border-radius: 8px;
+  color: white;
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 700;
+  height: 36px;
+  justify-content: center;
+  min-width: 120px;
+  padding: 0 14px;
+  transition: background-color 0.15s ease;
+}
+
+.workspace-primary-button:hover,
+.workspace-document-action:hover {
+  background-color: #16a34a;
+}
+
+.workspace-document-action.is-disabled {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.workspace-summary-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 12px;
+}
+
+.workspace-summary-grid > div {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.workspace-history-item {
+  align-items: center;
+  border-bottom: 1px solid #1e293b;
+  display: flex;
+  gap: 12px;
+  padding: 11px 0;
+}
+
+.workspace-history-item:last-child {
+  border-bottom: 0;
+}
+
+.workspace-history-icon {
+  color: #4ade80;
+  font-size: 0.65rem;
+}
+
+.workspace-history-item h3 {
+  color: #e2e8f0;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.workspace-history-item p,
+.workspace-empty-state {
+  color: #64748b;
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.workspace-investment-disclaimer,
+.workspace-resource-state {
+  background-color: #451a03;
+  border: 1px solid #92400e;
+  border-radius: 8px;
+  color: #fde68a;
+  font-size: 0.75rem;
+  margin-top: 12px;
+  padding: 9px 11px;
+}
+
+.workspace-report-card {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-top: 12px;
+  padding: 14px;
+}
+
+.workspace-report-card > div > span {
+  color: #64748b;
+  font-size: 0.7rem;
+}
+
+.workspace-report-card h3 {
+  color: #f8fafc;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.workspace-report-card > p,
+.workspace-report-card dl {
+  grid-column: 1 / -1;
+}
+
+.workspace-report-card > p {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.workspace-report-card dl {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.workspace-report-card dt {
+  color: #64748b;
+  font-size: 0.68rem;
+}
+
+.workspace-report-card dd {
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.workspace-report-status {
+  align-self: start;
+  background-color: #052e24;
+  border: 1px solid #166534;
+  border-radius: 999px;
+  color: #bbf7d0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 8px;
+}
+
+.workspace-cycle-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 12px;
+}
+
+.workspace-cycle-grid article {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  padding: 11px;
+}
+
+.workspace-cycle-grid span,
+.workspace-cycle-grid small {
+  color: #94a3b8;
+  font-size: 0.7rem;
+}
+
+.workspace-cycle-grid strong {
+  color: #f8fafc;
+  font-size: 0.82rem;
+  margin: 4px 0;
+  text-transform: capitalize;
+}
+
+.workspace-returns-table {
+  font-size: 0.78rem;
+  min-width: 640px;
+  width: 100%;
+}
+
+.workspace-returns-table th {
+  color: #94a3b8;
+  font-weight: 650;
+  text-align: left;
+}
+
+.workspace-returns-table th,
+.workspace-returns-table td {
+  border-bottom: 1px solid #334155;
+  padding: 10px 12px 10px 0;
+}
+
+.workspace-returns-table td {
+  color: #cbd5e1;
+}
+
 .investor-protection-panel {
   background:
     linear-gradient(135deg, rgb(30 58 138 / 0.3), transparent 58%),
@@ -1866,6 +2386,33 @@
   border: 1px solid #3b5f86;
   border-radius: 12px;
   padding: 20px;
+}
+
+.protection-compact-summary {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.protection-details {
+  border-top: 1px solid rgb(96 165 250 / 0.25);
+  margin-top: 14px;
+  padding-top: 10px;
+}
+
+.protection-details summary {
+  color: #bfdbfe;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.protection-caveat {
+  color: #cbd5e1;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  margin-top: 12px;
 }
 
 .protection-panel-rate {
@@ -1931,6 +2478,32 @@
   height: 100%;
   min-width: 0;
   transition: width 0.2s ease;
+}
+
+@media (min-width: 641px) {
+  .workspace-timeline {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .workspace-timeline {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .workspace-timeline-stage:not(:last-child)::after {
+    background-color: #475569;
+    content: "";
+    height: 1px;
+    left: calc(100% + 1px);
+    position: absolute;
+    top: 21px;
+    width: 8px;
+  }
+
+  .workspace-timeline-stage.is-completed:not(:last-child)::after {
+    background-color: #22c55e;
+  }
 }
 
 .funding-progress-compact {
@@ -2218,6 +2791,45 @@
 }
 
 @media (max-width: 640px) {
+  .workspace-project-header {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .workspace-project-state {
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .workspace-identity-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-financial-dashboard,
+  .workspace-tab-panel {
+    padding: 16px;
+  }
+
+  .workspace-financial-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-cycle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-next-milestone,
+  .workspace-settlement-action,
+  .protection-compact-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .workspace-primary-button {
+    width: 100%;
+  }
+
   .app-header {
     display: flex;
     flex-wrap: wrap;

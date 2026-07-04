@@ -68,14 +68,19 @@ test('shared Project Workspace Header renders required project identity fields a
   for (const [label, value] of [
     ['Farmer', 'Hissar Pilot Farm'],
     ['Location', 'Samarkand, Uzbekistan'],
-    ['Investment', '$50,000'],
-    ['Projected ROI', '63.3%'],
-    ['APR', '21.1%'],
   ]) {
     expect(html).toContain(`data-header-field="${label}"`);
     expect(html).toContain(value);
   }
-  expect(html).toContain('sm:grid-cols-2 xl:grid-cols-5');
+  for (const [label, value] of [
+    ['Investment', '$50,000'],
+    ['ROI', '63.3%'],
+    ['APR', '21.1%'],
+  ]) {
+    expect(html).toContain(`data-financial-field="${label}"`);
+    expect(html).toContain(value);
+  }
+  expect(html).toContain('workspace-identity-grid');
   for (const stage of ['Funding', 'Farmer Confirmation', 'Production', 'Farmer Reports', 'Settlement', 'Completed']) {
     expect(html).toContain(`data-project-stage="${stage}"`);
   }
@@ -85,7 +90,7 @@ test('shared Project Workspace Header renders required project identity fields a
   expect(html).toContain('In progress');
   expect(html).toContain('Starts after Production');
   expect(html).toContain('Current cycle:');
-  expect(html).toContain('data-timeline-role="investor"');
+  expect(html).toContain('data-investor-timeline');
 });
 
 test('shared Project Workspace Header hides missing metrics instead of rendering profile placeholders', () => {
@@ -116,12 +121,11 @@ test('shared Project Workspace Header derives completed, current and upcoming ti
   expect(projectWorkspaceTimelineIndex({ deal: { status: 'Active' } })).toBe(2);
   expect(activeHtml).toContain('data-project-stage="Production" data-stage-state="current"');
   expect(activeHtml).toContain('data-project-stage="Settlement" data-stage-state="upcoming"');
-  expect(activeHtml).toContain('border-blue-700 bg-blue-950 text-blue-100');
-  expect(activeHtml).toContain('border-slate-700 bg-slate-900 text-slate-400');
+  expect(activeHtml).toContain('workspace-timeline-stage is-current');
+  expect(activeHtml).toContain('workspace-timeline-stage is-upcoming');
   expect(completedHtml.match(/data-stage-state="completed"/g)).toHaveLength(6);
-  expect(completedHtml).toContain('border-green-800 bg-green-950 text-green-200');
+  expect(completedHtml).toContain('workspace-timeline-stage is-completed');
   expect(completedHtml).toContain('Completed · Current stage');
-  expect(completedHtml).toContain('ring-2 ring-green-400');
   expect(completedHtml).toContain('aria-current="step"');
 });
 
@@ -137,9 +141,9 @@ test('shared timeline displays existing completion dates, current cycle and next
 
   expect(html).toContain('Completed Jul 1, 2026');
   expect(html).toContain('Current cycle: 2');
-  expect(html).toContain('Current stage');
+  expect(html).toContain('Current');
   expect(html).toContain('Production');
-  expect(html).toContain('Next milestone');
+  expect(html).toContain('Next Milestone');
   expect(html).toContain('Farmer Reports');
 });
 
@@ -214,15 +218,19 @@ test('canonical header applies role-appropriate fields without changing its card
   const farmer = renderProjectWorkspaceHeader({ role: 'farmer', deal });
   const operator = renderProjectWorkspaceHeader({ role: 'operator', deal });
 
-  for (const html of [investor, farmer, operator]) {
+  for (const html of [farmer, operator]) {
     expect(html).toContain('data-project-header-fields');
     expect(html).toContain('sm:grid-cols-2 xl:grid-cols-5');
     expect(html).toContain('data-header-field="Farmer"');
     expect(html).toContain('data-header-field="Location"');
   }
-  expect(investor).toContain('data-header-field="Investment"');
-  expect(investor).toContain('data-header-field="Projected ROI"');
-  expect(investor).toContain('data-header-field="APR"');
+  expect(investor).toContain('workspace-identity-grid');
+  expect(investor).toContain('data-header-field="Farmer"');
+  expect(investor).toContain('data-header-field="Location"');
+  expect(investor).not.toContain('data-header-field="Investment"');
+  expect(investor).toContain('data-financial-field="Investment"');
+  expect(investor).toContain('data-financial-field="ROI"');
+  expect(investor).toContain('data-financial-field="APR"');
   expect(farmer).toContain('data-header-field="Project Budget"');
   expect(farmer).not.toContain('data-header-field="Projected ROI"');
   expect(farmer).not.toContain('data-header-field="APR"');
@@ -231,7 +239,7 @@ test('canonical header applies role-appropriate fields without changing its card
   expect(operator).not.toContain('data-header-field="APR"');
 });
 
-test('shared Project Workspace Header has no editable controls', () => {
+test('shared Project Workspace Header has accessible tab controls without editable fields', () => {
   const { renderProjectWorkspaceHeader } = loadProjectWorkspaceHeaderHelpers();
   const html = renderProjectWorkspaceHeader({
     deal: { title: 'Feedlot Pilot 001', deal_type: 'Feedlot Livestock', status: 'Funding' },
@@ -240,7 +248,9 @@ test('shared Project Workspace Header has no editable controls', () => {
   expect(html).toContain('Feedlot Pilot 001');
   expect(html).toContain('Feedlot Livestock');
   expect(html).not.toMatch(/<(form|input|select|textarea)\b/);
-  expect(html.match(/<button\b[^>]*>/g).every(button => button.includes('disabled'))).toBe(true);
+  expect(html.match(/role="tab"/g)).toHaveLength(6);
+  expect(html).toContain('aria-selected="true"');
+  expect(html).toContain('tabindex="0"');
 });
 
 test('Investor Project Financial Overview omits metrics owned by the canonical header', () => {
@@ -541,7 +551,7 @@ test('Project Documents is responsive and is the final shared Workspace block', 
   const workspace = renderProjectWorkspaceHeader();
 
   expect(documents).toContain('sm:grid-cols-2 xl:grid-cols-3');
-  expect(documents).toContain('w-full sm:w-auto');
+  expect(documents).toContain('workspace-document-action');
   expect(workspace).toContain('data-project-documents');
   expect(workspace.indexOf('data-project-activity-feed'))
     .toBeLessThan(workspace.indexOf('data-project-documents'));

@@ -315,7 +315,13 @@ function loadInvestorDetailRenderer() {
     function escapeHtml(value) { return String(value ?? ''); }
     function investorProjectProfile(deal) { return { title: deal.title || 'Deal' }; }
     function statusBadge(value) { return '<span>Status:' + value + '</span>'; }
-    function renderProjectWorkspaceHeader() { return '<section>Project Workspace Header</section>'; }
+    function renderProjectWorkspaceHeader({ resourceErrors = {} } = {}) {
+      return '<section>Project Workspace Header'
+        + Object.entries(resourceErrors).filter(([, value]) => value)
+          .map(([key, value]) => '|error:' + key + ':' + value).join('')
+        + '</section>';
+    }
+    function bindInvestorWorkspaceTabs() {}
     function renderProjectProfile(deal, status, error) { return '<section>Deal Overview' + (error ? '|error:Contract status:' + error : '') + '</section>'; }
     function renderLiveFundingProgressPanel() { return '<section>Funding Progress</section>'; }
     function renderInvestorReturnsManagement() { return '<section>Investment Summary|Returns Summary|ROI Progress|Actual vs Projected ROI</section>'; }
@@ -371,6 +377,8 @@ function loadRefreshInvestorDealHelper(bundle) {
     function yoctoToNear(value) { return String(value); }
     function formatYoctoRaw(value) { return String(value); }
     function showInvestorActionResult() {}
+    function bindInvestorWorkspaceTabs() {}
+    function withdrawInvestorFromPortal() {}
     ${appJs.slice(start, end)}
     module.exports = { refreshInvestorDeal };
   `;
@@ -546,22 +554,20 @@ test('investor detail renders investment summary', () => {
   expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
 });
 
-test('investor detail renders ROI and returns management sections', () => {
-  expect(appJs).toContain('Returns Summary');
-  expect(appJs).toContain('id="investor-returns-summary"');
-  expect(appJs).toContain('function renderReturnsSummary');
-  expect(appJs).toContain('Recorded Return Progress');
-  expect(appJs).toContain('id="investor-roi-progress"');
-  expect(appJs).toContain("'Recorded Off-chain Returns'");
-  expect(appJs).toContain('Completion Percent');
-  expect(appJs).toContain('Financial Authority Status');
-  expect(appJs).toContain('id="investor-actual-vs-projected-roi"');
-  expect(appJs).toContain('Realized ROI');
-  expect(appJs).toContain("['Realized Profit', 'Not yet authoritative']");
-  expect(appJs).toContain("['Realized ROI', 'Not yet authoritative']");
-  expect(appJs).toContain('Settlement / Returns Ledger');
-  expect(appJs).toContain('<th class="text-left py-2 pr-3">Note</th>');
-  expect(appJs).toContain('No returns recorded yet.');
+test('investor workspace consolidates financial and return metrics', () => {
+  const start = appJs.indexOf('function renderInvestorFinancialDashboard');
+  const end = appJs.indexOf('function investorCycleReports', start);
+  const dashboard = appJs.slice(start, end);
+
+  for (const label of [
+    'Investment', 'Funding Status', 'Current Stage', 'Projected Return',
+    'Cash Returned', 'Outstanding Return', 'ROI', 'APR', 'Completion Progress',
+  ]) {
+    expect(dashboard).toContain(`['${label}'`);
+  }
+  expect(appJs).toContain('Project Financial Dashboard');
+  expect(appJs).toContain('Returns Dashboard');
+  expect(appJs).toContain('Returns Ledger');
   expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
 });
 
@@ -576,52 +582,31 @@ test('live investor detail follows the investor-first reading order', () => {
     reports: [], cycles: [], returns: [], events: [], resourceErrors: {},
   });
 
-  const orderedSections = [
-    'Project Workspace Header',
-    'Investment Protection',
-    'Investment Summary',
-    'Returns Summary',
-    'ROI Progress',
-    'Settlement Infrastructure',
-    'id="investor-detail-reports"',
-    'Production Cycles',
-    'id="investor-detail-ledger"',
-    'id="investor-detail-activity"',
-    'id="investor-detail-technical"',
-  ];
+  const orderedSections = ['Project Workspace Header', 'Investment Protection'];
   const positions = orderedSections.map(section => el.innerHTML.indexOf(section));
   expect(positions.every(position => position >= 0)).toBe(true);
   expect(positions).toEqual([...positions].sort((a, b) => a - b));
+  expect(el.innerHTML).not.toContain('Settlement Infrastructure');
+  expect(el.innerHTML).not.toContain('NEAR Testnet Infrastructure');
 });
 
-test('live investor detail navigation exposes and scrolls to returns, reports, activity and technical sections', () => {
-  const { renderInvestorDealDetail, listeners, elements } = loadInvestorDetailRenderer();
-  const el = { innerHTML: '' };
+test('workspace navigation exposes six same-page keyboard-accessible tabs', () => {
+  const start = appJs.indexOf('function renderInvestorWorkspaceTabs');
+  const end = appJs.indexOf('function bindInvestorWorkspaceTabs', start);
+  const tabs = appJs.slice(start, end);
+  const bindingEnd = appJs.indexOf('function renderInvestorCanonicalWorkspace', end);
+  const binding = appJs.slice(end, bindingEnd);
 
-  renderInvestorDealDetail(el, {
-    deal: { id: 8, title: 'Navigable Deal' }, status: {}, balances: null,
-    reports: [], cycles: [], returns: [], events: [], resourceErrors: {},
-  });
-
-  expect(el.innerHTML).toContain('aria-label="Project sections"');
-  expect(el.innerHTML).toContain('id="btn-investor-section-overview"');
-  expect(el.innerHTML).toContain('id="btn-investor-section-returns"');
-  expect(el.innerHTML).toContain('id="btn-investor-section-reports"');
-  expect(el.innerHTML).toContain('id="btn-investor-section-activity"');
-  expect(el.innerHTML).toContain('id="btn-investor-section-technical"');
-  expect(el.innerHTML).toContain('id="btn-investor-section-ledger"');
-  expect(el.innerHTML).toContain('id="investor-detail-ledger"');
-  expect(el.innerHTML).toContain('id="investor-returns-list"');
-  expect(el.innerHTML).toContain('id="investor-reports-list"');
-  expect(el.innerHTML.indexOf('id="investor-detail-ledger"'))
-    .toBeLessThan(el.innerHTML.indexOf('Returns Ledger'));
-  expect(el.innerHTML.indexOf('Production Cycles'))
-    .toBeLessThan(el.innerHTML.indexOf('id="investor-detail-ledger"'));
-
-  const ledgerListener = listeners.find(listener => listener.id === 'btn-investor-section-ledger');
-  ledgerListener.handler();
-  expect(elements.get('investor-detail-ledger').scrollIntoView)
-    .toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
+  expect(tabs).toContain('role="tablist"');
+  for (const label of ['Overview', 'Activity', 'Documents', 'Reports', 'Returns', 'History']) {
+    expect(tabs).toContain(`'${label}'`);
+  }
+  expect(tabs).toContain('aria-selected="${index === 0}"');
+  expect(binding).toContain("event.key === 'ArrowRight'");
+  expect(binding).toContain("event.key === 'ArrowLeft'");
+  expect(binding).toContain("event.key === 'Home'");
+  expect(binding).toContain("event.key === 'End'");
+  expect(binding).not.toContain('location.');
 });
 
 test('reordered live detail keeps optional resource failures visible in their own sections', () => {
@@ -637,12 +622,12 @@ test('reordered live detail keeps optional resource failures visible in their ow
     },
   });
 
-  expect(el.innerHTML).toContain('error:NEAR Testnet status:status failed');
-  expect(el.innerHTML).toContain('error:Contract balances:balances failed');
-  expect(el.innerHTML).toContain('error:Farmer reports:reports failed');
-  expect(el.innerHTML).toContain('error:Cycle status:cycles failed');
-  expect(el.innerHTML).toContain('error:Returns ledger:returns failed');
-  expect(el.innerHTML).toContain('error:Event history:events failed');
+  expect(el.innerHTML).toContain('error:status:status failed');
+  expect(el.innerHTML).toContain('error:balances:balances failed');
+  expect(el.innerHTML).toContain('error:reports:reports failed');
+  expect(el.innerHTML).toContain('error:cycles:cycles failed');
+  expect(el.innerHTML).toContain('error:returns:returns failed');
+  expect(el.innerHTML).toContain('error:events:events failed');
 });
 
 test('live detail navigation changes remain isolated from explicit demo pilot detail', () => {
@@ -650,8 +635,10 @@ test('live detail navigation changes remain isolated from explicit demo pilot de
   const demoEnd = appJs.indexOf('async function showInvestorDeal');
   const demoSource = appJs.slice(demoStart, demoEnd);
 
-  expect(demoSource).toContain('Investor demo profile: this screen is prepared for presentation and screenshot readiness.');
-  expect(demoSource).toContain('renderInvestorReturnsManagement(deal, returns)');
+  expect(demoSource).toContain('renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns, events');
+  expect(demoSource).toContain('bindInvestorWorkspaceTabs(el)');
+  expect(demoSource).not.toContain('presentation and screenshot readiness');
+  expect(demoSource).not.toContain('renderInvestorReturnsManagement(deal, returns)');
   expect(demoSource).not.toContain('investor-detail-overview');
   expect(demoSource).not.toContain('aria-label="Deal sections"');
 });
@@ -934,7 +921,7 @@ test('live recorded return progress remains presentation-only', () => {
   expect(percentLabel(metrics.completionPercent)).toBe('73.2%');
 });
 
-test('investor detail uses the canonical header before technical deal data', () => {
+test('investor detail uses the canonical workspace without primary technical data', () => {
   expect(appJs).toContain('function renderProjectWorkspaceHeader');
   expect(appJs).toContain('data-project-header-fields');
   expect(appJs).toContain('data-header-field="${escapeHtml(label)}"');
@@ -947,7 +934,12 @@ test('investor detail uses the canonical header before technical deal data', () 
   expect(appJs).toContain('21.1%');
   expect(appJs).toContain('Livestock fattening operation based on a real pilot agricultural agreement');
   expect(appJs).toContain('Sheep breeding operation based on a real pilot agricultural agreement');
-  expect(appJs).toContain('NEAR Testnet Infrastructure');
+  const detailStart = appJs.indexOf('function renderInvestorDealDetail');
+  const detailEnd = appJs.indexOf('function renderInvestorProtectionPanel', detailStart);
+  const detail = appJs.slice(detailStart, detailEnd);
+  expect(detail).toContain('renderProjectWorkspaceHeader');
+  expect(detail).not.toContain('NEAR Testnet Infrastructure');
+  expect(detail).not.toContain('Settlement Infrastructure');
   expect(appJs).not.toContain('${renderProjectProfile(deal, status)}');
   expect(appJs).not.toContain('${renderProjectProfile(deal, status, resourceErrors.status)}');
   expect(appJs).toContain('function getPilotForDeal');
@@ -1288,9 +1280,9 @@ test('investor deal cards disclose the model-specific protection reserve rate', 
   expect(inferred).toContain('Protection reserve: 53%');
   expect(explicit).toContain('data-protection-rate-badge');
   expect(appJs).toContain('function renderInvestorProtectionPanel');
-  expect(appJs).toContain('Alpha infrastructure reserve reference');
-  expect(appJs).toContain('This exploratory concept is not active in Pilot 1.0.');
-  expect(appJs).toContain('Not insurance or a guarantee');
+  expect(appJs).toContain('Current reserve reference');
+  expect(appJs).toContain('A future model-specific reserve may support defined loss-mitigation procedures.');
+  expect(appJs).toContain('This concept is not insurance or a guarantee.');
 });
 
 test('deal card hides secondary fields without presentation value', () => {
@@ -1534,19 +1526,19 @@ test('returns ledger renders typed return fields without realized metrics', () =
 test('investor typed return ledger renders types, legacy rows, and correction safely', () => {
   const { investorReturnTypeLabel, renderInvestorTypedReturnLedger } = loadInvestorTypedReturnLedgerHelpers();
 
-  expect(investorReturnTypeLabel({ entry_type: 'principal' })).toBe('Principal');
-  expect(investorReturnTypeLabel({ entry_type: 'profit' })).toBe('Profit');
-  expect(investorReturnTypeLabel({ entry_type: 'fee' })).toBe('Fee');
-  expect(investorReturnTypeLabel({ entry_type: 'correction' })).toBe('Correction');
-  expect(investorReturnTypeLabel({ entry_type: null })).toBe('Legacy / Untyped');
-  expect(investorReturnTypeLabel({ entry_type: 'profit', legacyUntyped: true })).toBe('Legacy / Untyped');
+  expect(investorReturnTypeLabel({ entry_type: 'principal' })).toBe('Principal Return');
+  expect(investorReturnTypeLabel({ entry_type: 'profit' })).toBe('Investment Profit');
+  expect(investorReturnTypeLabel({ entry_type: 'fee' })).toBe('Project Fee');
+  expect(investorReturnTypeLabel({ entry_type: 'correction' })).toBe('Return Adjustment');
+  expect(investorReturnTypeLabel({ entry_type: null })).toBe('Investment Return');
+  expect(investorReturnTypeLabel({ entry_type: 'profit', legacyUntyped: true })).toBe('Investment Return');
 
   const html = renderInvestorTypedReturnLedger([
     { amount_near: '10', entry_type: 'principal', payment_status: 'recorded', note: 'Principal row' },
     { amount_near: '2', entry_type: null, legacyUntyped: true, note: 'Historical row' },
   ]);
   expect(html).toContain('Principal');
-  expect(html).toContain('Legacy / Untyped');
+  expect(html).toContain('Investment Return');
   expect(html).toContain('Recorded');
 });
 
@@ -1621,7 +1613,7 @@ test('investor withdrawal success still refreshes the live bundle', async () => 
     'https://agripartners-zlp2.onrender.com/api/investor/deals/7/withdraw',
     expect.objectContaining({ method: 'POST' })
   );
-  expect(actionResult).toHaveBeenCalledWith('success', 'Testnet Settlement action completed successfully', 'tx-123');
+  expect(actionResult).toHaveBeenCalledWith('success', 'Settlement request completed successfully', 'tx-123');
   expect(refresh).toHaveBeenCalledWith(7);
 });
 
@@ -1631,7 +1623,7 @@ test('investor withdrawal error remains visible and does not refresh', async () 
 
   await withdrawInvestorFromPortal({ id: 7, investor: 'investor.testnet' });
 
-  expect(actionResult).toHaveBeenCalledWith('error', 'Testnet Settlement action failed: withdraw failed');
+  expect(actionResult).toHaveBeenCalledWith('error', 'Settlement request failed: withdraw failed');
   expect(refresh).not.toHaveBeenCalled();
 });
 
@@ -1646,7 +1638,7 @@ test('investor demo dataset hides test records and renders clean pilot routes', 
   expect(appJs).toContain('showInvestorPilotProfile(investorPilot[1])');
   expect(appJs).toContain('#investor/pilots/${deal.pilot_key}');
   expect(appJs).toContain('renderInvestorDemoDealDetail');
-  expect(appJs).toContain('Investor demo profile: this screen is prepared for presentation and screenshot readiness.');
+  expect(appJs).not.toContain('Investor demo profile: this screen is prepared for presentation and screenshot readiness.');
   expect(appJs).toContain("const dealBadge = deal.isDemoPilot ? 'Pilot Project' : `Project #${deal.id}`");
   expect(appJs).not.toContain("const dealBadge = deal.isDemoPilot ? 'Demo Pilot' : `Project #${deal.id}`");
   expect(appJs).not.toContain('Demo Pilot');
@@ -1679,9 +1671,9 @@ test('investor demo financial metrics render in USD instead of NEAR', () => {
   const demoStart = appJs.indexOf('function renderInvestorDemoDealDetail');
   const demoEnd = appJs.indexOf('async function showInvestorDeal');
   const demoSource = appJs.slice(demoStart, demoEnd);
-  expect(demoSource).toContain('renderInvestorReturnsManagement(deal, returns)');
-  expect(demoSource).toContain('Returns Ledger');
+  expect(demoSource).toContain('renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns, events');
+  expect(appJs).toContain('Project Financial Dashboard');
+  expect(appJs).toContain('Returns Ledger');
   expect(demoSource).not.toContain('Recorded Off-chain Returns Ledger');
-  expect(appJs).toContain("isDemoPilot ? 'ROI Progress' : 'Recorded Return Progress'");
-  expect(appJs).toContain("isDemoPilot ? 'Actual vs Projected ROI' : 'Financial Authority Status'");
+  expect(demoSource).not.toContain('renderInvestorReturnsManagement(deal, returns)');
 });
