@@ -2845,7 +2845,93 @@ function projectWorkspaceFarmer(deal = {}) {
     farmerProfile.organizationName,
     deal.farmer_account,
     deal.farmer
-  ) || 'Assigned Farmer';
+  );
+}
+
+function projectWorkspaceLocation(deal = {}) {
+  const farmerProfile = deal.farmer_profile || deal.farmerProfile || {};
+  const explicitLocation = projectWorkspaceValue(
+    deal.location,
+    deal.project_location,
+    deal.projectLocation,
+    deal.farm_location,
+    deal.farmLocation,
+    farmerProfile.location
+  );
+  if (explicitLocation) return explicitLocation;
+  const region = projectWorkspaceValue(deal.region, farmerProfile.region);
+  const country = projectWorkspaceValue(deal.country, farmerProfile.country);
+  return region && country && region !== country ? `${region}, ${country}` : (region || country);
+}
+
+function projectWorkspaceDisplayAmount(...values) {
+  const value = projectWorkspaceValue(...values);
+  if (value == null) return null;
+  if (/[$€£]|\b(?:USD|EUR|NEAR|UZS)\b/i.test(value)) return value;
+  return `${value} NEAR`;
+}
+
+function projectWorkspaceDisplayPercent(...values) {
+  const value = projectWorkspaceValue(...values);
+  if (value == null) return null;
+  return value.includes('%') ? value : `${value}%`;
+}
+
+function projectWorkspaceHeaderFields({ deal = {}, status = null, cycles = [], role = 'investor' } = {}) {
+  const farmer = projectWorkspaceFarmer(deal);
+  const location = projectWorkspaceLocation(deal);
+  const investment = projectWorkspaceDisplayAmount(
+    deal.display_amount,
+    deal.displayAmount,
+    deal.funding,
+    deal.investmentAmount,
+    deal.investment_amount,
+    deal.invested_amount,
+    deal.amount
+  );
+  const fields = [
+    farmer ? ['Farmer', farmer] : null,
+    location ? ['Location', location] : null,
+  ];
+  if (role === 'farmer') {
+    const budget = projectWorkspaceDisplayAmount(
+      deal.display_project_budget,
+      deal.projectBudget,
+      deal.project_budget,
+      deal.budget,
+      deal.display_amount,
+      deal.amount,
+      deal.investment_amount
+    );
+    if (budget) fields.push(['Project Budget', budget]);
+    return fields.filter(Boolean);
+  }
+  fields.push(
+    investment ? ['Investment', investment] : null,
+    role === 'investor'
+      ? (() => {
+        const roi = projectWorkspaceDisplayPercent(
+          deal.projectedRoi,
+          deal.projected_roi_pct,
+          deal.roi_percent,
+          deal.roi
+        );
+        return roi ? ['Projected ROI', roi] : null;
+      })()
+      : null,
+    role === 'investor'
+      ? (() => {
+        const apr = projectWorkspaceDisplayPercent(
+          deal.simpleAnnualizedRoi,
+          deal.simple_annualized_roi,
+          deal.apr,
+          deal.apr_pct
+        );
+        return apr ? ['APR', apr] : null;
+      })()
+      : null
+  );
+  return fields.filter(Boolean);
 }
 
 function projectWorkspaceTimelineIndex({ deal = {}, status = null, cycles = [], reports = [], returns = [] } = {}) {
@@ -3147,9 +3233,6 @@ function projectFinancialOverviewItems({
     return [
       ['Funding Status', fundingStatus],
       ['Current Production Cycle', currentCycle],
-      ['Project Budget', projectFinancialAmount(deal, [
-        'display_project_budget', 'projectBudget', 'project_budget', 'budget',
-      ])],
       ['Next Required Action', projectWorkspaceFarmerAction(
         deal,
         projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns }),
@@ -3160,9 +3243,6 @@ function projectFinancialOverviewItems({
   }
   if (role === 'operator') {
     return [
-      ['Investment Amount', projectFinancialAmount(deal, [
-        'display_amount', 'displayAmount', 'funding', 'investmentAmount', 'investment_amount', 'invested_amount', 'amount',
-      ])],
       ['Funding Status', fundingStatus],
       ['Farmer Funding Confirmation', projectFinancialFarmerConfirmation(deal, cycles)],
       ['Current Cycle', currentCycle],
@@ -3171,22 +3251,10 @@ function projectFinancialOverviewItems({
       ['Operational Attention', projectWorkspaceOperatorAttention(deal)],
     ];
   }
-  const projectedRoi = projectWorkspaceValue(
-    deal.projectedRoi,
-    deal.projected_roi_pct,
-    deal.roi_percent,
-    deal.roi
-  );
   return [
-    ['Investment Amount', projectFinancialAmount(deal, [
-      'display_amount', 'displayAmount', 'investmentAmount', 'investment_amount', 'invested_amount', 'amount',
-    ])],
     ['Funding Status', fundingStatus],
     ['Current Project Stage', currentStage],
     ['Current Production Cycle', currentCycle],
-    ['Projected ROI', projectedRoi == null
-      ? 'Not available'
-      : (projectedRoi.includes('%') ? projectedRoi : `${projectedRoi}%`)],
     ['Projected Return', projectFinancialAmount(deal, [
       'display_expected_return', 'displayExpectedReturn', 'projectedTotalPayout', 'expected_return',
     ])],
@@ -3938,14 +4006,15 @@ function renderProjectWorkspaceHeader({
   role = 'investor',
 } = {}) {
   const projectName = projectWorkspaceValue(deal.title, deal.project_name, deal.project_title, deal.name)
-    || (deal.id != null ? `Project #${deal.id}` : 'Project name unavailable');
+    || (deal.id != null ? `Project #${deal.id}` : 'Project');
   const investmentModel = projectWorkspaceValue(
     deal.investment_model_name,
     deal.investment_model,
     deal.deal_type
-  ) || 'Investment Model unavailable';
-  const projectStatus = projectWorkspaceStatus(deal, status) || 'Status unavailable';
-  const farmer = projectWorkspaceFarmer(deal);
+  );
+  const projectStatus = projectWorkspaceStatus(deal, status) || 'Pending project update';
+  const description = projectWorkspaceValue(deal.description, deal.project_description);
+  const headerFields = projectWorkspaceHeaderFields({ deal, status, cycles, role });
   const timelineStages = ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed'];
   const currentIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
   const isCompleted = currentIndex === timelineStages.length - 1;
@@ -3964,24 +4033,22 @@ function renderProjectWorkspaceHeader({
         </div>
         <span class="text-xs font-semibold bg-slate-900 text-slate-200 border border-slate-600 px-3 py-1 rounded-full">${escapeHtml(projectStatus)}</span>
       </div>
-      <dl class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
-        <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
-          <dt class="text-xs text-slate-500">Investment Model</dt>
-          <dd class="text-sm font-semibold text-slate-100 mt-1">${escapeHtml(investmentModel)}</dd>
+      ${headerFields.length ? `
+        <dl class="grid sm:grid-cols-2 xl:grid-cols-5 gap-3 mt-5" data-project-header-fields data-header-role="${escapeHtml(role)}">
+          ${headerFields.map(([label, value]) => `
+            <div class="bg-slate-900 border border-slate-700 rounded-lg p-3" data-header-field="${escapeHtml(label)}">
+              <dt class="text-xs text-slate-500">${escapeHtml(label)}</dt>
+              <dd class="text-sm font-semibold text-slate-100 mt-1 break-words">${escapeHtml(value)}</dd>
+            </div>
+          `).join('')}
+        </dl>
+      ` : ''}
+      ${description || investmentModel ? `
+        <div class="flex flex-wrap items-start justify-between gap-3 mt-4 pt-4 border-t border-slate-700">
+          ${description ? `<p class="text-sm text-slate-400 max-w-3xl">${escapeHtml(description)}</p>` : '<span></span>'}
+          ${investmentModel ? `<span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">Investment Model: ${escapeHtml(investmentModel)}</span>` : ''}
         </div>
-        <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
-          <dt class="text-xs text-slate-500">Project Status</dt>
-          <dd class="text-sm font-semibold text-slate-100 mt-1">${escapeHtml(projectStatus)}</dd>
-        </div>
-        <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
-          <dt class="text-xs text-slate-500">Project Operator</dt>
-          <dd class="text-sm font-semibold text-slate-100 mt-1">AgriPartners</dd>
-        </div>
-        <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
-          <dt class="text-xs text-slate-500">Farmer</dt>
-          <dd class="text-sm font-semibold text-slate-100 mt-1 break-all">${escapeHtml(farmer)}</dd>
-        </div>
-      </dl>
+      ` : ''}
       <div class="mt-5">
         <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Timeline</h2>
         <ol class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" aria-label="Project timeline">
@@ -4113,11 +4180,6 @@ function renderAdminDemoDealDetail(el, deal) {
       </a>
       <span class="text-slate-600">|</span>
       <a href="#demo/admin" class="text-slate-400 hover:text-white text-sm">Back to Admin Dashboard</a>
-      <span class="text-slate-600">|</span>
-      <span class="font-semibold">${escapeHtml(deal.title)}</span>
-      <span class="text-xs text-slate-500">Pilot Project</span>
-      ${statusBadge(deal.status)}
-      ${deal.status === 'Active' ? `<span class="text-slate-400 text-sm">Production Cycle ${escapeHtml(deal.currentCycle)}</span>` : ''}
     </div>
     ${renderProjectWorkspaceHeader({
       deal,
@@ -4125,7 +4187,6 @@ function renderAdminDemoDealDetail(el, deal) {
       events: adminDemoEvents(deal),
       role: 'operator',
     })}
-    ${renderAdminDemoProjectProfile(deal)}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Funding Status</h3>
@@ -4954,14 +5015,9 @@ function renderFarmerDemoDealDetail(el, deal, cycles, events) {
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
         Back home
       </a>
-      <span class="text-slate-600">|</span>
-      <span class="font-semibold">${escapeHtml(deal.title)}</span>
-      <span class="text-xs text-slate-500">Pilot Profile</span>
-      ${statusBadge(deal.status)}
     </div>
 
     ${renderProjectWorkspaceHeader({ deal, status: deal.status, cycles, events, role: 'farmer' })}
-    ${renderFarmerProjectProfile(deal)}
     ${renderFarmerDealOperationsSummary(deal, cycles)}
     ${renderFarmerReserveBreakdown(deal, cycles)}
 
@@ -5378,15 +5434,10 @@ function renderFarmerDealDetail(el, bundle) {
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <a href="#farmer" class="text-slate-400 hover:text-white text-sm">Back to Farmer Portal</a>
-      <span class="text-slate-600">|</span>
-      <span class="font-semibold">Project #${deal.id}</span>
-      ${statusBadge(deal.status)}
       <button id="btn-farmer-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
     ${renderProjectWorkspaceHeader({ deal, status: deal.status, cycles, role: 'farmer' })}
-    ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
-    ${renderFarmerProjectProfile(deal)}
     ${renderFarmerDealOperationsSummary(deal, cycles)}
     ${renderFarmerReserveBreakdown(deal, cycles, balances, resourceErrors.balances)}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
@@ -6365,6 +6416,7 @@ function investorDemoDealFromPilot(pilot, connectedWalletAccount) {
     display_outstanding_amount: pilot.displayOutstandingAmount,
     display_currency: 'USD',
     roi_percent: pilot.roiPercent,
+    simpleAnnualizedRoi: pilot.simpleAnnualizedRoi,
     escrow_pct: pilot.reserveRate,
     status: { status: pilot.status, current_cycle: pilot.currentCycle },
     balances: null,
@@ -7025,7 +7077,6 @@ function showInvestorPilotProfile(key) {
 }
 
 function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles, returns) {
-  const profile = investorProjectProfile(deal, status);
   el.innerHTML = `
     ${renderNav()}
     ${renderEnvironmentBanner('demo', 'Investor')}
@@ -7034,15 +7085,9 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
         Back home
       </a>
-      <span class="text-slate-600">|</span>
-      <span class="font-semibold">${escapeHtml(profile.title)}</span>
-      <span class="text-xs text-slate-500">Pilot Profile</span>
-      ${statusBadge(status?.status)}
-      <span class="text-slate-400 text-sm">Cycle ${status?.current_cycle ?? '-'}</span>
     </div>
 
     ${renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns, events, role: 'investor' })}
-    ${renderProjectProfile(deal, status)}
     ${renderFundingProgressPanel(deal)}
     ${renderInvestorProtectionPanel(deal, deal.balances)}
 
@@ -7231,16 +7276,10 @@ function renderInvestorDealDetail(el, bundle) {
     resourceErrors = {},
   } = bundle;
   const investorBalance = balances?.investor ?? null;
-  const profile = investorProjectProfile(deal, status);
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <a href="#investor" class="text-slate-400 hover:text-white text-sm">Back to Investor Portal</a>
-      <span class="text-slate-600">|</span>
-      <span id="investor-deal-title" class="font-semibold">${escapeHtml(profile.title)}</span>
-      <span class="text-xs text-slate-500">Project #${escapeHtml(deal.id)}</span>
-      <span id="investor-status-badge">${statusBadge(status?.status)}</span>
-      <span id="investor-cycle-text" class="text-slate-400 text-sm">Production Cycle ${status?.current_cycle ?? '—'}</span>
       <button id="btn-investor-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
 
@@ -7254,7 +7293,7 @@ function renderInvestorDealDetail(el, bundle) {
     </nav>
 
     <div id="investor-detail-overview">
-      ${renderProjectProfile(deal, status, resourceErrors.status)}
+      ${resourceErrors.status ? renderInvestorResourceUnavailable('NEAR Testnet status', resourceErrors.status) : ''}
       ${renderLiveFundingProgressPanel(deal)}
       ${renderInvestorProtectionPanel(deal, balances)}
     </div>
@@ -7825,11 +7864,7 @@ async function refreshInvestorDeal(id) {
   try {
     const bundle = await fetchInvestorDealBundle(id);
     const { deal, status, balances, events, reports, cycles, returns, resourceErrors = {} } = bundle;
-    const titleEl = document.getElementById('investor-deal-title');
-    const badgeEl = document.getElementById('investor-status-badge');
-    const cycleEl = document.getElementById('investor-cycle-text');
     const workspaceHeaderEl = document.getElementById('project-workspace-header');
-    const profileEl = document.getElementById('investor-project-profile');
     const fundingEl = document.getElementById('investor-funding-progress');
     const protectionEl = document.getElementById('investor-protection-panel');
     const technicalEl = document.getElementById('investor-technical-data');
@@ -7841,15 +7876,11 @@ async function refreshInvestorDeal(id) {
     const roiProgressEl = document.getElementById('investor-roi-progress');
     const actualRoiEl = document.getElementById('investor-actual-vs-projected-roi');
     const returnsEl = document.getElementById('investor-returns-list');
-    if (titleEl) titleEl.textContent = investorProjectProfile(deal, status).title;
-    if (badgeEl) badgeEl.innerHTML = statusBadge(status?.status);
-    if (cycleEl) cycleEl.textContent = `Cycle ${status?.current_cycle ?? '—'}`;
     if (workspaceHeaderEl) {
       workspaceHeaderEl.outerHTML = renderProjectWorkspaceHeader({
         deal, status, cycles, reports, returns, events, role: 'investor',
       });
     }
-    if (profileEl) profileEl.outerHTML = renderProjectProfile(deal, status, resourceErrors.status);
     if (fundingEl) fundingEl.outerHTML = renderLiveFundingProgressPanel(deal);
     if (protectionEl) protectionEl.outerHTML = renderInvestorProtectionPanel(deal, balances);
     if (technicalEl) technicalEl.innerHTML = renderInvestorDealParams(deal, status, balances?.investor ?? null, resourceErrors);
@@ -8016,16 +8047,10 @@ async function showDeal(id) {
 
 function renderDealDetail(el, bundle) {
   const { deal, status, balances, events, cycles, returnSummary, adminReturns, resourceErrors = {} } = bundle;
-  const dealTitle = deal.title || deal.deal_type || 'Unknown';
-  const cycleText = resourceErrors.status ? '· Cycle Unavailable' : `· Cycle ${status?.current_cycle ?? 'Unknown'}`;
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <a href="#deals" class="text-slate-400 hover:text-white text-sm">← Back</a>
-      <span class="text-slate-600">|</span>
-      <span class="font-semibold">${escapeHtml(dealTitle)}</span>
-      <span id="status-badge">${statusBadge(status?.status)}</span>
-      <span id="cycle-text" class="text-slate-400 text-sm">${cycleText}</span>
       <button id="btn-refresh" class="ml-auto bg-slate-700 hover:bg-slate-600 text-sm px-3 py-1.5 rounded transition">Refresh</button>
     </div>
     ${renderProjectWorkspaceHeader({
@@ -8037,7 +8062,6 @@ function renderDealDetail(el, bundle) {
       role: 'operator',
     })}
     ${resourceErrors.status ? renderAdminResourceUnavailable('Status', resourceErrors.status) : ''}
-    ${deal.description ? `<p class="text-slate-400 mb-6">${escapeHtml(deal.description)}</p>` : ''}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5 space-y-2">
         ${renderParams(deal)}

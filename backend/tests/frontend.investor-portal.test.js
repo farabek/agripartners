@@ -577,7 +577,7 @@ test('live investor detail follows the investor-first reading order', () => {
   });
 
   const orderedSections = [
-    'Deal Overview',
+    'Project Workspace Header',
     'Investment Protection',
     'Investment Summary',
     'Returns Summary',
@@ -637,7 +637,7 @@ test('reordered live detail keeps optional resource failures visible in their ow
     },
   });
 
-  expect(el.innerHTML).toContain('error:Contract status:status failed');
+  expect(el.innerHTML).toContain('error:NEAR Testnet status:status failed');
   expect(el.innerHTML).toContain('error:Contract balances:balances failed');
   expect(el.innerHTML).toContain('error:Farmer reports:reports failed');
   expect(el.innerHTML).toContain('error:Cycle status:cycles failed');
@@ -934,9 +934,10 @@ test('live recorded return progress remains presentation-only', () => {
   expect(percentLabel(metrics.completionPercent)).toBe('73.2%');
 });
 
-test('investor detail renders project profile before technical deal data', () => {
-  expect(appJs).toContain('function renderProjectProfile');
-  expect(appJs).toContain('Project Profile');
+test('investor detail uses the canonical header before technical deal data', () => {
+  expect(appJs).toContain('function renderProjectWorkspaceHeader');
+  expect(appJs).toContain('data-project-header-fields');
+  expect(appJs).toContain('data-header-field="${escapeHtml(label)}"');
   expect(appJs).toContain('Fidlot Livestock Project');
   expect(appJs).toContain('Hissar Sheep Breeding Project');
   expect(appJs).toContain('$50,000');
@@ -944,11 +945,11 @@ test('investor detail renders project profile before technical deal data', () =>
   expect(appJs).toContain('63.3%');
   expect(appJs).toContain('21.9%');
   expect(appJs).toContain('21.1%');
-  expect(appJs).toContain("roiLabel: projectStatus === 'Completed' ? 'ROI' : 'Projected ROI'");
   expect(appJs).toContain('Livestock fattening operation based on a real pilot agricultural agreement');
   expect(appJs).toContain('Sheep breeding operation based on a real pilot agricultural agreement');
   expect(appJs).toContain('NEAR Testnet Infrastructure');
-  expect(appJs).toContain('Project #${escapeHtml(deal.id)}');
+  expect(appJs).not.toContain('${renderProjectProfile(deal, status)}');
+  expect(appJs).not.toContain('${renderProjectProfile(deal, status, resourceErrors.status)}');
   expect(appJs).toContain('function getPilotForDeal');
   expect(appJs).toContain('function pilotKeyFromText');
   expect(appJs).not.toContain('[1, 7].includes');
@@ -1600,8 +1601,7 @@ test('investor detail refresh updates every bundle-dependent live section', asyn
 
   await refreshInvestorDeal(7);
 
-  expect(elements.get('investor-deal-title').textContent).toBe('Refreshed Live Deal');
-  expect(elements.get('investor-project-profile').outerHTML).toContain('profile:Refreshed Live Deal');
+  expect(elements.get('project-workspace-header').outerHTML).toContain('workspace:Refreshed Live Deal');
   expect(elements.get('investor-funding-progress').outerHTML).toContain('funding:Refreshed Live Deal');
   expect(elements.get('investor-technical-data').innerHTML).toContain('technical:Refreshed Live Deal');
   expect(elements.get('investor-events-list').innerHTML).toBe('events:1');
