@@ -560,13 +560,15 @@ test('investor workspace consolidates financial and return metrics', () => {
   const dashboard = appJs.slice(start, end);
 
   for (const label of [
-    'Investment', 'Funding Status', 'Current Stage', 'Projected Return',
-    'Cash Returned', 'Outstanding Return', 'ROI', 'APR', 'Completion Progress',
+    'Investment', 'Projected Payout', 'Returned', 'Outstanding', 'ROI', 'APR',
+    'Current Cycle', 'Settlement Status', 'Project Status',
   ]) {
     expect(dashboard).toContain(`['${label}'`);
   }
   expect(appJs).toContain('Project Financial Dashboard');
-  expect(appJs).toContain('Returns Dashboard');
+  expect(appJs).toContain('Investment Summary');
+  expect(appJs).toContain('ROI Progress');
+  expect(appJs).toContain('Payout History');
   expect(appJs).toContain('Returns Ledger');
   expect(appJs).toContain('Projected returns are estimates and are not guaranteed.');
 });
@@ -582,10 +584,11 @@ test('live investor detail follows the investor-first reading order', () => {
     reports: [], cycles: [], returns: [], events: [], resourceErrors: {},
   });
 
-  const orderedSections = ['Project Workspace Header', 'Investment Protection'];
+  const orderedSections = ['Project Workspace Header'];
   const positions = orderedSections.map(section => el.innerHTML.indexOf(section));
   expect(positions.every(position => position >= 0)).toBe(true);
   expect(positions).toEqual([...positions].sort((a, b) => a - b));
+  expect(el.innerHTML).not.toContain('renderInvestorProtectionPanel');
   expect(el.innerHTML).not.toContain('Settlement Infrastructure');
   expect(el.innerHTML).not.toContain('NEAR Testnet Infrastructure');
 });
@@ -598,7 +601,7 @@ test('workspace navigation exposes six same-page keyboard-accessible tabs', () =
   const binding = appJs.slice(end, bindingEnd);
 
   expect(tabs).toContain('role="tablist"');
-  for (const label of ['Overview', 'Activity', 'Documents', 'Reports', 'Returns', 'History']) {
+  for (const label of ['Overview', 'Production', 'Reports', 'Returns', 'Documents', 'History']) {
     expect(tabs).toContain(`'${label}'`);
   }
   expect(tabs).toContain('aria-selected="${index === 0}"');

@@ -4032,9 +4032,8 @@ function renderInvestorWorkspaceTimeline({
   const currentIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
   const isCompleted = currentIndex === timelineStages.length - 1;
   const stageDates = projectWorkspaceStageDates({ deal, cycles, reports, returns, events });
-  const currentCycle = projectWorkspaceCurrentCycle(deal, status, cycles);
   return `
-    <section class="workspace-section" data-investor-timeline>
+    <section class="workspace-section workspace-lifecycle" data-investor-timeline>
       <div class="workspace-section-heading">
         <h2>Project Timeline</h2>
         <p>Six-stage lifecycle from funding through completion.</p>
@@ -4045,9 +4044,6 @@ function renderInvestorWorkspaceTimeline({
           const state = isCompleted || index < currentIndex
             ? 'completed'
             : (isCurrentStage ? 'current' : 'upcoming');
-          const stageStatus = state === 'completed'
-            ? (isCurrentStage ? 'Completed · Current stage' : 'Completed')
-            : (state === 'current' ? 'Current' : 'Upcoming');
           const stageContext = projectWorkspaceStageContext({
             index,
             state,
@@ -4056,12 +4052,10 @@ function renderInvestorWorkspaceTimeline({
           });
           const marker = state === 'completed' ? '&#10003;' : (state === 'current' ? '&#8226;' : index + 1);
           return `
-            <li class="workspace-timeline-stage is-${state}" data-project-stage="${escapeHtml(label)}" data-stage-state="${state}" ${isCurrentStage ? 'aria-current="step"' : ''}>
+            <li class="workspace-timeline-stage is-${state}" data-project-stage="${escapeHtml(label)}" data-stage-state="${state}" aria-label="${escapeHtml(label)}: ${state}" ${isCurrentStage ? 'aria-current="step"' : ''}>
               <span class="workspace-timeline-marker" aria-hidden="true">${marker}</span>
               <span class="workspace-timeline-name">${escapeHtml(label)}</span>
-              <span class="workspace-timeline-status">${stageStatus}</span>
               <span class="workspace-timeline-context">${escapeHtml(stageContext)}</span>
-              ${label === 'Production' ? `<span class="workspace-timeline-context">Current cycle: ${escapeHtml(currentCycle)}</span>` : ''}
             </li>
           `;
         }).join('')}
@@ -4106,7 +4100,7 @@ function renderInvestorFinancialDashboard({
 } = {}) {
   const stageIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
   const currentStage = stageIndex < 0 ? 'Pending project update' : PROJECT_WORKSPACE_TIMELINE_STAGES[stageIndex];
-  const metrics = investorWorkspaceReturnMetrics(deal);
+  const currentCycle = projectWorkspaceCurrentCycle(deal, status, cycles);
   const roi = projectWorkspaceDisplayPercent(
     deal.projectedRoi,
     deal.projected_roi_pct,
@@ -4119,31 +4113,26 @@ function renderInvestorFinancialDashboard({
     deal.apr,
     deal.apr_pct
   ) || 'Pending confirmation';
-  const completion = metrics.completionPercent == null
-    ? 'Awaiting return records'
-    : `${Math.max(0, Math.min(100, metrics.completionPercent)).toFixed(1)}%`;
+  const settlementStatus = projectFinancialSettlementStatus(deal, returns);
   const items = [
     ['Investment', investorFinancialAmount(deal, [
       'display_amount', 'displayAmount', 'investmentAmount', 'invested_amount', 'amount',
     ])],
-    ['Funding Status', projectFinancialFundingStatus(deal, status)],
-    ['Current Stage', currentStage],
-    ['Projected Return', investorFinancialAmount(deal, [
+    ['Projected Payout', investorFinancialAmount(deal, [
       'display_expected_return', 'displayExpectedReturn', 'projectedTotalPayout', 'expected_return',
     ])],
-    ['Cash Returned', investorFinancialAmount(deal, [
+    ['Returned', investorFinancialAmount(deal, [
       'display_returned_amount', 'recordedReturns', 'returned_amount',
     ], 'No returns recorded yet')],
-    ['Outstanding Return', investorFinancialAmount(deal, [
+    ['Outstanding', investorFinancialAmount(deal, [
       'display_outstanding_amount', 'projectedOutstanding', 'outstanding_amount',
     ])],
     ['ROI', roi],
     ['APR', apr],
-    ['Completion Progress', completion],
+    ['Current Cycle', currentCycle],
+    ['Settlement Status', settlementStatus === 'Not available' ? 'Settlement pending' : settlementStatus],
+    ['Project Status', projectWorkspaceStatus(deal, status) || currentStage],
   ];
-  const progressWidth = metrics.completionPercent == null
-    ? 0
-    : Math.max(0, Math.min(100, metrics.completionPercent));
   return `
     <section id="project-financial-overview" class="workspace-financial-dashboard" data-project-financial-overview data-financial-role="investor">
       <div class="workspace-section-heading">
@@ -4155,11 +4144,6 @@ function renderInvestorFinancialDashboard({
           <div class="workspace-metric" data-financial-field="${escapeHtml(label)}">
             <dt>${escapeHtml(label)}</dt>
             <dd>${escapeHtml(investorFinancialValue(value))}</dd>
-            ${label === 'Completion Progress' ? `
-              <span class="workspace-progress-track" aria-hidden="true">
-                <span class="workspace-progress-fill" style="width: ${progressWidth.toFixed(1)}%"></span>
-              </span>
-            ` : ''}
           </div>
         `).join('')}
       </dl>
@@ -4183,20 +4167,24 @@ function investorCycleReports(cycles = []) {
 
 function renderInvestorWorkspaceReports(reports = []) {
   if (!reports.length) return '<p class="workspace-empty-state">No Farmer Reports submitted yet.</p>';
-  return reports.map(report => `
-    <article class="workspace-report-card">
-      <div>
-        <span>Production Cycle ${escapeHtml(report.cycle_id ?? report.cycle_num ?? '—')}</span>
-        <h3>${escapeHtml(projectWorkspaceValue(report.title, report.report_title) || 'Project Report')}</h3>
-      </div>
-      <span class="workspace-report-status">Submitted</span>
-      <p>${escapeHtml(projectWorkspaceValue(report.description, report.report_body) || 'Project progress submitted by the Farmer.')}</p>
-      <dl>
-        <div><dt>Amount used</dt><dd>${escapeHtml(report.amount_used || 'Available in detailed report')}</dd></div>
-        <div><dt>Submitted</dt><dd>${escapeHtml(projectWorkspaceFormatDate(report.submitted_at || report.created_at) || 'Recorded')}</dd></div>
-      </dl>
-    </article>
-  `).join('');
+  return reports.map(report => {
+    const rawStatus = projectWorkspaceValue(report.status, report.reportStatus, report.report_status) || 'Submitted';
+    const reportStatus = rawStatus.replace(/_/g, ' ').replace(/\b\w/g, character => character.toUpperCase());
+    return `
+      <article class="workspace-report-card">
+        <div>
+          <span>Production Cycle ${escapeHtml(report.cycle_id ?? report.cycle_num ?? '—')}</span>
+          <h3>${escapeHtml(projectWorkspaceValue(report.title, report.report_title) || 'Project Report')}</h3>
+        </div>
+        <span class="workspace-report-status">${escapeHtml(reportStatus)}</span>
+        <p>${escapeHtml(projectWorkspaceValue(report.description, report.report_body) || 'Project progress submitted by the Farmer.')}</p>
+        <dl>
+          <div><dt>Report Status</dt><dd>${escapeHtml(reportStatus)}</dd></div>
+          <div><dt>Submission Date</dt><dd>${escapeHtml(projectWorkspaceFormatDate(report.submitted_at || report.created_at) || 'Recorded')}</dd></div>
+        </dl>
+      </article>
+    `;
+  }).join('');
 }
 
 function renderInvestorWorkspaceCycles(cycles = []) {
@@ -4256,6 +4244,102 @@ function renderInvestorWorkspaceResourceError(label) {
   return `<p class="workspace-resource-state">${escapeHtml(label)} could not be loaded. Please refresh the Project.</p>`;
 }
 
+function investorWorkspaceFundingPercent(deal = {}) {
+  const explicit = Number(deal.funding_percentage ?? deal.fundingPercentage);
+  if (Number.isFinite(explicit)) return Math.max(0, Math.min(100, explicit));
+  const goal = Number(String(deal.funding_goal ?? deal.fundingGoal ?? '').replace(/[^0-9.-]/g, ''));
+  const raised = Number(String(deal.funding_raised ?? deal.fundingRaised ?? '').replace(/[^0-9.-]/g, ''));
+  if (Number.isFinite(goal) && goal > 0 && Number.isFinite(raised)) {
+    return Math.max(0, Math.min(100, (raised / goal) * 100));
+  }
+  return null;
+}
+
+function renderInvestorProtectionOverview(deal = {}) {
+  const descriptor = `${deal.pilot_key || deal.key || ''} ${deal.title || ''} ${deal.deal_type || ''}`.toLowerCase();
+  const modelKey = descriptor.includes('fidlot') ? 'fidlot' : (descriptor.includes('hissar') ? 'hissar' : null);
+  const reserveRate = deal.escrow_pct ?? (modelKey === 'fidlot' ? 44 : (modelKey === 'hissar' ? 53 : null));
+  const pdfBase = modelKey === 'fidlot'
+    ? 'Agri-Investor-Fidlot-v5.9-6040'
+    : (modelKey === 'hissar' ? 'Agri-Investor-VariantB-v2.1-6040' : null);
+  return `
+    <section id="investor-protection-panel" class="workspace-overview-card workspace-protection-overview" data-investor-protection-panel>
+      <div>
+        <span class="workspace-card-eyebrow">Protection Overview</span>
+        <h3>${reserveRate == null ? 'Project-specific protection terms' : `${escapeHtml(reserveRate)}% modeled reserve`}</h3>
+        <p>A future model-specific reserve may support defined loss-mitigation procedures. This concept is not insurance or a guarantee.</p>
+      </div>
+      <div class="workspace-card-actions">
+        ${modelKey ? `<a href="#/protection/${escapeHtml(modelKey)}">View protection model</a>` : ''}
+        ${pdfBase ? `<a href="assets/financial-models/en/${pdfBase}-EN.pdf" target="_blank" rel="noopener noreferrer" download>Download model</a>` : ''}
+      </div>
+    </section>
+  `;
+}
+
+function renderInvestorWorkspaceOverview({ deal = {}, status = null } = {}) {
+  const fundingPercent = investorWorkspaceFundingPercent(deal);
+  const farmer = projectWorkspaceFarmer(deal) || 'Assigned through AgriPartners';
+  const description = projectWorkspaceValue(deal.description, deal.project_description)
+    || 'Project information is maintained by AgriPartners throughout the lifecycle.';
+  const fundingStatus = projectFinancialFundingStatus(deal, status);
+  return `
+    <div class="workspace-overview-grid">
+      <section class="workspace-overview-card workspace-project-summary">
+        <span class="workspace-card-eyebrow">Project Summary</span>
+        <h2>${escapeHtml(projectWorkspaceValue(deal.title, deal.project_name, deal.name) || 'AgriPartners Project')}</h2>
+        <p>${escapeHtml(description)}</p>
+        <dl class="workspace-overview-details">
+          <div><dt>Farmer</dt><dd>${escapeHtml(farmer)}</dd></div>
+          <div><dt>Project Operator</dt><dd>AgriPartners</dd></div>
+        </dl>
+      </section>
+      <section class="workspace-overview-card">
+        <span class="workspace-card-eyebrow">Funding Progress</span>
+        <h3>${fundingPercent == null ? escapeHtml(fundingStatus === 'Not available' ? 'Funding pending' : fundingStatus) : `${fundingPercent.toFixed(1)}% complete`}</h3>
+        <div class="workspace-progress-track" role="progressbar" aria-label="Funding progress" aria-valuemin="0" aria-valuemax="100" ${fundingPercent == null ? 'aria-valuetext="Funding status pending"' : `aria-valuenow="${fundingPercent.toFixed(1)}"`}>
+          <span class="workspace-progress-fill" style="width: ${(fundingPercent || 0).toFixed(1)}%"></span>
+        </div>
+        <p>Funding confirmation and Project terms remain the authoritative source for committed capital.</p>
+      </section>
+      ${renderInvestorProtectionOverview(deal)}
+    </div>
+  `;
+}
+
+function renderInvestorWorkspaceProduction({
+  deal = {},
+  status = null,
+  cycles = [],
+  reports = [],
+  returns = [],
+  resourceErrors = {},
+} = {}) {
+  const currentCycle = projectWorkspaceCurrentCycle(deal, status, cycles);
+  const timelineIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
+  const productionStatus = projectWorkspaceValue(deal.cycleStatus, deal.cycle_status)
+    || (timelineIndex >= 2 ? 'Production active' : 'Production pending');
+  const farmerConfirmation = projectFinancialFarmerConfirmation(deal, cycles);
+  const fundingConfirmation = projectFinancialFundingStatus(deal, status);
+  const milestone = projectWorkspaceNextMilestone(deal, timelineIndex, PROJECT_WORKSPACE_TIMELINE_STAGES);
+  return `
+    <section class="workspace-section">
+      <div class="workspace-section-heading"><h2>Production Status</h2><p>Current operational state and confirmation checkpoints.</p></div>
+      <dl class="workspace-production-grid">
+        <div><dt>Current Cycle</dt><dd>${escapeHtml(currentCycle)}</dd></div>
+        <div><dt>Production Status</dt><dd>${escapeHtml(productionStatus)}</dd></div>
+        <div><dt>Funding Confirmation</dt><dd>${escapeHtml(fundingConfirmation === 'Not available' ? 'Pending confirmation' : fundingConfirmation)}</dd></div>
+        <div><dt>Farmer Confirmation</dt><dd>${escapeHtml(farmerConfirmation === 'Not available' ? 'Pending confirmation' : farmerConfirmation)}</dd></div>
+        <div><dt>Production Milestone</dt><dd>${escapeHtml(milestone)}</dd></div>
+      </dl>
+    </section>
+    <section class="workspace-section">
+      <div class="workspace-section-heading"><h2>Cycle History</h2><p>Production Cycle milestones in recorded order.</p></div>
+      ${resourceErrors.cycles ? renderInvestorWorkspaceResourceError('Cycle history') : renderInvestorWorkspaceCycles(cycles)}
+    </section>
+  `;
+}
+
 function investorEventLabel(value) {
   const normalized = String(value || '').toLowerCase().replace(/[\s-]+/g, '_');
   const labels = {
@@ -4302,15 +4386,21 @@ function renderInvestorReturnsDashboard(deal = {}, returns = []) {
   const returnStatus = explicitStatus
     ? explicitStatus.replace(/_/g, ' ')
     : (returns.length ? 'Returns recorded' : 'No returns recorded');
+  const metrics = investorWorkspaceReturnMetrics(deal);
+  const progress = metrics.completionPercent == null
+    ? null
+    : Math.max(0, Math.min(100, metrics.completionPercent));
   return `
     <section class="workspace-section">
-      <div class="workspace-section-heading">
-        <h2>Returns Dashboard</h2>
-        <p>Recorded return activity and current Settlement state.</p>
-      </div>
-      <dl class="workspace-summary-grid">
-        <div><dt>Return Status</dt><dd>${escapeHtml(returnStatus)}</dd></div>
-        <div><dt>Ledger Entries</dt><dd>${returns.length}</dd></div>
+      <div class="workspace-section-heading"><h2>Investment Summary</h2><p>Authoritative amounts remain in the Financial Dashboard above.</p></div>
+      <dl class="workspace-summary-grid workspace-returns-summary">
+        <div>
+          <dt>ROI Progress</dt>
+          <dd>${progress == null ? 'Awaiting return records' : `${progress.toFixed(1)}% of projected payout`}</dd>
+          <span class="workspace-progress-track" aria-hidden="true"><span class="workspace-progress-fill" style="width: ${(progress || 0).toFixed(1)}%"></span></span>
+        </div>
+        <div><dt>Settlement</dt><dd>${escapeHtml(returnStatus)}</dd></div>
+        <div><dt>Payout History</dt><dd>${returns.length} recorded entr${returns.length === 1 ? 'y' : 'ies'}</dd></div>
       </dl>
     </section>
   `;
@@ -4325,15 +4415,16 @@ function renderInvestorWorkspaceTabs({
   events = [],
   resourceErrors = {},
 } = {}) {
-  const timelineIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
-  const nextMilestone = projectWorkspaceNextMilestone(deal, timelineIndex, PROJECT_WORKSPACE_TIMELINE_STAGES);
   const cycleReports = investorCycleReports(cycles);
+  const approvedReports = reports.filter(report => /approved|published/i.test(
+    projectWorkspaceValue(report.status, report.reportStatus, report.report_status) || ''
+  ));
   const tabs = [
     ['overview', 'Overview'],
-    ['activity', 'Activity'],
-    ['documents', 'Documents'],
+    ['production', 'Production'],
     ['reports', 'Reports'],
     ['returns', 'Returns'],
+    ['documents', 'Documents'],
     ['history', 'History'],
   ];
   return `
@@ -4346,36 +4437,28 @@ function renderInvestorWorkspaceTabs({
         </div>
       </div>
       <div id="workspace-panel-overview" class="workspace-tab-panel" role="tabpanel" aria-labelledby="workspace-tab-overview" data-workspace-panel="overview">
-        ${renderInvestorWorkspaceTimeline({ deal, status, cycles, reports, returns, events })}
-        <section class="workspace-next-milestone">
-          <span>Next Milestone</span>
-          <strong>${escapeHtml(nextMilestone)}</strong>
-        </section>
+        ${renderInvestorWorkspaceOverview({ deal, status })}
       </div>
-      <div id="workspace-panel-activity" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-activity" data-workspace-panel="activity" hidden>
-        ${renderProjectActivityFeed({ deal, status, cycles, reports, returns, events, role: 'investor' })}
-        <section class="workspace-section">
-          <div class="workspace-section-heading"><h2>Lifecycle Activity</h2><p>Production Cycle progress and reported states.</p></div>
-          ${resourceErrors.cycles ? renderInvestorWorkspaceResourceError('Lifecycle activity') : renderInvestorWorkspaceCycles(cycles)}
-        </section>
-      </div>
-      <div id="workspace-panel-documents" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-documents" data-workspace-panel="documents" hidden>
-        ${renderProjectDocuments({ deal, cycles, reports, role: 'investor' })}
+      <div id="workspace-panel-production" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-production" data-workspace-panel="production" hidden>
+        ${renderInvestorWorkspaceProduction({ deal, status, cycles, reports, returns, resourceErrors })}
       </div>
       <div id="workspace-panel-reports" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-reports" data-workspace-panel="reports" hidden>
         <section class="workspace-section">
-          <div class="workspace-section-heading"><h2>Farmer Reports</h2><p>Project updates submitted by the Farmer.</p></div>
+          <div class="workspace-section-heading">
+            <h2>Farmer Reports</h2>
+            <p>${approvedReports.length} approved · ${reports.length} total submitted</p>
+          </div>
           <div id="investor-reports-list">${resourceErrors.reports ? renderInvestorWorkspaceResourceError('Farmer reports') : renderInvestorWorkspaceReports(reports)}</div>
         </section>
         <section class="workspace-section">
-          <div class="workspace-section-heading"><h2>Cycle Reports</h2><p>Reports associated with individual Production Cycles.</p></div>
+          <div class="workspace-section-heading"><h2>Cycle Reports</h2><p>Submission date, approval state, and report status by Production Cycle.</p></div>
           ${cycleReports.length ? renderInvestorWorkspaceReports(cycleReports) : '<p class="workspace-empty-state">No Cycle Reports submitted yet.</p>'}
         </section>
       </div>
       <div id="workspace-panel-returns" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-returns" data-workspace-panel="returns" hidden>
         ${renderInvestorReturnsDashboard(deal, returns)}
         <section class="workspace-section">
-          <div class="workspace-section-heading"><h2>Returns Ledger</h2><p>Recorded Investment Return entries and supporting evidence.</p></div>
+          <div class="workspace-section-heading"><h2>Returns Ledger &amp; Payout History</h2><p>Chronological Investment Return entries and supporting evidence.</p></div>
           ${resourceErrors.returns ? renderInvestorWorkspaceResourceError('Returns ledger') : renderInvestorWorkspaceReturnLedger(returns)}
         </section>
         ${!deal.isDemoPilot && deal.id != null ? `
@@ -4386,9 +4469,17 @@ function renderInvestorWorkspaceTabs({
           </section>
         ` : ''}
       </div>
+      <div id="workspace-panel-documents" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-documents" data-workspace-panel="documents" hidden>
+        ${renderProjectDocuments({ deal, cycles, reports, role: 'investor' })}
+      </div>
       <div id="workspace-panel-history" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-history" data-workspace-panel="history" hidden>
         <section class="workspace-section">
-          <div class="workspace-section-heading"><h2>Event History</h2><p>Chronological Project evidence and lifecycle records.</p></div>
+          <div class="workspace-section-heading"><h2>Activity Timeline</h2><p>Chronological Event Feed across the complete Project lifecycle.</p></div>
+          <dl class="workspace-history-summary">
+            <div><dt>Lifecycle Events</dt><dd>${events.length} recorded</dd></div>
+            <div><dt>Audit History</dt><dd>Ordered by event date</dd></div>
+            <div><dt>Blockchain Placeholder</dt><dd>Evidence links appear when recorded</dd></div>
+          </dl>
           ${resourceErrors.events ? renderInvestorWorkspaceResourceError('Event history') : renderInvestorEventHistory(events)}
         </section>
       </div>
@@ -4445,17 +4536,21 @@ function renderInvestorCanonicalWorkspace({
   const projectName = projectWorkspaceValue(deal.title, deal.project_name, deal.project_title, deal.name)
     || (deal.id != null ? `Project #${deal.id}` : 'Project');
   const projectStatus = projectWorkspaceStatus(deal, status) || 'Pending project update';
-  const description = projectWorkspaceValue(deal.description, deal.project_description);
   const investmentModel = projectWorkspaceValue(deal.investment_model_name, deal.investment_model, deal.deal_type);
-  const identityFields = projectWorkspaceHeaderFields({ deal, status, cycles, role: 'investor' })
-    .filter(([label]) => label === 'Farmer' || label === 'Location');
+  const farmerProfile = deal.farmer_profile || deal.farmerProfile || {};
+  const farmer = projectWorkspaceFarmer(deal);
+  const country = projectWorkspaceValue(deal.country, farmerProfile.country)
+    || projectWorkspaceLocation(deal);
+  const identityFields = [
+    farmer ? ['Farmer', farmer] : null,
+    country ? ['Country', country] : null,
+  ].filter(Boolean);
   return `
     <section id="project-workspace-header" class="investor-workspace" data-project-workspace-header data-investor-workspace>
       <header class="workspace-project-header">
         <div class="workspace-project-heading">
           <span>Project Workspace</span>
           <h1 aria-label="Project Name">${escapeHtml(projectName)}</h1>
-          ${description ? `<p>${escapeHtml(description)}</p>` : ''}
         </div>
         <div class="workspace-project-state">
           <span class="workspace-status-badge">${escapeHtml(projectStatus)}</span>
@@ -4469,6 +4564,7 @@ function renderInvestorCanonicalWorkspace({
           </dl>
         ` : ''}
       </header>
+      ${renderInvestorWorkspaceTimeline({ deal, status, cycles, reports, returns, events })}
       ${renderInvestorFinancialDashboard({ deal, status, cycles, reports, returns })}
       ${renderInvestorWorkspaceTabs({ deal, status, cycles, reports, returns, events, resourceErrors })}
     </section>
@@ -7576,7 +7672,6 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
     </div>
 
     ${renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns, events, role: 'investor' })}
-    ${renderInvestorProtectionPanel(deal, deal.balances)}
   `;
   bindInvestorWorkspaceTabs(el);
 }
@@ -7737,7 +7832,6 @@ function renderInvestorDealDetail(el, bundle) {
     returns = [],
     resourceErrors = {},
   } = bundle;
-  const investorBalance = balances?.investor ?? null;
   el.innerHTML = `
     ${renderNav()}
     <div class="flex flex-wrap items-center gap-3 mb-6">
@@ -7748,7 +7842,6 @@ function renderInvestorDealDetail(el, bundle) {
     ${renderProjectWorkspaceHeader({
       deal, status, cycles, reports, returns, events, role: 'investor', resourceErrors,
     })}
-    ${renderInvestorProtectionPanel(deal, balances)}
   `;
 
   bindInvestorWorkspaceTabs(el);
@@ -8273,7 +8366,6 @@ async function refreshInvestorDeal(id) {
     const { deal, status, balances, events, reports, cycles, returns, resourceErrors = {} } = bundle;
     const workspaceHeaderEl = document.getElementById('project-workspace-header');
     const fundingEl = document.getElementById('investor-funding-progress');
-    const protectionEl = document.getElementById('investor-protection-panel');
     const technicalEl = document.getElementById('investor-technical-data');
     const eventsEl = document.getElementById('investor-events-list');
     const reportsEl = document.getElementById('investor-reports-list');
@@ -8291,7 +8383,6 @@ async function refreshInvestorDeal(id) {
       document.getElementById('btn-investor-withdraw')?.addEventListener('click', () => withdrawInvestorFromPortal(deal));
     }
     if (fundingEl) fundingEl.outerHTML = renderLiveFundingProgressPanel(deal);
-    if (protectionEl) protectionEl.outerHTML = renderInvestorProtectionPanel(deal, balances);
     if (technicalEl) technicalEl.innerHTML = renderInvestorDealParams(deal, status, balances?.investor ?? null, resourceErrors);
     if (eventsEl) eventsEl.innerHTML = resourceErrors.events
       ? renderInvestorResourceUnavailable('Event history', resourceErrors.events)

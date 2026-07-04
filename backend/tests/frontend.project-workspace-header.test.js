@@ -67,7 +67,7 @@ test('shared Project Workspace Header renders required project identity fields a
   expect(html).toContain('data-header-role="investor"');
   for (const [label, value] of [
     ['Farmer', 'Hissar Pilot Farm'],
-    ['Location', 'Samarkand, Uzbekistan'],
+    ['Country', 'Samarkand, Uzbekistan'],
   ]) {
     expect(html).toContain(`data-header-field="${label}"`);
     expect(html).toContain(value);
@@ -85,11 +85,11 @@ test('shared Project Workspace Header renders required project identity fields a
     expect(html).toContain(`data-project-stage="${stage}"`);
   }
   expect(html).toContain('Current');
-  expect(html).toContain('Upcoming');
+  expect(html).toContain('data-stage-state="upcoming"');
   expect(html).toContain('Completion recorded');
   expect(html).toContain('In progress');
   expect(html).toContain('Starts after Production');
-  expect(html).toContain('Current cycle:');
+  expect(html).toContain('data-financial-field="Current Cycle"');
   expect(html).toContain('data-investor-timeline');
 });
 
@@ -125,7 +125,7 @@ test('shared Project Workspace Header derives completed, current and upcoming ti
   expect(activeHtml).toContain('workspace-timeline-stage is-upcoming');
   expect(completedHtml.match(/data-stage-state="completed"/g)).toHaveLength(6);
   expect(completedHtml).toContain('workspace-timeline-stage is-completed');
-  expect(completedHtml).toContain('Completed · Current stage');
+  expect(completedHtml).not.toContain('Completed · Current stage');
   expect(completedHtml).toContain('aria-current="step"');
 });
 
@@ -140,10 +140,10 @@ test('shared timeline displays existing completion dates, current cycle and next
   });
 
   expect(html).toContain('Completed Jul 1, 2026');
-  expect(html).toContain('Current cycle: 2');
-  expect(html).toContain('Current');
+  expect(html).toContain('data-financial-field="Current Cycle"');
+  expect(html).toContain('<dd>2</dd>');
   expect(html).toContain('Production');
-  expect(html).toContain('Next Milestone');
+  expect(html).toContain('Production Status');
   expect(html).toContain('Farmer Reports');
 });
 
@@ -226,7 +226,7 @@ test('canonical header applies role-appropriate fields without changing its card
   }
   expect(investor).toContain('workspace-identity-grid');
   expect(investor).toContain('data-header-field="Farmer"');
-  expect(investor).toContain('data-header-field="Location"');
+  expect(investor).toContain('data-header-field="Country"');
   expect(investor).not.toContain('data-header-field="Investment"');
   expect(investor).toContain('data-financial-field="Investment"');
   expect(investor).toContain('data-financial-field="ROI"');
@@ -435,7 +435,7 @@ test('Project Activity Feed supports an empty state', () => {
   expect(html).not.toContain('<ol');
 });
 
-test('Project Activity Feed is responsive and included below the shared Financial Overview', () => {
+test('Project Activity Feed remains reusable while History owns canonical workspace activity', () => {
   const { renderProjectActivityFeed, renderProjectWorkspaceHeader } = loadProjectWorkspaceHeaderHelpers();
   const feed = renderProjectActivityFeed({
     events: [{ event_type: 'Funding Confirmed' }],
@@ -446,9 +446,9 @@ test('Project Activity Feed is responsive and included below the shared Financia
   expect(feed).toContain('sm:flex-row');
   expect(feed).toContain('sm:p-4');
   expect(feed).toContain('Timestamp unavailable');
-  expect(workspace).toContain('data-project-activity-feed');
-  expect(workspace.indexOf('data-project-financial-overview'))
-    .toBeLessThan(workspace.indexOf('data-project-activity-feed'));
+  expect(workspace).not.toContain('data-project-activity-feed');
+  expect(workspace).toContain('Activity Timeline');
+  expect(workspace).toContain('Chronological Event Feed');
 });
 
 test('Investor Project Documents displays investor documents and hides farmer-only documents', () => {
