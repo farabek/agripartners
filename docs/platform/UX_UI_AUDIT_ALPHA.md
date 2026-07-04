@@ -25,6 +25,7 @@ The Alpha review covers:
 
 - Landing;
 - Opportunity Catalog;
+- Investor Entry / Login;
 - Investor Project Workspace;
 - Farmer Journey;
 - Operator Journey;
@@ -45,12 +46,14 @@ end-to-end role review.
 | Landing | Reviewed | 9.3–9.5/10 | 0 | 2 | 1 | Strong presentation; height, long-section density, and future footer enrichment remain. |
 | Opportunity Catalog | Reviewed | 9.6/10 | 0 | 0 | 0 | Clear positioning, strong Project cards, visible status and funding context. |
 | Investor Project Workspace — Fidlot | Reviewed | 9.8/10 | 0 | 2 | 0 | Strong end-to-end Workspace structure; some unavailable and date wording needs refinement. |
+| Hissar Sheep Breeding Project Workspace | Reviewed | 9.0/10 | 0 | 7 | 2 | Strong active-Project Workspace; hierarchy, repetition, contextual states, density, and history polish remain. |
+| Investor Entry / Login | Reviewed | 8.7/10 | 0 | 6 | 3 | Strong role framing and access separation; first-time path choice, wallet trust, support, post-login expectations, and accessibility need refinement. |
 | Farmer Journey | Not Reviewed | — | 0 | 0 | 0 | Full journey review pending. |
 | Operator Journey | Not Reviewed | — | 0 | 0 | 0 | Full journey review pending. |
-| Project Documents | Reviewed in Fidlot Workspace | — | 0 | 0 | 0 | Structure observed; dedicated role and state review still required. |
-| Project Activity Feed | Reviewed in Fidlot Workspace | — | 0 | 0 | 0 | Structure observed; dedicated role and empty-state review still required. |
-| Returns / Settlement | Reviewed in Fidlot Workspace | — | 0 | 1 | 0 | Returns Ledger currency and unit wording needs normalization. |
-| Reports | Reviewed in Fidlot Workspace | — | 0 | 1 | 0 | “Amount used” fallback wording needs improvement. |
+| Project Documents | Reviewed in Fidlot and Hissar Workspaces | — | 0 | 0 | 0 | Structure observed; dedicated role and state review still required. |
+| Project Activity Feed | Reviewed in Fidlot and Hissar Workspaces | — | 0 | 0 | 0 | Structure observed; dedicated role and empty-state review still required. |
+| Returns / Settlement | Reviewed in Fidlot and Hissar Workspaces | — | 0 | 1 | 0 | Returns Ledger currency and unit wording needs normalization. |
+| Reports | Reviewed in Fidlot and Hissar Workspaces | — | 0 | 1 | 0 | “Amount used” fallback wording needs improvement. |
 | Mobile / Responsive | Not Reviewed | — | 0 | 0 | 1 | General spacing polish should follow the complete responsive journey review. |
 | Protection Reserve | Reviewed | — | 0 | 0 | 1 | Strong risk language; detailed content may benefit from progressive disclosure. |
 
@@ -175,12 +178,107 @@ Area status: Not Reviewed
 | --- | --- | --- | --- | --- | --- | --- |
 | UX-GEN-001 | Open | P2 | General spacing polish should follow the complete role and responsive journey review. | Initial desktop screenshot review; responsive evidence pending. | Review spacing as one cross-product pass after all desktop and mobile journeys have been assessed. | Verify representative Landing, Catalog, Workspace, document, activity, report, and Settlement views at supported breakpoints. |
 
+## Hissar Sheep Breeding Project Workspace
+
+Status: Reviewed
+
+Overall score: **9.0 / 10**
+
+### Strengths
+
+- Excellent Project Timeline visualization.
+- Strong Project Workspace structure.
+- Clear Investment Summary.
+- Good Financial Overview.
+- Effective Funding Progress section.
+- Well-organized Project Documents.
+- Useful Project Activity Feed.
+- Good ROI and Returns visualization.
+- Event History improves transparency.
+
+### Recommended Improvements
+
+The review priorities below map to the audit backlog as follows: High and Medium are tracked as
+P1, while Low is tracked as P2.
+
+#### Priority High
+
+- **UX-HIS-001 · Open · P1** — Reduce visual repetition between card sections.
+- **UX-HIS-002 · Open · P1** — Improve page hierarchy between Workspace, Financials, Reports,
+  Documents, and History.
+
+#### Priority Medium
+
+- **UX-HIS-003 · Open · P1** — Replace “Not available” with contextual statuses.
+- **UX-HIS-004 · Open · P1** — Replace generic “Coming Soon” with meaningful future states.
+- **UX-HIS-005 · Open · P1** — Improve empty states, including Returns Ledger and Amount Used.
+- **UX-HIS-006 · Open · P1** — Reduce text density inside informational panels.
+- **UX-HIS-007 · Open · P1** — Add subtle visual distinction between major sections.
+
+#### Priority Low
+
+- **UX-HIS-008 · Open · P2** — Add icons to Event History.
+- **UX-HIS-009 · Open · P2** — Improve readability of long informational blocks.
+
+## Investor Entry / Login
+
+Status: Reviewed
+
+Overall score: **8.7 / 10**
+
+Review perspective: a first-time international Investor who has never used AgriPartners or its
+NEAR Testnet access flow.
+
+### Strengths
+
+- Investor-specific heading and explanatory copy establish the role immediately.
+- The Investor Path clearly names Projects, Investment Models, and Portfolio as the intended
+  product destinations.
+- AgriPartners is identified as Project Operator and counterparty, which reinforces the approved
+  operating model.
+- Alpha, Pilot, and NEAR Testnet context is visible before authentication.
+- Public demo access is distinguished from authenticated Testnet access.
+- NEAR Wallet and admin-provided Platform Account access are visually separated.
+- Create Testnet Wallet, Import Existing Wallet, and the step-by-step guide provide practical
+  onboarding options.
+- Username and password fields use familiar form patterns and appropriate autocomplete values.
+- The narrow layout, responsive wallet-link grid, Back Home link, and role-entry links provide a
+  solid baseline for presentation and mobile adaptation.
+
+### Prioritized Findings
+
+| ID | Status | Priority | Description | Evidence | Recommendation | Verification |
+| --- | --- | --- | --- | --- | --- | --- |
+| UX-ENT-001 | Open | P1 | The Investor Path items “Projects,” “Investment Models,” and “Portfolio” look like selectable destinations but are non-interactive labels, which may weaken CTA clarity. | Current Investor Path section. | Present them explicitly as a post-login preview, or provide one clear destination CTA with secondary navigation that behaves as labeled. | A first-time Investor can correctly identify the primary next action and understands when those destinations become available. |
+| UX-ENT-002 | Open | P1 | The page offers NEAR Wallet and Platform Account access without a concise decision rule explaining which method a new Investor should use. | Wallet block and Platform Account Access block. | Add a short “Choose your access method” explanation: recommended path for new Testnet Investors, path for invited users with credentials, and public-demo path for review-only visitors. | In usability review, a new Investor selects the correct route without external explanation. |
+| UX-ENT-003 | Open | P1 | “Login with NEAR Wallet” is visually prominent, but the trust explanation does not state what the wallet interaction requests, whether funds or gas are needed, or what signing in proves. | NEAR Wallet CTA and New to AgriPartners information. | Add plain-language wallet trust copy covering authentication purpose, Testnet-only scope, expected signature/redirect, cost expectations, and what AgriPartners does not access. | Wallet onboarding copy answers purpose, scope, cost, and security questions before the Investor leaves AgriPartners. |
+| UX-ENT-004 | Open | P1 | Investors without an admin-provided account have no visible way to request access or contact AgriPartners from the login form. | Platform Account Access information. | Add an approved support or access-request path and explain eligibility or invitation expectations without implying automatic investment access. | A user without credentials can identify the correct support or onboarding next step. |
+| UX-ENT-005 | Open | P1 | Important accessibility semantics are incomplete: Username and Password labels are not explicitly associated with inputs, the password visibility control uses an unlabeled icon, and login errors do not expose an obvious live-region announcement. | Username/Password form, password toggle, and login error container. | Associate labels and controls, provide an accessible password-toggle name and state, and announce authentication errors appropriately. | Keyboard and screen-reader review confirms named controls, visible focus, understandable toggle state, and announced errors. |
+| UX-ENT-006 | Open | P1 | The flow does not clearly preview what happens after wallet authentication or Platform Account sign-in. | Step-by-step guide and both login methods. | State the next screen and likely next step, such as profile creation, assigned Projects, or Investor Dashboard, including what happens when no Project is assigned. | The Investor can describe the expected post-login outcome before authenticating. |
+| UX-ENT-007 | Open | P2 | The mix of Alpha, Pilot Entry, NEAR Testnet, “live testnet portal,” profile creation, and Platform Account terminology creates a high cognitive load for an international first-time user. | Header, environment banner, onboarding copy, and guide. | Standardize terminology and add one short glossary-style explanation for unavoidable Alpha/Testnet terms. | Entry copy uses consistent terms and can be understood without prior NEAR knowledge. |
+| UX-ENT-008 | Open | P2 | The page stacks role context, environment context, Investor Path, new-user guidance, wallet actions, a guide, and credential login in one narrow column, creating visual density and repeated explanation. | Complete Investor Entry/Login page hierarchy. | Strengthen grouping and progressive disclosure so the recommended first action remains dominant while help and alternate access remain easy to find. | Desktop and mobile reviews show a clear primary CTA, secondary path, and help path without excessive scrolling or repeated copy. |
+| UX-ENT-009 | Open | P2 | Create and Import Wallet actions open an external service without explaining the new-tab transition or how the Investor returns to finish login. | Create Testnet Wallet, Import Existing Wallet, and step-by-step guide. | Label the external Testnet wallet destination, mention that it opens in a new tab, and repeat the return-to-login step near both links. | A first-time user completes wallet setup and returns to AgriPartners without losing the onboarding sequence. |
+
+### Summary
+
+The Investor Entry / Login experience is visually consistent with the previously reviewed Alpha
+pages and is structurally suitable for a guided demonstration. It communicates role, operator,
+counterparty, Alpha, and Testnet boundaries better than a generic authentication screen.
+
+The primary conversion risk is not visual quality; it is path selection. A first-time
+international Investor must quickly understand whether to explore the public demo, authenticate
+with a Testnet wallet, create or import a wallet, or use credentials supplied by AgriPartners.
+Clarifying that decision, strengthening wallet trust language, adding an access/support path,
+previewing the post-login destination, and closing accessibility gaps would materially improve
+Investor confidence and self-service onboarding. No P0 blocker was identified in this
+documentation-only review.
+
 ## 6. Open Backlog
 
 ### P0
 
-None currently identified from the Landing, Opportunity Catalog, and Fidlot Investor Workspace
-review.
+None currently identified from the Landing, Opportunity Catalog, Fidlot Investor Workspace, and
+Hissar active Project Workspace reviews or the Investor Entry / Login review.
 
 ### P1
 
@@ -191,6 +289,25 @@ review.
 - [UX-INV-002](#53-investor-project-workspace--fidlot) — improve completion-date wording.
 - [UX-RPT-001](#54-reports) — improve “Amount used” wording.
 - [UX-RET-001](#55-returns--settlement) — normalize Returns Ledger currency and unit wording.
+- [UX-HIS-001](#hissar-sheep-breeding-project-workspace) — reduce visual repetition between
+  card sections.
+- [UX-HIS-002](#hissar-sheep-breeding-project-workspace) — improve major-section hierarchy.
+- [UX-HIS-003](#hissar-sheep-breeding-project-workspace) — replace “Not available” with
+  contextual statuses.
+- [UX-HIS-004](#hissar-sheep-breeding-project-workspace) — replace generic “Coming Soon” with
+  meaningful future states.
+- [UX-HIS-005](#hissar-sheep-breeding-project-workspace) — improve empty states.
+- [UX-HIS-006](#hissar-sheep-breeding-project-workspace) — reduce informational-panel text
+  density.
+- [UX-HIS-007](#hissar-sheep-breeding-project-workspace) — distinguish major sections
+  visually.
+- [UX-ENT-001](#investor-entry--login) — clarify whether Investor Path items are previews or
+  actionable destinations.
+- [UX-ENT-002](#investor-entry--login) — explain which access method each Investor should use.
+- [UX-ENT-003](#investor-entry--login) — strengthen NEAR Wallet trust and scope explanations.
+- [UX-ENT-004](#investor-entry--login) — provide an approved support or access-request path.
+- [UX-ENT-005](#investor-entry--login) — improve form, password-toggle, and error accessibility.
+- [UX-ENT-006](#investor-entry--login) — explain the expected post-login destination and state.
 
 ### P2
 
@@ -199,6 +316,11 @@ review.
   Protection Reserve detail.
 - [UX-GEN-001](#57-mobile--responsive) — complete general spacing polish after the full
   user-journey and responsive review.
+- [UX-HIS-008](#hissar-sheep-breeding-project-workspace) — add icons to Event History.
+- [UX-HIS-009](#hissar-sheep-breeding-project-workspace) — improve long-block readability.
+- [UX-ENT-007](#investor-entry--login) — simplify and standardize Alpha/Testnet terminology.
+- [UX-ENT-008](#investor-entry--login) — reduce entry-page density and repeated explanation.
+- [UX-ENT-009](#investor-entry--login) — clarify external wallet transitions and return steps.
 
 ## 7. Review Log
 
@@ -207,6 +329,8 @@ review.
 | 2026-07-04 | Landing | Vercel screenshots | Reviewed; score 9.3–9.5/10; two P1 and one P2 findings logged. |
 | 2026-07-04 | Opportunity Catalog | Vercel screenshots | Reviewed; score 9.6/10; no P0 findings identified. |
 | 2026-07-04 | Fidlot Investor Project Workspace | Vercel screenshots | Reviewed; score 9.8/10; Workspace, Reports, Returns, and Protection findings logged. |
+| 2026-07-04 | Hissar Sheep Breeding Project Workspace | Alpha Workspace review | Reviewed; score 9.0/10; seven P1 and two P2 findings logged. |
+| 2026-07-04 | Investor Entry / Login | Current Alpha walkthrough and rendered-content review | Reviewed from a first-time international Investor perspective; score 8.7/10; six P1 and three P2 findings logged; no P0 blocker identified. |
 
 Future entries should record the date, product area, evidence source, and resulting finding or
 status changes. Existing entries should not be deleted when a finding is fixed; append a new
@@ -214,8 +338,7 @@ verification entry and update the finding status.
 
 ## 8. Next Review Steps
 
-1. Review the Hissar active Project Workspace.
-2. Review the Investor Pilot Entry and dashboard.
-3. Review the Farmer Journey.
-4. Review the Operator Journey.
-5. Review mobile and responsive views.
+1. Review the Investor Dashboard.
+2. Review the Farmer Journey.
+3. Review the Operator Journey.
+4. Review mobile and responsive views.

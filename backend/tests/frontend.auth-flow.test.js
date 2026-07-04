@@ -62,6 +62,26 @@ test('login screen presents NEAR wallet before platform account access', () => {
   expect(walletIndex).toBeLessThan(platformIndex);
 });
 
+test('investor login presents static access previews and a dashboard-specific wallet CTA', () => {
+  const summaryStart = appJs.indexOf('function renderRoleEntrySummary');
+  const summaryEnd = appJs.indexOf('function showHome()', summaryStart);
+  const summaryBody = appJs.slice(summaryStart, summaryEnd);
+  const loginStart = appJs.indexOf('function showLogin()');
+  const loginBody = appJs.slice(loginStart, loginStart + 9000);
+  const walletHandlerStart = appJs.indexOf('async function handleWalletLogin()');
+  const walletHandlerBody = appJs.slice(walletHandlerStart, walletHandlerStart + 1800);
+
+  expect(summaryBody).toContain("role === 'investor' && options.loginPreview === true");
+  expect(summaryBody).toContain('After signing in, you can access:');
+  expect(summaryBody).toContain('role="listitem"');
+  expect(summaryBody).toContain('cursor-default select-none');
+  expect(summaryBody).not.toContain('<button');
+  expect(summaryBody).not.toContain('<a ');
+  expect(loginBody).toContain("renderRoleEntrySummary(entryRole, { loginPreview: entryRole === 'investor' })");
+  expect(loginBody).toContain('Continue with NEAR Wallet to Investor Dashboard');
+  expect(walletHandlerBody).toContain("btn.dataset.defaultLabel || 'Login with NEAR Wallet'");
+});
+
 test('role-specific login entries preserve generic auth and keep Farmer access non-wallet-first', () => {
   const routeStart = appJs.indexOf('function route()');
   const routeBody = appJs.slice(routeStart, routeStart + 5200);

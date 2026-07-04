@@ -1401,7 +1401,7 @@ function renderEnvironmentBanner(mode, roleLabel) {
   `;
 }
 
-function renderRoleEntrySummary(role) {
+function renderRoleEntrySummary(role, options = {}) {
   const roleConfig = {
     investor: {
       title: 'Investor path',
@@ -1421,12 +1421,15 @@ function renderRoleEntrySummary(role) {
   };
   const config = roleConfig[role];
   if (!config) return '';
+  const isInvestorLoginPreview = role === 'investor' && options.loginPreview === true;
   return `
-    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 mb-6" data-role-entry="${escapeHtml(role)}">
-      <h2 class="text-sm font-semibold text-slate-100">${escapeHtml(config.title)}</h2>
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 mb-6" data-role-entry="${escapeHtml(role)}"${isInvestorLoginPreview ? ' aria-label="Investor access preview"' : ''}>
+      <h2 class="${isInvestorLoginPreview ? 'text-base' : 'text-sm'} font-semibold text-slate-100">${isInvestorLoginPreview ? 'After signing in, you can access:' : escapeHtml(config.title)}</h2>
       <p class="text-xs text-slate-400 mt-1">${escapeHtml(config.description)}</p>
-      <div class="flex flex-wrap gap-2 mt-3">
-        ${config.items.map(item => `<span class="text-xs bg-slate-900 border border-slate-700 text-slate-200 rounded px-2 py-1">${escapeHtml(item)}</span>`).join('')}
+      <div class="flex flex-wrap gap-2 mt-3"${isInvestorLoginPreview ? ' role="list" aria-label="Available after sign-in"' : ''}>
+        ${config.items.map(item => isInvestorLoginPreview
+          ? `<span role="listitem" class="inline-flex items-center gap-2 text-sm bg-slate-950/60 border border-slate-600 text-slate-200 rounded-lg px-3 py-2 cursor-default select-none"><span class="h-1.5 w-1.5 rounded-full bg-green-400" aria-hidden="true"></span>${escapeHtml(item)}</span>`
+          : `<span class="text-xs bg-slate-900 border border-slate-700 text-slate-200 rounded px-2 py-1">${escapeHtml(item)}</span>`).join('')}
       </div>
     </section>
   `;
@@ -1754,7 +1757,7 @@ function showLogin() {
       <p class="text-slate-400 mt-1">${escapeHtml(entryConfig.description)}</p>
     </div>
     ${entryRole ? renderEnvironmentBanner('pilot', entryConfig.title) : ''}
-    ${entryRole ? renderRoleEntrySummary(entryRole) : ''}
+    ${entryRole ? renderRoleEntrySummary(entryRole, { loginPreview: entryRole === 'investor' }) : ''}
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
       ${showWalletAccess ? `
       <div class="bg-slate-900 border border-green-900 rounded-lg p-4 space-y-3">
@@ -1767,8 +1770,9 @@ function showLogin() {
           ${entryRole === 'investor' ? '<p class="text-sm text-slate-400 mt-2">NEAR/Testnet is AgriPartners infrastructure and does not create a direct Investor-to-Farmer relationship.</p>' : ''}
         </div>
         <button type="button" id="login-near-wallet"
+          data-default-label="${entryRole === 'investor' ? 'Continue with NEAR Wallet to Investor Dashboard' : 'Login with NEAR Wallet'}"
           class="w-full bg-slate-100 hover:bg-white text-slate-950 py-2 rounded-lg font-medium transition">
-          Login with NEAR Wallet
+          ${entryRole === 'investor' ? 'Continue with NEAR Wallet to Investor Dashboard' : 'Login with NEAR Wallet'}
         </button>
         <details class="rounded-lg border border-slate-700 bg-slate-950/50 p-3">
           <summary class="cursor-pointer text-sm font-semibold text-green-300">
@@ -1777,7 +1781,7 @@ function showLogin() {
           <ol class="mt-3 space-y-2 text-sm text-slate-300">
             <li><span class="font-semibold text-green-300">1.</span> Explore the public demo pages first if you only want to review the project.</li>
             <li><span class="font-semibold text-green-300">2.</span> Create or import a NEAR testnet wallet if you want to join the live testnet portal.</li>
-            <li><span class="font-semibold text-green-300">3.</span> Return here, click Login with NEAR Wallet, then create an Investor or operator profile.</li>
+            <li><span class="font-semibold text-green-300">3.</span> Return here, continue with NEAR Wallet, then create an Investor or operator profile.</li>
           </ol>
         </details>
         <div class="grid gap-2 sm:grid-cols-2">
@@ -1917,7 +1921,7 @@ async function handleWalletLogin() {
     }
     if (btn) {
       btn.disabled = false;
-      btn.textContent = 'Login with NEAR Wallet';
+      btn.textContent = btn.dataset.defaultLabel || 'Login with NEAR Wallet';
     }
     if (homeBtn) {
       homeBtn.disabled = false;

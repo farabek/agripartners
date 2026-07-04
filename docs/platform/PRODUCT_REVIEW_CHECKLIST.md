@@ -20,13 +20,20 @@ that every finding for that area has been fixed.
 
 ## 2. Review Progress
 
+**Progress:** 5 of 14 review sections completed (**36%**)
+
+**Estimated remaining:** 9 review sections
+
+**Next Review:** → **Investor Dashboard**
+
 | Area | Status | Reviewer | Notes |
 | --- | --- | --- | --- |
 | Landing | ✓ Reviewed | Product Review | Reviewed from Alpha/Vercel screenshots. Findings are recorded in the UX/UI Audit Log. |
 | Opportunity Catalog | ✓ Reviewed | Product Review | Catalog positioning, Project cards, status, funding, ROI, and primary action reviewed. |
-| Feedlot Project Workspace | ✓ Reviewed | Product Review | Investor Workspace flow and supporting sections reviewed. |
-| Hissar Project Workspace | Pending | — | Review the active Project state and incomplete lifecycle. |
-| Investor Dashboard | Pending | — | Review entry points, priorities, navigation, and unavailable states. |
+| Feedlot Workspace | ✓ Reviewed | Product Review | Investor Workspace flow and supporting sections reviewed. |
+| Hissar Active Workspace | ✓ Reviewed | Product Review | Active Project state, lifecycle, financials, documents, activity, returns, and history reviewed. |
+| Investor Entry / Login | ✓ Reviewed | Product Review | Reviewed from a first-time international Investor perspective; findings recorded in the UX/UI Audit Log. |
+| Investor Dashboard | → Next Review | — | Review entry points, priorities, navigation, and unavailable states. |
 | Investor Portfolio | Pending | — | Review aggregation, financial semantics, and routes into Project Workspaces. |
 | Farmer Dashboard | Pending | — | Review Farmer priorities, fiat-only language, and Project entry points. |
 | Farmer Workspace | Pending | — | Review funding confirmation, Production Cycles, reports, actions, and role visibility. |
