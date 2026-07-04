@@ -956,8 +956,18 @@ test('investor detail renders project profile before technical deal data', () =>
 });
 
 test('investor home dashboard renders MVP metrics and preserves its sections', () => {
+  const portalStart = appJs.indexOf('async function showInvestorPortal');
+  const portalEnd = appJs.indexOf('function renderNearWalletSection', portalStart);
+  const portalSource = appJs.slice(portalStart, portalEnd);
+
   expect(appJs).toContain('function investorMetrics');
-  expect(appJs).toContain('Investor Portfolio');
+  expect(portalSource).not.toContain("renderEnvironmentBanner('pilot', 'Investor')");
+  expect(portalSource).not.toContain("renderRoleEntrySummary('investor')");
+  expect(portalSource).not.toContain('Pilot 1.0 Preparation');
+  expect(portalSource).not.toContain('Investor path');
+  expect(portalSource).toContain('Investor Portfolio');
+  expect(portalSource).toContain('id="near-wallet-section"');
+  expect(portalSource).toContain('renderNearWalletSection()');
   expect(appJs).toContain('Review your AgriPartners-managed Projects, Investment Models, approved Project progress, Reports, and Settlement / Returns visibility.');
   expect(appJs).toContain('Portfolio Summary');
   expect(appJs).toContain('Projected Total Payout');

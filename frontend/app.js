@@ -5633,8 +5633,6 @@ async function showInvestorPortal() {
   const signedInLabel = connectedWalletAccount || auth.user.username;
   el.innerHTML = `
     ${renderNav()}
-    ${renderEnvironmentBanner('pilot', 'Investor')}
-    ${renderRoleEntrySummary('investor')}
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-green-400 mb-1">Investor Portfolio</h1>
       <p class="text-slate-400">Review your AgriPartners-managed Projects, Investment Models, approved Project progress, Reports, and Settlement / Returns visibility.</p>
