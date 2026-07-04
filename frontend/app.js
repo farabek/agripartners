@@ -3049,6 +3049,195 @@ function projectWorkspaceRoleDetails({ role, deal, currentIndex, timelineStages,
   ];
 }
 
+function projectFinancialAmount(deal = {}, fields = []) {
+  const value = projectWorkspaceValue(...fields.map(field => deal[field]));
+  if (value == null) return 'Not available';
+  if (/[$€£]|\b(?:USD|EUR|NEAR|UZS)\b/i.test(value)) return value;
+  return `${value} NEAR`;
+}
+
+function projectFinancialFundingStatus(deal = {}, status = null) {
+  const explicit = projectWorkspaceValue(deal.fundingStatus, deal.funding_status);
+  if (explicit) return explicit;
+  const projectStatus = projectWorkspaceStatus(deal, status) || '';
+  if (/funded|active|cycle|production|reports|settlement|settled|completed/i.test(projectStatus)) {
+    return 'Funding Confirmed';
+  }
+  if (/funding|approved/i.test(projectStatus)) return 'Funding Pending';
+  return 'Not available';
+}
+
+function projectFinancialFarmerConfirmation(deal = {}, cycles = []) {
+  const explicit = projectWorkspaceValue(
+    deal.farmerFundingConfirmation,
+    deal.farmer_funding_confirmation
+  );
+  if (explicit) return explicit;
+  if (deal.farmerConfirmed === true
+    || deal.farmer_confirmed === true
+    || deal.funding_received_at != null
+    || cycles.some(cycle => cycle?.fundingReceived === true || cycle?.funding_received_at != null)) {
+    return 'Confirmed';
+  }
+  if (deal.farmerConfirmed === false
+    || deal.farmer_confirmed === false
+    || cycles.some(cycle => cycle?.fundingReceived === false)) {
+    return 'Pending';
+  }
+  const fundingStatus = projectWorkspaceValue(deal.fundingStatus, deal.funding_status) || '';
+  return /confirmed|received/i.test(fundingStatus) ? 'Confirmed' : 'Not available';
+}
+
+function projectFinancialPendingReports(deal = {}, cycles = [], reports = []) {
+  const pendingPattern = /due|pending|submitted|under review|changes required|correction/i;
+  const pendingReports = reports.filter(report => pendingPattern.test(
+    projectWorkspaceValue(report?.status, report?.reportStatus, report?.report_status) || ''
+  ));
+  const pendingCycles = cycles.filter(cycle => pendingPattern.test(
+    projectWorkspaceValue(cycle?.reportStatus, cycle?.report_status) || ''
+  ));
+  const explicitStatus = projectWorkspaceValue(deal.reportStatus, deal.report_status) || '';
+  const count = pendingReports.length || pendingCycles.length || (pendingPattern.test(explicitStatus) ? 1 : 0);
+  if (count) return `${count} pending report${count === 1 ? '' : 's'}`;
+  const hasReportData = reports.length > 0 || cycles.some(cycle => (
+    cycle?.report != null || cycle?.reportStatus != null || cycle?.report_status != null
+  )) || explicitStatus !== '';
+  return hasReportData ? 'No pending reports' : 'Not available';
+}
+
+function projectFinancialSettlementStatus(deal = {}, returns = []) {
+  const explicit = projectWorkspaceValue(
+    deal.settlementStatus,
+    deal.settlement_status,
+    deal.returnStatus,
+    deal.return_status
+  );
+  const latestReturn = returns.length ? returns[returns.length - 1] : null;
+  const raw = explicit || projectWorkspaceValue(
+    latestReturn?.settlement_status,
+    latestReturn?.payment_status,
+    latestReturn?.status
+  );
+  if (!raw) return 'Not available';
+  const labels = {
+    no_returns: 'No returns recorded',
+    partial: 'Partially settled',
+    completed: 'Completed',
+    recorded: 'Return recorded',
+    approved: 'Approved',
+    paid: 'Paid',
+    reconciled: 'Reconciled',
+  };
+  return labels[raw.toLowerCase()] || raw;
+}
+
+function projectFinancialOverviewItems({
+  role,
+  deal,
+  status,
+  cycles,
+  reports,
+  returns,
+  currentStage,
+  currentCycle,
+}) {
+  const fundingStatus = projectFinancialFundingStatus(deal, status);
+  if (role === 'farmer') {
+    return [
+      ['Funding Status', fundingStatus],
+      ['Current Production Cycle', currentCycle],
+      ['Project Budget', projectFinancialAmount(deal, [
+        'display_project_budget', 'projectBudget', 'project_budget', 'budget',
+      ])],
+      ['Next Required Action', projectWorkspaceFarmerAction(
+        deal,
+        projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns }),
+        cycles,
+        reports
+      )],
+    ];
+  }
+  if (role === 'operator') {
+    return [
+      ['Investment Amount', projectFinancialAmount(deal, [
+        'display_amount', 'displayAmount', 'funding', 'investmentAmount', 'investment_amount', 'invested_amount', 'amount',
+      ])],
+      ['Funding Status', fundingStatus],
+      ['Farmer Funding Confirmation', projectFinancialFarmerConfirmation(deal, cycles)],
+      ['Current Cycle', currentCycle],
+      ['Pending Reports', projectFinancialPendingReports(deal, cycles, reports)],
+      ['Settlement Status', projectFinancialSettlementStatus(deal, returns)],
+      ['Operational Attention', projectWorkspaceOperatorAttention(deal)],
+    ];
+  }
+  const projectedRoi = projectWorkspaceValue(
+    deal.projectedRoi,
+    deal.projected_roi_pct,
+    deal.roi_percent,
+    deal.roi
+  );
+  return [
+    ['Investment Amount', projectFinancialAmount(deal, [
+      'display_amount', 'displayAmount', 'investmentAmount', 'investment_amount', 'invested_amount', 'amount',
+    ])],
+    ['Funding Status', fundingStatus],
+    ['Current Project Stage', currentStage],
+    ['Current Production Cycle', currentCycle],
+    ['Projected ROI', projectedRoi == null
+      ? 'Not available'
+      : (projectedRoi.includes('%') ? projectedRoi : `${projectedRoi}%`)],
+    ['Projected Return', projectFinancialAmount(deal, [
+      'display_expected_return', 'displayExpectedReturn', 'projectedTotalPayout', 'expected_return',
+    ])],
+    ['Settlement Status', projectFinancialSettlementStatus(deal, returns)],
+  ];
+}
+
+function renderProjectFinancialOverview({
+  deal = {},
+  status = null,
+  cycles = [],
+  reports = [],
+  returns = [],
+  role = 'investor',
+  currentStage = null,
+  currentCycle = null,
+} = {}) {
+  const visibleRole = role === 'farmer' || role === 'operator' ? role : 'investor';
+  const stageIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
+  const timelineStages = ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed'];
+  const resolvedStage = currentStage || (stageIndex < 0 ? 'Stage unavailable' : timelineStages[stageIndex]);
+  const resolvedCycle = currentCycle || projectWorkspaceCurrentCycle(deal, status, cycles);
+  const items = projectFinancialOverviewItems({
+    role: visibleRole,
+    deal,
+    status,
+    cycles,
+    reports,
+    returns,
+    currentStage: resolvedStage,
+    currentCycle: resolvedCycle,
+  });
+  return `
+    <section data-project-financial-overview data-financial-role="${escapeHtml(visibleRole)}" class="mt-5 pt-5 border-t border-slate-700">
+      <div class="flex flex-wrap items-end justify-between gap-2 mb-3">
+        <div>
+          <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Project Financial Overview</h2>
+          <p class="text-xs text-slate-500 mt-1">Current Project data for this workspace role.</p>
+        </div>
+      </div>
+      <dl class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        ${items.map(([label, value]) => `
+          <div class="bg-slate-900 border border-slate-700 rounded-lg p-3" data-financial-field="${escapeHtml(label)}">
+            <dt class="text-xs text-slate-500">${escapeHtml(label)}</dt>
+            <dd class="text-sm font-semibold text-slate-100 mt-1 break-words">${escapeHtml(value)}</dd>
+          </div>
+        `).join('')}
+      </dl>
+    </section>
+  `;
+}
+
 function renderProjectWorkspaceHeader({
   deal = {},
   status = null,
@@ -3143,6 +3332,16 @@ function renderProjectWorkspaceHeader({
           `).join('')}
         </dl>
       </div>
+      ${renderProjectFinancialOverview({
+        deal,
+        status,
+        cycles,
+        reports,
+        returns,
+        role,
+        currentStage: currentIndex < 0 ? 'Stage unavailable' : timelineStages[currentIndex],
+        currentCycle,
+      })}
     </section>
   `;
 }

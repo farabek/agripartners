@@ -26,6 +26,8 @@ function loadProjectWorkspaceHeaderHelpers() {
       projectWorkspaceCurrentCycle,
       projectWorkspaceNextMilestone,
       projectWorkspaceRoleDetails,
+      projectFinancialOverviewItems,
+      renderProjectFinancialOverview,
       renderProjectWorkspaceHeader,
     };
   `;
@@ -181,6 +183,106 @@ test('shared Project Workspace Header is view-only for every role', () => {
   expect(html).toContain('Feedlot Pilot 001');
   expect(html).toContain('Feedlot Livestock');
   expect(html).not.toMatch(/<(button|input|select|textarea)\b/);
+});
+
+test('Investor Project Financial Overview displays the required financial fields', () => {
+  const { renderProjectFinancialOverview } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectFinancialOverview({
+    role: 'investor',
+    deal: {
+      display_amount: '$75,000',
+      fundingStatus: 'Funding Confirmed',
+      projected_roi_pct: 18.5,
+      display_expected_return: '$88,875',
+      returnStatus: 'partial',
+      status: 'Active',
+      currentCycle: 2,
+    },
+  });
+
+  expect(html).toContain('data-financial-role="investor"');
+  for (const field of [
+    'Investment Amount',
+    'Funding Status',
+    'Current Project Stage',
+    'Current Production Cycle',
+    'Projected ROI',
+    'Projected Return',
+    'Settlement Status',
+  ]) {
+    expect(html).toContain(`data-financial-field="${field}"`);
+  }
+  expect(html).toContain('$75,000');
+  expect(html).toContain('18.5%');
+  expect(html).toContain('$88,875');
+  expect(html).toContain('Partially settled');
+});
+
+test('Farmer Project Financial Overview hides investor metrics and uses a budget placeholder', () => {
+  const { renderProjectFinancialOverview } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectFinancialOverview({
+    role: 'farmer',
+    deal: {
+      fundingStatus: 'Funding Confirmed',
+      projected_roi_pct: 18.5,
+      expected_return: 88875,
+      status: 'Active',
+      currentCycle: 1,
+    },
+  });
+
+  expect(html).toContain('data-financial-role="farmer"');
+  expect(html).toContain('Funding Status');
+  expect(html).toContain('Current Production Cycle');
+  expect(html).toContain('Project Budget');
+  expect(html).toContain('Not available');
+  expect(html).toContain('Next Required Action');
+  expect(html).not.toContain('Projected ROI');
+  expect(html).not.toContain('Projected Return');
+  expect(html).not.toContain('Investment Amount');
+  expect(html).not.toContain('APR');
+});
+
+test('Operator Project Financial Overview displays operational finance and attention fields', () => {
+  const { renderProjectFinancialOverview } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectFinancialOverview({
+    role: 'operator',
+    deal: {
+      funding: '$80,000',
+      fundingStatus: 'Funding Confirmed',
+      returnStatus: 'recorded',
+      attention_items: ['Late evidence'],
+      status: 'CycleActive',
+      currentCycle: 3,
+    },
+    cycles: [{ fundingReceived: true, reportStatus: 'due' }],
+  });
+
+  expect(html).toContain('data-financial-role="operator"');
+  for (const field of [
+    'Investment Amount',
+    'Funding Status',
+    'Farmer Funding Confirmation',
+    'Current Cycle',
+    'Pending Reports',
+    'Settlement Status',
+    'Operational Attention',
+  ]) {
+    expect(html).toContain(`data-financial-field="${field}"`);
+  }
+  expect(html).toContain('1 pending report');
+  expect(html).toContain('1 attention item');
+  expect(html).not.toContain('Projected ROI');
+});
+
+test('Project Financial Overview is responsive, read-only and included in the shared workspace', () => {
+  const { renderProjectFinancialOverview, renderProjectWorkspaceHeader } = loadProjectWorkspaceHeaderHelpers();
+  const overview = renderProjectFinancialOverview();
+  const workspace = renderProjectWorkspaceHeader();
+
+  expect(overview).toContain('sm:grid-cols-2 lg:grid-cols-4');
+  expect(overview).not.toMatch(/<(button|input|select|textarea)\b/);
+  expect(workspace).toContain('data-project-financial-overview');
 });
 
 test('all Admin, Farmer and Investor project detail variants use the shared header', () => {
