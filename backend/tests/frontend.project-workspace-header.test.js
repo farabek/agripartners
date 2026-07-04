@@ -30,6 +30,8 @@ function loadProjectWorkspaceHeaderHelpers() {
       renderProjectFinancialOverview,
       projectActivityItems,
       renderProjectActivityFeed,
+      projectDocumentCatalog,
+      renderProjectDocuments,
       renderProjectWorkspaceHeader,
     };
   `;
@@ -176,7 +178,7 @@ test('shared Project Workspace Header reuses Farmer names, profiles and account 
   expect(escapedHtml).not.toContain('<farmer.testnet>');
 });
 
-test('shared Project Workspace Header is view-only for every role', () => {
+test('shared Project Workspace Header has no editable controls', () => {
   const { renderProjectWorkspaceHeader } = loadProjectWorkspaceHeaderHelpers();
   const html = renderProjectWorkspaceHeader({
     deal: { title: 'Feedlot Pilot 001', deal_type: 'Feedlot Livestock', status: 'Funding' },
@@ -184,7 +186,8 @@ test('shared Project Workspace Header is view-only for every role', () => {
 
   expect(html).toContain('Feedlot Pilot 001');
   expect(html).toContain('Feedlot Livestock');
-  expect(html).not.toMatch(/<(button|input|select|textarea)\b/);
+  expect(html).not.toMatch(/<(form|input|select|textarea)\b/);
+  expect(html.match(/<button\b[^>]*>/g).every(button => button.includes('disabled'))).toBe(true);
 });
 
 test('Investor Project Financial Overview displays the required financial fields', () => {
@@ -386,6 +389,113 @@ test('Project Activity Feed is responsive and included below the shared Financia
   expect(workspace).toContain('data-project-activity-feed');
   expect(workspace.indexOf('data-project-financial-overview'))
     .toBeLessThan(workspace.indexOf('data-project-activity-feed'));
+});
+
+test('Investor Project Documents displays investor documents and hides farmer-only documents', () => {
+  const { renderProjectDocuments } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectDocuments({
+    role: 'investor',
+    deal: { pilot_key: 'fidlot' },
+    reports: [{ status: 'approved', document_url: '/reports/approved-1.pdf' }],
+  });
+
+  for (const title of [
+    'Project Overview',
+    'Investment Summary',
+    'Financial Overview',
+    'Approved Farmer Reports',
+    'Legal Documents',
+  ]) {
+    expect(html).toContain(`data-document-title="${title}"`);
+  }
+  expect(html).toContain('Agri-Investor-Fidlot-v5.9-6040-EN.pdf');
+  expect(html).toContain('Download');
+  expect(html).not.toContain('Farmer Agreement');
+  expect(html).not.toContain('Submitted Reports');
+  expect(html).not.toContain('Internal Project Notes');
+});
+
+test('Farmer Project Documents displays farmer documents without investor-only documents', () => {
+  const { renderProjectDocuments } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectDocuments({
+    role: 'farmer',
+    cycles: [{
+      id: 1,
+      reportStatus: 'submitted',
+      report: { title: 'Cycle report', submittedAt: '2026-07-04T09:00:00Z' },
+    }],
+  });
+
+  for (const title of [
+    'Project Overview',
+    'Farmer Agreement',
+    'Submitted Reports',
+    'Operating Instructions',
+  ]) {
+    expect(html).toContain(`data-document-title="${title}"`);
+  }
+  expect(html).toContain('1 submitted Project Report available.');
+  expect(html).not.toContain('Investment Summary');
+  expect(html).not.toContain('Financial Overview');
+  expect(html).not.toContain('Approved Farmer Reports');
+  expect(html).not.toContain('Legal Documents');
+});
+
+test('Operator Project Documents displays investor, farmer and internal document groups', () => {
+  const { renderProjectDocuments } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectDocuments({
+    role: 'operator',
+    deal: { pilot_key: 'hissar' },
+  });
+
+  for (const title of [
+    'Project Overview',
+    'Investment Summary',
+    'Financial Overview',
+    'Approved Farmer Reports',
+    'Legal Documents',
+    'Farmer Agreement',
+    'Submitted Reports',
+    'Operating Instructions',
+    'Internal Project Notes',
+    'Compliance Documents',
+    'Settlement Documents',
+  ]) {
+    expect(html).toContain(`data-document-title="${title}"`);
+  }
+});
+
+test('Project Documents clearly marks restricted and unavailable documents', () => {
+  const { renderProjectDocuments } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectDocuments({ role: 'farmer' });
+
+  expect(html).toContain('data-document-title="Farmer Agreement" data-document-status="Restricted"');
+  expect(html).toContain('data-document-title="Operating Instructions" data-document-status="Coming Soon"');
+  expect(html).toContain('disabled');
+  expect(html).toContain('Coming Soon');
+  expect(html).toContain('data-document-status="Available"');
+});
+
+test('Project Documents supports an empty state', () => {
+  const { renderProjectDocuments } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectDocuments({ documents: [] });
+
+  expect(html).toContain('data-documents-empty');
+  expect(html).toContain('No Project documents available');
+  expect(html).not.toContain('<article');
+});
+
+test('Project Documents is responsive and is the final shared Workspace block', () => {
+  const { renderProjectDocuments, renderProjectWorkspaceHeader } = loadProjectWorkspaceHeaderHelpers();
+  const documents = renderProjectDocuments();
+  const workspace = renderProjectWorkspaceHeader();
+
+  expect(documents).toContain('sm:grid-cols-2 xl:grid-cols-3');
+  expect(documents).toContain('w-full sm:w-auto');
+  expect(workspace).toContain('data-project-documents');
+  expect(workspace.indexOf('data-project-activity-feed'))
+    .toBeLessThan(workspace.indexOf('data-project-documents'));
+  expect(workspace.indexOf('data-project-documents')).toBeLessThan(workspace.lastIndexOf('</section>'));
 });
 
 test('all Admin, Farmer and Investor project detail variants use the shared header', () => {

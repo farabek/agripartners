@@ -3219,7 +3219,7 @@ function renderProjectFinancialOverview({
     currentCycle: resolvedCycle,
   });
   return `
-    <section data-project-financial-overview data-financial-role="${escapeHtml(visibleRole)}" class="mt-5 pt-5 border-t border-slate-700">
+    <section id="project-financial-overview" data-project-financial-overview data-financial-role="${escapeHtml(visibleRole)}" class="mt-5 pt-5 border-t border-slate-700">
       <div class="flex flex-wrap items-end justify-between gap-2 mb-3">
         <div>
           <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Project Financial Overview</h2>
@@ -3584,7 +3584,7 @@ function renderProjectActivityFeed({
     Internal: 'border-purple-800 bg-purple-950 text-purple-200',
   };
   return `
-    <section data-project-activity-feed data-activity-role="${escapeHtml(visibleRole)}" class="mt-5 pt-5 border-t border-slate-700">
+    <section id="project-activity-feed" data-project-activity-feed data-activity-role="${escapeHtml(visibleRole)}" class="mt-5 pt-5 border-t border-slate-700">
       <div class="flex flex-wrap items-end justify-between gap-2">
         <div>
           <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Project Activity Feed</h2>
@@ -3623,6 +3623,304 @@ function renderProjectActivityFeed({
         <div data-activity-empty class="bg-slate-900 border border-dashed border-slate-700 rounded-lg px-4 py-6 mt-4 text-center">
           <p class="text-sm font-medium text-slate-300">No Project activity yet</p>
           <p class="text-xs text-slate-500 mt-1">Milestones, reports, and workflow updates will appear here.</p>
+        </div>
+      `}
+    </section>
+  `;
+}
+
+function projectDocumentSafeUrl(value) {
+  const url = projectWorkspaceValue(value);
+  if (!url) return null;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(url) && !/^https?:/i.test(url)) return null;
+  return url;
+}
+
+function projectDocumentModelAsset(deal = {}, audience = 'investor') {
+  const projectKey = projectWorkspaceValue(
+    deal.pilot_key,
+    deal.investment_model,
+    deal.investment_model_name,
+    deal.deal_type,
+    deal.title
+  ) || '';
+  const model = /fidlot/i.test(projectKey)
+    ? 'Fidlot-v5.9-6040'
+    : (/hissar|variantb/i.test(projectKey) ? 'VariantB-v2.1-6040' : null);
+  if (!model) return null;
+  const audienceName = audience === 'farmer' ? 'Farmer' : 'Investor';
+  return `assets/financial-models/en/Agri-${audienceName}-${model}-EN.pdf`;
+}
+
+function projectDocumentReportState(reports = [], cycles = []) {
+  const cycleReports = cycles.flatMap(cycle => cycle?.report ? [{
+    ...cycle.report,
+    status: cycle.report.status ?? cycle.reportStatus ?? cycle.report_status,
+  }] : []);
+  const allReports = [...reports, ...cycleReports];
+  const approved = allReports.filter(report => /approved|published/i.test(
+    projectWorkspaceValue(report?.status, report?.reportStatus, report?.report_status) || ''
+  ));
+  const submitted = allReports.filter(report => /submitted|approved|published|under review/i.test(
+    projectWorkspaceValue(report?.status, report?.reportStatus, report?.report_status) || ''
+  ) || report?.submitted_at || report?.submittedAt);
+  return { approved, submitted };
+}
+
+function projectDocumentCard({
+  title,
+  category,
+  description,
+  status = 'Coming Soon',
+  url = null,
+  action = null,
+  roles = [],
+}) {
+  const safeUrl = projectDocumentSafeUrl(url);
+  const normalizedStatus = status === 'Available' && !safeUrl ? 'Coming Soon' : status;
+  return {
+    title,
+    category,
+    description,
+    status: ['Available', 'Coming Soon', 'Restricted'].includes(normalizedStatus)
+      ? normalizedStatus
+      : 'Coming Soon',
+    url: safeUrl,
+    action: safeUrl ? (action || 'View') : 'Coming Soon',
+    roles,
+  };
+}
+
+function projectDocumentCatalog({
+  deal = {},
+  reports = [],
+  cycles = [],
+  role = 'investor',
+} = {}) {
+  const reportState = projectDocumentReportState(reports, cycles);
+  const projectOverviewUrl = projectDocumentSafeUrl(projectWorkspaceValue(
+    deal.projectOverviewUrl,
+    deal.project_overview_url,
+    deal.overview_url
+  )) || '#project-workspace-header';
+  const investorSummaryUrl = projectDocumentSafeUrl(projectWorkspaceValue(
+    deal.investmentSummaryUrl,
+    deal.investment_summary_url
+  )) || projectDocumentModelAsset(deal, 'investor');
+  const financialOverviewUrl = projectDocumentSafeUrl(projectWorkspaceValue(
+    deal.financialOverviewUrl,
+    deal.financial_overview_url
+  )) || '#project-financial-overview';
+  const approvedReportUrl = projectDocumentSafeUrl(projectWorkspaceValue(
+    reportState.approved[0]?.document_url,
+    reportState.approved[0]?.documentUrl,
+    reportState.approved[0]?.file_url,
+    reportState.approved[0]?.fileUrl
+  )) || (reportState.approved.length ? '#project-activity-feed' : null);
+  const farmerAgreementUrl = projectDocumentSafeUrl(projectWorkspaceValue(
+    deal.farmerAgreementUrl,
+    deal.farmer_agreement_url
+  ));
+  const submittedReportUrl = projectDocumentSafeUrl(projectWorkspaceValue(
+    reportState.submitted[0]?.document_url,
+    reportState.submitted[0]?.documentUrl,
+    reportState.submitted[0]?.file_url,
+    reportState.submitted[0]?.fileUrl
+  )) || (reportState.submitted.length ? '#project-activity-feed' : null);
+  const operatingInstructionsUrl = projectDocumentSafeUrl(projectWorkspaceValue(
+    deal.operatingInstructionsUrl,
+    deal.operating_instructions_url
+  ));
+
+  const investorDocuments = [
+    projectDocumentCard({
+      title: 'Project Overview',
+      category: 'Project',
+      description: 'Shared Project identity, lifecycle, participants, and current operating context.',
+      status: 'Available',
+      url: projectOverviewUrl,
+      roles: ['investor', 'farmer', 'operator'],
+    }),
+    projectDocumentCard({
+      title: 'Investment Summary',
+      category: 'Investor',
+      description: 'Approved Investment Model terms and Project investment summary.',
+      status: investorSummaryUrl ? 'Available' : 'Coming Soon',
+      url: investorSummaryUrl,
+      action: 'Download',
+      roles: ['investor', 'operator'],
+    }),
+    projectDocumentCard({
+      title: 'Financial Overview',
+      category: 'Investor',
+      description: 'Role-appropriate Project funding, projections, returns, and Settlement status.',
+      status: 'Available',
+      url: financialOverviewUrl,
+      roles: ['investor', 'operator'],
+    }),
+    projectDocumentCard({
+      title: 'Approved Farmer Reports',
+      category: 'Investor Reporting',
+      description: reportState.approved.length
+        ? `${reportState.approved.length} approved Farmer Report${reportState.approved.length === 1 ? '' : 's'} available.`
+        : 'Approved Farmer Reports will appear after AgriPartners review.',
+      status: approvedReportUrl ? 'Available' : 'Coming Soon',
+      url: approvedReportUrl,
+      roles: ['investor', 'operator'],
+    }),
+    projectDocumentCard({
+      title: 'Legal Documents',
+      category: 'Legal',
+      description: 'Project legal documents are controlled under participant and disclosure rules.',
+      status: 'Restricted',
+      roles: ['investor', 'operator'],
+    }),
+  ];
+
+  const farmerDocuments = [
+    projectDocumentCard({
+      title: 'Farmer Agreement',
+      category: 'Farmer',
+      description: farmerAgreementUrl
+        ? 'The Farmer Agreement associated with this Project.'
+        : 'Agreement access will be provided through the approved Project document process.',
+      status: farmerAgreementUrl ? 'Available' : 'Restricted',
+      url: farmerAgreementUrl,
+      action: 'Download',
+      roles: ['farmer', 'operator'],
+    }),
+    projectDocumentCard({
+      title: 'Submitted Reports',
+      category: 'Farmer Reporting',
+      description: reportState.submitted.length
+        ? `${reportState.submitted.length} submitted Project Report${reportState.submitted.length === 1 ? '' : 's'} available.`
+        : 'Submitted Farmer Reports will appear here.',
+      status: submittedReportUrl ? 'Available' : 'Coming Soon',
+      url: submittedReportUrl,
+      roles: ['farmer', 'operator'],
+    }),
+    projectDocumentCard({
+      title: 'Operating Instructions',
+      category: 'Operations',
+      description: 'Project-specific operating instructions and approved Farmer guidance.',
+      status: operatingInstructionsUrl ? 'Available' : 'Coming Soon',
+      url: operatingInstructionsUrl,
+      action: 'Download',
+      roles: ['farmer', 'operator'],
+    }),
+  ];
+
+  const operatorDocuments = [
+    projectDocumentCard({
+      title: 'Internal Project Notes',
+      category: 'Internal',
+      description: 'Internal workflow notes and operational decision records.',
+      status: 'Coming Soon',
+      roles: ['operator'],
+    }),
+    projectDocumentCard({
+      title: 'Compliance Documents',
+      category: 'Compliance',
+      description: 'Controlled compliance and participant review records.',
+      status: 'Restricted',
+      roles: ['operator'],
+    }),
+    projectDocumentCard({
+      title: 'Settlement Documents',
+      category: 'Settlement',
+      description: 'Settlement calculations, approvals, confirmations, and reconciliation records.',
+      status: 'Coming Soon',
+      roles: ['operator'],
+    }),
+  ];
+
+  const catalog = role === 'farmer'
+    ? [investorDocuments[0], ...farmerDocuments]
+    : (role === 'operator'
+      ? [...investorDocuments, ...farmerDocuments, ...operatorDocuments]
+      : investorDocuments);
+  return catalog;
+}
+
+function projectCustomDocuments(documents = [], role = 'investor') {
+  return documents
+    .filter(document => {
+      if (!document || typeof document !== 'object') return false;
+      if (role === 'operator') return true;
+      const roles = Array.isArray(document.roles)
+        ? document.roles
+        : (document.role ? [document.role] : []);
+      return roles.length === 0 || roles.includes(role);
+    })
+    .map(document => projectDocumentCard({
+      title: projectWorkspaceValue(document.title, document.name) || 'Untitled Document',
+      category: projectWorkspaceValue(document.category) || 'Project',
+      description: projectWorkspaceValue(document.description) || 'Project document.',
+      status: projectWorkspaceValue(document.availability, document.status)
+        || (projectDocumentSafeUrl(document.url || document.file_url) ? 'Available' : 'Coming Soon'),
+      url: document.url || document.file_url,
+      action: document.action,
+      roles: document.roles,
+    }));
+}
+
+function renderProjectDocumentAction(document) {
+  if (document.status !== 'Available' || !document.url) {
+    return `<button type="button" disabled class="w-full sm:w-auto bg-slate-800 text-slate-500 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold cursor-not-allowed">Coming Soon</button>`;
+  }
+  const externalAttributes = document.url.startsWith('#')
+    ? ''
+    : ' target="_blank" rel="noopener noreferrer"';
+  const downloadAttribute = document.action === 'Download' ? ' download' : '';
+  return `<a href="${escapeHtml(document.url)}"${externalAttributes}${downloadAttribute} class="inline-flex w-full sm:w-auto items-center justify-center bg-green-700 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">${escapeHtml(document.action)}</a>`;
+}
+
+function renderProjectDocuments({
+  deal = {},
+  cycles = [],
+  reports = [],
+  role = 'investor',
+  documents = null,
+} = {}) {
+  const visibleRole = role === 'farmer' || role === 'operator' ? role : 'investor';
+  const cards = Array.isArray(documents)
+    ? projectCustomDocuments(documents, visibleRole)
+    : [
+      ...projectDocumentCatalog({ deal, reports, cycles, role: visibleRole }),
+      ...projectCustomDocuments(Array.isArray(deal.documents) ? deal.documents : [], visibleRole),
+    ];
+  const statusClasses = {
+    Available: 'border-green-800 bg-green-950 text-green-200',
+    'Coming Soon': 'border-slate-600 bg-slate-800 text-slate-300',
+    Restricted: 'border-amber-700 bg-amber-950 text-amber-200',
+  };
+  return `
+    <section id="project-documents" data-project-documents data-documents-role="${escapeHtml(visibleRole)}" class="mt-5 pt-5 border-t border-slate-700">
+      <div>
+        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Project Documents</h2>
+        <p class="text-xs text-slate-500 mt-1">Role-authorized Project files, summaries, and document placeholders.</p>
+      </div>
+      ${cards.length ? `
+        <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 mt-4" aria-label="Project documents">
+          ${cards.map(document => `
+            <article data-document-title="${escapeHtml(document.title)}" data-document-status="${escapeHtml(document.status)}" class="bg-slate-900 border border-slate-700 rounded-lg p-4 flex flex-col">
+              <div class="flex items-start gap-3">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-800 border border-slate-600 text-green-300" aria-hidden="true">&#128196;</span>
+                <div class="min-w-0 flex-1">
+                  <h3 class="text-sm font-semibold text-slate-100">${escapeHtml(document.title)}</h3>
+                  <p class="text-xs text-slate-500 mt-1">${escapeHtml(document.category)}</p>
+                </div>
+                <span class="shrink-0 text-xs font-semibold border rounded-full px-2 py-0.5 ${statusClasses[document.status]}">${escapeHtml(document.status)}</span>
+              </div>
+              <p class="text-sm text-slate-400 mt-3 flex-1">${escapeHtml(document.description)}</p>
+              <div class="mt-4">${renderProjectDocumentAction(document)}</div>
+            </article>
+          `).join('')}
+        </div>
+      ` : `
+        <div data-documents-empty class="bg-slate-900 border border-dashed border-slate-700 rounded-lg px-4 py-6 mt-4 text-center">
+          <p class="text-sm font-medium text-slate-300">No Project documents available</p>
+          <p class="text-xs text-slate-500 mt-1">Authorized documents and placeholders will appear here.</p>
         </div>
       `}
     </section>
@@ -3740,6 +4038,12 @@ function renderProjectWorkspaceHeader({
         reports,
         returns,
         events,
+        role,
+      })}
+      ${renderProjectDocuments({
+        deal,
+        cycles,
+        reports,
         role,
       })}
     </section>
