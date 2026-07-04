@@ -34,11 +34,11 @@ test('admin treasury header renders required badges and derived warning', () => 
   expect(shell).toContain('Balances are derived from ledger entries and are not production settlement balances.');
 });
 
-test('admin navigation links to treasury without replacing existing dashboard behavior', () => {
+test('admin dashboard retains its treasury entry while canonical navigation stays role-level', () => {
   const nav = functionBody('renderNav', 2200);
   const shell = functionBody('renderAdminDashboardShell', 1600);
-  expect(nav).toContain("['#admin/treasury', 'Treasury']");
-  expect(nav).toContain('Treasury');
+  expect(nav).toContain("['#admin', 'Operations']");
+  expect(nav).not.toContain("['#admin/treasury', 'Treasury']");
   expect(shell).toContain('Treasury Dashboard');
   expect(shell).toContain('href="#admin/create"');
   expect(functionBody('showLiveAdminDashboard', 800)).toContain('renderAdminDashboardShell(el)');

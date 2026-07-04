@@ -22,21 +22,41 @@ function loadRenderNav(role, authType = 'password') {
   return module.exports.renderNav();
 }
 
-test('Investor navigation enters through Projects, Investment Models, and Portfolio', () => {
+test('authenticated header has canonical brand, account and logout controls', () => {
   const html = loadRenderNav('investor', 'wallet');
 
-  expect(html).toContain('Projects / Portfolio');
-  expect(html).toContain('Investment Models');
+  expect(html).toContain('data-authenticated-header');
+  expect(html).toContain('href="#home"');
+  expect(html).toContain('class="app-header-brand"');
+  expect(html).toContain('Profile');
+  expect(html).toContain('Connected wallet');
+  expect(html).toContain('investor.testnet');
+  expect(html).toContain('onclick="logout()"');
+  expect(html).toContain('>Logout</button>');
+  expect(html).not.toContain('Home</a>');
+  expect(html).not.toContain('Dashboard');
+});
+
+test('Investor navigation exposes only Marketplace and Portfolio', () => {
+  const html = loadRenderNav('investor', 'wallet');
+
+  expect(html).toContain('href="#/marketplace"');
+  expect(html).toContain('>Marketplace</a>');
+  expect(html).toContain('href="#investor"');
+  expect(html).toContain('>Portfolio</a>');
+  expect(html).not.toContain('Investment Models');
+  expect(html).not.toContain('Projects / Portfolio');
   expect(html).not.toContain('Farmer Assignment');
   expect(html).not.toContain('Farmer Portal');
 });
 
-test('Farmer navigation exposes only My Projects, Funding Confirmation, and Reports', () => {
+test('Farmer navigation exposes only My Projects', () => {
   const html = loadRenderNav('farmer');
 
+  expect(html).toContain('href="#farmer"');
   expect(html).toContain('My Projects');
-  expect(html).toContain('Funding Confirmation');
-  expect(html).toContain('Reports');
+  expect(html).not.toContain('Funding Confirmation');
+  expect(html).not.toContain('>Reports</a>');
   expect(html).not.toContain('Investment Models');
   expect(html).not.toContain('NEAR');
   expect(html).not.toContain('Testnet');
@@ -63,15 +83,38 @@ test('Farmer funding and demo payout displays do not expose crypto amounts', () 
   expect(farmerUi).not.toContain(' NEAR');
 });
 
-test('Admin navigation identifies AgriPartners Operator responsibilities', () => {
+test('Operator navigation exposes only Operations', () => {
   const html = loadRenderNav('admin');
 
-  expect(html).toContain('AgriPartners Operator');
-  expect(html).toContain('Manage Projects');
-  expect(html).toContain('Farmer Assignment');
-  expect(html).toContain('Reports');
-  expect(html).toContain('Settlement');
-  expect(html).toContain('Treasury');
+  expect(html).toContain('href="#admin"');
+  expect(html).toContain('>Operations</a>');
+  expect(html).not.toContain('Manage Projects');
+  expect(html).not.toContain('Farmer Assignment');
+  expect(html).not.toContain('>Reports</a>');
+  expect(html).not.toContain('Settlement');
+  expect(html).not.toContain('Treasury');
+});
+
+test('landing route renders without clearing the authenticated session', () => {
+  const start = appJs.indexOf('function route()');
+  const end = appJs.indexOf('async function initializeApp()', start);
+  const routeBody = appJs.slice(start, end);
+  const homeBranch = routeBody.slice(
+    routeBody.indexOf("if (!hash || hash === '#' || hash === '#home'"),
+    routeBody.indexOf("if (hash === '#login')")
+  );
+
+  expect(homeBranch).toContain('showHome()');
+  expect(homeBranch).not.toContain('clearAuth()');
+});
+
+test('logout keeps existing session cleanup and redirects to Landing', () => {
+  const start = appJs.indexOf('async function logout()');
+  const end = appJs.indexOf('window.logout = logout;', start);
+  const logoutBody = appJs.slice(start, end);
+
+  expect(logoutBody).toContain('clearAuth()');
+  expect(logoutBody).toContain("location.hash = '#home'");
 });
 
 test('Demo and Pilot preparation banners are distinct and keep Opportunity Catalog terminology', () => {

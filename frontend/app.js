@@ -1929,7 +1929,7 @@ async function handleWalletLogin() {
 
 async function logout() {
   clearAuth();
-  location.hash = '#login';
+  location.hash = '#home';
 }
 
 window.logout = logout;
@@ -1939,41 +1939,49 @@ window.logout = logout;
 function renderNav() {
   const auth = getAuth();
   if (!auth) return '';
-  const labels = { farmer: 'Farmer', investor: 'Investor', admin: 'Administrator' };
   const role = auth.user.role;
-  const roleLabel = isWalletAuth() ? 'Secure Account' : (labels[auth.user.role] || auth.user.role);
-  const displayName = isWalletAuth() ? auth.user.account_id : auth.user.username;
+  const profileLabels = { farmer: 'Farmer', investor: 'Investor', admin: 'Operator' };
+  const profileName = auth.user.display_name
+    || auth.user.profile?.displayName
+    || profileLabels[role]
+    || role;
+  const accountName = auth.user.account_id
+    || auth.user.near_account
+    || auth.user.username
+    || 'Connected account';
   const roleLinks = {
     investor: [
-      ['#investor', 'Projects / Portfolio'],
-      ['#/marketplace', 'Investment Models'],
+      ['#/marketplace', 'Marketplace'],
+      ['#investor', 'Portfolio'],
     ],
     farmer: [
       ['#farmer', 'My Projects'],
-      ['#farmer', 'Funding Confirmation'],
-      ['#farmer', 'Reports'],
     ],
     admin: [
-      ['#admin', 'Operator Home'],
-      ['#deals', 'Manage Projects'],
-      ['#admin/create', 'Farmer Assignment'],
-      ['#deals', 'Reports'],
-      ['#deals', 'Settlement'],
-      ['#admin/users', 'Users'],
-      ['#admin/treasury', 'Treasury'],
+      ['#admin', 'Operations'],
     ],
-  }[role] || [['#deals', 'Projects']];
+  }[role] || [];
   return `
-    <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-700">
-      <span class="text-sm text-slate-400">
-        ${role === 'admin' ? 'AgriPartners Operator' : roleLabel}:
-        <span class="text-slate-200 font-medium">${escapeHtml(displayName)}</span>
-      </span>
-      <div class="flex flex-wrap items-center justify-end gap-3">
-        ${roleLinks.map(([href, label]) => `<a href="${href}" class="text-sm text-slate-400 hover:text-green-400 transition">${label}</a>`).join('')}
-        <button onclick="logout()" class="text-sm text-slate-400 hover:text-red-400 transition">Sign out →</button>
+    <header class="app-header" data-authenticated-header data-header-role="${escapeHtml(role)}">
+      <a href="#home" class="app-header-brand" aria-label="AgriPartners landing page">AgriPartners</a>
+      <details class="app-header-menu">
+        <summary class="app-header-menu-toggle">Navigation</summary>
+        <nav class="app-header-nav" aria-label="${escapeHtml(profileLabels[role] || role)} navigation">
+          ${roleLinks.map(([href, label]) => `<a href="${href}" class="app-header-nav-link">${label}</a>`).join('')}
+        </nav>
+      </details>
+      <div class="app-header-tools">
+        <div class="app-header-meta" data-header-profile>
+          <span class="app-header-meta-label">Profile</span>
+          <span class="app-header-meta-value">${escapeHtml(profileName)}</span>
+        </div>
+        <div class="app-header-meta" data-header-wallet>
+          <span class="app-header-meta-label">Connected wallet</span>
+          <span class="app-header-meta-value app-header-account">${escapeHtml(accountName)}</span>
+        </div>
+        <button type="button" onclick="logout()" class="app-header-logout">Logout</button>
       </div>
-    </div>
+    </header>
   `;
 }
 
