@@ -1401,7 +1401,7 @@ function renderEnvironmentBanner(mode, roleLabel) {
   `;
 }
 
-function renderRoleEntrySummary(role, options = {}) {
+function renderRoleEntrySummary(role) {
   const roleConfig = {
     investor: {
       title: 'Investor path',
@@ -1421,15 +1421,12 @@ function renderRoleEntrySummary(role, options = {}) {
   };
   const config = roleConfig[role];
   if (!config) return '';
-  const isInvestorLoginPreview = role === 'investor' && options.loginPreview === true;
   return `
-    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 mb-6" data-role-entry="${escapeHtml(role)}"${isInvestorLoginPreview ? ' aria-label="Investor access preview"' : ''}>
-      <h2 class="${isInvestorLoginPreview ? 'text-base' : 'text-sm'} font-semibold text-slate-100">${isInvestorLoginPreview ? 'After signing in, you can access:' : escapeHtml(config.title)}</h2>
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-4 mb-6" data-role-entry="${escapeHtml(role)}">
+      <h2 class="text-sm font-semibold text-slate-100">${escapeHtml(config.title)}</h2>
       <p class="text-xs text-slate-400 mt-1">${escapeHtml(config.description)}</p>
-      <div class="flex flex-wrap gap-2 mt-3"${isInvestorLoginPreview ? ' role="list" aria-label="Available after sign-in"' : ''}>
-        ${config.items.map(item => isInvestorLoginPreview
-          ? `<span role="listitem" class="inline-flex items-center gap-2 text-sm bg-slate-950/60 border border-slate-600 text-slate-200 rounded-lg px-3 py-2 cursor-default select-none"><span class="h-1.5 w-1.5 rounded-full bg-green-400" aria-hidden="true"></span>${escapeHtml(item)}</span>`
-          : `<span class="text-xs bg-slate-900 border border-slate-700 text-slate-200 rounded px-2 py-1">${escapeHtml(item)}</span>`).join('')}
+      <div class="flex flex-wrap gap-2 mt-3">
+        ${config.items.map(item => `<span class="text-xs bg-slate-900 border border-slate-700 text-slate-200 rounded px-2 py-1">${escapeHtml(item)}</span>`).join('')}
       </div>
     </section>
   `;
@@ -1727,7 +1724,7 @@ function showLogin() {
   const entryConfig = {
     investor: {
       title: 'Investor access',
-      description: 'Enter through Projects, Investment Models, and your Portfolio. AgriPartners is the Project Operator and counterparty.',
+      description: 'Sign in with your NEAR Wallet or an admin-provided platform account.',
     },
     farmer: {
       title: 'Farmer access',
@@ -1756,8 +1753,8 @@ function showLogin() {
       <p class="text-slate-100 font-semibold mt-2">${escapeHtml(entryConfig.title)}</p>
       <p class="text-slate-400 mt-1">${escapeHtml(entryConfig.description)}</p>
     </div>
-    ${entryRole ? renderEnvironmentBanner('pilot', entryConfig.title) : ''}
-    ${entryRole ? renderRoleEntrySummary(entryRole, { loginPreview: entryRole === 'investor' }) : ''}
+    ${entryRole && entryRole !== 'investor' ? renderEnvironmentBanner('pilot', entryConfig.title) : ''}
+    ${entryRole && entryRole !== 'investor' ? renderRoleEntrySummary(entryRole) : ''}
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
       ${showWalletAccess ? `
       <div class="bg-slate-900 border border-green-900 rounded-lg p-4 space-y-3">
