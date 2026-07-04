@@ -131,12 +131,12 @@ function loadInvestorDashboardHelpers() {
     ${appJs.slice(start, end)}
     module.exports = {
       investorMetrics,
+      isInvestorPresentationProject,
       renderInvestorDashboard,
       renderInvestorMetrics,
       renderPortfolioPerformance,
       investorAttentionState,
       renderInvestorAttention,
-      renderRecentActivity,
     };
   `;
   const module = { exports: {} };
@@ -280,7 +280,7 @@ function loadInvestorDealCardHelpers() {
     function formatNearDisplay(value) { return value == null ? 'Unavailable' : value + ' NEAR'; }
     function formatAddress(value) { return value || 'Unknown'; }
     function renderLiveFundingProgressCompact(deal) {
-      return deal.funding_percentage == null ? 'Funding progress: Not available' : 'Funding progress: ' + deal.funding_percentage + '%';
+      return deal.funding_percentage == null ? '' : 'Funding progress: ' + deal.funding_percentage + '%';
     }
     ${appJs.slice(stateStart, stateEnd)}
     ${appJs.slice(cardStart, cardEnd)}
@@ -1174,10 +1174,9 @@ test('per-deal authorization failure remains an explicit live mode error', async
     .rejects.toThrow('Investor authorization failed while loading Project details');
 });
 
-test('investor analytics dashboard renders Phase 9 analytics sections', () => {
+test('investor analytics dashboard keeps presentation-ready portfolio sections', () => {
   const dashboardSource = appJs.slice(appJs.indexOf('function renderInvestorDashboard'), appJs.indexOf('function renderDashboardSection'));
   expect(appJs).toContain('Portfolio Performance');
-  expect(appJs).toContain('Recent Activity');
   expect(dashboardSource).not.toContain('ROI & Returns Overview');
   expect(dashboardSource).not.toContain('Deal Performance');
   expect(appJs).toContain('Projected Total Payout');
@@ -1185,14 +1184,9 @@ test('investor analytics dashboard renders Phase 9 analytics sections', () => {
   expect(appJs).toContain('Projected Outstanding');
   expect(appJs).toContain('Weighted Projected ROI');
   expect(appJs).toContain('Recorded Return Status');
-  expect(appJs).toContain('Reporting Information');
-  expect(appJs).toContain('Project Reports');
-  expect(appJs).toContain('Production Cycles');
-  expect(appJs).toContain('Project Progress');
-  expect(appJs).toContain('Farmer Reports');
-  expect(appJs).toContain('Available in Project detail');
-  expect(appJs).toContain('Attention Required');
-  expect(appJs).toContain('No authoritative attention signals are available');
+  expect(dashboardSource).not.toContain('Recent Activity');
+  expect(dashboardSource).not.toContain('Reporting Information');
+  expect(dashboardSource).toContain("attention.available && attention.count > 0 ? renderDashboardSection('Attention Required'");
   expect(dashboardSource).not.toContain('Portfolio Health');
   expect(dashboardSource).not.toContain('Risk / Attention Panel');
   expect(appJs).toContain('View Project');
@@ -1298,19 +1292,29 @@ test('investor deal cards disclose the model-specific protection reserve rate', 
   expect(appJs).toContain('Not insurance or a guarantee');
 });
 
-test('deal card secondary information is visually de-emphasized and missing values stay unknown', () => {
+test('deal card hides secondary fields without presentation value', () => {
   const { renderInvestorDealCard } = loadInvestorDealCardHelpers();
-  const html = renderInvestorDealCard({ id: 8, title: 'Sparse Deal', status: null });
+  const html = renderInvestorDealCard({
+    id: 8,
+    title: 'Sparse Deal',
+    display_amount: 'Unavailable',
+    display_returned_amount: 'Not available',
+    display_outstanding_amount: 'Unknown',
+    farmer: 'Unknown',
+    report_status: 'Not yet authoritative',
+    status: { status: 'Unknown', current_cycle: 'Unknown' },
+  });
   const secondaryStart = html.indexOf('border-t border-slate-700 text-xs text-slate-500');
 
   expect(secondaryStart).toBeGreaterThan(-1);
-  expect(html.indexOf('Farmer Assignment:', secondaryStart)).toBeGreaterThan(secondaryStart);
   expect(html.indexOf('Project Operator:', secondaryStart)).toBeGreaterThan(secondaryStart);
-  expect(html.indexOf('Production Cycle:', secondaryStart)).toBeGreaterThan(secondaryStart);
-  expect(html.indexOf('Farmer Reports:', secondaryStart)).toBeGreaterThan(secondaryStart);
-  expect(html).toContain('Awaiting data');
-  expect(html).toContain('Unavailable');
-  expect(html).toContain('Unknown');
+  expect(html).not.toContain('Farmer Assignment:');
+  expect(html).not.toContain('Production Cycle:');
+  expect(html).not.toContain('Farmer Reports:');
+  expect(html).toContain('Pending project update');
+  expect(html).not.toContain('Unavailable');
+  expect(html).not.toContain('Unknown');
+  expect(html).not.toContain('Not available');
 });
 
 test('performance state is neutral and never infers attention from outstanding payout', () => {
@@ -1318,7 +1322,7 @@ test('performance state is neutral and never infers attention from outstanding p
 
   expect(investorDealPerformanceState({ status: { status: 'Completed' } }).label).toBe('Completed');
   expect(investorDealPerformanceState({ status: { status: 'CycleActive' } }).label).toBe('Active');
-  expect(investorDealPerformanceState({ status: null }).label).toBe('Awaiting data');
+  expect(investorDealPerformanceState({ status: null }).label).toBe('Pending project update');
   expect(investorDealPerformanceState({ status: { status: 'CycleActive' }, outstanding_amount: '999' }).label).toBe('Active');
   expect(investorDealPerformanceState({ status: { status: 'CycleActive' }, attention_required: true }).label).toBe('Attention required');
   expect(investorDealPerformanceState({ status: { status: 'Terminated' } }).label).toBe('Attention required');
@@ -1328,17 +1332,24 @@ test('live compact funding progress requires an authoritative percentage', () =>
   const { renderLiveFundingProgressCompact } = loadLiveFundingHelper();
 
   const unavailable = renderLiveFundingProgressCompact({ amount: '50' });
-  expect(unavailable).toContain('Not available');
-  expect(unavailable).not.toContain('0%');
+  expect(unavailable).toBe('');
 
   const available = renderLiveFundingProgressCompact({ amount: '50', funding_percentage: 40 });
   expect(available).toContain('40.0%');
   expect(available).toContain('<progress>40</progress>');
 });
 
-test('active and completed cards share the same financial and secondary structure', () => {
+test('active and completed cards preserve useful financial and secondary structure', () => {
   const { renderInvestorDealCard } = loadInvestorDealCardHelpers();
-  const base = { id: 9, title: 'Deal', investmentAmount: '100', recordedReturns: '20', projectedOutstanding: '100' };
+  const base = {
+    id: 9,
+    title: 'Deal',
+    investmentAmount: '100',
+    recordedReturns: '20',
+    projectedOutstanding: '100',
+    farmer: 'farmer.testnet',
+    report_status: 'Report submitted',
+  };
   const active = renderInvestorDealCard({ ...base, status: { status: 'Funded', current_cycle: 0 } });
   const completed = renderInvestorDealCard({ ...base, status: { status: 'Completed', current_cycle: 3 } });
 
@@ -1379,13 +1390,38 @@ test('investor portfolio metrics use backend totals and weighted ROI verbatim', 
   expect(metrics).not.toHaveProperty('capitalReturnedPercent');
 });
 
-test('investor portfolio sections render compact summary, attention, performance and recent activity', () => {
+test('investor dashboard filters QA and test projects from cards and project counts', () => {
+  const { isInvestorPresentationProject, renderInvestorDashboard } = loadInvestorDashboardHelpers();
+  const appended = [];
+  const el = {
+    querySelector: () => null,
+    appendChild: child => appended.push(child),
+  };
+  const deals = [
+    { id: 1, title: 'QA Funding Check', status: { status: 'Active' } },
+    { id: 2, name: 'Test Project', status: { status: 'Completed' } },
+    { id: 3, title: 'Demo QA Cycle', status: { status: 'Active' } },
+    { id: 4, title: 'Orchard Expansion', status: { status: 'Active' } },
+    { id: 5, title: 'Visible title', name: 'QA Internal Alias', status: { status: 'Active' } },
+  ];
+
+  expect(deals.map(isInvestorPresentationProject)).toEqual([false, false, false, true, false]);
+  renderInvestorDashboard(el, deals, 'investor.testnet', { data: {} });
+
+  expect(appended[0].innerHTML).toContain('<article>Orchard Expansion</article>');
+  expect(appended[0].innerHTML).not.toContain('QA Funding Check');
+  expect(appended[0].innerHTML).not.toContain('Test Project');
+  expect(appended[0].innerHTML).not.toContain('Demo QA Cycle');
+  expect(appended[0].innerHTML).not.toContain('Visible title');
+  expect(appended[0].innerHTML).toContain('<span class="metric-value">1</span>');
+});
+
+test('investor portfolio summary and performance omit presentation-hostile placeholders', () => {
   const {
     renderInvestorMetrics,
     renderPortfolioPerformance,
     investorAttentionState,
     renderInvestorAttention,
-    renderRecentActivity,
   } = loadInvestorDashboardHelpers();
   const metrics = {
     totalInvested: '100000.00',
@@ -1404,22 +1440,22 @@ test('investor portfolio sections render compact summary, attention, performance
   expect(summary).toContain('Recorded Off-chain Returns');
   expect(summary).toContain('Projected Outstanding');
   expect(summary).toContain('Investments Requiring Attention');
-  expect(summary).toContain('Unavailable');
+  expect(summary).toContain('No Action Required');
+  expect(summary).not.toContain('Unavailable');
   expect(summary).not.toContain('Projected Total Payout');
   expect(summary).not.toContain('Capital Returned %');
   expect(summary).not.toContain('Average ROI');
   expect(renderPortfolioPerformance(metrics)).toContain('Weighted Projected ROI');
   expect(renderPortfolioPerformance(metrics)).toContain('63.7%');
-  expect(renderPortfolioPerformance(metrics)).toContain('Not yet authoritative');
+  expect(renderPortfolioPerformance(metrics)).not.toContain('Realized Profit');
+  expect(renderPortfolioPerformance(metrics)).not.toContain('Realized ROI');
+  expect(renderPortfolioPerformance(metrics)).not.toContain('Not yet authoritative');
   expect(renderPortfolioPerformance(metrics)).not.toContain('Capital Returned %');
   expect(renderPortfolioPerformance(metrics)).not.toContain('Calculated Realized Profit');
   expect(renderInvestorAttention(unavailableAttention)).toContain('No authoritative attention signals are available');
-  expect(renderRecentActivity([{ returned_amount: '82000.00', status: { current_cycle: 7 } }]))
-    .toContain('Authoritative recent activity is not available');
-  expect(renderRecentActivity([])).not.toContain('Latest return recorded');
 });
 
-test('financial summary failure renders an error while deal cards remain visible', () => {
+test('financial summary failure hides missing metrics while deal cards remain visible', () => {
   const { renderInvestorDashboard } = loadInvestorDashboardHelpers();
   const appended = [];
   const el = {
@@ -1433,8 +1469,9 @@ test('financial summary failure renders an error while deal cards remain visible
   });
 
   expect(appended).toHaveLength(1);
-  expect(appended[0].innerHTML).toContain('Financial summary unavailable');
-  expect(appended[0].innerHTML).toContain('HTTP 503');
+  expect(appended[0].innerHTML).not.toContain('Unavailable');
+  expect(appended[0].innerHTML).not.toContain('HTTP 503');
+  expect(appended[0].innerHTML).toContain('No Action Required');
   expect(appended[0].innerHTML).toContain('<article>Live Deal</article>');
   expect(appended[0].innerHTML).not.toContain('0.00 NEAR');
 });
@@ -1445,17 +1482,17 @@ test('dashboard sections follow the investor-first hierarchy', () => {
   const source = appJs.slice(dashboardStart, dashboardEnd);
   const titles = [
     'Portfolio Summary',
-    'Attention Required',
     'Active Projects',
     'Completed Projects',
     'Portfolio Performance',
-    'Recent Activity',
-    'Reporting Information',
   ];
   const positions = titles.map(title => source.indexOf(`'${title}'`));
 
   expect(positions.every(position => position >= 0)).toBe(true);
   expect(positions).toEqual([...positions].sort((a, b) => a - b));
+  expect(source).toContain("attention.available && attention.count > 0 ? renderDashboardSection('Attention Required'");
+  expect(source).not.toContain('Recent Activity');
+  expect(source).not.toContain('Reporting Information');
 });
 
 test('attention state uses only explicit backend flags', () => {

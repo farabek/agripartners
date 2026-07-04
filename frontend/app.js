@@ -6220,9 +6220,7 @@ function liveFundingProgressMetrics(deal = {}) {
 
 function renderLiveFundingProgressCompact(deal) {
   const funding = liveFundingProgressMetrics(deal);
-  if (funding.percentage == null) {
-    return '<p class="text-xs text-slate-500 mt-3">Funding progress: <span class="text-slate-400">Not available</span></p>';
-  }
+  if (funding.percentage == null) return '';
   return `
     <div class="mt-3">
       <div class="flex items-center justify-between gap-3 text-xs">
@@ -6605,11 +6603,17 @@ function investorMetrics(deals, portfolioSummary = null) {
   };
 }
 
+function isInvestorPresentationProject(deal) {
+  const labels = [deal?.title, deal?.name]
+    .map(value => String(value || '').trim().toLowerCase())
+    .filter(Boolean);
+  return !labels.some(label => ['qa', 'test', 'demo qa'].some(prefix => label.startsWith(prefix)));
+}
+
 function renderInvestorDashboard(el, deals, connectedWalletAccount, portfolioResult = {}) {
   el.querySelector('.spinner')?.remove();
-  deals = Array.isArray(deals) ? deals : [];
+  deals = Array.isArray(deals) ? deals.filter(isInvestorPresentationProject) : [];
   const metrics = investorMetrics(deals, portfolioResult.data);
-  const financialError = portfolioResult.error || (!portfolioResult.data ? 'Portfolio financial summary unavailable' : null);
   const dashboard = document.createElement('div');
   const activeDeals = deals.filter(deal => !['Completed', 'Terminated'].includes(deal.status?.status));
   const completedDeals = deals.filter(deal => deal.status?.status === 'Completed');
@@ -6617,26 +6621,21 @@ function renderInvestorDashboard(el, deals, connectedWalletAccount, portfolioRes
 
   if (deals.length === 0) {
     dashboard.innerHTML = `
-      ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention, financialError))}
-      ${renderDashboardSection('Attention Required', renderInvestorAttention(attention))}
+      ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention))}
       ${renderDashboardSection('Active Projects', `<p class="text-slate-400">No active Projects found for the connected Investor account: <span class="font-mono text-slate-200">${escapeHtml(connectedWalletAccount)}</span></p>`)}
       ${renderDashboardSection('Completed Projects', renderEmptyDashboardSection('No completed Projects yet'))}
-      ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics, financialError))}
-      ${renderDashboardSection('Recent Activity', renderRecentActivity())}
-      ${renderDashboardSection('Reporting Information', renderInvestorReportingSignals())}
+      ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
     `;
     el.appendChild(dashboard);
     return;
   }
 
   dashboard.innerHTML = `
-    ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention, financialError))}
-    ${renderDashboardSection('Attention Required', renderInvestorAttention(attention))}
+    ${renderDashboardSection('Portfolio Summary', renderInvestorMetrics(metrics, attention))}
+    ${attention.available && attention.count > 0 ? renderDashboardSection('Attention Required', renderInvestorAttention(attention)) : ''}
     ${renderDashboardSection('Active Projects', renderDealSection(activeDeals, 'No active Projects'))}
     ${renderDashboardSection('Completed Projects', renderDealSection(completedDeals, 'No completed Projects yet'))}
-    ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics, financialError))}
-    ${renderDashboardSection('Recent Activity', renderRecentActivity())}
-    ${renderDashboardSection('Reporting Information', renderInvestorReportingSignals())}
+    ${renderDashboardSection('Portfolio Performance', renderPortfolioPerformance(metrics))}
   `;
   el.appendChild(dashboard);
 }
@@ -6680,66 +6679,21 @@ function renderInvestorAttention(attention) {
   return `<div class="grid gap-3">${attention.items.map(deal => `
     <div class="bg-slate-800 border border-amber-800 rounded-lg px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <p class="font-semibold text-slate-100">${escapeHtml(deal.title || `Project #${deal.id ?? 'Unknown'}`)}</p>
-        <p class="text-sm text-amber-200">${escapeHtml(deal.attention_reason || 'Backend attention flag is active.')}</p>
+        <p class="font-semibold text-slate-100">${escapeHtml(deal.title || (deal.id == null ? 'Project update' : `Project #${deal.id}`))}</p>
+        <p class="text-sm text-amber-200">${escapeHtml(deal.attention_reason || 'Pending project update')}</p>
       </div>
       ${deal.id == null ? '' : `<a href="#investor/deals/${escapeHtml(deal.id)}" class="text-sm text-green-400 hover:underline">View Project</a>`}
     </div>
   `).join('')}</div>`;
 }
 
-function renderInvestorMetrics(metrics, attention = { available: false, count: null }, financialError = null) {
-  if (financialError) return renderInvestorFinancialSummaryUnavailable(financialError);
-  const invested = formatOptionalNearDisplay(metrics.totalInvested);
-  const returned = formatOptionalNearDisplay(metrics.totalRecordedReturns);
-  const outstanding = formatOptionalNearDisplay(metrics.totalOutstanding);
-  const attentionValue = attention.available ? attention.count : 'Unavailable';
-  return `
-    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-      <div class="metric-box">
-        <span class="metric-label">Total Invested</span>
-        <span class="metric-value">${escapeHtml(invested)}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Recorded Off-chain Returns</span>
-        <span class="metric-value">${escapeHtml(returned)}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Projected Outstanding</span>
-        <span class="metric-value">${escapeHtml(outstanding)}</span>
-      </div>
-      <div class="metric-box">
-        <span class="metric-label">Investments Requiring Attention</span>
-        <span class="metric-value">${escapeHtml(attentionValue)}</span>
-      </div>
-    </div>
-  `;
-}
-
-function renderInvestorFinancialSummaryUnavailable(message) {
-  return `
-    <div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 text-sm text-amber-100" data-investor-financial-summary-error>
-      <span class="font-semibold">Financial summary unavailable.</span>
-      <span>${escapeHtml(message)}</span>
-    </div>
-  `;
-}
-
-function portfolioPercentLabel(value, missingLabel = 'Unavailable') {
-  return value == null || !Number.isFinite(Number(value)) ? missingLabel : `${Number(value).toFixed(1)}%`;
-}
-
-function renderPortfolioPerformance(metrics, financialError = null) {
-  if (financialError) return renderInvestorFinancialSummaryUnavailable(financialError);
+function renderInvestorMetrics(metrics, attention = { available: false, count: null }) {
   const rows = [
-    ['Projected Profit', formatOptionalNearDisplay(metrics.totalProjectedProfit)],
-    ['Projected Total Payout', formatOptionalNearDisplay(metrics.totalProjectedPayout)],
-    ['Weighted Projected ROI', portfolioPercentLabel(metrics.weightedProjectedRoi, 'Unavailable')],
-    ['Realized Profit', 'Not yet authoritative'],
-    ['Realized ROI', 'Not yet authoritative'],
-    ['Active Projects', metrics.activeDeals],
-    ['Completed Projects', metrics.completedDeals],
-  ];
+    metrics.totalInvested == null ? null : ['Total Invested', formatOptionalNearDisplay(metrics.totalInvested)],
+    metrics.totalRecordedReturns == null ? null : ['Recorded Off-chain Returns', formatOptionalNearDisplay(metrics.totalRecordedReturns)],
+    metrics.totalOutstanding == null ? null : ['Projected Outstanding', formatOptionalNearDisplay(metrics.totalOutstanding)],
+    ['Investments Requiring Attention', attention.available && attention.count > 0 ? `${attention.count} Projects` : 'No Action Required'],
+  ].filter(Boolean);
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
       ${rows.map(([label, value]) => `
@@ -6749,27 +6703,27 @@ function renderPortfolioPerformance(metrics, financialError = null) {
         </div>
       `).join('')}
     </div>
-    <p class="text-xs text-slate-500 mt-2">Realized performance remains unavailable until return entries are typed and reconciled.</p>
   `;
 }
 
-function renderRecentActivity() {
-  return '<p class="text-sm text-slate-500">Authoritative recent activity is not available in the portfolio summary. Open a Project to view its event and Settlement / Returns history.</p>';
+function portfolioPercentLabel(value) {
+  return value == null || !Number.isFinite(Number(value)) ? '' : `${Number(value).toFixed(1)}%`;
 }
 
-function renderInvestorReportingSignals() {
-  const signals = [
-    ['Project Reports', 'Available in Project detail'],
-    ['Production Cycles', 'Available in Project detail'],
-    ['Project Progress', 'Available in Project detail'],
-    ['Farmer Reports', 'Available in Project detail'],
-  ];
+function renderPortfolioPerformance(metrics) {
+  const rows = [
+    metrics.totalProjectedProfit == null ? null : ['Projected Profit', formatOptionalNearDisplay(metrics.totalProjectedProfit)],
+    metrics.totalProjectedPayout == null ? null : ['Projected Total Payout', formatOptionalNearDisplay(metrics.totalProjectedPayout)],
+    metrics.weightedProjectedRoi == null ? null : ['Weighted Projected ROI', portfolioPercentLabel(metrics.weightedProjectedRoi)],
+    ['Active Projects', metrics.activeDeals],
+    ['Completed Projects', metrics.completedDeals],
+  ].filter(Boolean);
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-      ${signals.map(([label, value]) => `
+      ${rows.map(([label, value]) => `
         <div class="metric-box">
           <span class="metric-label">${label}</span>
-          <span class="metric-value text-base">${value}</span>
+          <span class="metric-value">${escapeHtml(value)}</span>
         </div>
       `).join('')}
     </div>
@@ -6831,14 +6785,18 @@ function investorDealPerformanceState(deal = {}) {
     return { label: 'Completed', className: 'bg-green-950 text-green-200 border-green-800' };
   }
   if (!status || status === 'Unknown') {
-    return { label: 'Awaiting data', className: 'bg-slate-900 text-slate-300 border-slate-700' };
+    return { label: 'Pending project update', className: 'bg-slate-900 text-slate-300 border-slate-700' };
   }
   return { label: 'Active', className: 'bg-blue-950 text-blue-200 border-blue-800' };
 }
 
+function investorPresentationValue(value) {
+  const text = String(value ?? '').trim();
+  return !text || /^(unavailable|unknown|not available|not yet authoritative)$/i.test(text) ? null : value;
+}
+
 function investorDealReportsState(deal = {}) {
-  const value = deal.report_status ?? deal.reports_status;
-  return value == null || value === '' ? 'Unavailable' : String(value);
+  return investorPresentationValue(deal.report_status ?? deal.reports_status);
 }
 
 function renderProjectProfile(deal, status, statusError = null) {
@@ -6878,15 +6836,29 @@ function renderProjectProfile(deal, status, statusError = null) {
 
 function renderInvestorDealCard(deal) {
   const pilotLabel = investorPilotLabel(deal);
-  const dealBadge = deal.isDemoPilot ? 'Pilot Project' : `Project #${deal.id}`;
+  const dealBadge = deal.isDemoPilot ? 'Pilot Project' : (deal.id == null ? null : `Project #${deal.id}`);
   const dealHref = deal.isDemoPilot ? `#investor/pilots/${deal.pilot_key}` : `#investor/deals/${deal.id}`;
-  const invested = deal.display_amount || formatNearDisplay(deal.investmentAmount);
-  const returned = deal.display_returned_amount || formatNearDisplay(deal.recordedReturns);
-  const outstanding = deal.display_outstanding_amount || formatNearDisplay(deal.projectedOutstanding);
+  const invested = investorPresentationValue(deal.display_amount)
+    ?? (investorPresentationValue(deal.investmentAmount) == null ? null : formatNearDisplay(deal.investmentAmount));
+  const returned = investorPresentationValue(deal.display_returned_amount)
+    ?? (investorPresentationValue(deal.recordedReturns) == null ? null : formatNearDisplay(deal.recordedReturns));
+  const outstanding = investorPresentationValue(deal.display_outstanding_amount)
+    ?? (investorPresentationValue(deal.projectedOutstanding) == null ? null : formatNearDisplay(deal.projectedOutstanding));
+  const financialRows = [
+    invested == null ? null : ['Total Invested', invested, 'text-slate-100'],
+    returned == null ? null : ['Recorded Off-chain Returns', returned, 'text-green-300'],
+    outstanding == null ? null : ['Projected Outstanding', outstanding, 'text-slate-100'],
+  ].filter(Boolean);
   const performance = investorDealPerformanceState(deal);
-  const currentCycle = deal.status?.current_cycle ?? 'Unknown';
-  const farmer = deal.farmer ? formatAddress(deal.farmer) : 'Unknown';
+  const farmer = investorPresentationValue(deal.farmer);
+  const currentCycle = investorPresentationValue(deal.status?.current_cycle);
   const reportsState = investorDealReportsState(deal);
+  const secondaryRows = [
+    farmer == null ? null : ['Farmer Assignment', formatAddress(farmer)],
+    ['Project Operator', 'AgriPartners'],
+    currentCycle == null ? null : ['Production Cycle', currentCycle],
+    reportsState == null ? null : ['Farmer Reports', reportsState],
+  ].filter(Boolean);
   const protectionText = `${deal.pilot_key || ''} ${deal.title || ''} ${deal.deal_type || ''}`.toLowerCase();
   const protectionRate = deal.escrow_pct != null
     ? deal.escrow_pct
@@ -6902,33 +6874,22 @@ function renderInvestorDealCard(deal) {
           <h3 class="text-lg font-semibold text-slate-100">${escapeHtml(pilotLabel)}</h3>
           <div class="flex flex-wrap items-center gap-2 mt-2">
             <span class="text-xs font-semibold border px-2 py-0.5 rounded ${performance.className}">${escapeHtml(performance.label)}</span>
-            <span class="text-xs text-slate-500">${escapeHtml(dealBadge)}</span>
-            <span data-protection-rate-badge class="text-xs font-semibold text-blue-200 bg-blue-950 border border-blue-800 px-2 py-0.5 rounded">Protection reserve: ${protectionRate == null ? 'Unavailable' : `${escapeHtml(protectionRate)}%`}</span>
+            ${dealBadge ? `<span class="text-xs text-slate-500">${escapeHtml(dealBadge)}</span>` : ''}
+            ${protectionRate == null ? '' : `<span data-protection-rate-badge class="text-xs font-semibold text-blue-200 bg-blue-950 border border-blue-800 px-2 py-0.5 rounded">Protection reserve: ${escapeHtml(protectionRate)}%</span>`}
           </div>
         </div>
       </div>
-      <div class="grid sm:grid-cols-3 gap-3 mt-4">
-        <div>
-          <span class="block text-xs text-slate-500">Total Invested</span>
-          <span class="text-sm text-slate-100 font-mono">${escapeHtml(invested)}</span>
-        </div>
-        <div>
-          <span class="block text-xs text-slate-500">Recorded Off-chain Returns</span>
-          <span class="text-sm text-green-300 font-mono">${escapeHtml(returned)}</span>
-        </div>
-        <div>
-          <span class="block text-xs text-slate-500">Projected Outstanding</span>
-          <span class="text-sm text-slate-100 font-mono">${escapeHtml(outstanding)}</span>
-        </div>
-      </div>
+      ${financialRows.length ? `<div class="grid sm:grid-cols-3 gap-3 mt-4">
+        ${financialRows.map(([label, value, className]) => `<div>
+          <span class="block text-xs text-slate-500">${label}</span>
+          <span class="text-sm ${className} font-mono">${escapeHtml(value)}</span>
+        </div>`).join('')}
+      </div>` : ''}
       <div class="flex justify-end mt-4">
-        <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Project</a>
+        ${deal.id == null && !deal.isDemoPilot ? '' : `<a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Project</a>`}
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mt-4 pt-3 border-t border-slate-700 text-xs text-slate-500">
-        <span>Farmer Assignment: <span class="text-slate-300">${escapeHtml(farmer)}</span></span>
-        <span>Project Operator: <span class="text-slate-300">AgriPartners</span></span>
-        <span>Production Cycle: <span class="text-slate-300">${escapeHtml(currentCycle)}</span></span>
-        <span>Farmer Reports: <span class="text-slate-300">${escapeHtml(reportsState)}</span></span>
+        ${secondaryRows.map(([label, value]) => `<span>${label}: <span class="text-slate-300">${escapeHtml(value)}</span></span>`).join('')}
       </div>
       ${renderLiveFundingProgressCompact(deal)}
     </article>
