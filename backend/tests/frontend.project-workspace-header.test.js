@@ -25,6 +25,7 @@ function loadProjectWorkspaceHeaderHelpers() {
       projectWorkspaceTimelineIndex,
       projectWorkspaceFormatDate,
       projectWorkspaceStageDates,
+      projectWorkspaceStageContext,
       projectWorkspaceCurrentCycle,
       projectWorkspaceNextMilestone,
       projectWorkspaceRoleDetails,
@@ -75,12 +76,14 @@ test('shared Project Workspace Header renders required project identity fields a
     expect(html).toContain(value);
   }
   expect(html).toContain('sm:grid-cols-2 xl:grid-cols-5');
-  for (const stage of ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed']) {
+  for (const stage of ['Funding', 'Farmer Confirmation', 'Production', 'Farmer Reports', 'Settlement', 'Completed']) {
     expect(html).toContain(`data-project-stage="${stage}"`);
   }
   expect(html).toContain('Current');
   expect(html).toContain('Upcoming');
-  expect(html).toContain('Completion:');
+  expect(html).toContain('Completion recorded');
+  expect(html).toContain('In progress');
+  expect(html).toContain('Starts after Production');
   expect(html).toContain('Current cycle:');
   expect(html).toContain('data-timeline-role="investor"');
 });
@@ -113,7 +116,10 @@ test('shared Project Workspace Header derives completed, current and upcoming ti
   expect(projectWorkspaceTimelineIndex({ deal: { status: 'Active' } })).toBe(2);
   expect(activeHtml).toContain('data-project-stage="Production" data-stage-state="current"');
   expect(activeHtml).toContain('data-project-stage="Settlement" data-stage-state="upcoming"');
+  expect(activeHtml).toContain('border-blue-700 bg-blue-950 text-blue-100');
+  expect(activeHtml).toContain('border-slate-700 bg-slate-900 text-slate-400');
   expect(completedHtml.match(/data-stage-state="completed"/g)).toHaveLength(6);
+  expect(completedHtml).toContain('border-green-800 bg-green-950 text-green-200');
   expect(completedHtml).toContain('Completed · Current stage');
   expect(completedHtml).toContain('ring-2 ring-green-400');
   expect(completedHtml).toContain('aria-current="step"');
@@ -129,12 +135,12 @@ test('shared timeline displays existing completion dates, current cycle and next
     events: [{ event_type: 'Funding Confirmed', created_at: '2026-07-01T00:00:00Z' }],
   });
 
-  expect(html).toContain('Completion: Jul 1, 2026');
+  expect(html).toContain('Completed Jul 1, 2026');
   expect(html).toContain('Current cycle: 2');
   expect(html).toContain('Current stage');
   expect(html).toContain('Production');
   expect(html).toContain('Next milestone');
-  expect(html).toContain('Reports');
+  expect(html).toContain('Farmer Reports');
 });
 
 test('Farmer timeline displays next required action and due information', () => {
@@ -170,6 +176,7 @@ test('Operator timeline displays operational attention and pending review inform
   });
 
   expect(html).toContain('data-timeline-role="operator"');
+  expect(html).toContain('Workflow status');
   expect(html).toContain('Operational attention');
   expect(html).toContain('2 attention items');
   expect(html).toContain('Pending confirmations / reviews');

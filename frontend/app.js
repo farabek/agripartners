@@ -2830,6 +2830,15 @@ function projectWorkspaceValue(...values) {
   return value == null ? null : String(value);
 }
 
+const PROJECT_WORKSPACE_TIMELINE_STAGES = [
+  'Funding',
+  'Farmer Confirmation',
+  'Production',
+  'Farmer Reports',
+  'Settlement',
+  'Completed',
+];
+
 function projectWorkspaceStatus(deal = {}, status = null) {
   if (status && typeof status === 'object') return projectWorkspaceValue(status.status);
   return projectWorkspaceValue(status, deal.status?.status, deal.status);
@@ -3024,6 +3033,13 @@ function projectWorkspaceStageDates({ deal = {}, cycles = [], reports = [], retu
   ];
 }
 
+function projectWorkspaceStageContext({ index, state, date, timelineStages }) {
+  if (state === 'completed') return date ? `Completed ${date}` : 'Completion recorded';
+  if (state === 'current') return date ? `Updated ${date}` : 'In progress';
+  if (index === 0) return 'Awaiting funding';
+  return `Starts after ${timelineStages[index - 1]}`;
+}
+
 function projectWorkspaceCurrentCycle(deal = {}, status = null, cycles = []) {
   const statusCycle = status && typeof status === 'object' ? status.current_cycle : null;
   const activeCycle = cycles.find(cycle => /active|started|funding_received/i.test(
@@ -3037,14 +3053,14 @@ function projectWorkspaceCurrentCycle(deal = {}, status = null, cycles = []) {
     activeCycle?.cycle_num,
     activeCycle?.cycleNumber,
     activeCycle?.id
-  ) || 'Cycle unavailable';
+  ) || 'Production cycle pending';
 }
 
 function projectWorkspaceNextMilestone(deal, currentIndex, timelineStages) {
   const explicitMilestone = projectWorkspaceValue(deal.next_milestone, deal.nextMilestone);
   if (explicitMilestone) return explicitMilestone;
-  if (currentIndex < 0) return 'Milestone unavailable';
-  if (currentIndex >= timelineStages.length - 1) return 'No further milestone';
+  if (currentIndex < 0) return 'Pending project update';
+  if (currentIndex >= timelineStages.length - 1) return 'Project completed';
   return timelineStages[currentIndex + 1];
 }
 
@@ -3059,7 +3075,7 @@ function projectWorkspaceFarmerAction(deal, currentIndex, cycles, reports) {
   ) || '';
   if (/changes required|correction|rejected/i.test(reportStatus)) return 'Update and resubmit the Project Report';
   if (/submitted|under review/i.test(reportStatus)) return 'Wait for AgriPartners report review';
-  if (currentIndex < 0) return 'Required action unavailable';
+  if (currentIndex < 0) return 'Confirm next step with AgriPartners';
   if (currentIndex <= 1) return 'Confirm Funding receipt with AgriPartners';
   if (currentIndex === 2) return 'Submit the next Project Report';
   if (currentIndex === 3) return 'Complete report follow-up with AgriPartners';
@@ -3078,7 +3094,7 @@ function projectWorkspaceDueInformation(deal, cycles, reports) {
     currentCycle?.due_at,
     reports[0]?.due_at
   ));
-  return dueDate ? `Due ${dueDate}` : 'Due information unavailable';
+  return dueDate ? `Due ${dueDate}` : 'Schedule pending';
 }
 
 function projectWorkspaceOperatorAttention(deal = {}) {
@@ -3091,7 +3107,7 @@ function projectWorkspaceOperatorAttention(deal = {}) {
   if (Number.isFinite(count)) return count ? `${count} attention item${count === 1 ? '' : 's'}` : 'No attention items reported';
   if (deal.attention_required === true || deal.action_required === true) return 'Attention required';
   if (deal.attention_required === false && deal.action_required !== true) return 'No attention items reported';
-  return 'Attention data unavailable';
+  return 'Pending operational update';
 }
 
 function projectWorkspacePendingItems(deal, cycles, reports, returns) {
@@ -3111,11 +3127,11 @@ function projectWorkspacePendingItems(deal, cycles, reports, returns) {
   if (pending.length) return `${pending.join(', ')} pending`;
   const hasOperationalData = cycles.length > 0 || reports.length > 0 || returns.length > 0
     || reportStatus != null || deal.fundingStatus != null || deal.funding_status != null;
-  return hasOperationalData ? 'No pending confirmations or reviews' : 'Pending review data unavailable';
+  return hasOperationalData ? 'No pending confirmations or reviews' : 'Review status pending';
 }
 
 function projectWorkspaceRoleDetails({ role, deal, currentIndex, timelineStages, cycles, reports, returns }) {
-  const currentStage = currentIndex < 0 ? 'Stage unavailable' : timelineStages[currentIndex];
+  const currentStage = currentIndex < 0 ? 'Pending project update' : timelineStages[currentIndex];
   if (role === 'farmer') {
     return [
       ['Current stage', currentStage],
@@ -3125,7 +3141,7 @@ function projectWorkspaceRoleDetails({ role, deal, currentIndex, timelineStages,
   }
   if (role === 'operator') {
     return [
-      ['Current stage', currentStage],
+      ['Workflow status', currentStage],
       ['Operational attention', projectWorkspaceOperatorAttention(deal)],
       ['Pending confirmations / reviews', projectWorkspacePendingItems(deal, cycles, reports, returns)],
     ];
@@ -3274,8 +3290,8 @@ function renderProjectFinancialOverview({
 } = {}) {
   const visibleRole = role === 'farmer' || role === 'operator' ? role : 'investor';
   const stageIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
-  const timelineStages = ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed'];
-  const resolvedStage = currentStage || (stageIndex < 0 ? 'Stage unavailable' : timelineStages[stageIndex]);
+  const timelineStages = PROJECT_WORKSPACE_TIMELINE_STAGES;
+  const resolvedStage = currentStage || (stageIndex < 0 ? 'Pending project update' : timelineStages[stageIndex]);
   const resolvedCycle = currentCycle || projectWorkspaceCurrentCycle(deal, status, cycles);
   const items = projectFinancialOverviewItems({
     role: visibleRole,
@@ -3607,7 +3623,7 @@ function projectActivityItems({
 }
 
 function projectActivityContext({ role, deal, status, cycles, reports, returns }) {
-  const timelineStages = ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed'];
+  const timelineStages = PROJECT_WORKSPACE_TIMELINE_STAGES;
   const currentIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
   if (role === 'farmer') {
     return [
@@ -4015,7 +4031,7 @@ function renderProjectWorkspaceHeader({
   const projectStatus = projectWorkspaceStatus(deal, status) || 'Pending project update';
   const description = projectWorkspaceValue(deal.description, deal.project_description);
   const headerFields = projectWorkspaceHeaderFields({ deal, status, cycles, role });
-  const timelineStages = ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed'];
+  const timelineStages = PROJECT_WORKSPACE_TIMELINE_STAGES;
   const currentIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
   const isCompleted = currentIndex === timelineStages.length - 1;
   const stageDates = projectWorkspaceStageDates({ deal, cycles, reports, returns, events });
@@ -4060,9 +4076,12 @@ function renderProjectWorkspaceHeader({
             const stageStatus = state === 'completed'
               ? (isCurrentStage ? 'Completed · Current stage' : 'Completed')
               : (state === 'current' ? 'Current' : 'Upcoming');
-            const completionText = state === 'completed'
-              ? `Completion: ${stageDates[index] || 'Date unavailable'}`
-              : (state === 'current' ? 'Completion: Pending' : 'Completion: Not available');
+            const stageContext = projectWorkspaceStageContext({
+              index,
+              state,
+              date: stageDates[index],
+              timelineStages,
+            });
             const stateClass = `${state === 'completed'
               ? 'border-green-800 bg-green-950 text-green-200'
               : (state === 'current'
@@ -4074,7 +4093,7 @@ function renderProjectWorkspaceHeader({
                 <span class="block text-xs opacity-75">${marker}</span>
                 <span class="block text-sm font-medium mt-1">${escapeHtml(label)}</span>
                 <span class="block text-xs font-semibold mt-2">${stageStatus}</span>
-                <span class="block text-xs opacity-75 mt-1">${escapeHtml(completionText)}</span>
+                <span class="block text-xs opacity-75 mt-1">${escapeHtml(stageContext)}</span>
                 ${label === 'Production' ? `<span class="block text-xs opacity-75 mt-1">Current cycle: ${escapeHtml(currentCycle)}</span>` : ''}
               </li>
             `;
@@ -4096,7 +4115,7 @@ function renderProjectWorkspaceHeader({
         reports,
         returns,
         role,
-        currentStage: currentIndex < 0 ? 'Stage unavailable' : timelineStages[currentIndex],
+        currentStage: currentIndex < 0 ? 'Pending project update' : timelineStages[currentIndex],
         currentCycle,
       })}
       ${renderProjectActivityFeed({
