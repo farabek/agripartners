@@ -6,7 +6,8 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "test": "jest --runInBand",
-    "pilot:deal2": "node scripts/pilot-deal-2-complete.js"
+    "pilot:deal2": "node scripts/pilot-deal-2-complete.js",
+    "demo:farmer:prepare": "node scripts/setup-farmer-demo-account.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
