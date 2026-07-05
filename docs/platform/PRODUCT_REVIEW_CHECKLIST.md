@@ -53,6 +53,7 @@ completion percentage above.
 | --- | --- | --- |
 | [Canonical Workspace Specification](CANONICAL_PROJECT_WORKSPACE_SPEC.md) | ✓ Completed | Single source of truth for the structure, hierarchy, role visibility, empty states, environment rules, consistency, and acceptance criteria of every **View Project** Workspace. |
 | [Canonical Farmer Experience Specification](CANONICAL_FARMER_EXPERIENCE_SPEC.md) | ✓ Completed | Single source of truth for the Farmer journey, Dashboard, Project Workspace, daily priorities, role visibility, empty states, notifications, mobile experience, and acceptance criteria. |
+| [Farmer Daily Workflow Specification](FARMER_DAILY_WORKFLOW_SPEC.md) | ✓ Completed | Operational blueprint for daily Farmer priorities, tasks, notifications, active Project work, mobile behavior, UX principles, and acceptance criteria. |
 
 ## 3. Review Rules
 
