@@ -6,7 +6,7 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const pool = require('../src/db');
 
-const DEFAULT_ACCOUNT_ID = 'farmer-demo.testnet';
+const DEFAULT_ACCOUNT_ID = 'farmer01.testnet';
 const DEFAULT_DISPLAY_NAME = 'Demo Farmer';
 const DEFAULT_PROJECT_ID = 4;
 

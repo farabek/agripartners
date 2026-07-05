@@ -4,9 +4,9 @@ const {
   prepareFarmerDemoAccount,
 } = require('../scripts/setup-farmer-demo-account');
 
-test('canonical Farmer demo wallet defaults to farmer-demo.testnet', () => {
-  expect(DEFAULT_ACCOUNT_ID).toBe('farmer-demo.testnet');
-  expect(normalizeAccountId(' Farmer-Demo.Testnet ')).toBe('farmer-demo.testnet');
+test('canonical Farmer demo wallet defaults to farmer01.testnet', () => {
+  expect(DEFAULT_ACCOUNT_ID).toBe('farmer01.testnet');
+  expect(normalizeAccountId(' Farmer01.Testnet ')).toBe('farmer01.testnet');
   expect(() => normalizeAccountId('farmer-demo.near')).toThrow(
     'FARMER_DEMO_ACCOUNT_ID must be a valid NEAR Testnet account ID'
   );
@@ -28,7 +28,7 @@ test('Farmer demo setup upserts the profile, preserves Investor assignment, and 
     .mockResolvedValueOnce({ rows: [{ cycle_num: 1 }] })
     .mockResolvedValueOnce({
       rows: [{
-        wallet_account_id: 'farmer-demo.testnet',
+        wallet_account_id: 'farmer01.testnet',
         role: 'farmer',
         display_name: 'Demo Farmer',
         organization_name: 'AgriPartners Demo Farm',
@@ -39,7 +39,7 @@ test('Farmer demo setup upserts the profile, preserves Investor assignment, and 
         id: 4,
         title: null,
         deal_type: 'test_farmer_dashboard',
-        farmer: 'farmer-demo.testnet',
+        farmer: 'farmer01.testnet',
         investor: 'investor.testnet',
         contract_address: 'demo-contract.testnet',
         total_cycles: 1,
@@ -50,7 +50,7 @@ test('Farmer demo setup upserts the profile, preserves Investor assignment, and 
     .mockResolvedValueOnce({ rowCount: 0 });
 
   const result = await prepareFarmerDemoAccount({ query }, {
-    accountId: 'farmer-demo.testnet',
+    accountId: 'farmer01.testnet',
     displayName: 'Demo Farmer',
     projectId: 4,
   });
@@ -58,13 +58,13 @@ test('Farmer demo setup upserts the profile, preserves Investor assignment, and 
   expect(result).toEqual(expect.objectContaining({
     onboardingCompleted: true,
     account: expect.objectContaining({
-      wallet_account_id: 'farmer-demo.testnet',
+      wallet_account_id: 'farmer01.testnet',
       role: 'farmer',
       display_name: 'Demo Farmer',
     }),
     project: expect.objectContaining({
       id: 4,
-      farmer: 'farmer-demo.testnet',
+      farmer: 'farmer01.testnet',
       investor: 'investor.testnet',
     }),
     cycle: {
