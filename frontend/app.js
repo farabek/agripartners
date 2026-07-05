@@ -5070,13 +5070,7 @@ async function showFarmerPortal() {
     ${renderNav()}
     ${renderEnvironmentBanner('pilot', 'Farmer')}
     ${renderRoleEntrySummary('farmer')}
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold text-green-400 mb-1">My Projects</h1>
-      <p class="text-slate-400">Farmer operations managed through AgriPartners.</p>
-      <p class="text-slate-400 mt-2">Project Operator: <span class="text-slate-200 font-medium">AgriPartners</span></p>
-    </div>
-    <div id="farmer-dashboard-content">
-      <h2 class="text-xl font-semibold mb-4">Active Projects</h2>
+    <div id="farmer-dashboard-content" aria-live="polite">
       <div class="spinner"></div>
     </div>
   `;
@@ -5089,6 +5083,7 @@ async function showFarmerPortal() {
     ]);
     const farmerData = normalizeFarmerDashboardPayload(dealsData);
     const profile = normalizeFarmerProfilePayload(profileData);
+    farmerData.deals = await loadFarmerDashboardCycles(farmerData.deals);
     renderFarmerDashboard(contentEl, farmerData.deals, farmerData.farmer, profile);
   } catch (err) {
     contentEl.querySelector('.spinner')?.remove();
@@ -5130,6 +5125,19 @@ function normalizeLiveFarmerDeal(deal = {}) {
     reportStatus: deal.reportStatus || null,
     reportLabel: deal.reportLabel || null,
   };
+}
+
+async function loadFarmerDashboardCycles(deals) {
+  const results = await Promise.allSettled(deals.map((deal) => {
+    if (deal.id == null) return Promise.resolve([]);
+    return fetchFarmerJson(`/api/farmer/deals/${deal.id}/cycles`)
+      .then(normalizeFarmerCyclesPayload);
+  }));
+  return deals.map((deal, index) => ({
+    ...deal,
+    cycles: results[index].status === 'fulfilled' ? results[index].value : [],
+    cycleDataAvailable: results[index].status === 'fulfilled',
+  }));
 }
 
 function farmerProfileValue(profile, field, fallback = 'Not set') {
@@ -5306,29 +5314,544 @@ function bindFarmerDashboardActions(farmer) {
   });
 }
 
+function farmerDashboardValue(...values) {
+  return values.find((value) => value != null && value !== '');
+}
+
+function farmerDashboardCycle(deal = {}) {
+  const cycles = Array.isArray(deal.cycles) ? deal.cycles : [];
+  const activeId = deal.activeCycleId;
+  return cycles.find((cycle) => String(cycle.id) === String(activeId))
+    || cycles.find((cycle) => !farmerCycleCompleted(cycle))
+    || cycles[cycles.length - 1]
+    || null;
+}
+
+function farmerDashboardProjectHref(deal = {}) {
+  return deal.isDemoPilot
+    ? `#farmer/pilots/${deal.pilot_key}`
+    : `#farmer/deals/${deal.id}`;
+}
+
+function farmerDashboardProjectName(deal = {}) {
+  return deal.title || (deal.id == null ? 'Assigned Project' : `Project #${deal.id}`);
+}
+
+function farmerDashboardCycleNumber(deal = {}, cycle = farmerDashboardCycle(deal)) {
+  return farmerDashboardValue(cycle?.id, deal.activeCycleId, deal.current_cycle);
+}
+
+function farmerDashboardStage(deal = {}, cycle = farmerDashboardCycle(deal)) {
+  if (farmerCycleCompleted(cycle) || deal.status === 'Completed') return 'Cycle completed';
+  if (cycle?.reportStatus === 'submitted') return 'Report submitted';
+  if (cycle?.fundingReceived) return 'Production active';
+  if (cycle?.status === 'funding_sent') return 'Funding confirmation';
+  if (['CycleSettlement', 'Settlement'].includes(deal.status)) return 'Cycle completion';
+  if (['CycleActive', 'Active'].includes(deal.status)) return 'Production active';
+  if (deal.status === 'Funded') return 'Funding confirmation';
+  return 'Production begins soon';
+}
+
+function farmerDashboardFundingStatus(deal = {}, cycle = farmerDashboardCycle(deal)) {
+  if (cycle?.fundingReceived === true) return 'Funding confirmed';
+  if (cycle?.fundingReceived === false && cycle?.status === 'funding_sent') {
+    return 'Waiting for funding confirmation';
+  }
+  if (deal.fundingStatus) return deal.fundingStatus;
+  if (deal.status === 'Funded') return 'Waiting for funding confirmation';
+  return 'Funding schedule in Project';
+}
+
+function farmerDashboardProjectStatus(status) {
+  return {
+    Initialized: 'Project setup',
+    Funded: 'Funding sent',
+    CycleActive: 'Production active',
+    CycleSettlement: 'Cycle completion',
+    Active: 'Production active',
+    Completed: 'Project completed',
+    Terminated: 'Project closed',
+  }[status] || 'Project setup in progress';
+}
+
+function farmerDashboardReportStatus(deal = {}, cycle = farmerDashboardCycle(deal)) {
+  return farmerDashboardValue(cycle?.reportStatus, deal.reportStatus);
+}
+
+function farmerDashboardTasks(deals) {
+  const tasks = [];
+  deals.forEach((deal) => {
+    const cycle = farmerDashboardCycle(deal);
+    const cycleNumber = farmerDashboardCycleNumber(deal, cycle);
+    const projectName = farmerDashboardProjectName(deal);
+    const href = farmerDashboardProjectHref(deal);
+    const reportStatus = String(farmerDashboardReportStatus(deal, cycle) || '').toLowerCase();
+    const fundingWaiting = cycle?.fundingReceived === false && cycle?.status === 'funding_sent';
+
+    if (fundingWaiting) {
+      tasks.push({
+        key: `funding-${deal.id}-${cycleNumber}`,
+        dealId: deal.id,
+        priority: 'Critical',
+        title: 'Confirm Funding',
+        description: `Confirm receipt for ${projectName}${cycleNumber == null ? '' : `, Cycle ${cycleNumber}`}.`,
+        due: 'Required before production',
+        action: 'Confirm Funding',
+        href,
+      });
+    }
+
+    if (reportStatus === 'overdue') {
+      tasks.push({
+        key: `report-${deal.id}-${cycleNumber}`,
+        dealId: deal.id,
+        priority: 'Critical',
+        title: 'Submit Cycle Report',
+        description: `Complete the overdue report for ${projectName}${cycleNumber == null ? '' : `, Cycle ${cycleNumber}`}.`,
+        due: 'Overdue',
+        action: 'Submit Cycle Report',
+        href,
+      });
+    } else if (['due', 'pending', 'not_submitted'].includes(reportStatus)
+      && (cycle?.fundingReceived === true || deal.reportStatus === 'due' || deal.reportStatus === 'pending')) {
+      tasks.push({
+        key: `report-${deal.id}-${cycleNumber}`,
+        dealId: deal.id,
+        priority: reportStatus === 'due' ? 'Important' : 'Standard',
+        title: 'Submit Cycle Report',
+        description: `Add the current Production update for ${projectName}${cycleNumber == null ? '' : `, Cycle ${cycleNumber}`}.`,
+        due: reportStatus === 'due' ? 'Due this cycle' : 'Open for submission',
+        action: 'Submit Cycle Report',
+        href,
+      });
+    }
+
+    const feedback = farmerDashboardValue(deal.operator_feedback, deal.operatorFeedback);
+    if (feedback) {
+      tasks.push({
+        key: `feedback-${deal.id}`,
+        dealId: deal.id,
+        priority: 'Important',
+        title: 'Review Operator Feedback',
+        description: String(feedback),
+        due: 'Review requested',
+        action: 'Review Feedback',
+        href,
+      });
+    }
+
+    if (['CycleSettlement', 'Settlement'].includes(deal.status) && !farmerCycleCompleted(cycle)) {
+      tasks.push({
+        key: `complete-${deal.id}-${cycleNumber}`,
+        dealId: deal.id,
+        priority: 'Important',
+        title: 'Complete Current Cycle',
+        description: `Review the final Production details for ${projectName}.`,
+        due: 'Completion required',
+        action: 'Complete Current Cycle',
+        href,
+      });
+    }
+  });
+
+  const priorityOrder = { Critical: 0, Important: 1, Standard: 2 };
+  return tasks.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+}
+
+function renderFarmerDashboardHeader(profile, farmer, deals) {
+  const displayProfile = farmerProfileDisplay(profile, farmer);
+  const farmerName = farmerDashboardValue(profile?.displayName, profile?.name, farmer, 'Farmer profile');
+  const activeStatuses = ['Initialized', 'Funded', 'CycleActive', 'CycleSettlement', 'Active'];
+  const activeProjects = deals.filter((deal) => !['Completed', 'Terminated'].includes(deal.status)).length;
+  const activeDeal = deals.find((deal) => farmerDashboardCycleNumber(deal) != null)
+    || deals.find((deal) => activeStatuses.includes(deal.status));
+  const cycleNumber = activeDeal ? farmerDashboardCycleNumber(activeDeal) : null;
+  return `
+    <header class="farmer-dashboard-header">
+      <div class="farmer-dashboard-heading">
+        <span>Farmer workspace</span>
+        <h1>Today on the Farm</h1>
+        <p>What do I need to do today?</p>
+        <small>Farmer operations managed through AgriPartners. Project Operator: AgriPartners.</small>
+      </div>
+      <dl class="farmer-header-facts">
+        <div>
+          <dt>Farm Name</dt>
+          <dd>${escapeHtml(displayProfile.farmName === 'Unavailable' ? 'Farm profile pending' : displayProfile.farmName)}</dd>
+        </div>
+        <div>
+          <dt>Farmer Name</dt>
+          <dd>${escapeHtml(farmerName)}</dd>
+        </div>
+        <div>
+          <dt>Active Projects</dt>
+          <dd>${activeProjects}</dd>
+        </div>
+        <div>
+          <dt>Current Active Cycle</dt>
+          <dd>${cycleNumber == null ? 'Production begins soon' : `Cycle ${escapeHtml(cycleNumber)}`}</dd>
+        </div>
+      </dl>
+    </header>
+  `;
+}
+
+function farmerTaskTone(priority) {
+  return priority === 'Critical' ? 'critical' : (priority === 'Important' ? 'important' : 'standard');
+}
+
+function renderFarmerTodayTasks(tasks) {
+  const content = tasks.length
+    ? `<div class="farmer-task-list">${tasks.map((task) => `
+        <article class="farmer-task-card is-${farmerTaskTone(task.priority)}">
+          <div class="farmer-task-copy">
+            <div class="farmer-task-meta">
+              <span class="farmer-priority-badge is-${farmerTaskTone(task.priority)}">${escapeHtml(task.priority)}</span>
+              <span>${escapeHtml(task.due)}</span>
+            </div>
+            <h3>${escapeHtml(task.title)}</h3>
+            <p>${escapeHtml(task.description)}</p>
+          </div>
+          <a class="farmer-primary-action" href="${escapeHtml(task.href)}">${escapeHtml(task.action)}</a>
+        </article>
+      `).join('')}</div>`
+    : '<div class="farmer-empty-state"><strong>No tasks for today.</strong><span>No pending tasks. Your next Production update will appear here.</span></div>';
+  return renderFarmerDailySection(
+    'today-tasks',
+    "Today's Tasks",
+    'Required work appears here first.',
+    content,
+    '1'
+  );
+}
+
+function renderFarmerDailySection(id, title, description, content, priority = '') {
+  return `
+    <section id="${escapeHtml(id)}" class="farmer-dashboard-section" aria-labelledby="${escapeHtml(id)}-title">
+      <div class="farmer-section-heading">
+        <div>
+          ${priority ? `<span>Priority ${escapeHtml(priority)}</span>` : ''}
+          <h2 id="${escapeHtml(id)}-title">${escapeHtml(title)}</h2>
+        </div>
+        ${description ? `<p>${escapeHtml(description)}</p>` : ''}
+      </div>
+      ${content}
+    </section>
+  `;
+}
+
+function renderCanonicalFarmerDealCard(deal, task = null) {
+  const cycle = farmerDashboardCycle(deal);
+  const cycleNumber = farmerDashboardCycleNumber(deal, cycle);
+  const href = farmerDashboardProjectHref(deal);
+  const quickAction = task?.action
+    || (farmerDashboardReportStatus(deal, cycle) === 'submitted' ? 'Open Project' : 'Continue Cycle');
+  const status = farmerDashboardProjectStatus(deal.status);
+  return `
+    <article class="farmer-active-project-card">
+      <div class="farmer-project-title">
+        <span>Active Project</span>
+        <h3>${escapeHtml(farmerDashboardProjectName(deal))}</h3>
+      </div>
+      <dl class="farmer-project-facts">
+        <div><dt>Current Status</dt><dd>${escapeHtml(status)}</dd></div>
+        <div><dt>Current Cycle</dt><dd>${cycleNumber == null ? 'Production begins soon' : `Cycle ${escapeHtml(cycleNumber)}`}</dd></div>
+        <div><dt>Funding Status</dt><dd>${escapeHtml(farmerDashboardFundingStatus(deal, cycle))}</dd></div>
+      </dl>
+      <a class="farmer-secondary-action" href="${escapeHtml(href)}">${escapeHtml(quickAction)}</a>
+    </article>
+  `;
+}
+
+function renderFarmerActiveProject(deals, tasks, farmer) {
+  if (!deals.length) {
+    return renderFarmerDailySection(
+      'active-project',
+      'Active Project',
+      'Your current Project and next action.',
+      `<div class="farmer-empty-state">
+        <strong>No active Projects yet.</strong>
+        <span>Your assigned Project will appear here when it is ready.</span>
+        <span class="farmer-account-reference">Secure account reference: <code id="farmer-wallet-copy-value">${escapeHtml(farmer || 'Account setup in progress')}</code></span>
+        <span><button id="btn-copy-farmer-wallet" type="button" class="farmer-secondary-action">Copy Account Reference</button><span id="farmer-wallet-copy-state" class="farmer-copy-state hidden">Copied</span></span>
+      </div>`,
+      '2'
+    );
+  }
+  const primaryTask = tasks[0];
+  const activeDeal = deals.find((deal) => String(deal.id) === String(primaryTask?.dealId))
+    || deals.find((deal) => ['Initialized', 'Funded', 'CycleActive', 'CycleSettlement', 'Active'].includes(deal.status))
+    || deals[0];
+  return renderFarmerDailySection(
+    'active-project',
+    'Active Project',
+    'Project status and the shortest route back to work.',
+    renderCanonicalFarmerDealCard(activeDeal, primaryTask),
+    '2'
+  );
+}
+
+function farmerDashboardExpectedCompletion(deal = {}, cycle = farmerDashboardCycle(deal)) {
+  const date = farmerDashboardValue(
+    cycle?.expectedCompletion,
+    cycle?.expected_completion,
+    deal.expectedCompletion,
+    deal.expected_completion
+  );
+  if (date) return projectWorkspaceFormatDate(date);
+  if (farmerCycleCompleted(cycle) || deal.status === 'Completed') return 'Completed';
+  if (!cycle) return 'Production begins soon';
+  return 'Scheduled with AgriPartners';
+}
+
+function farmerDashboardProgress(deal = {}, cycle = farmerDashboardCycle(deal)) {
+  const explicit = Number(farmerDashboardValue(cycle?.progress, cycle?.progress_pct, deal.progress, deal.progress_pct));
+  if (Number.isFinite(explicit)) return Math.min(100, Math.max(0, explicit));
+  if (farmerCycleCompleted(cycle) || deal.status === 'Completed') return 100;
+  return null;
+}
+
+function renderFarmerCurrentCycle(deals, tasks) {
+  const activeDeal = deals.find((deal) => String(deal.id) === String(tasks[0]?.dealId))
+    || deals.find((deal) => farmerDashboardCycleNumber(deal) != null)
+    || deals[0];
+  if (!activeDeal) {
+    return renderFarmerDailySection(
+      'current-cycle',
+      'Current Production Cycle',
+      'The active Production stage.',
+      '<div class="farmer-empty-state"><strong>Production begins soon.</strong><span>Cycle details will appear after a Project is assigned.</span></div>',
+      '3'
+    );
+  }
+  const cycle = farmerDashboardCycle(activeDeal);
+  const cycleNumber = farmerDashboardCycleNumber(activeDeal, cycle);
+  const progress = farmerDashboardProgress(activeDeal, cycle);
+  const content = `
+    <div class="farmer-cycle-compact">
+      <dl>
+        <div><dt>Cycle Number</dt><dd>${cycleNumber == null ? 'Production begins soon' : `Cycle ${escapeHtml(cycleNumber)}`}</dd></div>
+        <div><dt>Stage</dt><dd>${escapeHtml(farmerDashboardStage(activeDeal, cycle))}</dd></div>
+        <div><dt>Progress</dt><dd>${progress == null ? 'Current stage in progress' : `${progress}%`}</dd></div>
+        <div><dt>Expected Completion</dt><dd>${escapeHtml(farmerDashboardExpectedCompletion(activeDeal, cycle))}</dd></div>
+      </dl>
+      ${progress == null ? '' : `
+        <div class="farmer-progress-track" role="progressbar" aria-label="Current Production Cycle progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}">
+          <span style="width:${progress}%"></span>
+        </div>
+      `}
+    </div>
+  `;
+  return renderFarmerDailySection(
+    'current-cycle',
+    'Current Production Cycle',
+    'A compact view of the work now in progress.',
+    content,
+    '3'
+  );
+}
+
+function farmerDashboardReportCounts(deals) {
+  let submitted = 0;
+  let pending = 0;
+  deals.forEach((deal) => {
+    const cycles = Array.isArray(deal.cycles) ? deal.cycles : [];
+    if (cycles.length) {
+      submitted += cycles.filter((cycle) => farmerReportSubmitted(cycle)).length;
+      pending += cycles.filter((cycle) => cycle.fundingReceived && !farmerReportSubmitted(cycle)).length;
+    } else {
+      if (deal.reportStatus === 'submitted') submitted += 1;
+      if (['pending', 'due', 'overdue'].includes(deal.reportStatus)) pending += 1;
+    }
+  });
+  return { submitted, pending };
+}
+
+function renderFarmerProductionProgress(deals, tasks) {
+  const activeDeal = deals.find((deal) => String(deal.id) === String(tasks[0]?.dealId))
+    || deals.find((deal) => farmerDashboardCycleNumber(deal) != null)
+    || deals[0];
+  const cycleNumber = activeDeal ? farmerDashboardCycleNumber(activeDeal) : null;
+  const totalCycles = Number(activeDeal?.total_cycles);
+  const counts = farmerDashboardReportCounts(deals);
+  const cycleProgress = cycleNumber == null
+    ? 'Production begins soon'
+    : (Number.isFinite(totalCycles) && totalCycles > 0 ? `Cycle ${cycleNumber} of ${totalCycles}` : `Cycle ${cycleNumber}`);
+  const content = `
+    <div class="farmer-production-metrics">
+      <article><span>Cycle Progress</span><strong>${escapeHtml(cycleProgress)}</strong></article>
+      <article><span>Reports Submitted</span><strong>${counts.submitted || 'No reports submitted'}</strong></article>
+      <article><span>Pending Reports</span><strong>${counts.pending || 'No reports due today'}</strong></article>
+    </div>
+  `;
+  return renderFarmerDailySection(
+    'production-progress',
+    'Production Progress',
+    'Production activity only—no Investor metrics.',
+    content
+  );
+}
+
+function farmerDashboardReports(deals) {
+  const reports = [];
+  deals.forEach((deal) => {
+    const cycles = Array.isArray(deal.cycles) ? deal.cycles : [];
+    cycles.forEach((cycle) => {
+      const report = cycle.report || {};
+      if (farmerReportSubmitted(cycle)) {
+        reports.push({
+          project: farmerDashboardProjectName(deal),
+          cycle: cycle.id,
+          status: 'Submitted',
+          date: farmerDashboardValue(report.submittedAt, report.created_at, cycle.report_created_at),
+          action: 'View Report',
+          href: farmerDashboardProjectHref(deal),
+        });
+      }
+    });
+    if (!cycles.length && deal.reportStatus === 'submitted') {
+      reports.push({
+        project: farmerDashboardProjectName(deal),
+        cycle: farmerDashboardCycleNumber(deal),
+        status: 'Submitted',
+        date: farmerDashboardValue(deal.reportSubmittedAt, deal.report_submitted_at),
+        action: 'View Report',
+        href: farmerDashboardProjectHref(deal),
+      });
+    }
+  });
+  return reports.sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))).slice(0, 3);
+}
+
+function renderFarmerRecentReports(deals) {
+  const reports = farmerDashboardReports(deals);
+  const content = reports.length
+    ? `<div class="farmer-report-list">${reports.map((report) => `
+        <article class="farmer-dashboard-report">
+          <div>
+            <span>${escapeHtml(report.cycle == null ? 'Production report' : `Cycle ${report.cycle}`)}</span>
+            <h3>${escapeHtml(report.project)}</h3>
+            <p>Submission date: ${escapeHtml(report.date ? projectWorkspaceFormatDate(report.date) : 'Recorded with Project')}</p>
+          </div>
+          <span class="farmer-report-status">${escapeHtml(report.status)}</span>
+          <a class="farmer-secondary-action" href="${escapeHtml(report.href)}">${escapeHtml(report.action)}</a>
+        </article>
+      `).join('')}</div>`
+    : '<div class="farmer-empty-state"><strong>No reports due today.</strong><span>Submitted reports and their status will appear here.</span></div>';
+  return renderFarmerDailySection(
+    'recent-reports',
+    'Recent Reports',
+    'Latest Production reports and submission status.',
+    content,
+    '4'
+  );
+}
+
+function farmerDashboardNotifications(deals, tasks) {
+  const taskKeys = new Set(tasks.map((task) => task.key));
+  const notifications = [];
+  deals.forEach((deal) => {
+    const cycle = farmerDashboardCycle(deal);
+    const cycleNumber = farmerDashboardCycleNumber(deal, cycle);
+    const project = farmerDashboardProjectName(deal);
+
+    if (cycle?.fundingReceived === false && cycle?.status === 'funding_sent') {
+      notifications.push({
+        key: `funding-${deal.id}-${cycleNumber}`,
+        level: 'Critical',
+        title: 'Funding confirmation required',
+        detail: `${project}${cycleNumber == null ? '' : ` · Cycle ${cycleNumber}`}`,
+      });
+    }
+    if (String(farmerDashboardReportStatus(deal, cycle)).toLowerCase() === 'overdue') {
+      notifications.push({
+        key: `report-${deal.id}-${cycleNumber}`,
+        level: 'Critical',
+        title: 'Report overdue',
+        detail: `${project}${cycleNumber == null ? '' : ` · Cycle ${cycleNumber}`}`,
+      });
+    }
+    if (cycle?.fundingReceived === true) {
+      notifications.push({
+        key: `funding-received-${deal.id}-${cycleNumber}`,
+        level: 'Important',
+        title: 'Funding received',
+        detail: `${project}${cycleNumber == null ? '' : ` · Cycle ${cycleNumber}`}`,
+      });
+    }
+    if (farmerDashboardValue(deal.operator_feedback, deal.operatorFeedback)) {
+      notifications.push({
+        key: `feedback-${deal.id}`,
+        level: 'Important',
+        title: 'Operator feedback available',
+        detail: project,
+      });
+    }
+    if (farmerCycleCompleted(cycle) || deal.status === 'Completed') {
+      notifications.push({
+        key: `cycle-completed-${deal.id}-${cycleNumber}`,
+        level: 'Information',
+        title: 'Cycle completed',
+        detail: `${project}${cycleNumber == null ? '' : ` · Cycle ${cycleNumber}`}`,
+      });
+    }
+    if (farmerDashboardValue(deal.document_available, deal.documentAvailable)) {
+      notifications.push({
+        key: `document-${deal.id}`,
+        level: 'Information',
+        title: 'New document available',
+        detail: project,
+      });
+    }
+  });
+  return notifications.filter((notification) => !taskKeys.has(notification.key));
+}
+
+function renderFarmerNotifications(deals, tasks) {
+  const notifications = farmerDashboardNotifications(deals, tasks);
+  const levels = ['Critical', 'Important', 'Information'];
+  const content = notifications.length
+    ? `<div class="farmer-notification-groups">${levels.map((level) => {
+        const items = notifications.filter((notification) => notification.level === level);
+        if (!items.length) return '';
+        return `
+          <div class="farmer-notification-group is-${level.toLowerCase()}">
+            <h3>${level}</h3>
+            ${items.map((item) => `
+              <article>
+                <strong>${escapeHtml(item.title)}</strong>
+                <span>${escapeHtml(item.detail)}</span>
+              </article>
+            `).join('')}
+          </div>
+        `;
+      }).join('')}</div>`
+    : '<div class="farmer-empty-state"><strong>No new notifications.</strong><span>Critical actions are promoted to Today&rsquo;s Tasks.</span></div>';
+  return renderFarmerDailySection(
+    'farmer-notifications',
+    'Notifications',
+    'Updates grouped by operational priority.',
+    content,
+    '5'
+  );
+}
+
 function renderFarmerDashboard(el, deals, farmer, profile = null) {
   el.querySelector('.spinner')?.remove();
   deals = Array.isArray(deals) ? deals : [];
-  const metrics = farmerDashboardMetrics(deals);
-
-  if (deals.length === 0) {
-    el.innerHTML = `
-      ${renderFarmerProfilePanel(profile, farmer)}
-      ${renderFarmerSummaryCards(metrics)}
-      ${renderFarmerEmptyState(farmer)}
-    `;
-    bindFarmerDashboardActions(farmer);
-    return;
-  }
-
+  const tasks = farmerDashboardTasks(deals);
   el.innerHTML = `
-    ${renderFarmerProfilePanel(profile, farmer)}
-    ${renderFarmerSummaryCards(metrics)}
-    <h2 class="text-xl font-semibold mb-4">Active Projects</h2>
-    <div class="grid gap-4">
-      ${deals.map(renderFarmerDealCard).join('')}
-    </div>
+    <main class="farmer-daily-dashboard">
+      ${renderFarmerDashboardHeader(profile, farmer, deals)}
+      ${renderFarmerTodayTasks(tasks)}
+      ${renderFarmerActiveProject(deals, tasks, farmer)}
+      ${renderFarmerCurrentCycle(deals, tasks)}
+      ${renderFarmerProductionProgress(deals, tasks)}
+      ${renderFarmerRecentReports(deals)}
+      ${renderFarmerNotifications(deals, tasks)}
+    </main>
   `;
+  if (!deals.length) bindFarmerDashboardActions(farmer);
 }
 
 function farmerDealNextAction(deal) {
@@ -5364,7 +5887,6 @@ function renderFarmerDealCard(deal) {
         <p class="text-sm text-slate-400">Production Cycle: <span class="text-slate-200">${escapeHtml(activeCycle)}</span></p>
         <p class="text-sm text-slate-400">Funding Confirmation: <span class="text-slate-200">${escapeHtml(deal.fundingStatus || 'Unavailable')}</span></p>
         <p class="text-sm text-slate-400">Project Report: <span class="text-slate-200">${escapeHtml(deal.reportLabel || 'Unavailable')}</span></p>
-        <p class="text-sm text-slate-400">Projected ROI: <span class="text-slate-200">${escapeHtml(farmerDealProjectedRoi(deal))}</span></p>
         <p class="text-sm text-green-300">Next action: ${escapeHtml(farmerDealNextAction(deal))}</p>
       </div>
       <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open Project</a>
