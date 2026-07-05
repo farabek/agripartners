@@ -2,7 +2,7 @@
 
 Status: In Progress
 
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 ## 1. Purpose
 
@@ -52,6 +52,7 @@ completion percentage above.
 | Deliverable | Status | Notes |
 | --- | --- | --- |
 | [Canonical Workspace Specification](CANONICAL_PROJECT_WORKSPACE_SPEC.md) | ✓ Completed | Single source of truth for the structure, hierarchy, role visibility, empty states, environment rules, consistency, and acceptance criteria of every **View Project** Workspace. |
+| [Canonical Farmer Experience Specification](CANONICAL_FARMER_EXPERIENCE_SPEC.md) | ✓ Completed | Single source of truth for the Farmer journey, Dashboard, Project Workspace, daily priorities, role visibility, empty states, notifications, mobile experience, and acceptance criteria. |
 
 ## 3. Review Rules
 
