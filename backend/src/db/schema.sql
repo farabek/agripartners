@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   phone              TEXT,
   organization_name  TEXT,
   bio                TEXT,
+  onboarding_complete BOOLEAN NOT NULL DEFAULT TRUE,
   created_at         TEXT NOT NULL,
   updated_at         TEXT NOT NULL
 );

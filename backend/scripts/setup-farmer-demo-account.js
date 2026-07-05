@@ -6,9 +6,10 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const pool = require('../src/db');
 
-const DEFAULT_ACCOUNT_ID = 'farmer01.testnet';
+const DEFAULT_ACCOUNT_ID = 'farmer03.testnet';
 const DEFAULT_DISPLAY_NAME = 'Demo Farmer';
 const DEFAULT_PROJECT_ID = 4;
+const OBSOLETE_DEMO_ACCOUNT_IDS = ['farmer01.testnet'];
 
 function normalizeAccountId(value) {
   const accountId = String(value || '').trim().toLowerCase();
@@ -31,12 +32,6 @@ async function selectDemoProject(client, preferredProjectId) {
     `SELECT d.*
      FROM deals d
      WHERE d.id = $1
-       AND NOT EXISTS (
-         SELECT 1
-         FROM events e
-         WHERE e.deal_id = d.id
-           AND e.event_type = 'completed'
-       )
      FOR UPDATE`,
     [preferredProjectId]
   );
@@ -64,17 +59,6 @@ async function selectDemoProject(client, preferredProjectId) {
   throw new Error(`No active Farmer demo Project is available (preferred Project #${preferredProjectId})`);
 }
 
-async function currentDemoCycle(client, projectId) {
-  const { rows } = await client.query(
-    `SELECT COALESCE(MAX(cycle_num), 1)::INTEGER AS cycle_num
-     FROM events
-     WHERE deal_id = $1
-       AND cycle_num IS NOT NULL`,
-    [projectId]
-  );
-  return rows[0].cycle_num;
-}
-
 async function ensureCycleStarted(client, projectId, cycleNumber) {
   const { rowCount } = await client.query(
     `INSERT INTO events (deal_id, event_type, cycle_num)
@@ -95,13 +79,12 @@ async function prepareFarmerDemoAccount(client, options = {}) {
   const accountId = normalizeAccountId(options.accountId || DEFAULT_ACCOUNT_ID);
   const displayName = String(options.displayName || DEFAULT_DISPLAY_NAME).trim();
   const preferredProjectId = normalizeProjectId(options.projectId || DEFAULT_PROJECT_ID);
-  const forceReset = options.forceReset === true;
 
   if (!displayName) throw new Error('FARMER_DEMO_DISPLAY_NAME is required');
 
   const project = await selectDemoProject(client, preferredProjectId);
   const assignmentChanged = project.farmer !== accountId;
-  const cycleNumber = await currentDemoCycle(client, project.id);
+  const cycleNumber = 1;
 
   const { rows: profileRows } = await client.query(
     `INSERT INTO user_profiles (
@@ -110,6 +93,7 @@ async function prepareFarmerDemoAccount(client, options = {}) {
        display_name,
        organization_name,
        bio,
+       onboarding_complete,
        created_at,
        updated_at
      )
@@ -119,6 +103,7 @@ async function prepareFarmerDemoAccount(client, options = {}) {
        $2,
        'AgriPartners Demo Farm',
        'Canonical Farmer demo account',
+       TRUE,
        NOW(),
        NOW()
      )
@@ -128,8 +113,9 @@ async function prepareFarmerDemoAccount(client, options = {}) {
        display_name = EXCLUDED.display_name,
        organization_name = EXCLUDED.organization_name,
        bio = EXCLUDED.bio,
+       onboarding_complete = TRUE,
        updated_at = NOW()
-     RETURNING wallet_account_id, role, display_name, organization_name`,
+     RETURNING wallet_account_id, role, display_name, organization_name, onboarding_complete`,
     [accountId, displayName]
   );
 
@@ -141,26 +127,51 @@ async function prepareFarmerDemoAccount(client, options = {}) {
     [accountId, project.id]
   );
 
-  let deletedReports = 0;
-  let deletedCycleUpdates = 0;
-  if (assignmentChanged || forceReset) {
-    const reportResult = await client.query(
-      'DELETE FROM reports WHERE deal_id = $1 AND cycle_id = $2',
-      [project.id, cycleNumber]
-    );
-    const cycleUpdateResult = await client.query(
-      'DELETE FROM farmer_cycle_updates WHERE deal_id = $1 AND cycle_num = $2',
-      [project.id, cycleNumber]
-    );
-    deletedReports = reportResult.rowCount;
-    deletedCycleUpdates = cycleUpdateResult.rowCount;
-  }
+  const reportResult = await client.query(
+    'DELETE FROM reports WHERE deal_id = $1 AND cycle_id = $2',
+    [project.id, cycleNumber]
+  );
+  const cycleUpdateResult = await client.query(
+    'DELETE FROM farmer_cycle_updates WHERE deal_id = $1 AND cycle_num = $2',
+    [project.id, cycleNumber]
+  );
+
+  const resetEventResult = await client.query(
+    `DELETE FROM events
+     WHERE deal_id = $1
+       AND cycle_num = $2
+       AND event_type IN (
+         'cycle_reported',
+         'farmer_funding_confirmed',
+         'farmer_cycle_report_submitted'
+       )`,
+    [project.id, cycleNumber]
+  );
 
   const cycleStartedCreated = await ensureCycleStarted(client, project.id, cycleNumber);
 
+  const obsoleteProfiles = [];
+  for (const obsoleteAccountId of OBSOLETE_DEMO_ACCOUNT_IDS) {
+    if (obsoleteAccountId === accountId) continue;
+    const { rows } = await client.query(
+      `DELETE FROM user_profiles p
+       WHERE p.wallet_account_id = $1
+         AND p.role = 'farmer'
+         AND NOT EXISTS (
+           SELECT 1
+           FROM deals d
+           WHERE d.farmer = p.wallet_account_id
+              OR d.investor = p.wallet_account_id
+         )
+       RETURNING p.wallet_account_id`,
+      [obsoleteAccountId]
+    );
+    obsoleteProfiles.push(...rows.map(row => row.wallet_account_id));
+  }
+
   return {
     account: profileRows[0],
-    onboardingCompleted: true,
+    onboardingCompleted: profileRows[0].onboarding_complete,
     project: projectRows[0],
     cycle: {
       cycleNumber,
@@ -169,10 +180,11 @@ async function prepareFarmerDemoAccount(client, options = {}) {
     },
     reset: {
       assignmentChanged,
-      forceReset,
-      deletedReports,
-      deletedCycleUpdates,
+      deletedReports: reportResult.rowCount,
+      deletedCycleUpdates: cycleUpdateResult.rowCount,
+      deletedWorkflowEvents: resetEventResult.rowCount,
       cycleStartedCreated,
+      obsoleteProfiles,
     },
   };
 }
@@ -182,7 +194,6 @@ async function main() {
     accountId: process.env.FARMER_DEMO_ACCOUNT_ID || DEFAULT_ACCOUNT_ID,
     displayName: process.env.FARMER_DEMO_DISPLAY_NAME || DEFAULT_DISPLAY_NAME,
     projectId: process.env.FARMER_DEMO_PROJECT_ID || DEFAULT_PROJECT_ID,
-    forceReset: process.env.RESET_FARMER_DEMO_WORKFLOW === 'true',
   };
 
   const client = await pool.connect();
@@ -211,6 +222,7 @@ module.exports = {
   DEFAULT_ACCOUNT_ID,
   DEFAULT_DISPLAY_NAME,
   DEFAULT_PROJECT_ID,
+  OBSOLETE_DEMO_ACCOUNT_IDS,
   normalizeAccountId,
   normalizeProjectId,
   prepareFarmerDemoAccount,
