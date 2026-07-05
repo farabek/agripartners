@@ -1728,7 +1728,7 @@ function showLogin() {
     },
     farmer: {
       title: 'Farmer access',
-      description: 'Enter My Projects to confirm fiat Funding and submit Reports through AgriPartners as Project Operator.',
+      description: 'Sign in securely to enter your Farmer Workspace.',
     },
     admin: {
       title: 'AgriPartners Operator access',
@@ -1741,6 +1741,13 @@ function showLogin() {
   const showWalletAccess = entryRole == null || entryRole === 'investor';
   const pendingLoginError = sessionStorage.getItem('ap_login_error');
   sessionStorage.removeItem('ap_login_error');
+
+  if (entryRole === 'farmer') {
+    renderFarmerLogin(el, entryConfig, pendingLoginError);
+    document.getElementById('login-near-wallet')?.addEventListener('click', handleWalletLogin);
+    return;
+  }
+
   el.innerHTML = `
     <div class="mb-6">
       <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
@@ -1860,6 +1867,53 @@ function showLogin() {
     }
   });
   document.getElementById('login-near-wallet')?.addEventListener('click', handleWalletLogin);
+}
+
+function renderFarmerLogin(el, entryConfig, pendingLoginError = '') {
+  el.innerHTML = `
+    <main class="farmer-login-page">
+      <a href="/" class="farmer-login-back">
+        <span aria-hidden="true">&larr;</span>
+        Back to Home
+      </a>
+
+      <header class="farmer-login-heading">
+        <span class="farmer-login-brand">AgriPartners</span>
+        <h1>${escapeHtml(entryConfig.title)}</h1>
+        <p>${escapeHtml(entryConfig.description)}</p>
+      </header>
+
+      <section class="farmer-login-card" aria-label="Farmer wallet access">
+        <button type="button" id="login-near-wallet"
+          data-default-label="Login with NEAR Wallet"
+          class="farmer-login-primary">
+          Login with NEAR Wallet
+        </button>
+
+        <div id="login-error" class="hidden farmer-login-error" role="alert"></div>
+
+        <div class="farmer-login-wallet-help">
+          <h2>Need a wallet?</h2>
+          <div>
+            <a href="https://testnet.mynearwallet.com/create" target="_blank" rel="noopener noreferrer">
+              Create Testnet Wallet
+            </a>
+            <a href="https://testnet.mynearwallet.com/recover-account" target="_blank" rel="noopener noreferrer">
+              Import Existing Wallet
+            </a>
+          </div>
+        </div>
+
+        <p class="farmer-login-note">After authentication you will enter your Farmer Workspace.</p>
+      </section>
+    </main>
+  `;
+
+  if (pendingLoginError) {
+    const errEl = document.getElementById('login-error');
+    errEl.textContent = pendingLoginError;
+    errEl.classList.remove('hidden');
+  }
 }
 
 async function handleLogin(username, password) {
