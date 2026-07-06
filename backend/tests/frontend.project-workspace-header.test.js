@@ -62,7 +62,7 @@ test('shared Project Workspace Header renders required project identity fields a
   expect(html).toContain('data-project-workspace-header');
   expect(html).toContain('Hissar Sheep Pilot');
   expect(html).toContain('Hissar Sheep v1.0');
-  expect(html).toContain('Active');
+  expect(html).toContain('In progress');
   expect(html).toContain('data-project-header-fields');
   expect(html).toContain('data-header-role="investor"');
   for (const [label, value] of [
@@ -81,7 +81,7 @@ test('shared Project Workspace Header renders required project identity fields a
     expect(html).toContain(value);
   }
   expect(html).toContain('workspace-identity-grid');
-  for (const stage of ['Funding', 'Farmer Confirmation', 'Production', 'Farmer Reports', 'Settlement', 'Completed']) {
+  for (const stage of ['Funding', 'Farmer Confirmation', 'Production', 'Reports', 'Settlement', 'Completed']) {
     expect(html).toContain(`data-project-stage="${stage}"`);
   }
   expect(html).toContain('Current');
@@ -420,7 +420,7 @@ test('Operator Project Activity Feed shows workflow, pending items and operation
   expect(html).toContain('Pending approvals');
   expect(html).toContain('Pending confirmations');
   expect(html).toContain('Operational alerts');
-  expect(html).toContain('Internal workflow status');
+  expect(html).toContain('Workflow status');
   expect(html).toContain('Farmer Report Submitted');
   expect(html).toContain('Operational Alert');
   expect(html).toContain('Operator-only risk note');
@@ -445,7 +445,7 @@ test('Project Activity Feed remains reusable while History owns canonical worksp
   expect(feed).toContain('sm:grid-cols-2');
   expect(feed).toContain('sm:flex-row');
   expect(feed).toContain('sm:p-4');
-  expect(feed).toContain('Timestamp unavailable');
+  expect(feed).toContain('Date not yet provided');
   expect(workspace).not.toContain('data-project-activity-feed');
   expect(workspace).toContain('Activity Timeline');
   expect(workspace).toContain('Chronological Event Feed');
@@ -541,7 +541,7 @@ test('Project Documents supports an empty state', () => {
   const html = renderProjectDocuments({ documents: [] });
 
   expect(html).toContain('data-documents-empty');
-  expect(html).toContain('No Project documents available');
+  expect(html).toContain('Project documents not yet provided');
   expect(html).not.toContain('<article');
 });
 

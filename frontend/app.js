@@ -261,9 +261,10 @@ async function verifyWalletCallbackIfPresent() {
     cleanWalletAuthCallbackUrl(targetHash);
     return true;
   } catch (err) {
+    console.error('Wallet callback verification failed', err);
     localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
     cleanWalletAuthCallbackUrl();
-    sessionStorage.setItem('ap_login_error', err.message || 'Wallet login failed');
+    sessionStorage.setItem('ap_login_error', friendlyUiErrorMessage(err, 'Wallet sign-in'));
     return false;
   }
 }
@@ -288,8 +289,69 @@ function yoctoToNearFloat(yocto) {
   return whole + frac;
 }
 
-function formatYoctoRaw(yocto) {
-  return `${yocto || '0'} yoctoNEAR`;
+function formatBusinessNumber(value, maximumFractionDigits = 6) {
+  const text = String(value ?? '').trim();
+  if (!text) return null;
+  const number = Number(text);
+  if (!Number.isFinite(number)) return text;
+  return number.toLocaleString('en-US', {
+    maximumFractionDigits,
+    useGrouping: true,
+  });
+}
+
+function businessStatusLabel(status, fallback = 'Pending update') {
+  const raw = status && typeof status === 'object' ? status.status : status;
+  const value = String(raw ?? '').trim();
+  if (!value) return fallback;
+  const key = value.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const labels = {
+    unknown: 'Pending update',
+    unavailable: 'Pending update',
+    initialized: 'Funding in progress',
+    draft: 'Preparing',
+    preparing: 'Preparing',
+    approved: 'Funding in progress',
+    fundingpending: 'Funding in progress',
+    funded: 'Awaiting farmer confirmation',
+    farmerconfirmationpending: 'Awaiting farmer confirmation',
+    active: 'In progress',
+    cycleactive: 'In progress',
+    inproduction: 'In progress',
+    reportspending: 'Awaiting review',
+    submitted: 'Awaiting review',
+    underreview: 'Awaiting review',
+    cyclesettlement: 'Settlement in progress',
+    settlementpending: 'Settlement in progress',
+    settled: 'Completed',
+    completed: 'Completed',
+    terminated: 'Closed',
+  };
+  if (labels[key]) return labels[key];
+  return value
+    .replace(/[_-]+/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\b\w/g, character => character.toUpperCase());
+}
+
+function friendlyUiErrorMessage(error, context = 'Information') {
+  const message = String(error?.message || error || '').toLowerCase();
+  if (/401|authentication|session expired|sign in/.test(message)) {
+    return 'Your session has expired. Please sign in again.';
+  }
+  if (/403|access denied|not authorized|admin access/.test(message)) {
+    return 'You do not have access to this information.';
+  }
+  if (/wallet|account does not exist|access key|near|rpc/.test(message)) {
+    return 'Wallet information is temporarily unavailable.';
+  }
+  if (/balance/.test(message)) {
+    return 'Balance information is unavailable in this Alpha release.';
+  }
+  if (/synchron|status|event|cycle|report|return/.test(message)) {
+    return 'This information will become available after synchronization.';
+  }
+  return `${context} is temporarily unavailable. Please try again.`;
 }
 
 function addYocto(a, b) {
@@ -320,14 +382,15 @@ function escapeHtml(value) {
 }
 
 function formatAddress(addr) {
-  if (!addr) return '—';
+  if (!addr) return 'Not yet provided';
   if (addr.length <= 20) return addr;
   return addr.slice(0, 6) + '…' + addr.slice(-4);
 }
 
 function statusBadge(status) {
-  if (!status) return '<span class="badge badge-Unknown">Unknown</span>';
-  return `<span class="badge badge-${status}">${status}</span>`;
+  const raw = status && typeof status === 'object' ? status.status : status;
+  const className = String(raw || 'Pending').replace(/[^a-z0-9_-]/gi, '');
+  return `<span class="badge badge-${escapeHtml(className)}">${escapeHtml(businessStatusLabel(raw))}</span>`;
 }
 
 // --- Router ---
@@ -1071,7 +1134,8 @@ async function redirectAuthenticatedUser() {
     try {
       location.hash = await resolveWalletLandingHash();
     } catch (err) {
-      sessionStorage.setItem('ap_login_error', err.message || 'Unable to load wallet profile');
+      console.error('Wallet profile failed to load', err);
+      sessionStorage.setItem('ap_login_error', friendlyUiErrorMessage(err, 'Wallet profile'));
       clearAuth();
       location.hash = '#login';
     }
@@ -1939,7 +2003,7 @@ async function handleLogin(username, password) {
     setAuth(data.token, data.user);
     location.hash = portalHashForRole(data.user.role);
   } catch {
-    errEl.textContent = 'Server unavailable';
+    errEl.textContent = 'Sign-in is temporarily unavailable. Please try again.';
     errEl.classList.remove('hidden');
     btn.disabled = false;
     btn.textContent = 'Sign In';
@@ -1964,10 +2028,12 @@ async function handleWalletLogin() {
     await loginWithNearWallet();
   } catch (err) {
     if (errEl) {
-      errEl.textContent = err.message || 'Wallet login failed';
+      console.error('Wallet login failed', err);
+      errEl.textContent = friendlyUiErrorMessage(err, 'Wallet sign-in');
       errEl.classList.remove('hidden');
     } else {
-      sessionStorage.setItem('ap_login_error', err.message || 'Wallet login failed');
+      console.error('Wallet login failed', err);
+      sessionStorage.setItem('ap_login_error', friendlyUiErrorMessage(err, 'Wallet sign-in'));
       location.hash = '#login';
     }
     if (btn) {
@@ -2106,7 +2172,9 @@ async function showAdminCreatePortal() {
     ? profileResults[1].value.investors : [];
   renderAdminCreateForm(contentEl, farmers, investors);
   const failures = profileResults
-    .map((result, index) => result.status === 'rejected' ? `${index === 0 ? 'Farmer' : 'Investor'} profiles unavailable: ${result.reason.message}` : null)
+    .map((result, index) => result.status === 'rejected'
+      ? friendlyUiErrorMessage(result.reason, `${index === 0 ? 'Farmer' : 'Investor'} profiles`)
+      : null)
     .filter(Boolean);
   if (failures.length) {
     contentEl.insertAdjacentHTML('afterbegin', `<div class="bg-amber-950 border border-amber-800 text-amber-100 px-4 py-3 rounded mb-4">${failures.map(escapeHtml).join('<br>')}</div>`);
@@ -2204,7 +2272,8 @@ async function createPlatformUser(event) {
     form.reset();
     showAdminUserResult('success', `Created ${data.role} user: ${data.username}`);
   } catch (err) {
-    showAdminUserResult('error', `Create user failed: ${err.message}`);
+    console.error('Platform user creation failed', err);
+    showAdminUserResult('error', friendlyUiErrorMessage(err, 'User creation'));
   } finally {
     btn.disabled = false;
     btn.textContent = 'Create Platform User';
@@ -2274,7 +2343,7 @@ function renderAdminTreasuryContent({ accounts, ledgerEntries, accountsError, le
         </div>
       </div>
       <div id="admin-treasury-accounts">
-        ${accountsError ? renderAdminTreasuryError('account fetch error', accountsError, 'data-admin-treasury-accounts-error') : renderAdminTreasuryAccounts(accounts, ledgerEntries)}
+        ${accountsError ? renderAdminTreasuryError('Treasury accounts', accountsError, 'data-admin-treasury-accounts-error') : renderAdminTreasuryAccounts(accounts, ledgerEntries)}
       </div>
     </section>
     <section class="bg-slate-800 rounded-xl p-5 mb-6">
@@ -2285,7 +2354,7 @@ function renderAdminTreasuryContent({ accounts, ledgerEntries, accountsError, le
         </div>
       </div>
       <div id="admin-treasury-ledger">
-        ${ledgerError ? renderAdminTreasuryError('ledger fetch error', ledgerError, 'data-admin-treasury-ledger-error') : `
+        ${ledgerError ? renderAdminTreasuryError('Treasury activity', ledgerError, 'data-admin-treasury-ledger-error') : `
           ${renderAdminTreasuryFilters(accounts)}
           <div id="admin-treasury-ledger-table">${renderAdminTreasuryLedger(filteredEntries)}</div>
         `}
@@ -2361,7 +2430,7 @@ function renderAdminTreasuryAccounts(accounts, ledgerEntries) {
     return `
       <div class="bg-slate-900 border border-slate-700 rounded-lg p-5 text-center" data-admin-treasury-empty-accounts>
         <h3 class="font-semibold text-slate-200">No Treasury accounts</h3>
-        <p class="text-sm text-slate-400 mt-1">The account catalog is unavailable or has not been seeded yet.</p>
+        <p class="text-sm text-slate-400 mt-1">Treasury accounts will appear after the account catalog is prepared.</p>
       </div>
     `;
   }
@@ -2382,8 +2451,8 @@ function renderAdminTreasuryAccounts(accounts, ledgerEntries) {
           ${accounts.map(account => `
             <tr class="border-b border-slate-700/60">
               <td class="py-2 pr-3 font-mono text-xs text-slate-200">${escapeHtml(account.account_code)}</td>
-              <td class="py-2 pr-3 text-slate-200">${escapeHtml(account.account_name || 'Unknown')}</td>
-              <td class="py-2 pr-3 text-slate-300">${escapeHtml(account.account_type || 'Unknown')}</td>
+              <td class="py-2 pr-3 text-slate-200">${escapeHtml(account.account_name || 'Name not yet provided')}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(account.account_type || 'Type not yet provided')}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(account.currency || 'NEAR')}</td>
               <td class="py-2 pr-3 text-slate-300">${account.is_active === false ? 'Inactive' : 'Active'}</td>
               <td class="py-2 pr-3 font-mono text-xs text-amber-100">${escapeHtml(formatTreasuryUnits(derivedActivityForAccount(account.account_code, ledgerEntries, account.currency || 'NEAR'), account.currency || 'NEAR'))}</td>
@@ -2471,11 +2540,11 @@ function renderAdminTreasuryLedger(ledgerEntries) {
             <tr class="border-b border-slate-700/60">
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(formatDateTime(entry.created_at))}</td>
               <td class="py-2 pr-3">
-                <button type="button" class="admin-treasury-transaction-link text-green-300 hover:text-green-200 underline font-mono" data-transaction-id="${escapeHtml(entry.transaction_id)}">${escapeHtml(entry.transaction_id || 'Unknown')}</button>
+                <button type="button" class="admin-treasury-transaction-link text-green-300 hover:text-green-200 underline font-mono" data-transaction-id="${escapeHtml(entry.transaction_id)}">${escapeHtml(entry.transaction_id || 'Reference pending')}</button>
               </td>
-              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${escapeHtml(entry.account_code || 'Unknown')}</td>
-              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.direction || 'Unknown')}</td>
-              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${escapeHtml(entry.amount || '0')}</td>
+              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${escapeHtml(entry.account_code || 'Account pending')}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.direction ? businessStatusLabel(entry.direction) : 'Direction pending')}</td>
+              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${escapeHtml(formatTreasuryUnits(treasuryAmountUnits(entry.amount), entry.currency || 'NEAR'))}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.currency || 'NEAR')}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.related_deal_id ?? 'None')}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.related_investor || 'None')}</td>
@@ -2491,7 +2560,7 @@ function renderAdminTreasuryLedger(ledgerEntries) {
 function renderAdminTreasuryError(label, message, attributeName) {
   return `
     <div class="bg-red-900 text-red-100 px-4 py-3 rounded" ${attributeName}>
-      <strong>${escapeHtml(label)}:</strong> ${escapeHtml(message)}
+      <strong>${escapeHtml(label)}:</strong> ${escapeHtml(friendlyUiErrorMessage(message, 'Treasury information'))}
     </div>
   `;
 }
@@ -2527,7 +2596,8 @@ async function loadAdminTreasuryTransactionDetail(transactionId) {
     if (!data.transaction || typeof data.transaction !== 'object') throw new Error('Malformed treasury transaction payload');
     target.innerHTML = renderAdminTreasuryTransactionDetail(data.transaction);
   } catch (err) {
-    target.innerHTML = renderAdminTreasuryError('transaction detail fetch error', err.message, 'data-admin-treasury-transaction-error');
+    console.error('Treasury transaction detail failed to load', err);
+    target.innerHTML = renderAdminTreasuryError('Transaction details', err, 'data-admin-treasury-transaction-error');
   }
 }
 
@@ -2582,9 +2652,9 @@ function renderAdminTreasuryTransactionEntries(entries) {
         <tbody>
           ${entries.map(entry => `
             <tr class="border-b border-slate-700/60">
-              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${escapeHtml(entry.account_code || 'Unknown')}</td>
-              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${entry.direction === 'debit' ? escapeHtml(entry.amount || '0') : ''}</td>
-              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${entry.direction === 'credit' ? escapeHtml(entry.amount || '0') : ''}</td>
+              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${escapeHtml(entry.account_code || 'Account pending')}</td>
+              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${entry.direction === 'debit' ? escapeHtml(formatTreasuryUnits(treasuryAmountUnits(entry.amount), entry.currency || 'NEAR')) : ''}</td>
+              <td class="py-2 pr-3 font-mono text-xs text-slate-200">${entry.direction === 'credit' ? escapeHtml(formatTreasuryUnits(treasuryAmountUnits(entry.amount), entry.currency || 'NEAR')) : ''}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.currency || 'NEAR')}</td>
             </tr>
           `).join('')}
@@ -2723,7 +2793,8 @@ async function createAdminDeal(event) {
     `);
     form.reset();
   } catch (err) {
-    showAdminCreateResult('error', `Create Project failed: ${escapeHtml(err.message)}`);
+    console.error('Project creation failed', err);
+    showAdminCreateResult('error', escapeHtml(friendlyUiErrorMessage(err, 'Project creation')));
   } finally {
     btn.disabled = false;
     btn.textContent = 'Create Project';
@@ -2765,7 +2836,8 @@ async function showDeals() {
     el.appendChild(grid);
   } catch (e) {
     el.querySelector('.spinner')?.remove();
-    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Backend unavailable: ${e.message}</div>`;
+    console.error('Project list failed to load', e);
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">${escapeHtml(friendlyUiErrorMessage(e, 'Project information'))}</div>`;
   }
 }
 
@@ -2795,7 +2867,7 @@ function renderAdminDashboardShell(el) {
 function adminDashboardErrorMessage(status, message) {
   if (status === 401) return 'Authentication required. Please sign in again.';
   if (status === 403) return 'Admin access is required to load this dashboard.';
-  return message || 'The live admin dashboard is unavailable.';
+  return friendlyUiErrorMessage(message, 'Project dashboard');
 }
 
 async function showLiveAdminDashboard(el) {
@@ -2826,17 +2898,17 @@ async function showLiveAdminDashboard(el) {
 }
 
 function renderDealCard(d) {
-  const dealTitle = d.title || d.deal_type || 'Unknown';
+  const dealTitle = d.title || d.deal_type || 'Untitled Project';
   const protectionKey = d.pilot_key || pilotKeyFromText(`${dealTitle} ${d.description || ''}`);
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex justify-between items-center gap-4">
       <div class="space-y-1 min-w-0">
         <h2 class="text-lg font-semibold text-slate-100 truncate">Project #${escapeHtml(d.id)} &mdash; ${escapeHtml(dealTitle)}</h2>
         ${d.description ? `<p class="text-sm text-slate-300">${escapeHtml(d.description)}</p>` : ''}
-        <p class="text-sm text-slate-400">Farmer Assignment: <span class="text-slate-200">${d.farmer ? formatAddress(d.farmer) : 'Unknown'}</span></p>
-        <p class="text-sm text-slate-400">Investor Assignment: <span class="text-slate-200">${d.investor ? formatAddress(d.investor) : 'Unknown'}</span></p>
-        <p class="text-sm text-slate-500">${d.total_cycles ?? 'Unknown'} cycle(s) × ${d.cycle_duration_days == null ? 'Unknown' : escapeHtml(d.cycle_duration_days)} days  ·  ${formatOptionalYoctoDisplay(d.investment_amount)}</p>
-        <span class="inline-flex text-xs font-semibold text-blue-200 bg-blue-950 border border-blue-800 rounded-full px-2.5 py-1 mt-2">Protection reserve: ${d.escrow_pct == null ? 'model rate unavailable' : `${escapeHtml(d.escrow_pct)}%`}</span>
+        <p class="text-sm text-slate-400">Farmer Assignment: <span class="text-slate-200">${d.farmer ? formatAddress(d.farmer) : 'Awaiting assignment'}</span></p>
+        <p class="text-sm text-slate-400">Investor Assignment: <span class="text-slate-200">${d.investor ? formatAddress(d.investor) : 'Awaiting assignment'}</span></p>
+        <p class="text-sm text-slate-500">${d.total_cycles ?? 'Schedule pending'} cycle(s) × ${d.cycle_duration_days == null ? 'schedule pending' : escapeHtml(d.cycle_duration_days)} days  ·  ${formatOptionalYoctoDisplay(d.investment_amount)}</p>
+        <span class="inline-flex text-xs font-semibold text-blue-200 bg-blue-950 border border-blue-800 rounded-full px-2.5 py-1 mt-2">Protection reserve: ${d.escrow_pct == null ? 'Terms not yet provided' : `${escapeHtml(d.escrow_pct)}%`}</span>
       </div>
       <div class="flex flex-col gap-2 shrink-0">
         <a href="#deals/${d.id}" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open →</a>
@@ -2896,7 +2968,7 @@ const PROJECT_WORKSPACE_TIMELINE_STAGES = [
   'Funding',
   'Farmer Confirmation',
   'Production',
-  'Farmer Reports',
+  'Reports',
   'Settlement',
   'Completed',
 ];
@@ -2904,6 +2976,24 @@ const PROJECT_WORKSPACE_TIMELINE_STAGES = [
 function projectWorkspaceStatus(deal = {}, status = null) {
   if (status && typeof status === 'object') return projectWorkspaceValue(status.status);
   return projectWorkspaceValue(status, deal.status?.status, deal.status);
+}
+
+function projectWorkspaceBusinessStatus({
+  deal = {},
+  status = null,
+  cycles = [],
+  reports = [],
+  returns = [],
+} = {}) {
+  const stageIndex = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
+  return [
+    'Funding in progress',
+    'Awaiting farmer confirmation',
+    'In progress',
+    'Awaiting review',
+    'Settlement in progress',
+    'Completed',
+  ][stageIndex] || 'Pending update';
 }
 
 function projectWorkspaceFarmer(deal = {}) {
@@ -2939,6 +3029,9 @@ function projectWorkspaceDisplayAmount(...values) {
   const value = projectWorkspaceValue(...values);
   if (value == null) return null;
   if (/[$€£]|\b(?:USD|EUR|NEAR|UZS)\b/i.test(value)) return value;
+  if (/^\d{20,}$/.test(value)) {
+    try { return yoctoToNear(value); } catch { return null; }
+  }
   return `${value} NEAR`;
 }
 
@@ -3216,8 +3309,11 @@ function projectWorkspaceRoleDetails({ role, deal, currentIndex, timelineStages,
 
 function projectFinancialAmount(deal = {}, fields = []) {
   const value = projectWorkspaceValue(...fields.map(field => deal[field]));
-  if (value == null) return 'Not available';
+  if (value == null) return 'Not yet available';
   if (/[$€£]|\b(?:USD|EUR|NEAR|UZS)\b/i.test(value)) return value;
+  if (/^\d{20,}$/.test(value)) {
+    try { return yoctoToNear(value); } catch { return 'Not yet available'; }
+  }
   return `${value} NEAR`;
 }
 
@@ -3229,7 +3325,7 @@ function projectFinancialFundingStatus(deal = {}, status = null) {
     return 'Funding Confirmed';
   }
   if (/funding|approved/i.test(projectStatus)) return 'Funding Pending';
-  return 'Not available';
+  return 'Awaiting confirmation';
 }
 
 function projectFinancialFarmerConfirmation(deal = {}, cycles = []) {
@@ -3250,7 +3346,7 @@ function projectFinancialFarmerConfirmation(deal = {}, cycles = []) {
     return 'Pending';
   }
   const fundingStatus = projectWorkspaceValue(deal.fundingStatus, deal.funding_status) || '';
-  return /confirmed|received/i.test(fundingStatus) ? 'Confirmed' : 'Not available';
+  return /confirmed|received/i.test(fundingStatus) ? 'Confirmed' : 'Awaiting confirmation';
 }
 
 function projectFinancialPendingReports(deal = {}, cycles = [], reports = []) {
@@ -3267,7 +3363,7 @@ function projectFinancialPendingReports(deal = {}, cycles = [], reports = []) {
   const hasReportData = reports.length > 0 || cycles.some(cycle => (
     cycle?.report != null || cycle?.reportStatus != null || cycle?.report_status != null
   )) || explicitStatus !== '';
-  return hasReportData ? 'No pending reports' : 'Not available';
+  return hasReportData ? 'No pending reports' : 'Not yet provided';
 }
 
 function projectFinancialSettlementStatus(deal = {}, returns = []) {
@@ -3283,7 +3379,7 @@ function projectFinancialSettlementStatus(deal = {}, returns = []) {
     latestReturn?.payment_status,
     latestReturn?.status
   );
-  if (!raw) return 'Not available';
+  if (!raw) return 'Pending';
   const labels = {
     no_returns: 'No returns recorded',
     partial: 'Partially settled',
@@ -3434,9 +3530,9 @@ function projectActivityTimestampValue(item = {}) {
 }
 
 function projectActivityFormatTimestamp(value) {
-  if (!value) return 'Timestamp unavailable';
+  if (!value) return 'Date not yet provided';
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Timestamp unavailable';
+  if (Number.isNaN(date.getTime())) return 'Date not yet provided';
   return date.toLocaleString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -3698,7 +3794,7 @@ function projectActivityContext({ role, deal, status, cycles, reports, returns }
       ['Pending approvals', projectFinancialPendingReports(deal, cycles, reports)],
       ['Pending confirmations', farmerConfirmation === 'Pending' ? 'Farmer confirmation pending' : farmerConfirmation],
       ['Operational alerts', projectWorkspaceOperatorAttention(deal)],
-      ['Internal workflow status', projectWorkspaceStatus(deal, status) || 'Not available'],
+      ['Workflow status', projectWorkspaceBusinessStatus({ deal, status, cycles, reports, returns })],
     ];
   }
   return [
@@ -4066,7 +4162,7 @@ function renderProjectDocuments({
         </div>
       ` : `
         <div data-documents-empty class="bg-slate-900 border border-dashed border-slate-700 rounded-lg px-4 py-6 mt-4 text-center">
-          <p class="text-sm font-medium text-slate-300">No Project documents available</p>
+          <p class="text-sm font-medium text-slate-300">Project documents not yet provided</p>
           <p class="text-xs text-slate-500 mt-1">Authorized documents and placeholders will appear here.</p>
         </div>
       `}
@@ -4184,8 +4280,8 @@ function renderInvestorFinancialDashboard({
     ['ROI', roi],
     ['APR', apr],
     ['Current Cycle', currentCycle],
-    ['Settlement Status', settlementStatus === 'Not available' ? 'Settlement pending' : settlementStatus],
-    ['Project Status', projectWorkspaceStatus(deal, status) || currentStage],
+    ['Settlement Status', settlementStatus],
+    ['Project Status', projectWorkspaceBusinessStatus({ deal, status, cycles, reports, returns })],
   ];
   return `
     <section id="project-financial-overview" class="workspace-financial-dashboard" data-project-financial-overview data-financial-role="investor">
@@ -4227,7 +4323,7 @@ function renderInvestorWorkspaceReports(reports = []) {
     return `
       <article class="workspace-report-card">
         <div>
-          <span>Production Cycle ${escapeHtml(report.cycle_id ?? report.cycle_num ?? '—')}</span>
+          <span>${report.cycle_id == null && report.cycle_num == null ? 'Production cycle pending' : `Production Cycle ${escapeHtml(report.cycle_id ?? report.cycle_num)}`}</span>
           <h3>${escapeHtml(projectWorkspaceValue(report.title, report.report_title) || 'Project Report')}</h3>
         </div>
         <span class="workspace-report-status">${escapeHtml(reportStatus)}</span>
@@ -4246,7 +4342,7 @@ function renderInvestorWorkspaceCycles(cycles = []) {
   return `
     <div class="workspace-cycle-grid" id="investor-cycles-list">
       ${cycles.map(cycle => {
-        const cycleNumber = cycle.cycle_num ?? cycle.cycleNumber ?? cycle.cycle_number ?? cycle.id ?? '—';
+        const cycleNumber = cycle.cycle_num ?? cycle.cycleNumber ?? cycle.cycle_number ?? cycle.id ?? 'Pending';
         const cycleStatus = projectWorkspaceValue(cycle.cycleStatus, cycle.status) || 'Scheduled';
         const reportStatus = projectWorkspaceValue(cycle.reportStatus, cycle.report_status)
           || (cycle.report ? 'Report submitted' : 'Report pending');
@@ -4350,7 +4446,7 @@ function renderInvestorWorkspaceOverview({ deal = {}, status = null } = {}) {
       </section>
       <section class="workspace-overview-card">
         <span class="workspace-card-eyebrow">Funding Progress</span>
-        <h3>${fundingPercent == null ? escapeHtml(fundingStatus === 'Not available' ? 'Funding pending' : fundingStatus) : `${fundingPercent.toFixed(1)}% complete`}</h3>
+        <h3>${fundingPercent == null ? escapeHtml(fundingStatus) : `${fundingPercent.toFixed(1)}% complete`}</h3>
         <div class="workspace-progress-track" role="progressbar" aria-label="Funding progress" aria-valuemin="0" aria-valuemax="100" ${fundingPercent == null ? 'aria-valuetext="Funding status pending"' : `aria-valuenow="${fundingPercent.toFixed(1)}"`}>
           <span class="workspace-progress-fill" style="width: ${(fundingPercent || 0).toFixed(1)}%"></span>
         </div>
@@ -4382,8 +4478,8 @@ function renderInvestorWorkspaceProduction({
       <dl class="workspace-production-grid">
         <div><dt>Current Cycle</dt><dd>${escapeHtml(currentCycle)}</dd></div>
         <div><dt>Production Status</dt><dd>${escapeHtml(productionStatus)}</dd></div>
-        <div><dt>Funding Confirmation</dt><dd>${escapeHtml(fundingConfirmation === 'Not available' ? 'Pending confirmation' : fundingConfirmation)}</dd></div>
-        <div><dt>Farmer Confirmation</dt><dd>${escapeHtml(farmerConfirmation === 'Not available' ? 'Pending confirmation' : farmerConfirmation)}</dd></div>
+        <div><dt>Funding Confirmation</dt><dd>${escapeHtml(fundingConfirmation)}</dd></div>
+        <div><dt>Farmer Confirmation</dt><dd>${escapeHtml(farmerConfirmation)}</dd></div>
         <div><dt>Production Milestone</dt><dd>${escapeHtml(milestone)}</dd></div>
       </dl>
     </section>
@@ -4589,7 +4685,7 @@ function renderInvestorCanonicalWorkspace({
 } = {}) {
   const projectName = projectWorkspaceValue(deal.title, deal.project_name, deal.project_title, deal.name)
     || (deal.id != null ? `Project #${deal.id}` : 'Project');
-  const projectStatus = projectWorkspaceStatus(deal, status) || 'Pending project update';
+  const projectStatus = projectWorkspaceBusinessStatus({ deal, status, cycles, reports, returns });
   const investmentModel = projectWorkspaceValue(deal.investment_model_name, deal.investment_model, deal.deal_type);
   const farmerProfile = deal.farmer_profile || deal.farmerProfile || {};
   const farmer = projectWorkspaceFarmer(deal);
@@ -4647,7 +4743,7 @@ function renderProjectWorkspaceHeader({
     deal.investment_model,
     deal.deal_type
   );
-  const projectStatus = projectWorkspaceStatus(deal, status) || 'Pending project update';
+  const projectStatus = projectWorkspaceBusinessStatus({ deal, status, cycles, reports, returns });
   const description = projectWorkspaceValue(deal.description, deal.project_description);
   const headerFields = projectWorkspaceHeaderFields({ deal, status, cycles, role });
   const timelineStages = PROJECT_WORKSPACE_TIMELINE_STAGES;
@@ -4772,9 +4868,9 @@ function renderAdminDemoDealCard(deal) {
           <p class="text-slate-400">Funding: <span class="text-slate-100 font-mono">${escapeHtml(deal.funding)}</span></p>
           <p class="text-slate-400">${escapeHtml(deal.roiLabel)}: <span class="text-slate-100 font-mono">${escapeHtml(deal.roi)}</span></p>
           <p class="text-slate-400">Simple annualized ROI: <span class="text-slate-100 font-mono">${escapeHtml(deal.simpleAnnualizedRoi)}</span></p>
-          <p class="text-slate-400">Report: <span class="text-slate-200">${escapeHtml(deal.reportStatus)}</span></p>
-          <p class="text-slate-400">Funding Status: <span class="text-slate-200">${escapeHtml(deal.fundingStatus)}</span></p>
-          <p class="text-slate-400">Return Status: <span class="text-slate-200">${escapeHtml(deal.returnStatus)}</span></p>
+          <p class="text-slate-400">Report: <span class="text-slate-200">${escapeHtml(businessStatusLabel(deal.reportStatus))}</span></p>
+          <p class="text-slate-400">Funding Status: <span class="text-slate-200">${escapeHtml(businessStatusLabel(deal.fundingStatus))}</span></p>
+          <p class="text-slate-400">Return Status: <span class="text-slate-200">${escapeHtml(businessStatusLabel(deal.returnStatus))}</span></p>
         </div>
       </div>
       <div class="flex flex-col gap-2 shrink-0">
@@ -4800,7 +4896,7 @@ function showAdminPilotDetail(key) {
         <span class="text-slate-600">|</span>
         <a href="#demo/admin" class="text-slate-400 hover:text-white text-sm">Back to Admin Dashboard</a>
       </div>
-      <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot profile unavailable</div>
+      <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot information is not yet available.</div>
     `;
     return;
   }
@@ -4867,7 +4963,7 @@ function renderAdminDemoProjectProfile(deal) {
     ['Simple annualized ROI', deal.simpleAnnualizedRoi],
     ['Protection reserve', `${deal.reserveRate}%`],
     ['Production Cycles', deal.cycles],
-    ['Project Status', deal.status],
+    ['Project Status', businessStatusLabel(deal.status)],
   ];
   return `
     <section class="bg-slate-800 border border-green-900 rounded-lg p-5 mb-6">
@@ -4979,7 +5075,8 @@ async function showOnboarding() {
       return;
     }
   } catch (err) {
-    el.innerHTML = `<div class="bg-red-900 text-red-200 px-4 py-3 rounded">Unable to load profile: ${escapeHtml(err.message)}</div>`;
+    console.error('Profile failed to load', err);
+    el.innerHTML = `<div class="bg-red-900 text-red-200 px-4 py-3 rounded">${escapeHtml(friendlyUiErrorMessage(err, 'Profile information'))}</div>`;
     return;
   }
 
@@ -5081,7 +5178,8 @@ async function submitOnboarding(event) {
     applyProfileToAuth(data.profile);
     location.hash = portalHashForRole(data.profile.role);
   } catch (err) {
-    errEl.textContent = err.message || 'Profile creation failed';
+    console.error('Profile creation failed', err);
+    errEl.textContent = friendlyUiErrorMessage(err, 'Profile creation');
     errEl.classList.remove('hidden');
     btn.disabled = false;
     btn.textContent = 'Create Profile';
@@ -5140,8 +5238,9 @@ async function showFarmerPortal() {
     farmerData.deals = await loadFarmerDashboardCycles(farmerData.deals);
     renderFarmerDashboard(contentEl, farmerData.deals, farmerData.farmer, profile);
   } catch (err) {
+    console.error('Farmer Portal failed to load', err);
     contentEl.querySelector('.spinner')?.remove();
-    contentEl.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Farmer Portal unavailable: ${escapeHtml(err.message)}</div>`;
+    contentEl.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">${escapeHtml(friendlyUiErrorMessage(err, 'Farmer Portal'))}</div>`;
   }
 }
 
@@ -5173,7 +5272,7 @@ function normalizeLiveFarmerDeal(deal = {}) {
     id: deal.id ?? null,
     title: deal.title || null,
     description: deal.description || null,
-    status: deal.status || 'Unknown',
+    status: deal.status || 'Pending update',
     activeCycleId: deal.activeCycleId ?? null,
     fundingStatus: deal.fundingStatus || null,
     reportStatus: deal.reportStatus || null,
@@ -5226,7 +5325,7 @@ function farmerDashboardMetrics(deals) {
   const nextReportDue = deals.filter((deal) => deal.reportStatus === 'pending' || deal.reportStatus === 'due').length;
   const currentCycle = deals.find((deal) => deal.activeCycleId != null)?.activeCycleId
     ?? deals.find((deal) => activeStatuses.includes(deal.status))?.current_cycle
-    ?? 'Unavailable';
+    ?? 'Not yet started';
   return {
     activeDeals,
     totalFunding,
@@ -5251,13 +5350,16 @@ function addYoctoSafe(total, value) {
 
 function farmerProfileDisplay(profile, farmer) {
   const source = profile || {};
+  const displayStatus = typeof businessStatusLabel === 'function'
+    ? businessStatusLabel(source.status)
+    : (source.status || 'Pending update');
   return {
-    farmName: source.organizationName || source.displayName || 'Unavailable',
-    region: source.region || source.country || 'Unavailable',
-    activity: source.activity || source.bio || 'Unavailable',
+    farmName: source.organizationName || source.displayName || 'Farm profile pending',
+    region: source.region || source.country || 'Region not yet provided',
+    activity: source.activity || source.bio || 'Activity not yet provided',
     farmerAccount: farmer || source.walletAccountId || 'Not connected',
-    status: source.status || 'Unknown',
-    role: source.role || 'Unknown',
+    status: displayStatus,
+    role: source.role || 'Farmer',
   };
 }
 
@@ -5321,11 +5423,11 @@ function renderFarmerSummaryCards(metrics) {
       </div>
       <div class="metric-box">
         <span class="metric-label">Reports Submitted</span>
-        <span class="metric-value">${metrics.reportsSubmitted ?? 'Unavailable'}</span>
+        <span class="metric-value">${metrics.reportsSubmitted ?? 'Pending update'}</span>
       </div>
       <div class="metric-box">
         <span class="metric-label">Next Report Due</span>
-        <span class="metric-value">${metrics.nextReportDue ?? 'Unavailable'}</span>
+        <span class="metric-value">${metrics.nextReportDue ?? 'Schedule pending'}</span>
       </div>
     </div>
   `;
@@ -5531,7 +5633,7 @@ function renderFarmerDashboardHeader(profile, farmer, deals) {
       <dl class="farmer-header-facts">
         <div>
           <dt>Farm Name</dt>
-          <dd>${escapeHtml(displayProfile.farmName === 'Unavailable' ? 'Farm profile pending' : displayProfile.farmName)}</dd>
+          <dd>${escapeHtml(displayProfile.farmName)}</dd>
         </div>
         <div>
           <dt>Farmer Name</dt>
@@ -5918,7 +6020,7 @@ function farmerDealNextAction(deal) {
 
 function farmerDealProjectedRoi(deal) {
   const roi = deal.projected_roi_pct ?? deal.roi_percent ?? deal.roi;
-  if (roi == null || roi === '') return 'Not available';
+  if (roi == null || roi === '') return 'Not yet available';
   return String(roi).includes('%') ? String(roi) : `${roi}%`;
 }
 
@@ -5926,7 +6028,7 @@ function renderFarmerDealCard(deal) {
   const dealBadge = deal.isDemoPilot ? 'Pilot Project' : `Project #${deal.id}`;
   const dealHref = deal.isDemoPilot ? `#farmer/pilots/${deal.pilot_key}` : `#farmer/deals/${deal.id}`;
   const amount = deal.display_amount || formatFarmerFundingAmount(deal.amount ?? deal.investment_amount);
-  const activeCycle = deal.activeCycleId ?? 'Unavailable';
+  const activeCycle = deal.activeCycleId ?? 'Not yet started';
   return `
     <div class="bg-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="space-y-1 min-w-0">
@@ -5939,8 +6041,8 @@ function renderFarmerDealCard(deal) {
         <p class="text-sm text-slate-400">Project Operator: <span class="text-slate-200">AgriPartners</span></p>
         <p class="text-sm text-slate-400">Funding: <span class="text-slate-100 font-mono">${escapeHtml(amount)}</span></p>
         <p class="text-sm text-slate-400">Production Cycle: <span class="text-slate-200">${escapeHtml(activeCycle)}</span></p>
-        <p class="text-sm text-slate-400">Funding Confirmation: <span class="text-slate-200">${escapeHtml(deal.fundingStatus || 'Unavailable')}</span></p>
-        <p class="text-sm text-slate-400">Project Report: <span class="text-slate-200">${escapeHtml(deal.reportLabel || 'Unavailable')}</span></p>
+        <p class="text-sm text-slate-400">Funding Confirmation: <span class="text-slate-200">${escapeHtml(deal.fundingStatus || 'Awaiting confirmation')}</span></p>
+        <p class="text-sm text-slate-400">Project Report: <span class="text-slate-200">${escapeHtml(deal.reportLabel || 'Not yet provided')}</span></p>
         <p class="text-sm text-green-300">Next action: ${escapeHtml(farmerDealNextAction(deal))}</p>
       </div>
       <a href="${escapeHtml(dealHref)}" class="shrink-0 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">Open Project</a>
@@ -5949,7 +6051,7 @@ function renderFarmerDealCard(deal) {
 }
 
 function formatFarmerFundingAmount(value) {
-  if (value == null || value === '') return 'Unavailable';
+  if (value == null || value === '') return 'Not yet available';
   return 'Available in Project terms';
 }
 
@@ -5967,8 +6069,9 @@ async function showFarmerDeal(id, actionState = null) {
     renderFarmerDealDetail(el, bundle);
     if (actionState) showFarmerActionResult(actionState.type, actionState.message);
   } catch (err) {
+    console.error('Farmer Project failed to load', err);
     el.querySelector('.spinner')?.remove();
-    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Project unavailable: ${escapeHtml(err.message)}</div>`;
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">${escapeHtml(friendlyUiErrorMessage(err, 'Project information'))}</div>`;
   }
 }
 
@@ -6038,7 +6141,7 @@ function showPublicProtectionModel(key) {
   const el = document.getElementById('view-home');
 
   if (!model || !pilot) {
-    el.innerHTML = '<div class="bg-red-900 text-red-200 px-4 py-3 rounded">Protection model unavailable</div>';
+    el.innerHTML = '<div class="bg-red-900 text-red-200 px-4 py-3 rounded">Protection model information is not yet available.</div>';
     return;
   }
 
@@ -6104,7 +6207,7 @@ function showFarmerPilotSelector() {
           <div><span>Funding</span><strong>${escapeHtml(pilot.displayAmount)}</strong></div>
           <div><span>Protection reserve</span><strong>${escapeHtml(pilot.reserveRate)}%</strong></div>
           <div><span>Cycles</span><strong>${escapeHtml(pilot.cycles)}</strong></div>
-          <div><span>Schedule</span><strong>${model ? `${model.schedule.length - 1} cycles + completion` : 'Unavailable'}</strong></div>
+          <div><span>Schedule</span><strong>${model ? `${model.schedule.length - 1} cycles + completion` : 'Schedule not yet provided'}</strong></div>
         </div>
         <div class="farmer-pilot-selector-note">
           Includes the same cycle table for reserve contributions, releases, farmer payments, ending balance, and program totals.
@@ -6152,7 +6255,7 @@ function showFarmerPilotProfile(key) {
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
         Back home
       </a>
-      <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot profile unavailable</div>
+      <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot information is not yet available.</div>
     `;
     return;
   }
@@ -6215,12 +6318,15 @@ function renderFarmerDemoDealDetail(el, deal, cycles, events) {
 }
 
 function renderFarmerProjectProfile(deal) {
+  const displayStatus = value => typeof businessStatusLabel === 'function'
+    ? businessStatusLabel(value)
+    : (value || 'Pending update');
   const metrics = [
     ['Funding', deal.display_amount || formatFarmerFundingAmount(deal.amount ?? deal.investment_amount)],
-    ['Status', deal.status || 'Unknown'],
-    ['Funding Status', deal.fundingStatus || 'Unavailable'],
-    ['Cycle Status', deal.cycleStatus || 'Unavailable'],
-    ['Report', deal.reportLabel || 'Unavailable'],
+    ['Status', displayStatus(deal.status)],
+    ['Funding Status', deal.fundingStatus || 'Awaiting confirmation'],
+    ['Cycle Status', displayStatus(deal.cycleStatus)],
+    ['Report', deal.reportLabel || 'Not yet provided'],
   ];
   return `
     <section class="bg-slate-800 border border-green-900 rounded-lg p-5 mb-6">
@@ -6228,9 +6334,9 @@ function renderFarmerProjectProfile(deal) {
         <div>
           <span class="text-xs font-semibold text-green-300 uppercase tracking-wide">Project Profile</span>
           <h1 class="text-2xl md:text-3xl font-bold text-slate-50 mt-1">${escapeHtml(deal.title || `Project #${deal.id}`)}</h1>
-          <p class="text-sm text-slate-400 mt-2 max-w-3xl">${escapeHtml(deal.description || 'Unavailable')}</p>
+          <p class="text-sm text-slate-400 mt-2 max-w-3xl">${escapeHtml(deal.description || 'Project summary not yet provided')}</p>
         </div>
-        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">Investment Model: ${escapeHtml(deal.deal_type || 'Unavailable')}</span>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">Investment Model: ${escapeHtml(deal.deal_type || 'Not yet provided')}</span>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
         ${metrics.map(([label, value]) => `
@@ -6246,10 +6352,10 @@ function renderFarmerProjectProfile(deal) {
 
 function renderFarmerFundingStatus(deal) {
   const rows = [
-    ['Funding Status', deal.fundingStatus || 'Unavailable'],
+    ['Funding Status', deal.fundingStatus || 'Awaiting confirmation'],
     ['Funding Amount', deal.display_amount || formatFarmerFundingAmount(deal.amount ?? deal.investment_amount)],
     ['Project Operator', 'AgriPartners'],
-    ['Return Status', deal.returnLabel || 'Unavailable'],
+    ['Return Status', deal.returnLabel || 'Pending'],
   ];
   return rows.map(([k, v]) => `
     <div class="flex justify-between text-sm gap-3 py-1">
@@ -6276,10 +6382,10 @@ function renderFarmerDealOperationsSummary(deal, cycles) {
   const cycle = currentFarmerCycle(cycles);
   const reportSubmitted = farmerReportSubmitted(cycle);
   const summaryRows = [
-    ['Project Summary', deal.description || 'Unavailable'],
-    ['Funding Confirmation', deal.fundingStatus || (cycle ? (cycle.fundingReceived ? 'Funding Confirmed' : 'Not confirmed') : 'Unavailable')],
-    ['Production Cycle Status', cycle?.cycleStatus || cycle?.status || deal.cycleStatus || 'Unavailable'],
-    ['Project Report Status', reportSubmitted ? 'Report Submitted' : (deal.reportLabel || (cycle ? 'Not submitted' : 'Unavailable'))],
+    ['Project Summary', deal.description || 'Not yet provided'],
+    ['Funding Confirmation', deal.fundingStatus || (cycle ? (cycle.fundingReceived ? 'Funding Confirmed' : 'Awaiting confirmation') : 'Awaiting confirmation')],
+    ['Production Cycle Status', businessStatusLabel(cycle?.cycleStatus || cycle?.status || deal.cycleStatus)],
+    ['Project Report Status', reportSubmitted ? 'Report Submitted' : (deal.reportLabel || (cycle ? 'Not submitted' : 'Not yet provided'))],
   ];
   return `
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-6">
@@ -6328,11 +6434,11 @@ function farmerProtectionStageStatus(stage, deal, cycles = []) {
 }
 
 function formatFarmerProtectionContractBalance(value) {
-  if (value == null || value === '') return 'Unavailable';
+  if (value == null || value === '') return 'Not yet available';
   try {
     return yoctoToNear(value);
   } catch {
-    return 'Unavailable';
+    return 'Not yet available';
   }
 }
 
@@ -6424,7 +6530,7 @@ function renderFarmerReserveBreakdown(deal, cycles = [], balances = null, balanc
             what remains protected, and the total modeled cash available to the farmer.
           </p>
         </div>
-        <span class="farmer-protection-rate">${reserveRate == null ? 'Rate unavailable' : `${escapeHtml(reserveRate)}% of farmer share`}</span>
+        <span class="farmer-protection-rate">${reserveRate == null ? 'Rate defined by Project terms' : `${escapeHtml(reserveRate)}% of farmer share`}</span>
       </div>
 
       ${liveBalanceView}
@@ -6506,14 +6612,14 @@ function renderFarmerCycleTimeline(cycles) {
     <div class="mb-5 last:mb-0">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
         <h4 class="font-semibold text-slate-100">Cycle #${escapeHtml(cycle.id)}</h4>
-        <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(cycle.cycleStatus || cycle.status || 'Pending')}</span>
+        <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(businessStatusLabel(cycle.cycleStatus || cycle.status, 'Pending'))}</span>
       </div>
       <div class="farmer-timeline">
         ${farmerTimelineSteps(cycle).map(([label, done]) => `
           <div class="farmer-timeline-step ${done === true ? 'is-complete' : (done === false ? 'is-pending' : 'is-unknown')}">
             <span class="farmer-timeline-dot"></span>
             <span class="farmer-timeline-label">${label}</span>
-            <span class="farmer-timeline-state">${done === true ? 'Completed' : (done === false ? 'Pending' : 'Unknown')}</span>
+            <span class="farmer-timeline-state">${done === true ? 'Completed' : (done === false ? 'Pending' : 'Pending update')}</span>
           </div>
         `).join('')}
       </div>
@@ -6525,8 +6631,8 @@ function normalizeFarmerReport(cycle) {
   const report = cycle.report || {};
   return {
     cycleNumber: cycle.id ?? cycle.cycle_id ?? 'Cycle',
-    title: report.report_title || report.title || cycle.report_title || 'Unavailable',
-    summary: report.report_body || report.description || cycle.report_body || 'Unavailable',
+    title: report.report_title || report.title || cycle.report_title || 'Report not yet provided',
+    summary: report.report_body || report.description || cycle.report_body || 'Report details not yet provided',
     amountUsed: report.amount_used || report.amountUsed || cycle.amount_used || 'Not provided',
     submittedDate: report.report_created_at || report.submittedAt || report.created_at || cycle.report_created_at || '',
     status: cycle.reportStatus === 'submitted' ? 'Submitted' : 'Pending',
@@ -6588,7 +6694,7 @@ function renderFarmerDealDetail(el, bundle) {
   const farmerBalance = resourceErrors.balances ? null : balances?.farmer;
   const canWithdrawFarmer = hasPositiveYoctoSafe(farmerBalance);
   const balanceDisplay = farmerBalance == null
-    ? 'Unavailable'
+    ? 'Not yet available'
     : (canWithdrawFarmer ? 'Available in Alpha demo' : 'No Alpha demo payout available');
   el.innerHTML = `
     ${renderNav()}
@@ -6612,7 +6718,7 @@ function renderFarmerDealDetail(el, bundle) {
           <span id="farmer-available-balance" class="text-slate-100 font-mono">${escapeHtml(balanceDisplay)}</span>
         </div>
         ${resourceErrors.balances ? renderFarmerResourceUnavailable('Farmer balances', resourceErrors.balances) : ''}
-        <button id="btn-farmer-withdraw" class="admin-action-btn action-fund w-full mb-4" ${canWithdrawFarmer ? '' : 'disabled'}>${canWithdrawFarmer ? 'Request Alpha Demo Payout' : (resourceErrors.balances ? 'Demo Payout Unavailable' : 'No Demo Payout Available')}</button>
+        <button id="btn-farmer-withdraw" class="admin-action-btn action-fund w-full mb-4" ${canWithdrawFarmer ? '' : 'disabled'}>${canWithdrawFarmer ? 'Request Alpha Demo Payout' : (resourceErrors.balances ? 'Payout information pending' : 'No Demo Payout Available')}</button>
         <p class="text-xs text-slate-400 mb-4">Alpha demonstration only. Future Farmer funding and payments are fiat through AgriPartners. Confirm Funding and submit Project Reports for active Production Cycles.</p>
         <div id="farmer-action-result" class="hidden rounded-lg px-4 py-3 text-sm"></div>
       </div>
@@ -6651,20 +6757,20 @@ function hasPositiveYoctoSafe(value) {
 function renderFarmerResourceUnavailable(label, message) {
   return `
     <div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 mb-3 text-sm text-amber-100" data-farmer-resource-error="${escapeHtml(label)}">
-      <span class="font-semibold">${escapeHtml(label)} unavailable.</span>
-      <span>${escapeHtml(message)}</span>
+      <span class="font-semibold">${escapeHtml(label)} pending update.</span>
+      <span>${escapeHtml(friendlyUiErrorMessage(message, label))}</span>
     </div>
   `;
 }
 
 function renderFarmerDealParams(deal) {
   const rows = [
-    ['Farmer Assignment', deal.farmer ? 'Assigned by AgriPartners' : 'Unavailable'],
+    ['Farmer Assignment', deal.farmer ? 'Assigned by AgriPartners' : 'Awaiting assignment'],
     ['Project Operator', 'AgriPartners'],
     ['Funding', formatFarmerFundingAmount(deal.amount ?? deal.investment_amount)],
-    ['Project Status', deal.status || 'Unknown'],
-    ['Production Cycle', deal.activeCycleId ?? 'Unavailable'],
-    ['Investment Model', deal.deal_type || 'Unavailable'],
+    ['Project Status', businessStatusLabel(deal.status)],
+    ['Production Cycle', deal.activeCycleId ?? 'Not yet started'],
+    ['Investment Model', deal.deal_type || 'Not yet provided'],
   ];
   return rows.map(([k, v]) => `
     <div class="flex justify-between text-sm gap-3">
@@ -6684,15 +6790,15 @@ function renderFarmerCycles(dealId, cycles) {
     const canSubmitReport = cycle.fundingReceived && !reportSubmitted;
     const fundingLabel = cycle.fundingReceived === true
       ? 'Funding Confirmed'
-      : (cycle.fundingReceived === false ? 'Not confirmed' : 'Unknown');
+      : (cycle.fundingReceived === false ? 'Awaiting confirmation' : 'Pending update');
     const reportLabel = reportSubmitted
       ? 'Report Submitted'
-      : (cycle.reportStatus === 'due' ? 'Next Report Due' : (cycle.reportStatus ? 'Not submitted' : 'Unknown'));
+      : (cycle.reportStatus === 'due' ? 'Next Report Due' : (cycle.reportStatus ? 'Not submitted' : 'Not yet provided'));
     const cycleLabel = reportSubmitted
       ? 'Report Submitted'
       : (cycle.fundingReceived
         ? (cycle.reportStatus === 'due' ? 'Next Report Due' : 'Funding Confirmed')
-        : (cycle.status === 'pending' ? 'Pending' : (fundingSent ? 'Funding sent' : 'Unknown')));
+        : (cycle.status === 'pending' ? 'Pending' : (fundingSent ? 'Funding sent' : 'Pending update')));
     return `
       <div class="farmer-cycle-row">
         <div class="min-w-0">
@@ -6701,7 +6807,7 @@ function renderFarmerCycles(dealId, cycles) {
             <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(cycleLabel)}</span>
           </div>
           <p class="text-sm text-slate-400">Funding Confirmation: <span class="text-slate-200">${fundingLabel}</span></p>
-          <p class="text-sm text-slate-400">Production Cycle Status: <span class="text-slate-200">${escapeHtml(cycle.cycleStatus || cycle.status || 'Unknown')}</span></p>
+          <p class="text-sm text-slate-400">Production Cycle Status: <span class="text-slate-200">${escapeHtml(businessStatusLabel(cycle.cycleStatus || cycle.status, 'Pending update'))}</span></p>
           <p class="text-sm text-slate-400">Project Report: <span class="text-slate-200">${reportLabel}</span></p>
           ${reportSubmitted ? renderFarmerReportSummary(cycle.report) : ''}
         </div>
@@ -6778,7 +6884,11 @@ async function withdrawFarmerWithWallet(deal) {
       : 'Alpha demo payout action completed.';
     await showFarmerDeal(deal.id, { type: 'success', message });
   } catch (err) {
-    showFarmerActionResult('error', `Alpha demo payout action failed: ${err.message}`);
+    console.error('Alpha demo payout action failed', err);
+    const message = typeof friendlyUiErrorMessage === 'function'
+      ? friendlyUiErrorMessage(err, 'Payout request')
+      : 'Payout request is temporarily unavailable. Please try again.';
+    showFarmerActionResult('error', message);
   } finally {
     if (btn) {
       btn.disabled = false;
@@ -6795,7 +6905,11 @@ async function confirmFarmerFunding(dealId, cycleId) {
     });
     await showFarmerDeal(dealId, { type: 'success', message: 'Funding receipt confirmed' });
   } catch (err) {
-    showFarmerActionResult('error', `Confirmation failed: ${err.message}`);
+    console.error('Funding confirmation failed', err);
+    const message = typeof friendlyUiErrorMessage === 'function'
+      ? friendlyUiErrorMessage(err, 'Funding confirmation')
+      : 'Funding confirmation is temporarily unavailable. Please try again.';
+    showFarmerActionResult('error', message);
   }
 }
 
@@ -6830,7 +6944,11 @@ async function submitFarmerReport(dealId, cycleId) {
     });
     await showFarmerDeal(dealId, { type: 'success', message: 'Cycle report submitted' });
   } catch (err) {
-    showFarmerActionResult('error', `Report failed: ${err.message}`);
+    console.error('Farmer report submission failed', err);
+    const message = typeof friendlyUiErrorMessage === 'function'
+      ? friendlyUiErrorMessage(err, 'Report submission')
+      : 'Report submission is temporarily unavailable. Please try again.';
+    showFarmerActionResult('error', message);
   }
 }
 
@@ -6902,10 +7020,11 @@ async function showInvestorPortal() {
     const enrichedDeals = await enrichDealsForInvestor(deals);
     renderInvestorDashboard(dashboardEl, enrichedDeals, connectedWalletAccount, portfolioResult);
   } catch (e) {
+    console.error('Investor Portal failed to load', e);
     dashboardEl.querySelector('.spinner')?.remove();
     renderInvestorPortalMessage(
       dashboardEl,
-      `Investor Portal unavailable: ${e.message}`,
+      friendlyUiErrorMessage(e, 'Investor Portal'),
       'error'
     );
   }
@@ -7009,7 +7128,7 @@ function renderInvestorProfileForm(el, profile, message = null, type = 'success'
           <h2 class="wallet-title">Investor Profile</h2>
           <p class="wallet-note">Linked to your authenticated wallet account.</p>
         </div>
-        <span class="wallet-network">KYC: ${escapeHtml(profile.kyc_status || 'not_started')}</span>
+        <span class="wallet-network">KYC: ${escapeHtml(businessStatusLabel(profile.kyc_status, 'Not started'))}</span>
       </div>
 
       <div class="grid md:grid-cols-2 gap-4">
@@ -7020,7 +7139,7 @@ function renderInvestorProfileForm(el, profile, message = null, type = 'success'
         </div>
         <div>
           <label class="block text-sm text-slate-400 mb-1">KYC status</label>
-          <input type="text" value="${escapeHtml(profile.kyc_status || 'not_started')}" readonly
+          <input type="text" value="${escapeHtml(businessStatusLabel(profile.kyc_status, 'Not started'))}" readonly
             class="w-full bg-slate-900 text-slate-300 px-3 py-2 rounded-lg border border-slate-700" />
         </div>
         <div>
@@ -7076,7 +7195,7 @@ function renderInvestorProfileError(el, message) {
     <div class="wallet-panel">
       <h2 class="wallet-title">Investor Profile</h2>
       <div class="bg-red-900 text-red-100 border border-red-800 rounded-lg px-4 py-3 mt-3">
-        ${escapeHtml(message)}
+        ${escapeHtml(friendlyUiErrorMessage(message, 'Investor profile'))}
       </div>
     </div>
   `;
@@ -7110,9 +7229,10 @@ async function saveInvestorProfile(event) {
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     renderInvestorProfileForm(document.getElementById('investor-profile-section'), data, 'Profile saved.');
   } catch (err) {
+    console.error('Investor profile save failed', err);
     if (stateEl) {
       stateEl.className = 'text-sm text-red-200';
-      stateEl.textContent = err.message || 'Profile save failed';
+      stateEl.textContent = friendlyUiErrorMessage(err, 'Profile update');
     }
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Save Profile'; }
@@ -7284,13 +7404,13 @@ function parseNearAmount(value) {
 }
 
 function formatNearAmount(value) {
-  if (value == null || !Number.isFinite(Number(value))) return 'Unavailable';
-  return `${value.toFixed(2)} NEAR`;
+  if (value == null || !Number.isFinite(Number(value))) return 'Not yet available';
+  return `${Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 })} NEAR`;
 }
 
 function formatUsdAmount(value) {
   const amount = Number.parseFloat(value);
-  if (!Number.isFinite(amount)) return 'Unavailable';
+  if (!Number.isFinite(amount)) return 'Not yet available';
   return `$${amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
 }
 
@@ -7419,13 +7539,13 @@ function liveFundingProgressMetrics(deal = {}) {
   const investorCount = deal.investor_count ?? deal.investorCount;
   const daysRemaining = deal.days_remaining ?? deal.daysRemaining;
   return {
-    displayGoal: goal != null ? fundingDisplayAmount(goal, currency) : 'Unavailable',
-    displayRaised: raised != null ? fundingDisplayAmount(raised, currency) : 'Unavailable',
-    displayRemaining: remaining != null ? fundingDisplayAmount(remaining, currency) : 'Unavailable',
-    displayPercentage: percentage != null ? `${percentage.toFixed(1)}%` : 'Unavailable',
+    displayGoal: goal != null ? fundingDisplayAmount(goal, currency) : 'Not yet available',
+    displayRaised: raised != null ? fundingDisplayAmount(raised, currency) : 'Not yet available',
+    displayRemaining: remaining != null ? fundingDisplayAmount(remaining, currency) : 'Not yet available',
+    displayPercentage: percentage != null ? `${percentage.toFixed(1)}%` : 'Pending update',
     percentage,
-    investorCount: investorCount != null && Number.isFinite(Number(investorCount)) ? Number(investorCount) : 'Unavailable',
-    daysRemaining: daysRemaining != null && Number.isFinite(Number(daysRemaining)) ? Math.max(Number(daysRemaining), 0) : 'Unavailable',
+    investorCount: investorCount != null && Number.isFinite(Number(investorCount)) ? Number(investorCount) : 'Pending update',
+    daysRemaining: daysRemaining != null && Number.isFinite(Number(daysRemaining)) ? Math.max(Number(daysRemaining), 0) : 'Schedule pending',
   };
 }
 
@@ -7463,7 +7583,7 @@ function renderLiveFundingProgressPanel(deal) {
         <span class="text-sm text-green-300 font-semibold">${escapeHtml(summary)}</span>
       </div>
       ${funding.percentage == null
-        ? renderInvestorResourceUnavailable('Funding progress', 'Authoritative funding progress is not available for this Project')
+        ? renderInvestorResourceUnavailable('Funding progress', 'Funding progress will appear after synchronization.')
         : renderFundingProgressBar(funding.percentage)}
       <div class="grid sm:grid-cols-2 lg:grid-cols-6 gap-3 mt-4">
         ${rows.map(([label, value]) => `
@@ -7758,7 +7878,7 @@ function renderMarketplaceDealCard(deal) {
     ['ROI', deal.roi],
     ['Simple annualized ROI', deal.simpleAnnualizedRoi],
     ['Cycles', deal.cycles],
-    ['Status', deal.status],
+    ['Status', businessStatusLabel(deal.status)],
   ];
 
   return `
@@ -7949,30 +8069,41 @@ function investorPilotLabel(deal) {
 }
 
 function investorProjectProfile(deal = {}, status) {
+  const statusLabel = value => {
+    const key = String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    return {
+      initialized: 'Funding in progress',
+      funded: 'Awaiting farmer confirmation',
+      active: 'In progress',
+      cycleactive: 'In progress',
+      cyclesettlement: 'Settlement in progress',
+      completed: 'Completed',
+    }[key] || 'Pending update';
+  };
   if (deal.isDemoPilot) {
     const pilot = getPilotForDeal(deal);
-    const projectStatus = status?.status || deal.status?.status || 'Unknown';
+    const projectStatus = statusLabel(status?.status || deal.status?.status);
     return {
       title: pilot?.title || deal.title || 'Demo pilot',
-      investment: pilot?.investment || deal.display_amount || 'Unavailable',
-      roi: pilot?.roi || 'Unavailable',
+      investment: pilot?.investment || deal.display_amount || 'Not yet available',
+      roi: pilot?.roi || 'Not yet available',
       roiLabel: projectStatus === 'Completed' ? 'ROI' : 'Projected ROI',
-      simpleAnnualizedRoi: pilot?.simpleAnnualizedRoi || 'Unavailable',
-      reserveRate: pilot?.reserveRate != null ? `${pilot.reserveRate}%` : 'Unavailable',
-      cycles: pilot?.cycles || String(deal.total_cycles ?? 'Unavailable'),
-      description: pilot?.description || deal.description || 'Unavailable',
+      simpleAnnualizedRoi: pilot?.simpleAnnualizedRoi || 'Not yet available',
+      reserveRate: pilot?.reserveRate != null ? `${pilot.reserveRate}%` : 'Not yet available',
+      cycles: pilot?.cycles || String(deal.total_cycles ?? 'Schedule pending'),
+      description: pilot?.description || deal.description || 'Project summary not yet provided',
       status: projectStatus,
     };
   }
 
-  const projectStatus = status?.status || 'Unknown';
+  const projectStatus = statusLabel(status?.status);
   const projectedRoi = deal.projectedRoi;
   const investment = deal.display_amount
     || formatOptionalNearDisplay(deal.investmentAmount);
   return {
-    title: deal.title || `Project #${deal.id ?? 'Unknown'}`,
+    title: deal.title || (deal.id != null ? `Project #${deal.id}` : 'AgriPartners Project'),
     investment,
-    roi: projectedRoi != null && Number.isFinite(Number(projectedRoi)) ? `${projectedRoi}%` : 'Unavailable',
+    roi: projectedRoi != null && Number.isFinite(Number(projectedRoi)) ? `${projectedRoi}%` : 'Not yet available',
     roiLabel: 'Projected ROI',
     simpleAnnualizedRoi: deal.simple_annualized_roi != null
       ? String(deal.simple_annualized_roi)
@@ -7980,10 +8111,10 @@ function investorProjectProfile(deal = {}, status) {
         ? String(deal.apr)
         : deal.apr_pct != null
           ? `${deal.apr_pct}%`
-          : 'Unavailable',
-    reserveRate: deal.escrow_pct != null ? `${deal.escrow_pct}%` : 'Unavailable',
-    cycles: deal.total_cycles != null ? String(deal.total_cycles) : 'Unavailable',
-    description: deal.description || 'Unavailable',
+          : 'Not yet available',
+    reserveRate: deal.escrow_pct != null ? `${deal.escrow_pct}%` : 'Not yet available',
+    cycles: deal.total_cycles != null ? String(deal.total_cycles) : 'Schedule pending',
+    description: deal.description || 'Project summary not yet provided',
     status: projectStatus,
   };
 }
@@ -8041,7 +8172,7 @@ function renderProjectProfile(deal, status, statusError = null) {
           </div>
         `).join('')}
       </div>
-      ${statusError ? renderInvestorResourceUnavailable('NEAR Testnet status', statusError) : ''}
+      ${statusError ? renderInvestorResourceUnavailable('Project synchronization', statusError) : ''}
     </section>
   `;
 }
@@ -8219,7 +8350,7 @@ function showInvestorPilotProfile(key) {
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
         Back home
       </a>
-      <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot profile unavailable</div>
+      <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot information is not yet available.</div>
     `;
     return;
   }
@@ -8265,8 +8396,9 @@ async function showInvestorDeal(id) {
     const bundle = await fetchInvestorDealBundle(id);
     renderInvestorDealDetail(el, bundle);
   } catch (e) {
+    console.error('Investor Project failed to load', e);
     el.querySelector('.spinner')?.remove();
-    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Project unavailable: ${escapeHtml(e.message)}</div>`;
+    el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">${escapeHtml(friendlyUiErrorMessage(e, 'Project information'))}</div>`;
   }
 }
 
@@ -8493,32 +8625,38 @@ function bindInvestorDetailSectionLink(buttonId, sectionId) {
 }
 
 function formatNearDisplay(value) {
-  return value == null || value === '' ? 'Unavailable' : `${escapeHtml(value)} NEAR`;
+  if (value == null || value === '') return 'Not yet available';
+  const text = String(value).trim();
+  const number = Number(text);
+  const display = Number.isFinite(number)
+    ? number.toLocaleString('en-US', { maximumFractionDigits: 6, useGrouping: true })
+    : text;
+  return `${display} NEAR`;
 }
 
 function formatOptionalNearDisplay(value) {
-  return value == null || value === '' ? 'Unavailable' : formatNearDisplay(value);
+  return value == null || value === '' ? 'Not yet available' : formatNearDisplay(value);
 }
 
 function formatOptionalYoctoDisplay(value) {
-  if (value == null || value === '') return 'Unavailable';
+  if (value == null || value === '') return 'Not yet available';
   try {
-    return `${yoctoToNear(value)} · ${formatYoctoRaw(value)}`;
+    return yoctoToNear(value);
   } catch {
-    return 'Unavailable';
+    return 'Not yet available';
   }
 }
 
 function formatOptionalYoctoNear(value) {
-  if (value == null || value === '') return 'Unavailable';
-  try { return yoctoToNear(value); } catch { return 'Unavailable'; }
+  if (value == null || value === '') return 'Not yet available';
+  try { return yoctoToNear(value); } catch { return 'Not yet available'; }
 }
 
 function renderInvestorResourceUnavailable(label, message) {
   return `
     <div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 mt-3 text-sm text-amber-100" data-investor-resource-error="${escapeHtml(label)}">
-      <span class="font-semibold">${escapeHtml(label)} unavailable.</span>
-      <span>${escapeHtml(message)}</span>
+      <span class="font-semibold">${escapeHtml(label)} pending update.</span>
+      <span>${escapeHtml(friendlyUiErrorMessage(message, label))}</span>
     </div>
   `;
 }
@@ -8528,9 +8666,9 @@ function returnStatusLabel(status) {
     no_returns: 'No returns',
     partial: 'Partial return',
     completed: 'Completed',
-    unknown: 'Unknown',
+    unknown: 'Pending',
   };
-  return labels[status] || 'Unknown';
+  return labels[status] || 'Pending';
 }
 
 function numericReturnAmount(value) {
@@ -8558,9 +8696,9 @@ function recordedReturnStatusLabel(status) {
     no_returns: 'No recorded returns',
     partial: 'Partially recorded',
     completed: 'Projected payout recorded',
-    unknown: 'Unknown',
+    unknown: 'Pending',
   };
-  return labels[status] || 'Unknown';
+  return labels[status] || 'Pending';
 }
 
 function returnDisclaimer() {
@@ -8568,7 +8706,7 @@ function returnDisclaimer() {
 }
 
 function percentLabel(value) {
-  if (value == null || !Number.isFinite(Number(value))) return 'Unavailable';
+  if (value == null || !Number.isFinite(Number(value))) return 'Not yet available';
   return `${Number(value).toFixed(1)}%`;
 }
 
@@ -8641,7 +8779,7 @@ function renderInvestmentSummary(deal) {
     [isDemoPilot ? 'Total Cash Returned' : 'Recorded Off-chain Returns', deal.display_returned_amount || formatOptionalNearDisplay(deal.recordedReturns ?? deal.returned_amount)],
     [isDemoPilot ? 'Outstanding Payout' : 'Projected Outstanding', deal.display_outstanding_amount || formatOptionalNearDisplay(deal.projectedOutstanding ?? deal.outstanding_amount)],
     [isDemoPilot ? 'Return Status' : 'Recorded Return Status', escapeHtml(isDemoPilot ? returnStatusLabel(deriveReturnStatus(deal)) : recordedReturnStatusLabel(deriveReturnStatus(deal)))],
-    [roiLabel, projectedRoi != null ? `${escapeHtml(projectedRoi)}%` : 'Unavailable'],
+    [roiLabel, projectedRoi != null ? `${escapeHtml(projectedRoi)}%` : 'Not yet available'],
   ];
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-6 gap-3">
@@ -8696,7 +8834,7 @@ function renderRoiProgressCard(deal) {
         </div>
       </div>
       ${metrics.completionPercent == null
-        ? renderInvestorResourceUnavailable(isDemoPilot ? 'ROI progress' : 'Recorded return progress', 'Return data is unavailable')
+        ? renderInvestorResourceUnavailable(isDemoPilot ? 'ROI progress' : 'Recorded return progress', 'Return information will appear after synchronization.')
         : `<div class="roi-progress-track" aria-label="Return completion progress">
             <div class="roi-progress-fill" style="width: ${Math.max(0, Math.min(100, metrics.completionPercent)).toFixed(1)}%"></div>
           </div>`}
@@ -8748,7 +8886,7 @@ function investorReturnPaymentStatusLabel(paymentStatus) {
     approved: 'Approved',
     paid: 'Paid',
     reconciled: 'Reconciled',
-  }[paymentStatus] || 'Unknown status';
+  }[paymentStatus] || 'Pending review';
 }
 
 function renderInvestorReturnEvidence(transactionHash) {
@@ -8775,7 +8913,7 @@ function renderInvestorTypedReturnLedger(returns) {
         <tbody>
           ${returns.map((entry) => `
             <tr class="border-b border-slate-700 last:border-0">
-              <td class="py-2 pr-3 text-slate-300">${entry.created_at ? escapeHtml(new Date(entry.created_at).toLocaleDateString('en-US')) : 'Unavailable'}</td>
+              <td class="py-2 pr-3 text-slate-300">${entry.created_at ? escapeHtml(new Date(entry.created_at).toLocaleDateString('en-US')) : 'Date not yet provided'}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(investorReturnTypeLabel(entry))}</td>
               <td class="py-2 pr-3 text-green-300 font-mono">${formatOptionalNearDisplay(entry.amount_near)}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(investorReturnPaymentStatusLabel(entry.payment_status))}</td>
@@ -8859,7 +8997,7 @@ function renderCycleStatusCards(cycles) {
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-2 mb-2">
             <span class="font-semibold text-slate-100">Cycle #${escapeHtml(card.cycleNumber)}</span>
-            <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(card.status)}</span>
+            <span class="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${escapeHtml(businessStatusLabel(card.status))}</span>
           </div>
           <p class="text-sm text-slate-400">Funding sent: <span class="text-slate-200">${card.fundingSent ? 'Yes' : 'No'}</span></p>
           <p class="text-sm text-slate-400">Funding confirmed: <span class="text-slate-200">${card.fundingConfirmed ? 'Yes' : 'No'}</span></p>
@@ -8874,16 +9012,16 @@ function renderCycleStatusCards(cycles) {
 function renderInvestorDealParams(deal, status, investorBalance, resourceErrors = {}) {
   const investmentAmount = formatOptionalYoctoDisplay(deal.investment_amount);
   const availableBalance = resourceErrors.balances
-    ? 'Unavailable'
+    ? 'Not yet available'
     : formatOptionalYoctoDisplay(investorBalance);
   const rows = [
-    ['NEAR Infrastructure Reference', deal.contract_address || 'Unavailable'],
+    ['NEAR Infrastructure Reference', deal.contract_address || 'Not yet provided'],
     ['Project Operator',    'AgriPartners'],
-    ['Farmer Assignment',   deal.farmer || 'Unavailable'],
-    ['Investor Account',    deal.investor || 'Unavailable'],
+    ['Farmer Assignment',   deal.farmer || 'Awaiting assignment'],
+    ['Investor Account',    deal.investor || 'Not yet provided'],
     ['Investment Amount',  investmentAmount],
-    ['Project Status',     status?.status || 'Unknown'],
-    ['Production Cycle',   status?.current_cycle ?? '—'],
+    ['Project Status',     businessStatusLabel(status)],
+    ['Production Cycle',   status?.current_cycle ?? 'Not yet started'],
     ['Investor Testnet Available', availableBalance],
   ];
   return `${rows.map(([k, v]) => `
@@ -8927,7 +9065,11 @@ async function withdrawInvestorFromPortal(deal) {
     showInvestorActionResult('success', 'Settlement request completed successfully', data.tx_hash);
     await refreshInvestorDeal(deal.id);
   } catch (err) {
-    showInvestorActionResult('error', `Settlement request failed: ${err.message}`);
+    console.error('Settlement request failed', err);
+    const message = typeof friendlyUiErrorMessage === 'function'
+      ? friendlyUiErrorMessage(err, 'Settlement request')
+      : 'Settlement request is temporarily unavailable. Please try again.';
+    showInvestorActionResult('error', message);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Request Settlement'; }
   }
@@ -8981,11 +9123,12 @@ async function refreshInvestorDeal(id) {
     if (investorBalanceEl) {
       const investorBalance = balances?.investor;
       investorBalanceEl.textContent = resourceErrors.balances || investorBalance == null
-        ? 'Unavailable'
-        : `${yoctoToNear(investorBalance)} · ${formatYoctoRaw(investorBalance)}`;
+        ? 'Not yet available'
+        : yoctoToNear(investorBalance);
     }
   } catch (err) {
-    showInvestorActionResult('error', `Refresh failed: ${err.message}`);
+    console.error('Investor Project refresh failed', err);
+    showInvestorActionResult('error', friendlyUiErrorMessage(err, 'Project refresh'));
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
   }
@@ -9096,7 +9239,7 @@ async function fetchDealBundle(id) {
 }
 
 function renderAdminResourceUnavailable(label, message) {
-  return `<div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 text-sm text-amber-100" data-admin-resource-error="${escapeHtml(label)}"><span class="font-semibold">${escapeHtml(label)} unavailable.</span> ${escapeHtml(message)}</div>`;
+  return `<div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 text-sm text-amber-100" data-admin-resource-error="${escapeHtml(label)}"><span class="font-semibold">${escapeHtml(label)} pending update.</span> ${escapeHtml(friendlyUiErrorMessage(message, label))}</div>`;
 }
 
 async function showDeal(id) {
@@ -9116,7 +9259,7 @@ async function showDeal(id) {
     const message = err.status === 404 ? 'Project not found'
       : err.status === 401 ? 'Authentication required to load this Project.'
       : err.status === 403 ? 'Access denied while loading this Project.'
-      : `Project unavailable: ${err.message || 'Network request failed'}`;
+      : friendlyUiErrorMessage(err, 'Project information');
     el.innerHTML += `<div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4" data-main-deal-error>${escapeHtml(message)}</div>`;
   }
 }
@@ -9148,7 +9291,7 @@ function renderDealDetail(el, bundle) {
              <div id="balances-summary" class="w-full mt-4 space-y-2">
                ${renderBalancesSummary(balances)}
              </div>`
-          : balances ? `<div id="balances-summary" class="w-full space-y-2">${renderBalancesSummary(balances)}</div>` : '<p class="text-slate-500 text-sm">Balances unavailable</p>'}
+          : balances ? `<div id="balances-summary" class="w-full space-y-2">${renderBalancesSummary(balances)}</div>` : '<p class="text-slate-500 text-sm">Balance information is not yet available.</p>'}
       </div>
     </div>
     ${isAdmin() ? renderAdminActions(deal, status?.status) : ''}
@@ -9189,11 +9332,11 @@ function renderAdminReturnSummary(summary) {
   const projectedRoi = summary.projected_roi_pct ?? summary.roi_percent;
   const rows = [
     ['Invested', formatOptionalNearDisplay(summary.invested_amount ?? summary.amount)],
-    ['Projected ROI', projectedRoi == null ? 'Unknown' : `${escapeHtml(projectedRoi)}%`],
+    ['Projected ROI', projectedRoi == null ? 'Not yet available' : `${escapeHtml(projectedRoi)}%`],
     ['Projected Return', formatOptionalNearDisplay(summary.expected_return)],
     ['Returned Amount', formatOptionalNearDisplay(summary.returned_amount)],
     ['Outstanding Return', formatOptionalNearDisplay(summary.outstanding_amount)],
-    ['Return Status', summary.return_status == null ? 'Unknown' : escapeHtml(returnStatusLabel(summary.return_status))],
+    ['Return Status', summary.return_status == null ? 'Pending' : escapeHtml(returnStatusLabel(summary.return_status))],
   ];
   return `
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -9275,9 +9418,9 @@ function renderAdminReturnTransitionControls(entry) {
 
 function renderAdminReturnStatusHistory(events = null) {
   if (!Array.isArray(events)) {
-    return '<p class="text-slate-500 text-xs">Status History unavailable until loaded.</p>';
+    return '<p class="text-slate-500 text-xs">Status history will appear after it is loaded.</p>';
   }
-  if (!events.length) return '<p class="text-slate-500 text-xs">Status History unavailable.</p>';
+  if (!events.length) return '<p class="text-slate-500 text-xs">No status changes have been recorded yet.</p>';
   return `
     <div class="space-y-1 text-xs">
       ${events.map(event => `
@@ -9286,7 +9429,7 @@ function renderAdminReturnStatusHistory(events = null) {
             ${escapeHtml(adminReturnStatusLabel(event.from_status))} -> ${escapeHtml(adminReturnStatusLabel(event.to_status))}
           </div>
           <div class="text-slate-500">
-            ${event.changed_by ? escapeHtml(event.changed_by) : 'Unknown actor'}
+            ${event.changed_by ? escapeHtml(event.changed_by) : 'AgriPartners Operator'}
             ${event.changed_at ? ` &middot; ${escapeHtml(new Date(event.changed_at).toLocaleString('en-US'))}` : ''}
           </div>
           ${event.note ? `<div class="text-slate-400">${escapeHtml(event.note)}</div>` : ''}
@@ -9317,11 +9460,11 @@ function renderReturnsLedgerRows(returns) {
         <tbody>
           ${returns.map((entry) => `
             <tr class="border-b border-slate-700 last:border-0">
-              <td class="py-2 pr-3 text-slate-300">${entry.created_at ? escapeHtml(new Date(entry.created_at).toLocaleDateString('en-US')) : 'Unavailable'}</td>
+              <td class="py-2 pr-3 text-slate-300">${entry.created_at ? escapeHtml(new Date(entry.created_at).toLocaleDateString('en-US')) : 'Date not yet provided'}</td>
               <td class="py-2 pr-3 text-green-300 font-mono">${formatOptionalNearDisplay(entry.amount_near)}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(adminReturnTypeLabel(entry.entry_type))}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(adminReturnStatusLabel(entry.payment_status))}</td>
-              <td class="py-2 pr-3 text-slate-300 font-mono">${entry.recorded_by ? escapeHtml(entry.recorded_by) : 'Unavailable'}</td>
+              <td class="py-2 pr-3 text-slate-300 font-mono">${entry.recorded_by ? escapeHtml(entry.recorded_by) : 'Not yet provided'}</td>
               <td class="py-2 pr-3 text-slate-300">${renderAdminReturnEvidence(entry.transaction_hash)}</td>
               <td class="py-2 pr-3 text-slate-300">${escapeHtml(entry.note || 'No note')}</td>
               <td class="py-2 pr-3 text-slate-300">${renderAdminReturnTransitionControls(entry)}</td>
@@ -9346,18 +9489,18 @@ function findAdminReturnElement(attribute, returnId) {
 }
 
 function renderParams(deal) {
-  const optionalPercent = value => value == null ? 'Unknown' : `${escapeHtml(value)}%`;
+  const optionalPercent = value => value == null ? 'Not yet provided' : `${escapeHtml(value)}%`;
   const rows = [
-    ['Investment Model',   deal.deal_type || 'Unknown'],
-    ['Farmer Assignment',  deal.farmer ? formatAddress(deal.farmer) : 'Unknown'],
-    ['Investor Assignment', deal.investor ? formatAddress(deal.investor) : 'Unknown'],
+    ['Investment Model',   deal.deal_type || 'Not yet provided'],
+    ['Farmer Assignment',  deal.farmer ? formatAddress(deal.farmer) : 'Awaiting assignment'],
+    ['Investor Assignment', deal.investor ? formatAddress(deal.investor) : 'Awaiting assignment'],
     ['Project Operator',   'AgriPartners'],
-    ['Operator Account',   deal.admin ? formatAddress(deal.admin) : 'Unknown'],
-    ['Split',              deal.farmer_split_pct == null && deal.investor_split_pct == null ? 'Unknown' : `${optionalPercent(deal.farmer_split_pct)} / ${optionalPercent(deal.investor_split_pct)}`],
+    ['Operator Account',   deal.admin ? formatAddress(deal.admin) : 'Not yet provided'],
+    ['Split',              deal.farmer_split_pct == null && deal.investor_split_pct == null ? 'Terms not yet provided' : `${optionalPercent(deal.farmer_split_pct)} / ${optionalPercent(deal.investor_split_pct)}`],
     ['Escrow',             optionalPercent(deal.escrow_pct)],
     ['Performance Fee',    optionalPercent(deal.performance_fee_pct)],
-    ['Production Cycle duration', deal.cycle_duration_days == null ? 'Unknown' : `${escapeHtml(deal.cycle_duration_days)} days`],
-    ['Production Cycles',  deal.total_cycles ?? 'Unknown'],
+    ['Production Cycle duration', deal.cycle_duration_days == null ? 'Schedule not yet provided' : `${escapeHtml(deal.cycle_duration_days)} days`],
+    ['Production Cycles',  deal.total_cycles ?? 'Schedule not yet provided'],
     ['Investment',         formatOptionalYoctoDisplay(deal.investment_amount)],
     ['Capital return',     formatOptionalYoctoDisplay(deal.capital_return_near)],
   ];
@@ -9381,8 +9524,7 @@ function renderBalancesSummary(balances) {
     <div class="balance-row">
       <span class="balance-label">${label}</span>
       <span class="balance-values">
-        <span class="balance-near">${raw == null ? 'Unavailable' : yoctoToNear(raw)}</span>
-        <span class="balance-raw">${raw == null ? 'Unavailable' : formatYoctoRaw(raw)}</span>
+        <span class="balance-near">${raw == null ? 'Not yet available' : yoctoToNear(raw)}</span>
       </span>
     </div>
   `).join('');
@@ -9406,7 +9548,7 @@ function renderAdminActionButton(action, label, status, deal, className = '') {
   const productionDisabled = isProductionDisabledAdminAction(action, deal);
   const enabled = !productionDisabled && isAdminActionEnabled(action, status);
   return `
-    <button type="button" class="admin-action-btn ${className}" data-action="${action}" data-production-disabled="${productionDisabled}" ${enabled ? '' : 'disabled'} title="${productionDisabled ? 'Unavailable in production: this workflow requires a non-production signer endpoint.' : ''}">
+    <button type="button" class="admin-action-btn ${className}" data-action="${action}" data-production-disabled="${productionDisabled}" ${enabled ? '' : 'disabled'} title="${productionDisabled ? 'This control is not available in the public Alpha environment.' : ''}">
       ${label}
     </button>
   `;
@@ -9417,17 +9559,17 @@ function renderAdminActions(deal, status) {
     <div id="admin-actions" data-status="${escapeHtml(status || 'Unknown')}" class="bg-slate-800 rounded-xl p-5 mb-6">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Manage Project</h3>
-        <span class="text-xs text-slate-500">Legacy NEAR actions remain Alpha/Testnet infrastructure only</span>
+        <span class="text-xs text-slate-500">Alpha workflow controls are provided for validation only</span>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-        ${renderAdminActionButton('fund', 'Fund Project (Testnet)', status, deal, 'action-fund')}
+        ${renderAdminActionButton('fund', 'Record Project Funding', status, deal, 'action-fund')}
         ${renderAdminActionButton('start-cycle', 'Start Production Cycle', status, deal)}
         ${renderAdminActionButton('report-profit', 'Record Cycle Result', status, deal)}
-        ${renderAdminActionButton('withdraw-farmer', 'Farmer Demo Payout', status, deal)}
-        ${renderAdminActionButton('withdraw-investor', 'Investor Testnet Settlement', status, deal)}
-        ${renderAdminActionButton('withdraw-platform', 'Operator Testnet Transfer', status, deal)}
+        ${renderAdminActionButton('withdraw-farmer', 'Record Farmer Payout', status, deal)}
+        ${renderAdminActionButton('withdraw-investor', 'Record Investor Settlement', status, deal)}
+        ${renderAdminActionButton('withdraw-platform', 'Record Operator Transfer', status, deal)}
       </div>
-      ${IS_PRODUCTION_BUILD ? '<p class="text-xs text-amber-300 mt-3">Legacy Testnet transfer controls are disabled in production because they are non-production workflows.</p>' : ''}
+      ${IS_PRODUCTION_BUILD ? '<p class="text-xs text-amber-300 mt-3">Alpha transfer controls are disabled in the public environment.</p>' : ''}
       <form id="admin-return-form" class="mt-5 border-t border-slate-700 pt-4 space-y-3">
         <h4 class="text-sm font-semibold text-slate-300">Record Return</h4>
         <p class="text-xs text-amber-200 bg-amber-950 border border-amber-800 rounded-lg px-3 py-2">
@@ -9526,7 +9668,8 @@ async function recordAdminReturn(event, deal) {
     showAdminActionResult('success', 'Return recorded successfully');
     await refreshDeal(deal.id);
   } catch (err) {
-    showAdminActionResult('error', `Record return failed: ${err.message}`);
+    console.error('Return recording failed', err);
+    showAdminActionResult('error', friendlyUiErrorMessage(err, 'Return recording'));
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Record Return'; }
   }
@@ -9572,7 +9715,8 @@ async function runAdminReturnTransition(deal, button) {
     await refreshDeal(deal.id);
     showAdminActionResult('success', message);
   } catch (err) {
-    showAdminActionResult('error', `${label} failed: ${err.message}`);
+    console.error(`${label} failed`, err);
+    showAdminActionResult('error', friendlyUiErrorMessage(err, label));
   } finally {
     button.disabled = false;
   }
@@ -9592,7 +9736,8 @@ async function loadAdminReturnStatusHistory(returnId) {
     if (!Array.isArray(data.statusEvents)) throw new Error('Malformed status history payload');
     container.innerHTML = renderAdminReturnStatusHistory(data.statusEvents);
   } catch (err) {
-    container.innerHTML = `<p class="text-red-300 text-xs">Status History unavailable: ${escapeHtml(err.message || 'Network request failed')}</p>`;
+    console.error('Status history failed to load', err);
+    container.innerHTML = `<p class="text-red-300 text-xs">${escapeHtml(friendlyUiErrorMessage(err, 'Status history'))}</p>`;
   }
 }
 
@@ -9600,8 +9745,8 @@ function adminActionConfig(deal, action) {
   const base = `${API_BASE}/api/admin/deals/${deal.id}`;
   const configs = {
     fund: {
-      label: 'Fund Project (Testnet)',
-      confirm: `Run the Alpha/Testnet funding action for Project #${deal.id}?`,
+      label: 'Record Project Funding',
+      confirm: `Record Alpha funding for Project #${deal.id}?`,
       url: `${base}/fund-as`,
       body: { account_id: deal.investor }
     },
@@ -9611,20 +9756,20 @@ function adminActionConfig(deal, action) {
       url: `${base}/start-cycle`
     },
     'withdraw-farmer': {
-      label: 'Farmer demo payout',
-      confirm: 'Run the Farmer Alpha demo payout action? This is not a Pilot 1.0 fiat payment.',
+      label: 'Record Farmer Payout',
+      confirm: 'Record the Alpha Farmer payout? This is not a Pilot 1.0 fiat payment.',
       url: `${base}/withdraw-as`,
       body: { account_id: deal.farmer }
     },
     'withdraw-investor': {
-      label: 'Investor Testnet Settlement',
-      confirm: 'Run the Investor Testnet Settlement action? This is not production Settlement.',
+      label: 'Record Investor Settlement',
+      confirm: 'Record the Alpha Investor Settlement? This is not production Settlement.',
       url: `${base}/withdraw-as`,
       body: { account_id: deal.investor }
     },
     'withdraw-platform': {
-      label: 'Operator Testnet transfer',
-      confirm: 'Run the AgriPartners operator Testnet transfer?',
+      label: 'Record Operator Transfer',
+      confirm: 'Record the Alpha AgriPartners Operator transfer?',
       url: deal.platform === deal.admin ? `${base}/withdraw` : `${base}/withdraw-as`,
       body: deal.platform === deal.admin ? null : { account_id: deal.platform }
     }
@@ -9650,12 +9795,12 @@ function adminActionConfig(deal, action) {
 
 async function runAdminAction(deal, action) {
   if (isProductionDisabledAdminAction(action, deal)) {
-    showAdminActionResult('error', 'This action is unavailable in production because it requires a non-production signer endpoint.');
+    showAdminActionResult('error', 'This control is not available in the public Alpha environment.');
     return;
   }
   const currentStatus = document.getElementById('admin-actions')?.dataset.status;
   if (!isAdminActionEnabled(action, currentStatus)) {
-    showAdminActionResult('error', `${action} is not available while Project Status is ${currentStatus || 'Unknown'}.`);
+    showAdminActionResult('error', `This action is not available while the Project is ${businessStatusLabel(currentStatus).toLowerCase()}.`);
     return;
   }
 
@@ -9663,7 +9808,8 @@ async function runAdminAction(deal, action) {
   try {
     config = adminActionConfig(deal, action);
   } catch (err) {
-    showAdminActionResult('error', err.message);
+    console.error('Project action configuration failed', err);
+    showAdminActionResult('error', friendlyUiErrorMessage(err, 'Project action'));
     return;
   }
   if (!config) return;
@@ -9685,7 +9831,8 @@ async function runAdminAction(deal, action) {
     showAdminActionResult('success', `${config.label} completed successfully`, data.tx_hash);
     await refreshDeal(deal.id);
   } catch (err) {
-    showAdminActionResult('error', `${config.label} failed: ${err.message}`);
+    console.error(`${config.label} failed`, err);
+    showAdminActionResult('error', friendlyUiErrorMessage(err, config.label));
   } finally {
     setAdminActionBusy(false);
   }
@@ -9741,11 +9888,11 @@ function renderEvents(events) {
       ? `<a href="https://testnet.nearblocks.io/txns/${e.tx_hash}" target="_blank" class="text-blue-400 hover:underline font-mono">${formatAddress(e.tx_hash)}</a>`
       : '';
     const parsedDate = e.created_at ? new Date(e.created_at) : null;
-    const date = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toLocaleDateString('en-US') : 'Unknown';
+    const date = parsedDate && !Number.isNaN(parsedDate.getTime()) ? parsedDate.toLocaleDateString('en-US') : 'Date not yet provided';
     return `
       <div class="flex justify-between items-start text-sm py-2.5 border-b border-slate-700 last:border-0 gap-2">
         <div>
-          <span class="text-slate-200 font-medium">${escapeHtml(e.event_type || 'Unknown')}</span>
+          <span class="text-slate-200 font-medium">${escapeHtml(e.event_type ? businessStatusLabel(e.event_type) : 'Project update')}</span>
           ${e.cycle_num != null ? `<span class="text-slate-400 ml-2">cycle ${e.cycle_num}</span>` : ''}
           ${profitHtml}${lossHtml}
         </div>
@@ -9765,7 +9912,8 @@ async function refreshDeal(id) {
     const bundle = await fetchDealBundle(id);
     renderDealDetail(document.getElementById('view-detail'), bundle);
   } catch (err) {
-    showAdminActionResult('error', `Refresh failed: ${err.message || 'Network request failed'}`);
+    console.error('Project refresh failed', err);
+    showAdminActionResult('error', friendlyUiErrorMessage(err, 'Project refresh'));
     if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
   }
 }

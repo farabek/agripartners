@@ -49,13 +49,13 @@ test('admin create handles success, request errors, partial profile failures and
   const create = functionBody('createAdminDeal');
   expect(portal).toContain('Promise.allSettled');
   expect(portal).toContain("index === 0 ? 'Farmer' : 'Investor'");
-  expect(portal).toContain('profiles unavailable:');
+  expect(portal).toContain('friendlyUiErrorMessage(result.reason');
   expect(appJs).toContain('No Farmer or Investor profiles are available.');
   expect(appJs).toContain('Legacy Alpha model parameter (%)');
   expect(create).toContain("document.getElementById('admin-reserve-rate').value");
   expect(create).toContain("fetchAdminJson('/api/admin/deals'");
   expect(create).toContain('form.reset()');
-  expect(create).toContain('Create Project failed:');
+  expect(create).toContain("friendlyUiErrorMessage(err, 'Project creation')");
 });
 
 test('admin users screen creates pre-created platform accounts', () => {
@@ -71,7 +71,7 @@ test('admin users screen creates pre-created platform accounts', () => {
   expect(create).toContain("fetchAdminJson('/api/auth/register'");
   expect(create).toContain('near_account');
   expect(create).toContain('form.reset()');
-  expect(create).toContain('Create user failed:');
+  expect(create).toContain("friendlyUiErrorMessage(err, 'User creation')");
 });
 
 test('deal detail bundle treats main deal as mandatory and optional resources independently', () => {
@@ -97,13 +97,13 @@ test('optional failures render as unavailable and remain distinct from empty dat
   expect(appJs).toContain("resourceErrors.cycles ? renderAdminResourceUnavailable('Cycles'");
 });
 
-test('missing live DTO values render Unknown or Unavailable with no fabricated defaults', () => {
+test('missing live DTO values render contextual business states with no fabricated defaults', () => {
   const params = functionBody('renderParams', 2500);
   const summary = functionBody('renderAdminReturnSummary', 1800);
-  expect(params).toContain("value == null ? 'Unknown'");
-  expect(params).toContain("deal.total_cycles ?? 'Unknown'");
+  expect(params).toContain("value == null ? 'Not yet provided'");
+  expect(params).toContain("deal.total_cycles ?? 'Schedule not yet provided'");
   expect(params).toContain('formatOptionalYoctoDisplay');
-  expect(summary).toContain("projectedRoi == null ? 'Unknown'");
+  expect(summary).toContain("projectedRoi == null ? 'Not yet available'");
   expect(summary).not.toContain('?? 20');
   expect(appJs).not.toContain("status || 'Initialized'");
   expect(params).not.toContain('undefined%');
@@ -123,8 +123,8 @@ test('cycle, report and return actions keep real backend success/error handling'
   expect(appJs).toContain("url: `${base}/report-cycle`");
   expect(appJs).toContain("fetch(`${API_BASE}/api/admin/deals/${deal.id}/returns`");
   expect(appJs).toContain('completed successfully');
-  expect(appJs).toContain('Record return failed:');
-  expect(appJs).toContain('failed: ${err.message}');
+  expect(appJs).toContain("friendlyUiErrorMessage(err, 'Return recording')");
+  expect(appJs).toContain('friendlyUiErrorMessage(err, config.label)');
 });
 
 test('admin return form offers optional Alpha-safe typed return choices', () => {
@@ -148,7 +148,7 @@ test('admin return submit includes a selected type and preserves untyped payload
   expect(submit).not.toContain('recorded_by');
   expect(submit).not.toContain('correction');
   expect(submit).toContain("showAdminActionResult('success', 'Return recorded successfully')");
-  expect(submit).toContain('Record return failed:');
+  expect(submit).toContain("friendlyUiErrorMessage(err, 'Return recording')");
 });
 
 test('admin return ledger renders typed metadata and safe legacy labels', () => {
@@ -196,14 +196,14 @@ test('admin return transition posts note and evidence metadata to backend endpoi
   expect(run).toContain('jsonAuthHeaders()');
   expect(run).toContain('await refreshDeal(deal.id)');
   expect(run).toContain('Evidence / Reference remains unverified metadata');
-  expect(run).toContain('failed: ${err.message}');
+  expect(run).toContain('friendlyUiErrorMessage(err, label)');
 });
 
-test('admin return status history fetches and renders explicit unavailable states', () => {
+test('admin return status history fetches and renders contextual pending states', () => {
   const render = functionBody('renderAdminReturnStatusHistory', 1800);
   const load = functionBody('loadAdminReturnStatusHistory', 1800);
-  expect(render).toContain('Status History unavailable until loaded.');
-  expect(render).toContain('Status History unavailable.');
+  expect(render).toContain('Status history will appear after it is loaded.');
+  expect(render).toContain('No status changes have been recorded yet.');
   expect(render).toContain('event.from_status');
   expect(render).toContain('event.to_status');
   expect(render).toContain('event.changed_by');
@@ -211,7 +211,7 @@ test('admin return status history fetches and renders explicit unavailable state
   expect(render).toContain('event.note');
   expect(load).toContain('fetch(`${API_BASE}/api/admin/returns/${returnId}/status-events`');
   expect(load).toContain('Malformed status history payload');
-  expect(load).toContain('Status History unavailable:');
+  expect(load).toContain("friendlyUiErrorMessage(err, 'Status history')");
 });
 
 test('admin action binding includes return transitions and status history without breaking typed form', () => {
@@ -239,6 +239,6 @@ test('production disables fund-as and withdraw-as controls with a clear explanat
   expect(body).toContain("action === 'fund'");
   expect(body).toContain("action === 'withdraw-farmer'");
   expect(body).toContain("action === 'withdraw-investor'");
-  expect(appJs).toContain('Legacy Testnet transfer controls are disabled in production');
+  expect(appJs).toContain('Alpha transfer controls are disabled in the public environment');
   expect(appJs).toContain("btn.dataset.productionDisabled === 'true'");
 });

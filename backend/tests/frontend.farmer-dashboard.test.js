@@ -341,12 +341,12 @@ test('live farmer profile uses neutral missing values instead of demo defaults',
   const profile = farmerProfileDisplay({}, 'farmer.testnet');
 
   expect(profile).toEqual({
-    farmName: 'Unavailable',
-    region: 'Unavailable',
-    activity: 'Unavailable',
+    farmName: 'Farm profile pending',
+    region: 'Region not yet provided',
+    activity: 'Activity not yet provided',
     farmerAccount: 'farmer.testnet',
-    status: 'Unknown',
-    role: 'Unknown',
+    status: 'Pending update',
+    role: 'Farmer',
   });
   expect(Object.values(profile)).not.toContain('AgriPartners Pilot Farm');
   expect(Object.values(profile)).not.toContain('Tashkent Region');
@@ -471,12 +471,12 @@ test('malformed optional farmer payloads become section errors', async () => {
   expect(bundle.resourceErrors.balances).toBe('Farmer balances returned malformed data');
 });
 
-test('live farmer detail renders missing fields as Unknown or Unavailable', () => {
+test('live farmer detail renders contextual missing states', () => {
   const { renderFarmerProjectProfile } = loadFarmerProjectProfileRenderer();
   const html = renderFarmerProjectProfile({ id: 9, status: null });
 
-  expect(html).toContain('Unknown');
-  expect(html).toContain('Unavailable');
+  expect(html).toContain('Pending update');
+  expect(html).toContain('Not yet provided');
   expect(html).not.toContain('Funding Confirmed');
   expect(html).not.toContain('Cycle Active');
   expect(html).not.toContain('Next Report Due');
@@ -533,6 +533,6 @@ test('farmer withdrawal error remains visible without refresh', async () => {
 
   await withdrawFarmerWithWallet({ id: 9, farmer: 'farmer.testnet' });
 
-  expect(actionResult).toHaveBeenCalledWith('error', 'Alpha demo payout action failed: signer unavailable');
+  expect(actionResult).toHaveBeenCalledWith('error', 'Payout request is temporarily unavailable. Please try again.');
   expect(showDeal).not.toHaveBeenCalled();
 });

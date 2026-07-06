@@ -780,11 +780,11 @@ test('live Fidlot-like deal never receives static pilot profile values', () => {
   expect(live).toEqual(expect.objectContaining({
     title: 'Fidlot Livestock Project',
     investment: '12 NEAR',
-    roi: 'Unavailable',
-    simpleAnnualizedRoi: 'Unavailable',
-    cycles: 'Unavailable',
-    description: 'Unavailable',
-    status: 'Unknown',
+    roi: 'Not yet available',
+    simpleAnnualizedRoi: 'Not yet available',
+    cycles: 'Schedule pending',
+    description: 'Project summary not yet provided',
+    status: 'Pending update',
   }));
   expect(live.title).not.toBe('Static Fidlot Title');
   expect(live.investment).not.toBe('$50,000');
@@ -818,16 +818,16 @@ test('live funding metrics never invent percentages or deadlines', () => {
 
   expect(missing).toEqual(expect.objectContaining({
     displayGoal: '50.00 NEAR',
-    displayRaised: 'Unavailable',
-    displayRemaining: 'Unavailable',
-    displayPercentage: 'Unavailable',
+    displayRaised: 'Not yet available',
+    displayRemaining: 'Not yet available',
+    displayPercentage: 'Pending update',
     percentage: null,
-    investorCount: 'Unavailable',
-    daysRemaining: 'Unavailable',
+    investorCount: 'Pending update',
+    daysRemaining: 'Schedule pending',
   }));
 });
 
-test('missing live financial DTO fields render Unknown or Unavailable', () => {
+test('missing live financial DTO fields render contextual business states', () => {
   const { renderInvestmentSummary, renderReturnsSummary, dealReturnMetrics } = loadInvestorMissingValueHelpers();
   const deal = { id: 7, projected_roi_pct: null, expected_return: null, returned_amount: null };
 
@@ -835,10 +835,10 @@ test('missing live financial DTO fields render Unknown or Unavailable', () => {
   const returns = renderReturnsSummary(deal);
   const metrics = dealReturnMetrics(deal);
 
-  expect(investment).toContain('Unavailable');
-  expect(investment).toContain('Unknown');
+  expect(investment).toContain('Not yet available');
+  expect(investment).toContain('Pending');
   expect(investment).not.toContain('20%');
-  expect(returns).toContain('Unavailable');
+  expect(returns).toContain('Not yet available');
   expect(metrics.projectedRoi).toBeNull();
   expect(metrics.completionPercent).toBeNull();
 });
@@ -1005,7 +1005,7 @@ test('live investor dashboard has no demo controls or static dataset entry', () 
 });
 
 test('live mode has explicit error and empty portfolio states without demo fallback', () => {
-  expect(appJs).toContain('Investor Portal unavailable: ${e.message}');
+  expect(appJs).toContain("friendlyUiErrorMessage(e, 'Investor Portal')");
   expect(appJs).toContain('No active Projects found for the connected Investor account:');
   expect(appJs).not.toContain('Featured pilot profiles are available in explicit Demo Mode.');
   expect(appJs).not.toContain('INVESTOR_DEMO_DATASET_ENABLED');
@@ -1626,7 +1626,7 @@ test('investor withdrawal error remains visible and does not refresh', async () 
 
   await withdrawInvestorFromPortal({ id: 7, investor: 'investor.testnet' });
 
-  expect(actionResult).toHaveBeenCalledWith('error', 'Settlement request failed: withdraw failed');
+  expect(actionResult).toHaveBeenCalledWith('error', 'Settlement request is temporarily unavailable. Please try again.');
   expect(refresh).not.toHaveBeenCalled();
 });
 

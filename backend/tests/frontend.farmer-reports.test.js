@@ -100,7 +100,7 @@ test.each([
 
   await confirmFarmerFunding(9, 1);
 
-  expect(actionResult).toHaveBeenCalledWith('error', `Confirmation failed: ${message}`);
+  expect(actionResult).toHaveBeenCalledWith('error', 'Funding confirmation is temporarily unavailable. Please try again.');
   expect(showDeal).not.toHaveBeenCalled();
 });
 
@@ -127,7 +127,7 @@ test.each([
 
   await submitFarmerReport(9, 1);
 
-  expect(actionResult).toHaveBeenCalledWith('error', `Report failed: ${message}`);
+  expect(actionResult).toHaveBeenCalledWith('error', 'Report submission is temporarily unavailable. Please try again.');
   expect(showDeal).not.toHaveBeenCalled();
 });
 

@@ -103,7 +103,7 @@ test('clicking transaction id fetches transaction detail', () => {
   expect(bind).toContain('admin-treasury-transaction-link');
   expect(bind).toContain('loadAdminTreasuryTransactionDetail(button.dataset.transactionId)');
   expect(load).toContain('fetchAdminJson(`/api/admin/treasury/transactions/${encodeURIComponent(transactionId)}`)');
-  expect(load).toContain('transaction detail fetch error');
+  expect(load).toContain("renderAdminTreasuryError('Transaction details'");
   expect(load).toContain('Malformed treasury transaction payload');
 });
 
@@ -134,8 +134,8 @@ test('transaction detail renders debit and credit rows', () => {
 test('admin treasury has explicit account, ledger and transaction error states', () => {
   const content = functionBody('renderAdminTreasuryContent', 4200);
   const error = functionBody('renderAdminTreasuryError', 700);
-  expect(content).toContain('account fetch error');
-  expect(content).toContain('ledger fetch error');
+  expect(content).toContain("renderAdminTreasuryError('Treasury accounts'");
+  expect(content).toContain("renderAdminTreasuryError('Treasury activity'");
   expect(content).toContain('data-admin-treasury-accounts-error');
   expect(content).toContain('data-admin-treasury-ledger-error');
   expect(error).toContain('bg-red-900');
