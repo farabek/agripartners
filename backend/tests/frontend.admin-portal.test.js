@@ -25,11 +25,64 @@ test('explicit admin pilot route remains available without becoming a live defau
 });
 
 test('admin demo dashboard CTA stays inside public demo flow', () => {
-  const body = functionBody('showAdminDemoPortal', 1800);
+  const body = functionBody('showAdminDemoPortal', 3200);
   expect(body).not.toContain('href="#deals"');
   expect(body).toContain('id="admin-demo-pilot-deals-btn"');
   expect(body).toContain('View Pilot Projects');
   expect(body).toContain('scrollIntoView');
+});
+
+test('operator demo shows Treasury KPIs, Settlement Queue, and Treasury Ledger', () => {
+  const portal = functionBody('showAdminDemoPortal', 3400);
+  const treasury = functionBody('renderAdminDemoTreasurySection', 1600);
+  const queue = functionBody('renderAdminDemoSettlementQueue', 4200);
+  const ledger = functionBody('renderAdminDemoTreasuryLedger', 3600);
+
+  expect(portal).toContain('renderAdminDemoTreasurySection');
+  expect(portal).toContain('renderAdminDemoSettlementQueue');
+  expect(portal).toContain('renderAdminDemoTreasuryLedger');
+  expect(treasury).toContain('Total Capital Managed');
+  expect(treasury).toContain('Active Capital');
+  expect(treasury).toContain('Returned Capital');
+  expect(treasury).toContain('Outstanding Obligations');
+  expect(treasury).toContain('Settlement Ready');
+  expect(treasury).toContain('Settled Projects');
+  expect(queue).toContain('Settlement Queue');
+  expect(queue).toContain('Funding status');
+  expect(queue).toContain('Report status');
+  expect(queue).toContain('Return status');
+  expect(queue).toContain('Settlement status');
+  expect(queue).toContain('Investor return');
+  expect(queue).toContain('Farmer share');
+  expect(queue).toContain('Operator fee');
+  expect(queue).toContain('Ready for settlement');
+  expect(ledger).toContain('Treasury Ledger');
+  for (const type of ['Funding', 'Return', 'Profit', 'Principal', 'Operator Fee', 'Reserve', 'Settlement']) {
+    expect(appJs).toContain(type);
+  }
+});
+
+test('pilot project details show Settlement section and Treasury Timeline', () => {
+  expect(functionBody('renderInvestorDemoDealDetail', 1800)).toContain('renderSettlementPanel');
+  expect(functionBody('renderAdminDemoDealDetail', 2600)).toContain('renderSettlementPanel');
+  const settlement = functionBody('renderSettlementPanel', 2600);
+  expect(settlement).toContain('Principal returned');
+  expect(settlement).toContain('Profit paid');
+  expect(settlement).toContain('Farmer paid');
+  expect(settlement).toContain('Operator fee');
+  expect(settlement).toContain('Outstanding');
+  expect(settlement).toContain('Settlement status');
+  expect(functionBody('renderTreasuryTimeline', 1800)).toContain('Settlement Completed');
+});
+
+test('demo settlement buttons are disabled UI only and do not call backend APIs', () => {
+  const actions = functionBody('renderSettlementActionButtons', 1200);
+  expect(actions).toContain('Prepare Settlement');
+  expect(actions).toContain('Approve Settlement');
+  expect(actions).toContain('Complete Settlement');
+  expect(actions).toContain('disabled');
+  expect(actions).not.toContain('fetch(');
+  expect(actions).not.toContain('addEventListener');
 });
 
 test('live dashboard has loading, zero-deal, auth, server, network and malformed JSON states', () => {

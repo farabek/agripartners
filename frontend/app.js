@@ -2688,6 +2688,7 @@ function showAdminDemoPortal() {
   showView('view-admin');
   const el = document.getElementById('view-admin');
   const deals = buildAdminDemoDataset();
+  const treasury = adminDemoTreasuryMetrics(deals);
   el.innerHTML = `
     ${renderNav()}
     ${renderEnvironmentBanner('demo', 'Admin')}
@@ -2705,6 +2706,9 @@ function showAdminDemoPortal() {
       <button type="button" id="admin-demo-pilot-deals-btn" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">View Pilot Projects</button>
     </div>
     ${renderAdminDemoSummary(adminDemoMetrics(deals))}
+    ${renderAdminDemoTreasurySection(treasury)}
+    ${renderAdminDemoSettlementQueue(deals)}
+    ${renderAdminDemoTreasuryLedger(deals)}
     <h2 id="admin-demo-pilot-deals" class="text-xl font-semibold mb-4">Pilot Projects</h2>
     <div class="grid gap-4">
       ${deals.map(renderAdminDemoDealCard).join('')}
@@ -3195,6 +3199,230 @@ function renderAdminDemoSummary(metrics) {
           <span class="metric-value">${escapeHtml(value)}</span>
         </div>
       `).join('')}
+    </div>
+  `;
+}
+
+function adminDemoTreasuryRecord(deal = {}) {
+  const principal = numericReturnAmount(deal.amount);
+  const expectedReturn = numericReturnAmount(deal.expectedReturnAmount ?? deal.expected_return ?? deal.expectedReturn ?? deal.expectedReturnDisplay);
+  const returned = numericReturnAmount(deal.returnedAmount ?? deal.returned_amount);
+  const profit = Math.max(returned - principal, 0);
+  const isSettled = deal.pilot_key === 'fidlot';
+  const farmerShare = isSettled ? profit * 0.4 : 0;
+  const operatorFee = isSettled ? profit * 0.05 : 0;
+  const outstanding = Math.max(expectedReturn - returned, 0);
+  return {
+    principal,
+    expectedReturn,
+    returned,
+    profit,
+    farmerShare,
+    operatorFee,
+    outstanding,
+    activeCapital: deal.status === 'Active' ? principal : 0,
+    settlementStatus: isSettled ? 'Settlement Completed' : 'Settlement Pending',
+    settlementReady: isSettled ? 'Ready for settlement' : 'Not ready for settlement',
+  };
+}
+
+function adminDemoTreasuryMetrics(deals = []) {
+  const records = deals.map(adminDemoTreasuryRecord);
+  return {
+    totalCapitalManaged: formatUsdAmount(records.reduce((sum, item) => sum + item.principal, 0)),
+    activeCapital: formatUsdAmount(records.reduce((sum, item) => sum + item.activeCapital, 0)),
+    returnedCapital: formatUsdAmount(records.reduce((sum, item) => sum + item.returned, 0)),
+    outstandingObligations: formatUsdAmount(records.reduce((sum, item) => sum + item.outstanding, 0)),
+    settlementReady: records.filter(item => item.settlementReady === 'Ready for settlement').length,
+    settledProjects: records.filter(item => item.settlementStatus === 'Settlement Completed').length,
+  };
+}
+
+function renderAdminDemoTreasurySection(metrics) {
+  const cards = [
+    ['Total Capital Managed', metrics.totalCapitalManaged],
+    ['Active Capital', metrics.activeCapital],
+    ['Returned Capital', metrics.returnedCapital],
+    ['Outstanding Obligations', metrics.outstandingObligations],
+    ['Settlement Ready', metrics.settlementReady],
+    ['Settled Projects', metrics.settledProjects],
+  ];
+  return renderDashboardSection('Treasury & Settlement', `
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3" data-admin-demo-treasury-kpis>
+      ${cards.map(([label, value]) => `
+        <div class="metric-box">
+          <span class="metric-label">${escapeHtml(label)}</span>
+          <span class="metric-value">${escapeHtml(value)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `);
+}
+
+function renderAdminDemoSettlementQueue(deals = []) {
+  return renderDashboardSection('Settlement Queue', `
+    <div class="grid gap-4" data-admin-demo-settlement-queue>
+      ${deals.map(deal => {
+        const treasury = adminDemoTreasuryRecord(deal);
+        const rows = [
+          ['Current cycle', deal.currentCycle],
+          ['Funding status', deal.fundingStatus],
+          ['Report status', deal.reportStatus],
+          ['Return status', deal.returnStatus],
+          ['Settlement status', treasury.settlementStatus],
+          ['Investor return', deal.returnedAmount || deal.display_returned_amount],
+          ['Farmer share', formatUsdAmount(treasury.farmerShare)],
+          ['Operator fee', formatUsdAmount(treasury.operatorFee)],
+          ['Ready for settlement', treasury.settlementReady],
+        ];
+        return `
+          <article class="bg-slate-800 border border-slate-700 rounded-lg p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 class="text-lg font-semibold text-slate-100">${escapeHtml(deal.title)}</h3>
+                <p class="text-sm text-slate-400">Treasury Record for Cycle ${escapeHtml(deal.currentCycle)}</p>
+              </div>
+              <a href="#deals/pilots/${escapeHtml(deal.pilot_key)}" class="text-sm text-green-300 hover:text-green-200">Open Project</a>
+            </div>
+            <dl class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+              ${rows.map(([label, value]) => `
+                <div class="bg-slate-900 border border-slate-700 rounded-lg p-3">
+                  <dt class="text-xs text-slate-500">${escapeHtml(label)}</dt>
+                  <dd class="text-sm font-semibold text-slate-100 mt-1">${escapeHtml(value)}</dd>
+                </div>
+              `).join('')}
+            </dl>
+            ${renderTreasuryTimeline(deal)}
+            ${renderSettlementActionButtons()}
+          </article>
+        `;
+      }).join('')}
+    </div>
+  `);
+}
+
+function adminDemoTreasuryLedgerRows(deals = []) {
+  return deals.flatMap(deal => {
+    const treasury = adminDemoTreasuryRecord(deal);
+    const cycle = `Cycle ${deal.currentCycle}`;
+    const settled = treasury.settlementStatus === 'Settlement Completed';
+    const rows = [
+      ['2026-01-15', deal.title, cycle, 'Funding', deal.funding || deal.display_amount, 'Recorded', `${deal.pilot_key}-funding`],
+      ['2026-02-01', deal.title, cycle, 'Reserve', formatUsdAmount(treasury.principal * ((Number(deal.reserveRate) || 0) / 100)), 'Treasury Record', `${deal.pilot_key}-reserve`],
+    ];
+    if (settled) {
+      rows.push(
+        ['2026-06-30', deal.title, cycle, 'Return', deal.returnedAmount || deal.display_returned_amount, 'Return Recorded', `${deal.pilot_key}-return`],
+        ['2026-06-30', deal.title, cycle, 'Principal', formatUsdAmount(treasury.principal), 'Settlement Completed', `${deal.pilot_key}-principal`],
+        ['2026-06-30', deal.title, cycle, 'Profit', formatUsdAmount(treasury.profit), 'Settlement Completed', `${deal.pilot_key}-profit`],
+        ['2026-06-30', deal.title, cycle, 'Operator Fee', formatUsdAmount(treasury.operatorFee), 'Settlement Completed', `${deal.pilot_key}-operator-fee`],
+        ['2026-07-01', deal.title, cycle, 'Settlement', deal.returnedAmount || deal.display_returned_amount, 'Settlement Completed', `${deal.pilot_key}-settlement`]
+      );
+    } else {
+      rows.push(['2026-07-01', deal.title, cycle, 'Settlement', deal.outstandingAmount || deal.display_outstanding_amount, 'Settlement Pending', `${deal.pilot_key}-settlement-pending`]);
+    }
+    return rows;
+  });
+}
+
+function renderAdminDemoTreasuryLedger(deals = []) {
+  const rows = adminDemoTreasuryLedgerRows(deals);
+  return renderDashboardSection('Treasury Ledger', `
+    <div class="overflow-x-auto" data-admin-demo-treasury-ledger>
+      <table class="w-full text-sm">
+        <thead class="text-left text-slate-400 border-b border-slate-700">
+          <tr>
+            <th class="py-2 pr-3">Date</th>
+            <th class="py-2 pr-3">Project</th>
+            <th class="py-2 pr-3">Cycle</th>
+            <th class="py-2 pr-3">Type</th>
+            <th class="py-2 pr-3">Amount</th>
+            <th class="py-2 pr-3">Status</th>
+            <th class="py-2 pr-3">Reference</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(([date, project, cycle, type, amount, status, reference]) => `
+            <tr class="border-b border-slate-700/60">
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(date)}</td>
+              <td class="py-2 pr-3 text-slate-100">${escapeHtml(project)}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(cycle)}</td>
+              <td class="py-2 pr-3 text-slate-100">${escapeHtml(type)}</td>
+              <td class="py-2 pr-3 font-mono text-slate-100">${escapeHtml(amount)}</td>
+              <td class="py-2 pr-3 text-slate-300">${escapeHtml(status)}</td>
+              <td class="py-2 pr-3 font-mono text-xs text-slate-400">${escapeHtml(reference)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `);
+}
+
+function renderSettlementPanel(deal = {}) {
+  const treasury = adminDemoTreasuryRecord(deal);
+  const rows = [
+    ['Principal returned', formatUsdAmount(Math.min(treasury.returned, treasury.principal))],
+    ['Profit paid', formatUsdAmount(treasury.profit)],
+    ['Farmer paid', formatUsdAmount(treasury.farmerShare)],
+    ['Operator fee', formatUsdAmount(treasury.operatorFee)],
+    ['Outstanding', formatUsdAmount(treasury.outstanding)],
+    ['Settlement status', treasury.settlementStatus],
+  ];
+  return `
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-5 mb-6" data-pilot-settlement-panel>
+      <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-100">Settlement</h2>
+          <p class="text-sm text-slate-400 mt-1">Business-facing Treasury Record for this pilot Project.</p>
+        </div>
+        <span class="text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-700 px-2 py-1 rounded">${escapeHtml(treasury.settlementStatus)}</span>
+      </div>
+      <dl class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        ${rows.map(([label, value]) => `
+          <div class="metric-box">
+            <span class="metric-label">${escapeHtml(label)}</span>
+            <span class="metric-value">${escapeHtml(value)}</span>
+          </div>
+        `).join('')}
+      </dl>
+      ${renderTreasuryTimeline(deal)}
+      ${renderSettlementActionButtons()}
+    </section>
+  `;
+}
+
+function renderTreasuryTimeline(deal = {}) {
+  const completed = deal.pilot_key === 'fidlot';
+  const steps = [
+    ['Funding', true],
+    ['Cycle Started', true],
+    ['Report Submitted', completed],
+    ['Return Recorded', completed],
+    ['Settlement Ready', completed],
+    ['Settlement Completed', completed],
+  ];
+  return `
+    <div class="mt-4" data-treasury-timeline>
+      <h4 class="text-sm font-semibold text-slate-300 mb-2">Treasury Timeline</h4>
+      <ol class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        ${steps.map(([label, isComplete]) => `
+          <li class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2">
+            <span class="block text-xs ${isComplete ? 'text-green-300' : 'text-slate-500'}">${isComplete ? 'Completed' : 'Pending'}</span>
+            <span class="block text-sm font-semibold text-slate-100">${escapeHtml(label)}</span>
+          </li>
+        `).join('')}
+      </ol>
+    </div>
+  `;
+}
+
+function renderSettlementActionButtons() {
+  return `
+    <div class="flex flex-wrap gap-2 mt-4" aria-label="Settlement actions">
+      <button type="button" class="bg-slate-700 text-slate-400 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed" data-settlement-action="prepare" disabled>Prepare Settlement</button>
+      <button type="button" class="bg-slate-700 text-slate-400 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed" data-settlement-action="approve" disabled>Approve Settlement</button>
+      <button type="button" class="bg-slate-700 text-slate-400 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed" data-settlement-action="complete" disabled>Complete Settlement</button>
     </div>
   `;
 }
@@ -5161,6 +5389,7 @@ function renderAdminDemoDealDetail(el, deal) {
       events: adminDemoEvents(deal),
       role: 'operator',
     })}
+    ${renderSettlementPanel(deal)}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
       <div class="bg-slate-800 rounded-xl p-5">
         <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide mb-3">Funding Status</h3>
@@ -7989,9 +8218,12 @@ function adminDemoDealFromPilot(pilot) {
     investor: 'Pilot Investor',
     funding: pilot.displayAmount,
     amount: pilot.amount,
+    expectedReturn: pilot.displayExpectedReturn,
+    expectedReturnAmount: pilot.expectedReturn,
     roi: pilot.roi,
     roiLabel: isFidlot ? 'ROI' : 'Projected ROI',
     simpleAnnualizedRoi: pilot.simpleAnnualizedRoi,
+    reserveRate: pilot.reserveRate,
     cycles: pilot.cycles,
     currentCycle: isFidlot ? 7 : 1,
     reportStatus: isFidlot ? 'Report Submitted' : 'Next Report Due',
@@ -8000,7 +8232,7 @@ function adminDemoDealFromPilot(pilot) {
     returnStatus: isFidlot ? 'Return Recorded' : 'Pending',
     returnedAmount: isFidlot ? '$82,000' : '$0',
     outstandingAmount: isFidlot ? '$0' : pilot.displayOutstandingAmount,
-    expectedReturn: pilot.displayExpectedReturn,
+    expectedReturnDisplay: pilot.displayExpectedReturn,
     reportTitle: pilot.reportTitle,
     reportDescription: pilot.reportDescription,
   };
@@ -8619,6 +8851,16 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
     </div>
 
     ${renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns, events, role: 'investor' })}
+    ${renderSettlementPanel({
+      ...deal,
+      currentCycle: status?.current_cycle || deal.status?.current_cycle || deal.currentCycle || deal.total_cycles,
+      fundingStatus: 'Funding Confirmed',
+      reportStatus: reports.length ? 'Report Submitted' : 'Next Report Due',
+      returnStatus: returns.length ? 'Return Recorded' : 'Settlement Pending',
+      expectedReturnAmount: deal.expected_return,
+      returnedAmount: deal.display_returned_amount,
+      outstandingAmount: deal.display_outstanding_amount,
+    })}
   `;
   bindInvestorWorkspaceTabs(el);
 }
