@@ -77,6 +77,19 @@ Owns:
 Investor Relations documents do not own Product, Business, financial, legal, release, or
 technical facts. They must link to or be validated against the documents that do.
 
+### Product / Legal
+
+Owns planning drafts for:
+
+- platform contract architecture;
+- investment participation agreement specifications and drafts;
+- farmer operating agreement planning;
+- risk disclosure and project disclosure planning;
+- legal-package checklists and review findings.
+
+Product / Legal planning documents are not final legal advice or production legal contracts.
+Production legal documents require qualified legal counsel review and approval before use.
+
 ## Canonical Document Rules
 
 1. A canonical document must declare its status, owner, type, and scope.
@@ -177,6 +190,13 @@ and validation.
 
 The repository [Documentation Index](README.md) remains the broader inventory and navigation
 page. These five documents form the canonical operating entry points.
+
+## Legal Documentation Folder
+
+Legal-package planning documents live under `docs/legal/`. New legal planning, audit, draft, and
+review documents should use descriptive uppercase names and must state whether they are Planning,
+Analysis, Architecture Draft, Review, Accepted, or another approved status. Draft legal documents
+must clearly distinguish architecture/product planning from production legal agreements.
 
 ## Change Checklist
 

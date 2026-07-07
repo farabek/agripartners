@@ -79,6 +79,17 @@ The [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE
 [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md) own the detailed ecosystem
 boundaries.
 
+The legal-package planning documents describe the future platform agreement structure:
+
+- [Platform Contract Architecture](legal/PLATFORM_CONTRACT_ARCHITECTURE.md);
+- [Pilot Agreement Audit](legal/PILOT_AGREEMENT_AUDIT.md);
+- [Investment Participation Agreement Specification](legal/INVESTMENT_PARTICIPATION_AGREEMENT_SPEC.md);
+- [Investment Participation Agreement Draft v1](legal/INVESTMENT_PARTICIPATION_AGREEMENT.md).
+
+These legal documents are planning, analysis, or draft materials until reviewed by qualified legal
+counsel. They do not authorize investor onboarding, farmer onboarding, production contracting, or
+real-funds activity.
+
 ## Project Workspace
 
 Project is the primary product object. Each Project is an independently approved implementation
@@ -168,6 +179,13 @@ Settlement, or real-funds activity.
 - [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
 - [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
 - [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
+
+### Legal Package Planning
+
+- [Platform Contract Architecture](legal/PLATFORM_CONTRACT_ARCHITECTURE.md)
+- [Pilot Agreement Audit](legal/PILOT_AGREEMENT_AUDIT.md)
+- [Investment Participation Agreement Specification](legal/INVESTMENT_PARTICIPATION_AGREEMENT_SPEC.md)
+- [Investment Participation Agreement Draft v1](legal/INVESTMENT_PARTICIPATION_AGREEMENT.md)
 
 ## Document Ownership Philosophy
 

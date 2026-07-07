@@ -46,6 +46,7 @@ conflicts with this matrix, this matrix takes precedence.
 | Architecture | `docs/architecture/`, `docs/design/` |
 | Business | `docs/business/`, `docs/business/investment-models/`, `docs/60-40/`, `docs/business-model/` |
 | Pilots | `docs/platform/pilot/`, Pilot implementation material in `docs/platform/` |
+| Legal | `docs/legal/` |
 | Investor | `docs/investors/`, `docs/investor-pack/`, `docs/investor-package/`, `docs/investor-deck/` |
 | NEAR | `docs/near/`, `docs/near-ecosystem/`, `docs/near-execution/`, `docs/near-outreach/`, `docs/near-outreach-toolkit/`, `docs/outreach/`, root NEAR documents |
 | Platform | Remaining `docs/platform/` material, `docs/platform/investor-protection/`, root role documents |
@@ -87,9 +88,9 @@ interaction rules, user experiences, review state, and software delivery priorit
 
 ### Product Canonical Documents
 
-The canonical Product set is the Product Book, Authority Matrix, Software Delivery Roadmap,
-Product Operating Model, accepted Workspace and Farmer specifications, Product Review
-Checklist, and UX/UI Audit Log.
+The canonical Product set is the Product Book, Authority Matrix, Master Roadmap v2, Software
+Delivery Roadmap, Product Operating Model, accepted Workspace and Farmer specifications, Product
+Review Checklist, and UX/UI Audit Log.
 
 ### Product Supporting Documents
 
@@ -216,6 +217,46 @@ The Plan, Readiness Checklist, and Operations Guide form the canonical Pilot set
 
 Older pilot summaries in investor, presentation, demo, pitch, and outreach packages are
 audience-specific snapshots and do not govern Pilot scope.
+
+## Legal
+
+### Legal Purpose
+
+Legal documentation defines platform contract architecture, legal-package planning, agreement
+drafts, pilot agreement analysis, and legal readiness findings. Legal documents in this folder are
+planning, analysis, review, or architecture drafts unless explicitly accepted after qualified legal
+counsel review.
+
+### Legal Authority Records
+
+| Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Platform Contract Architecture | `docs/legal/PLATFORM_CONTRACT_ARCHITECTURE.md` | Platform legal relationship model and required document set | Planning | Product / Legal | No | 1.0 | 2026-07-07 | Direct investor-farmer assumptions in planning materials | TBD | Legal architecture planning; requires counsel review |
+| Pilot Agreement Audit | `docs/legal/PILOT_AGREEMENT_AUDIT.md` | Analysis of Fidlot and Hissar pilot materials against platform model | Analysis | Product / Legal | No | 1.0 | 2026-07-07 | TBD | TBD | Historical analysis, not a legal agreement |
+| Investment Participation Agreement Specification | `docs/legal/INVESTMENT_PARTICIPATION_AGREEMENT_SPEC.md` | Document architecture for the future investor agreement | Planning | Product / Legal | No | 1.0 | 2026-07-07 | TBD | Final legal agreement after counsel review | Specification only |
+| Investment Participation Agreement Draft v1 | `docs/legal/INVESTMENT_PARTICIPATION_AGREEMENT.md` | Architecture draft of investor-facing agreement | Architecture Draft | AgriPartners | No | Draft v1 | 2026-07-07 | TBD | Production agreement after counsel review | Not legal advice or production contract |
+| Legal Package Review | `docs/legal/LEGAL_PACKAGE_REVIEW.md` | Legal and strategic documentation consistency review | Review | Product / Legal | No | 1.0 | 2026-07-07 | TBD | TBD | Findings and recommendations |
+
+### Legal Canonical Documents
+
+No legal document is production-canonical yet. The current legal package is planning and review
+material. It should guide product and documentation alignment but must not be used as final legal
+advice or as a production contract package.
+
+### Legal Supporting Documents
+
+- Future Project Disclosure Sheet
+- Future Risk Disclosure
+- Future Farm Operating Agreement v2
+- Future Terms of Use
+- Future Privacy Policy
+- Future Capital Flow Guide
+
+### Legal Historical Documents
+
+The current Fidlot and Hissar pilot model documents under `docs/60-40/source/` remain canonical
+business-model and editable-source materials. They are historical inputs for future platform legal
+documents, not production-ready platform agreements.
 
 ## Investor
 
@@ -557,9 +598,18 @@ DOCUMENTATION_AUTHORITY_MATRIX.md
   |                              +-- accepted Product specifications
   |                              +-- Pilot readiness dependencies
   |
+  +-- strategic roadmap ------> MASTER_ROADMAP_V2.md
+  |                              +-- Product, legal, investor, NEAR, and launch sequencing
+  |
   +-- release history --------> RELEASES.md
   |                              +-- Alpha v1.2 Release Notes
   |                              +-- Alpha v1.1 historical records
+  |
+  +-- legal package ----------> legal/PLATFORM_CONTRACT_ARCHITECTURE.md
+  |                              +-- legal/PILOT_AGREEMENT_AUDIT.md
+  |                              +-- legal/INVESTMENT_PARTICIPATION_AGREEMENT_SPEC.md
+  |                              +-- legal/INVESTMENT_PARTICIPATION_AGREEMENT.md
+  |                              +-- legal/LEGAL_PACKAGE_REVIEW.md
   |
   +-- Pilot authority --------> Pilot 1.0 Plan
   |                              +-- Pilot Readiness Checklist
@@ -611,6 +661,7 @@ Additional lifecycle behavior:
 | Architecture | Engineering | Product, Business where semantics cross domains | Current architecture, ADR status, technical boundaries |
 | Business | Business | Product, Operations, legal/accounting reviewers | Operating, financial, disclosure, and Investment Model authority |
 | Pilots | Operations | Business, Product, Engineering | Readiness evidence, procedures, controls, go/no-go records |
+| Legal | Product / Legal | Business, Operations, Investor Relations, qualified legal counsel | Legal-package architecture, drafts, reviews, and counsel-review readiness |
 | Investor | Investor Relations | Business, Product | Investor publications derived from approved facts |
 | NEAR | Investor Relations | Engineering, Product | Ecosystem positioning, outreach, and relationship records |
 | Platform | Product | Business, Engineering | Supporting platform explanations and role summaries |
