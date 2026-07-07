@@ -96,8 +96,8 @@ test('landing CTAs route to explicit demo and login destinations', () => {
   expect(appJs).toContain('href="#login/farmer"');
   expect(appJs).toContain('href="#login/admin"');
   expect(appJs).toContain('Opportunity Catalog');
-  expect(appJs).toContain('Investor Testnet Login');
-  expect(appJs).toContain('TODO: In Beta / Pilot stage, rename "Investor Testnet Login"');
+  expect(appJs).toContain('Login with NEAR Wallet');
+  expect(appJs).toContain('NEAR Testnet authentication');
 });
 
 test('landing renders Operator demo entry without changing Investor and Farmer entries', () => {
@@ -119,7 +119,13 @@ test('landing renders Operator demo entry without changing Investor and Farmer e
   expect(homeSource).toContain('href="#farmer/pilots"');
   expect(homeSource).toContain('Explore Operator Demo');
   expect(homeSource).toContain('href="#demo/admin"');
-  expect(homeSource).toContain('Investor Testnet Login');
+  expect(homeSource).toContain('Portals');
+  expect(homeSource).toContain('Secure access for platform participants.');
+  expect(homeSource).toContain('Interactive Demos');
+  expect(homeSource).toContain('Explore AgriPartners using demonstration data.');
+  expect(homeSource).toContain('Authentication');
+  expect(homeSource).toContain('Login with NEAR Wallet');
+  expect(homeSource).toContain('NEAR Testnet authentication');
 });
 
 test('demo routes are public while live protected routes still require auth', () => {

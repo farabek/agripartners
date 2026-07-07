@@ -1523,21 +1523,40 @@ function showHome() {
             through AgriPartners, while Farmers work with AgriPartners as Project Operator. NEAR Testnet supports
             transparency and auditability as platform infrastructure; future Farmer funding remains fiat-based.
           </p>
-          <div class="landing-actions" aria-label="Primary actions">
-            <a class="landing-btn landing-btn-primary" href="#login/investor">Investor Portal</a>
-            <a class="landing-btn" href="#login/farmer">Farmer Portal</a>
-            <a class="landing-btn" href="#login/admin">Operator Portal</a>
-            <a class="landing-btn" href="#/marketplace">Opportunity Catalog</a>
+          <div class="landing-action-group">
+            <div class="landing-action-heading">
+              <h2>Portals</h2>
+              <p>Secure access for platform participants.</p>
+            </div>
+            <div class="landing-actions" aria-label="Portals">
+              <a class="landing-btn landing-btn-primary" href="#login/investor">Investor Portal</a>
+              <a class="landing-btn" href="#login/farmer">Farmer Portal</a>
+              <a class="landing-btn" href="#login/admin">Operator Portal</a>
+              <a class="landing-btn" href="#/marketplace">Opportunity Catalog</a>
+            </div>
           </div>
           <p class="landing-note">
             Pilot 1.0 is in preparation and is not a live production operation. Choose a role entry only if AgriPartners has invited you.
           </p>
-          <div class="landing-actions" aria-label="Alpha demo actions">
-            <a class="landing-btn landing-btn-primary" href="#/investor/pilots/fidlot">Explore Investor Demo</a>
-            <a class="landing-btn" href="#farmer/pilots">Explore Farmer Demo</a>
-            <a class="landing-btn" href="#demo/admin">Explore Operator Demo</a>
-            <!-- TODO: In Beta / Pilot stage, rename "Investor Testnet Login" to "Investor Login" or "NEAR Wallet Login" after Testnet-specific positioning is no longer needed. -->
-            <button type="button" id="home-login-wallet" class="landing-btn landing-btn-wallet">Investor Testnet Login</button>
+          <div class="landing-action-group">
+            <div class="landing-action-heading">
+              <h2>Interactive Demos</h2>
+              <p>Explore AgriPartners using demonstration data.</p>
+            </div>
+            <div class="landing-actions" aria-label="Interactive demos">
+              <a class="landing-btn landing-btn-primary" href="#/investor/pilots/fidlot">Explore Investor Demo</a>
+              <a class="landing-btn" href="#farmer/pilots">Explore Farmer Demo</a>
+              <a class="landing-btn" href="#demo/admin">Explore Operator Demo</a>
+            </div>
+          </div>
+          <div class="landing-action-group landing-auth-group">
+            <div class="landing-action-heading">
+              <h2>Authentication</h2>
+            </div>
+            <div class="landing-actions" aria-label="Authentication">
+              <button type="button" id="home-login-wallet" class="landing-btn landing-btn-wallet">Login with NEAR Wallet</button>
+            </div>
+            <p class="landing-auth-helper">NEAR Testnet authentication</p>
           </div>
           <p class="landing-note">
             Alpha Demo pages use demonstration profiles and NEAR Testnet functionality. They are separate from future real Pilot operations.
