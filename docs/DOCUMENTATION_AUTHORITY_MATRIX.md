@@ -62,12 +62,12 @@ under `docs/60-40/` and `docs/screenshots/`.
 
 ## Product
 
-### Purpose
+### Product Purpose
 
 Product documentation defines ecosystem navigation, product direction, Project-centric
 interaction rules, user experiences, review state, and software delivery priorities.
 
-### Authority Records
+### Product Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -78,20 +78,20 @@ interaction rules, user experiences, review state, and software delivery priorit
 | Product Operating Model v1.0 | `docs/platform/PRODUCT_OPERATING_MODEL_V1.md` | Project-centric product architecture and role model | Frozen | Product | Yes | 1.0 | 2026-07-04 | Earlier dashboard/deal-centric product assumptions | — | Frozen under its declared change control |
 | Canonical Project Workspace Specification | `docs/platform/CANONICAL_PROJECT_WORKSPACE_SPEC.md` | Investor-facing Project Workspace structure and acceptance rules | Accepted | Product | Yes | 1.0 | 2026-07-04 | Project-specific Workspace layouts | — | Applies to every View Project experience |
 | Canonical Farmer Experience Specification | `docs/platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md` | Farmer journey, dashboard, Workspace, visibility, and UX rules | Accepted | Product | Yes | 1.0 | 2026-07-05 | Earlier Farmer portal summaries | — | Single source for Farmer-facing experience |
-| Farmer Daily Workflow Specification | `docs/platform/FARMER_DAILY_WORKFLOW_SPEC.md` | Daily Farmer decisions, tasks, and operational sequence | Accepted | Product | Yes | 1.0 | Ad hoc Farmer workflow descriptions | — | Subordinate to the Farmer Experience Specification |
+| Farmer Daily Workflow Specification | `docs/platform/FARMER_DAILY_WORKFLOW_SPEC.md` | Daily Farmer decisions, tasks, and operational sequence | Accepted | Product | Yes | 1.0 | 2026-07-05 | Ad hoc Farmer workflow descriptions | — | Subordinate to the Farmer Experience Specification |
 | Alpha Product Review Checklist | `docs/platform/PRODUCT_REVIEW_CHECKLIST.md` | Product Review progress tracker | Living | Product | Yes | Alpha | 2026-07-05 | — | — | Canonical review-completion tracker, not a defect log |
 | Alpha UX/UI Audit Log | `docs/platform/UX_UI_AUDIT_ALPHA.md` | Product Review findings and resolution state | Living | Product | Yes | Alpha | 2026-07-04 | Distributed UX findings | — | Canonical Product Review findings log |
 | Repository README | `README.md` | Public repository orientation | Living | Product | No | Alpha v1.2 | 2026-07-02 | — | `docs/PRODUCT_BOOK.md` for ecosystem authority | Public summary derived from canonical sources |
 | Documentation Index | `docs/README.md` | Broad documentation navigation | Living | Product | No | Alpha v1.2 | 2026-07-02 | — | `docs/PRODUCT_BOOK.md` for canonical navigation | Retained as full inventory/index |
 | Russian Documentation Index | `docs/README-ru.md` | Russian documentation navigation | Living | Product | No | Alpha v1.2 | 2026-07-02 | — | — | Translation/navigation companion |
 
-### Canonical Documents
+### Product Canonical Documents
 
 The canonical Product set is the Product Book, Authority Matrix, Software Delivery Roadmap,
 Product Operating Model, accepted Workspace and Farmer specifications, Product Review
 Checklist, and UX/UI Audit Log.
 
-### Supporting Documents
+### Product Supporting Documents
 
 - `docs/platform/PRODUCT_REVIEW_PILOT_1.md`
 - `docs/platform/PROJECT_WORKSPACE_UX_PLAN.md`
@@ -100,7 +100,7 @@ Checklist, and UX/UI Audit Log.
 - `docs/product-roadmap/07-investor-portfolio-dashboard-audit.md`
 - Their Russian companions where present
 
-### Historical Documents
+### Product Historical Documents
 
 - Completed ROI workstream files `docs/product-roadmap/01-*` through `05-*`
 - Russian completed ROI workstream files `docs/product-roadmap/11-*` through `15-*`
@@ -108,12 +108,12 @@ Checklist, and UX/UI Audit Log.
 
 ## Architecture
 
-### Purpose
+### Architecture Purpose
 
 Architecture documentation describes the current high-level system, accepted technical
 decisions, and proposed designs without confusing proposals with implemented behavior.
 
-### Authority Records
+### Architecture Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -126,29 +126,29 @@ decisions, and proposed designs without confusing proposals with implemented beh
 | Treasury Accounting Model | `docs/design/treasury-accounting-model.md` | Proposed double-entry accounting model | Review | Engineering | No | — | 2026-06-23 | — | — | Requires Business and accounting review |
 | Treasury Operating Modes Specification | `docs/design/treasury-operating-modes-spec.md` | Proposed Treasury rollout modes | Review | Engineering | No | — | 2026-06-23 | — | — | Does not authorize enforced Treasury |
 
-### Canonical Documents
+### Architecture Canonical Documents
 
 - `docs/ARCHITECTURE.md`
 - `docs/architecture/ADR-001-live-first-architecture.md`
 
-### Supporting Documents
+### Architecture Supporting Documents
 
 ADR-002 and all five documents in `docs/design/` are active design inputs. Their content becomes
 canonical only after explicit acceptance and, where applicable, implementation validation.
 
-### Historical Documents
+### Architecture Historical Documents
 
 No Architecture file is designated Archived. Implementation-era architecture descriptions in
 the Developer Review Kit remain historical snapshots rather than current architecture authority.
 
 ## Business
 
-### Purpose
+### Business Purpose
 
 Business documentation defines participant relationships, financial boundaries, disclosure,
 Investment Models, model economics, and the frozen business maturity roadmap.
 
-### Authority Records
+### Business Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -169,18 +169,18 @@ Investment Models, model economics, and the frozen business maturity roadmap.
 | Investor VariantB RU source | `docs/60-40/source/ru/Agri-Investor-VariantB-v2.1-6040-RU.docx` | Editable Russian Investor model | Accepted | Business | Yes | 2.1 | 2026-06-29 | Earlier VariantB Investor versions | — | English/Russian figures must remain synchronized |
 | Business Architecture Audit v1.0 | `docs/business/BUSINESS_ARCHITECTURE_AUDIT_V1.md` | Evidence and findings leading to the freeze | Archived | Business | No | 1.0 | 2026-07-02 | — | Business Architecture Freeze | Historical decision evidence |
 
-### Canonical Documents
+### Business Canonical Documents
 
 The Frozen business set and the 60/40 authority/source package are canonical. The Master
 Investment Models own reusable business structure; the 60/40 numeric generator and source
 package own exact published model calculations.
 
-### Supporting Documents
+### Business Supporting Documents
 
 - Generated PDFs under `docs/60-40/pdf/{en,ru}/`
 - `docs/60-40/ESCROW-44-DEFERRED-TASK-RU.md`
 
-### Historical Documents
+### Business Historical Documents
 
 - `docs/business/BUSINESS_ARCHITECTURE_AUDIT_V1.md`
 - Empty placeholder `docs/business-model/`
@@ -188,12 +188,12 @@ package own exact published model calculations.
 
 ## Pilots
 
-### Purpose
+### Pilots Purpose
 
 Pilot documentation defines Phase 3 Pilot 1.0 scope, readiness evidence, operations, and
 go/no-go boundaries.
 
-### Authority Records
+### Pilots Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -202,29 +202,29 @@ go/no-go boundaries.
 | Pilot Operations Guide | `docs/platform/pilot/PILOT_OPERATIONS_GUIDE.md` | Working Pilot operating procedure | Living | Operations | Yes | 1.0 | 2026-07-02 | Informal Pilot procedures | — | Must be adapted before real-funds use |
 | Pilot 1.0 Implementation Roadmap | `docs/platform/PILOT_1_IMPLEMENTATION_ROADMAP.md` | Draft cross-functional execution plan | Draft | Operations | No | RFC-006 draft | 2026-07-05 | — | `docs/ROADMAP.md` for software release priorities | Supporting plan, not authorization |
 
-### Canonical Documents
+### Pilots Canonical Documents
 
 The Plan, Readiness Checklist, and Operations Guide form the canonical Pilot set.
 
-### Supporting Documents
+### Pilots Supporting Documents
 
 - `docs/platform/PILOT_1_IMPLEMENTATION_ROADMAP.md`
 - Pilot-related Product Review findings and accepted Product specifications
 - Master Investment Models and Project-specific adaptations when approved
 
-### Historical Documents
+### Pilots Historical Documents
 
 Older pilot summaries in investor, presentation, demo, pitch, and outreach packages are
 audience-specific snapshots and do not govern Pilot scope.
 
 ## Investor
 
-### Purpose
+### Investor Purpose
 
 Investor documentation communicates approved Product and Business facts to investors,
 accelerators, grant reviewers, and strategic partners.
 
-### Authority Records
+### Investor Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -234,20 +234,20 @@ accelerators, grant reviewers, and strategic partners.
 | Investor One-Pager v2 RU | `docs/investor-package/investor-one-pager-ru-v2.md` | Russian investor-package one-page publication source | Review | Investor Relations | No | 2 | 2026-06-29 | v1 Russian one-pager | — | Consolidation required |
 | Investor Brief EN/RU | `docs/investor-pack/investor-brief*.md` | Longer investor narrative | Review | Investor Relations | No | Alpha v1 | 2026-06-29 | — | — | Derived material, not Business authority |
 
-### Canonical Documents
+### Investor Canonical Documents
 
 No investor publication is currently canonical. Investor facts must come from the Product Book,
 Frozen Business documents, Master Investment Models, 60/40 authority package, Roadmap, and
 Releases index.
 
-### Supporting Documents
+### Investor Supporting Documents
 
 - Current review materials under `docs/investors/`
 - v2 one-pagers, current outlines, readiness review, asset plan, and scripts under
   `docs/investor-package/`
 - `docs/investor-pack/`
 
-### Historical Documents
+### Investor Historical Documents
 
 - `docs/investor-package/one-pager-v1*.md`
 - `docs/investor-package/pitch-deck-v1*.md`
@@ -259,12 +259,12 @@ The v1 PPTX decks contain financial values superseded by the current 60/40 model
 
 ## NEAR
 
-### Purpose
+### NEAR Purpose
 
 NEAR documentation supports ecosystem positioning, technical review, outreach, relationship
 tracking, and partner engagement without redefining Product, Business, or release facts.
 
-### Authority Records
+### NEAR Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -275,13 +275,13 @@ tracking, and partner engagement without redefining Product, Business, or releas
 | NEAR Track Roadmap | `docs/near/near-track-roadmap.md` | NEAR-specific planning | Review | Investor Relations | No | Phase 23 | 2026-07-02 | — | `docs/ROADMAP.md` for software delivery | Partner strategy only |
 | NEAR Testnet EN/RU | `docs/near-testnet*.md` | Testnet status summaries | Review | Engineering | No | Alpha v1 | 2026-06-27 | — | `docs/ARCHITECTURE.md` and current evidence | Must not override current implementation evidence |
 
-### Canonical Documents
+### NEAR Canonical Documents
 
 Only the active Outreach CRM and Near Directory method/verification log are canonical within
 their narrow operational scopes. No NEAR narrative or roadmap is canonical for Product,
 Business, Architecture, or releases.
 
-### Supporting Documents
+### NEAR Supporting Documents
 
 - Current positioning under `docs/near/`
 - Ecosystem research under `docs/near-ecosystem/`
@@ -290,7 +290,7 @@ Business, Architecture, or releases.
 - Research, directory, playbook, shortlist, and LinkedIn materials under `docs/outreach/`
 - Root `near-grant-application*.md`, `near-forum-post*.md`, and `near-testnet*.md`
 
-### Historical Documents
+### NEAR Historical Documents
 
 - Superseded phase snapshots in the multiple NEAR workstream folders
 - Root `near-forum-post.html` generated export
@@ -298,12 +298,12 @@ Business, Architecture, or releases.
 
 ## Platform
 
-### Purpose
+### Platform Purpose
 
 Platform documentation explains role surfaces, exploratory frameworks, and stakeholder-facing
 platform concepts that are subordinate to Product, Business, and Architecture authority.
 
-### Authority Records
+### Platform Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -315,19 +315,19 @@ platform concepts that are subordinate to Product, Business, and Architecture au
 | Farmer Portal Guide EN/RU | `docs/farmer-portal*.md` | Alpha role-surface summary | Deprecated | Product | No | Alpha v1 | 2026-06-27 | — | Canonical Farmer Experience Specification | Retained for links and screenshot context |
 | Admin Dashboard Guide EN/RU | `docs/admin-dashboard*.md` | Alpha Operator/Admin surface summary | Review | Product | No | Alpha v1 | 2026-06-27 | — | Future canonical Operator specification | Supporting snapshot |
 
-### Canonical Documents
+### Platform Canonical Documents
 
 No document in this residual Platform category is canonical. Canonical product-layer documents
 physically located under `docs/platform/` are registered in Product and Pilots above.
 
-### Supporting Documents
+### Platform Supporting Documents
 
 - `docs/platform/README.md`
 - Platform Explained DOCX/PDF publications
 - `docs/platform/investor-protection/` exploratory framework
 - Root role guides
 
-### Historical Documents
+### Platform Historical Documents
 
 - Generated Platform Explained PDFs after their DOCX source changes
 - Farmer Portal summaries replaced by the accepted Farmer specifications
@@ -335,12 +335,12 @@ physically located under `docs/platform/` are registered in Product and Pilots a
 
 ## Development
 
-### Purpose
+### Development Purpose
 
 Development documentation supports technical review, deployment planning, implementation
 history, and engineering evidence.
 
-### Authority Records
+### Development Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -350,30 +350,30 @@ history, and engineering evidence.
 | Public Deployment Plan EN/RU | `docs/deployment/*public-deployment-plan*.md` | Proposed deployment process | Draft | Engineering | No | Alpha v1 | 2026-06-19 | — | — | Planning only |
 | Testnet Evidence Packet EN/RU | `docs/developer-review/*testnet-evidence-packet*.md` | Collected technical evidence | Review | Engineering | No | Alpha v1 | 2026-06-19 | — | Future canonical evidence registry | Evidence requires refresh |
 
-### Canonical Documents
+### Development Canonical Documents
 
 Development has no separate canonical overview beyond `docs/ARCHITECTURE.md` and accepted ADRs.
 Source code, migrations, configuration, tests, and deployed evidence remain authoritative for
 implemented technical behavior.
 
-### Supporting Documents
+### Development Supporting Documents
 
 All files under `docs/developer-review/` and `docs/deployment/` are supporting review or planning
 material.
 
-### Historical Documents
+### Development Historical Documents
 
 All dated plans and specifications under `docs/superpowers/` are implementation history. They
 must not be used as evidence that planned functionality is currently implemented.
 
 ## Releases
 
-### Purpose
+### Releases Purpose
 
 Release documentation records shipped scope, validation boundaries, known limitations, and
 historical release evidence.
 
-### Authority Records
+### Releases Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -382,28 +382,28 @@ historical release evidence.
 | Alpha v1.1 Release Review EN | `docs/releases/alpha-v1.1-release-review.md` | Historical Alpha v1.1 assessment | Frozen | Engineering | Yes | Alpha v1.1 | 2026-06-23 | — | Alpha v1.2 Release Notes for current status | Immutable historical release record |
 | Alpha v1.1 Release Review RU | `docs/releases/alpha-v1.1-release-review-ru.md` | Russian historical Alpha v1.1 assessment | Frozen | Engineering | Yes | Alpha v1.1 | 2026-06-23 | — | Alpha v1.2 Release Notes for current status | Translation of historical record |
 
-### Canonical Documents
+### Releases Canonical Documents
 
 The Releases index owns release navigation. Each published release record is canonical only for
 the historical release it describes.
 
-### Supporting Documents
+### Releases Supporting Documents
 
 Roadmap entries, audits, demo evidence, and developer-review evidence may support a release but
 do not replace its release record.
 
-### Historical Documents
+### Releases Historical Documents
 
 Alpha v1.1 records are intentionally historical and remain canonical for Alpha v1.1.
 
 ## Presentation
 
-### Purpose
+### Presentation Purpose
 
 Presentation documentation packages approved facts for decks, speaking, demonstrations, and
 stakeholder conversations.
 
-### Authority Records
+### Presentation Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -412,18 +412,18 @@ stakeholder conversations.
 | Pitch Deck v2 EN/RU | `docs/investor-package/pitch-deck-v2*.md` | Current detailed deck source | Review | Investor Relations | No | 2 | 2026-06-29 | Pitch Deck v1 | — | No accepted canonical deck selected |
 | Presentation Outlines EN/RU | `docs/investor-package/presentation-outline-*.md` | Detailed speaker/deck structure | Review | Investor Relations | No | 1 | 2026-06-29 | — | — | Supporting source |
 
-### Canonical Documents
+### Presentation Canonical Documents
 
 No presentation package is canonical. Presentation claims must be validated against the Product
 Book, Frozen Business documents, 60/40 authority package, Roadmap, and Releases index.
 
-### Supporting Documents
+### Presentation Supporting Documents
 
 - `docs/presentation-readiness/`
 - `docs/pitch-deck/`
 - Current v2 and outline material in `docs/investor-package/`
 
-### Historical Documents
+### Presentation Historical Documents
 
 - v1 presentation sources and PPTX decks
 - Root `one-pager.html`, `pitch-deck.html`, and `funding-strategy.html`
@@ -431,12 +431,12 @@ Book, Frozen Business documents, 60/40 authority package, Roadmap, and Releases 
 
 ## Demo
 
-### Purpose
+### Demo Purpose
 
 Demo documentation defines controlled walkthroughs, approved demo data, readiness checks, and
 capture guidance without representing demo state as live or production state.
 
-### Authority Records
+### Demo Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -446,29 +446,29 @@ capture guidance without representing demo state as live or production state.
 | Demo Checklists EN/RU | `docs/demo-readiness/*demo-checklist*.md` | Demonstration readiness checks | Living | Operations | No | Alpha v1.2 | 2026-06-27 | — | — | Operational support |
 | Demo Assets Inventory EN/RU | `docs/demo-assets/*demo-assets-inventory*.md` | Inventory of available demonstration assets | Living | Operations | No | Alpha v1 | 2026-06-18 | — | — | Asset index, not Product authority |
 
-### Canonical Documents
+### Demo Canonical Documents
 
 Only the bilingual Demo Data Pack is canonical for the controlled Alpha demonstration dataset.
 Business economics remain owned by the 60/40 authority package.
 
-### Supporting Documents
+### Demo Supporting Documents
 
 - Remaining files under `docs/demo-readiness/`
 - Inventory documents and screenshots under `docs/demo-assets/`
 
-### Historical Documents
+### Demo Historical Documents
 
 - Superseded screenshots and walkthrough sequences
 - Empty placeholder `docs/demo-guide/`
 
 ## Assets
 
-### Purpose
+### Assets Purpose
 
 Asset documentation and generated files support visual review and publication. Assets do not
 become canonical merely because they are distributed.
 
-### Authority Records
+### Assets Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -478,18 +478,18 @@ become canonical merely because they are distributed.
 | Demo Asset Screenshots | `docs/demo-assets/screenshots/` | Presentation/demo screenshots | Review | Product | No | Alpha v1 | 2026-06-18 | — | — | Requires visual currency review |
 | Generated 60/40 PDFs | `docs/60-40/pdf/{en,ru}/` | Published model documents | Accepted | Business | No | Fidlot 5.9 / VariantB 2.1 | 2026-06-29 | Earlier model PDFs | — | Generated from canonical DOCX/numeric sources |
 
-### Canonical Documents
+### Assets Canonical Documents
 
 No visual or generated asset is an independent canonical source. Generated 60/40 PDFs are
 accepted publications, while their numeric generator and DOCX sources remain authoritative.
 
-### Supporting Documents
+### Assets Supporting Documents
 
 - Current role and demo screenshots
 - Generated PDF, DOCX, PPTX, and HTML publications
 - Screenshot capture and checklist files
 
-### Historical Documents
+### Assets Historical Documents
 
 - `docs/screenshots/demo-v1/`
 - v1 investor deck PPTX files
@@ -498,12 +498,12 @@ accepted publications, while their numeric generator and DOCX sources remain aut
 
 ## Archive
 
-### Purpose
+### Archive Purpose
 
 Archive documentation preserves historical decisions, evidence, exports, and prior audits
 without allowing them to govern current work.
 
-### Authority Records
+### Archive Authority Records
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -514,17 +514,17 @@ without allowing them to govern current work.
 | Archived Escrow Analysis PDF | `docs/archive/AgriPartners-Escrow-Analysis.pdf` | Historical escrow analysis | Archived | Business | No | — | 2026-06-27 | — | Current exploratory protection framework | Internal historical context |
 | Archived Checklist HTML | `docs/archive/checklist.html` | Historical outreach checklist | Archived | Investor Relations | No | — | 2026-06-27 | — | Current outreach CRM | Browser-local historical state |
 
-### Canonical Documents
+### Archive Canonical Documents
 
 Only `docs/archive/README.md` is canonical, and only for identifying archive contents and their
 usage boundary.
 
-### Supporting Documents
+### Archive Supporting Documents
 
 None. Archived documents may be cited as historical evidence but are not supporting authority
 for current decisions.
 
-### Historical Documents
+### Archive Historical Documents
 
 All remaining files under `docs/archive/`, `docs/audits/`, and
 `docs/documentation-architecture/`.
