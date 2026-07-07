@@ -6,7 +6,12 @@ Owner: Product / Legal
 
 Version: 1.0
 
+Language: English
+
 Last reviewed: 2026-07-07
+
+PDF export readiness: Ready for draft PDF export after link check and counsel-review disclaimer
+verification. Do not treat exported PDFs as production legal agreements.
 
 ## Purpose
 

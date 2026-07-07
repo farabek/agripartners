@@ -6,7 +6,12 @@ Owner: Product / Legal
 
 Version: 1.0
 
+Language: English
+
 Last reviewed: 2026-07-07
+
+PDF export readiness: Ready for draft PDF export after link check and review of referenced pilot
+document paths. Do not modify, rename, or replace existing pilot PDFs during export.
 
 Related architecture: [Platform Contract Architecture](PLATFORM_CONTRACT_ARCHITECTURE.md)
 

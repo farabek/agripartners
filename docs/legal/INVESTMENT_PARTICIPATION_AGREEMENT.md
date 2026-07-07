@@ -2,11 +2,16 @@
 
 Document Version: Draft v1
 
+Version: Draft v1
+
 Status: Architecture Draft
 
 Owner: AgriPartners
 
 Language: English
+
+PDF export readiness: Ready for draft PDF export after link check, metadata review, and disclaimer
+verification. Exported PDFs must be labeled as architecture drafts, not production contracts.
 
 ## 1. Document Header
 
