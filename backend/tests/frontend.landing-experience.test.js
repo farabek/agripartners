@@ -88,14 +88,38 @@ test('landing CTAs route to explicit demo and login destinations', () => {
   expect(appJs).toContain('href="#/investor/pilots/fidlot"');
   expect(appJs).toContain('Explore Farmer Demo');
   expect(appJs).toContain('href="#farmer/pilots"');
-  expect(appJs).toContain('Explore Admin Demo');
+  expect(appJs).toContain('Explore Operator Demo');
   expect(appJs).toContain('href="#demo/admin"');
   expect(appJs).toContain('id="home-login-wallet"');
   expect(appJs).toContain('href="#login"');
   expect(appJs).toContain('href="#login/investor"');
   expect(appJs).toContain('href="#login/farmer"');
   expect(appJs).toContain('href="#login/admin"');
-  expect(appJs).toContain('Browse Opportunity Catalog');
+  expect(appJs).toContain('Opportunity Catalog');
+  expect(appJs).toContain('Investor Testnet Login');
+  expect(appJs).toContain('TODO: In Beta / Pilot stage, rename "Investor Testnet Login"');
+});
+
+test('landing renders Operator demo entry without changing Investor and Farmer entries', () => {
+  const homeStart = appJs.indexOf('function showHome()');
+  const homeEnd = appJs.indexOf('function renderPublicFooter()', homeStart);
+  const homeSource = appJs.slice(homeStart, homeEnd);
+
+  expect(homeSource).toContain('Investor Portal');
+  expect(homeSource).toContain('href="#login/investor"');
+  expect(homeSource).toContain('Farmer Portal');
+  expect(homeSource).toContain('href="#login/farmer"');
+  expect(homeSource).toContain('Operator Portal');
+  expect(homeSource).toContain('href="#login/admin"');
+  expect(homeSource).toContain('Opportunity Catalog');
+  expect(homeSource).toContain('href="#/marketplace"');
+  expect(homeSource).toContain('Explore Investor Demo');
+  expect(homeSource).toContain('href="#/investor/pilots/fidlot"');
+  expect(homeSource).toContain('Explore Farmer Demo');
+  expect(homeSource).toContain('href="#farmer/pilots"');
+  expect(homeSource).toContain('Explore Operator Demo');
+  expect(homeSource).toContain('href="#demo/admin"');
+  expect(homeSource).toContain('Investor Testnet Login');
 });
 
 test('demo routes are public while live protected routes still require auth', () => {

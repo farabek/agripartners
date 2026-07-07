@@ -1524,10 +1524,10 @@ function showHome() {
             transparency and auditability as platform infrastructure; future Farmer funding remains fiat-based.
           </p>
           <div class="landing-actions" aria-label="Primary actions">
-            <a class="landing-btn landing-btn-primary" href="#login/investor">Investor Pilot Entry</a>
-            <a class="landing-btn" href="#login/farmer">Farmer Pilot Entry</a>
-            <a class="landing-btn" href="#login/admin">AgriPartners Operator Entry</a>
-            <a class="landing-btn" href="#/marketplace">Browse Opportunity Catalog</a>
+            <a class="landing-btn landing-btn-primary" href="#login/investor">Investor Portal</a>
+            <a class="landing-btn" href="#login/farmer">Farmer Portal</a>
+            <a class="landing-btn" href="#login/admin">Operator Portal</a>
+            <a class="landing-btn" href="#/marketplace">Opportunity Catalog</a>
           </div>
           <p class="landing-note">
             Pilot 1.0 is in preparation and is not a live production operation. Choose a role entry only if AgriPartners has invited you.
@@ -1535,7 +1535,8 @@ function showHome() {
           <div class="landing-actions" aria-label="Alpha demo actions">
             <a class="landing-btn landing-btn-primary" href="#/investor/pilots/fidlot">Explore Investor Demo</a>
             <a class="landing-btn" href="#farmer/pilots">Explore Farmer Demo</a>
-            <a class="landing-btn" href="#demo/admin">Explore Admin Demo</a>
+            <a class="landing-btn" href="#demo/admin">Explore Operator Demo</a>
+            <!-- TODO: In Beta / Pilot stage, rename "Investor Testnet Login" to "Investor Login" or "NEAR Wallet Login" after Testnet-specific positioning is no longer needed. -->
             <button type="button" id="home-login-wallet" class="landing-btn landing-btn-wallet">Investor Testnet Login</button>
           </div>
           <p class="landing-note">
@@ -2870,6 +2871,228 @@ function adminDashboardErrorMessage(status, message) {
   return friendlyUiErrorMessage(message, 'Project dashboard');
 }
 
+function operatorProjectName(deal = {}) {
+  return projectWorkspaceValue(deal.title, deal.project_name, deal.project_title, deal.deal_type, deal.name)
+    || (deal.id != null ? `Project #${deal.id}` : 'Project');
+}
+
+function operatorProjectHref(deal = {}) {
+  return deal.isDemoPilot && deal.pilot_key ? `#deals/pilots/${deal.pilot_key}` : `#deals/${deal.id}`;
+}
+
+function operatorReportStatus(deal = {}) {
+  return projectWorkspaceValue(deal.reportStatus, deal.report_status, deal.report_status_label)
+    || 'Report status pending';
+}
+
+function operatorFundingStatus(deal = {}, status = null) {
+  return projectFinancialFundingStatus(deal, status);
+}
+
+function operatorSettlementStatus(deal = {}, returns = []) {
+  return projectFinancialSettlementStatus(deal, returns);
+}
+
+function operatorLifecycleIndex(deal = {}, status = null, cycles = [], reports = [], returns = []) {
+  const index = projectWorkspaceTimelineIndex({ deal, status, cycles, reports, returns });
+  return index < 0 ? 0 : index;
+}
+
+function operatorNextAction(deal = {}, status = null, cycles = [], reports = [], returns = []) {
+  const rawStatus = projectWorkspaceStatus(deal, status);
+  const reportStatus = operatorReportStatus(deal);
+  const settlementStatus = operatorSettlementStatus(deal, returns);
+  if (/submitted|under review/i.test(reportStatus)) return 'Approve Report';
+  if (/changes required|rejected|correction/i.test(reportStatus)) return 'Request Report Correction';
+  if (/initialized|approved|funding|pending/i.test(rawStatus || '') && !/confirmed|funded/i.test(operatorFundingStatus(deal, status))) {
+    return 'Confirm Funding';
+  }
+  if (/funded|cycle settlement/i.test(rawStatus || '')) return 'Start Next Cycle';
+  if (/cycleactive|active|production/i.test(rawStatus || '')) return 'Review Production Status';
+  if (/recorded|approved|paid|pending/i.test(settlementStatus)) return 'Confirm Settlement';
+  if (/completed|settled|reconciled/i.test(settlementStatus) || /completed/i.test(rawStatus || '')) return 'Close Project';
+  return 'Review Project';
+}
+
+function operatorQueueBuckets(deals = []) {
+  const buckets = {
+    approvals: [],
+    funding: [],
+    reports: [],
+    settlement: [],
+  };
+  deals.forEach((deal) => {
+    const status = projectWorkspaceStatus(deal);
+    const fundingStatus = operatorFundingStatus(deal);
+    const reportStatus = operatorReportStatus(deal);
+    const settlementStatus = operatorSettlementStatus(deal);
+    if (/approved|initialized|funding|pending/i.test(status || '') && !/confirmed|funded/i.test(fundingStatus)) {
+      buckets.funding.push(deal);
+    }
+    if (/submitted|under review|changes required|correction/i.test(reportStatus)) {
+      buckets.reports.push(deal);
+      buckets.approvals.push(deal);
+    }
+    if (/settlement|recorded|approved|paid|reconciled/i.test(settlementStatus)
+      || /cyclesettlement|settlement/i.test(status || '')) {
+      buckets.settlement.push(deal);
+    }
+  });
+  return buckets;
+}
+
+function operatorDashboardMetrics(deals = []) {
+  const queues = operatorQueueBuckets(deals);
+  return [
+    ['Active Projects', deals.filter((deal) => !/completed|terminated|closed/i.test(projectWorkspaceStatus(deal) || '')).length],
+    ['Pending Approvals', queues.approvals.length],
+    ['Funding Confirmations', queues.funding.length],
+    ['Reports Awaiting Review', queues.reports.length],
+    ['Settlement Queue', queues.settlement.length],
+    ['Recent Activity', deals.length],
+  ];
+}
+
+function renderOperatorDashboardMetric([label, value]) {
+  return `
+    <article class="operator-metric">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </article>
+  `;
+}
+
+function renderOperatorEmptyState(title, message, actionHtml = '') {
+  return `
+    <div class="operator-empty-state">
+      <strong>${escapeHtml(title)}</strong>
+      <span>${escapeHtml(message)}</span>
+      ${actionHtml}
+    </div>
+  `;
+}
+
+function renderOperatorQueueCard(title, items, emptyMessage) {
+  return `
+    <section class="operator-panel">
+      <div class="operator-panel-heading">
+        <h2>${escapeHtml(title)}</h2>
+        <span>${items.length}</span>
+      </div>
+      ${items.length ? `
+        <div class="operator-queue-list">
+          ${items.slice(0, 5).map((deal) => `
+            <a href="${escapeHtml(operatorProjectHref(deal))}" class="operator-queue-item">
+              <span>${escapeHtml(operatorProjectName(deal))}</span>
+              <strong>${escapeHtml(operatorNextAction(deal))}</strong>
+            </a>
+          `).join('')}
+        </div>
+      ` : renderOperatorEmptyState('Queue clear', emptyMessage)}
+    </section>
+  `;
+}
+
+function renderOperatorRecentActivity(deals = []) {
+  const recent = [...deals].slice(0, 6);
+  return `
+    <section class="operator-panel">
+      <div class="operator-panel-heading">
+        <h2>Recent Activity</h2>
+        <span>${recent.length}</span>
+      </div>
+      ${recent.length ? `
+        <div class="operator-activity-list">
+          ${recent.map((deal) => `
+            <a href="${escapeHtml(operatorProjectHref(deal))}" class="operator-activity-item">
+              <span>${escapeHtml(operatorProjectName(deal))}</span>
+              <strong>${escapeHtml(operatorNextAction(deal))}</strong>
+              <small>${escapeHtml(projectWorkspaceBusinessStatus({ deal }))}</small>
+            </a>
+          `).join('')}
+        </div>
+      ` : renderOperatorEmptyState('No activity yet', 'Project updates, reports, and Settlement handoffs will appear here.')}
+    </section>
+  `;
+}
+
+function renderOperatorProjectCard(deal = {}) {
+  const status = projectWorkspaceStatus(deal);
+  const stage = projectWorkspaceBusinessStatus({ deal });
+  const nextAction = operatorNextAction(deal);
+  const fundingStatus = operatorFundingStatus(deal);
+  const reportStatus = operatorReportStatus(deal);
+  const settlementStatus = operatorSettlementStatus(deal);
+  return `
+    <article class="operator-project-card">
+      <div class="operator-project-main">
+        <div class="operator-project-title">
+          <span>${deal.id == null ? 'Pilot Project' : `Project #${escapeHtml(deal.id)}`}</span>
+          <h2>${escapeHtml(operatorProjectName(deal))}</h2>
+          ${deal.description ? `<p>${escapeHtml(deal.description)}</p>` : ''}
+        </div>
+        <dl class="operator-project-facts">
+          <div><dt>Current State</dt><dd>${escapeHtml(stage)}</dd></div>
+          <div><dt>Funding</dt><dd>${escapeHtml(fundingStatus)}</dd></div>
+          <div><dt>Report</dt><dd>${escapeHtml(reportStatus)}</dd></div>
+          <div><dt>Settlement</dt><dd>${escapeHtml(settlementStatus)}</dd></div>
+          <div><dt>Farmer</dt><dd>${escapeHtml(projectWorkspaceFarmer(deal) || 'Assignment pending')}</dd></div>
+          <div><dt>Investor</dt><dd>${escapeHtml(deal.investor ? formatAddress(deal.investor) : 'Assignment pending')}</dd></div>
+        </dl>
+      </div>
+      <div class="operator-project-actions">
+        ${statusBadge(status)}
+        <span class="operator-next-action">${escapeHtml(nextAction)}</span>
+        <a href="${escapeHtml(operatorProjectHref(deal))}" class="operator-primary-link">Open Workspace</a>
+      </div>
+    </article>
+  `;
+}
+
+function renderOperatorDashboard(deals = []) {
+  const queues = operatorQueueBuckets(deals);
+  return `
+    <main class="operator-console">
+      <header class="operator-console-hero">
+        <div>
+          <span>Operator Workspace 2.0</span>
+          <h1>Operations Console</h1>
+          <p>Monitor Project state, clear review queues, coordinate funding confirmations, and prepare Settlement handoffs from one workspace.</p>
+        </div>
+        <div class="operator-console-actions">
+          <a href="#admin/create">Create Project</a>
+          <a href="#admin/users">Create User</a>
+          <a href="#admin/treasury">Treasury Dashboard</a>
+        </div>
+      </header>
+      <section class="operator-metric-grid" aria-label="Operator dashboard metrics">
+        ${operatorDashboardMetrics(deals).map(renderOperatorDashboardMetric).join('')}
+      </section>
+      <section class="operator-work-grid">
+        ${renderOperatorQueueCard('Pending Approvals', queues.approvals, 'Reports and internal reviews that need approval will appear here.')}
+        ${renderOperatorQueueCard('Funding Confirmations', queues.funding, 'Projects waiting for funding confirmation will appear here.')}
+        ${renderOperatorQueueCard('Reports Awaiting Review', queues.reports, 'Submitted Farmer Reports will be routed here for review.')}
+        ${renderOperatorQueueCard('Settlement Queue', queues.settlement, 'Projects ready for Settlement review will appear here.')}
+      </section>
+      ${renderOperatorRecentActivity(deals)}
+      <section class="operator-project-list" aria-label="Active Projects">
+        <div class="operator-section-heading">
+          <div>
+            <span>Active Projects</span>
+            <h2>Project Workspaces</h2>
+          </div>
+          <p>${deals.length} Project${deals.length === 1 ? '' : 's'} in the operator register.</p>
+        </div>
+        ${deals.length ? deals.map(renderOperatorProjectCard).join('') : renderOperatorEmptyState(
+          'No Projects in the register',
+          'Create a Project when the operating record is ready for AgriPartners review.',
+          '<a href="#admin/create" class="operator-primary-link">Create Project</a>'
+        )}
+      </section>
+    </main>
+  `;
+}
+
 async function showLiveAdminDashboard(el) {
   renderAdminDashboardShell(el);
   const stateEl = document.getElementById('admin-dashboard-state');
@@ -2880,14 +3103,12 @@ async function showLiveAdminDashboard(el) {
     if (!Array.isArray(data)) throw new Error('Malformed deal list payload');
     if (data.length === 0) {
       stateEl.innerHTML = `
-        <div class="bg-slate-800 rounded-xl p-6 text-center" data-admin-empty-state>
-          <h2 class="text-lg font-semibold text-slate-200">No live Projects yet</h2>
-          <p class="text-slate-400 text-sm mt-1">Create a Project to start AgriPartners operator workflows.</p>
-        </div>
+        <!-- No live Projects yet -->
+        ${renderOperatorDashboard([])}
       `;
       return;
     }
-    stateEl.innerHTML = `<div class="grid gap-4">${data.map(renderDealCard).join('')}</div>`;
+    stateEl.innerHTML = renderOperatorDashboard(data);
   } catch (err) {
     stateEl.innerHTML = `
       <div class="bg-red-900 text-red-200 px-4 py-3 rounded" data-admin-dashboard-error="${escapeHtml(err.status || 'network')}">
@@ -9242,6 +9463,126 @@ function renderAdminResourceUnavailable(label, message) {
   return `<div class="bg-amber-950 border border-amber-800 rounded-lg px-4 py-3 text-sm text-amber-100" data-admin-resource-error="${escapeHtml(label)}"><span class="font-semibold">${escapeHtml(label)} pending update.</span> ${escapeHtml(friendlyUiErrorMessage(message, label))}</div>`;
 }
 
+function operatorPrimaryActionConfig(deal = {}, status = null, cycles = [], reports = [], returns = []) {
+  const label = operatorNextAction(deal, status, cycles, reports, returns);
+  const actionByLabel = {
+    'Confirm Funding': 'fund',
+    'Start Next Cycle': 'start-cycle',
+    'Review Production Status': 'report-profit',
+    'Confirm Settlement': 'withdraw-investor',
+  };
+  return {
+    label,
+    action: actionByLabel[label] || null,
+  };
+}
+
+function renderOperatorPrimaryAction(deal = {}, status = null, cycles = [], reports = [], returns = []) {
+  const config = operatorPrimaryActionConfig(deal, status, cycles, reports, returns);
+  if (config.action) {
+    return renderAdminActionButton(config.action, config.label, status?.status || status, deal, 'operator-primary-action');
+  }
+  return `
+    <button type="button" class="operator-action-btn operator-primary-action" disabled>
+      ${escapeHtml(config.label)}
+    </button>
+  `;
+}
+
+function renderOperatorSecondaryActions() {
+  return `
+    <div class="operator-action-strip" aria-label="Operator actions">
+      <button type="button" class="operator-action-btn" disabled>Approve Report</button>
+      <button type="button" class="operator-action-btn" disabled>Reject Report</button>
+      <a href="#admin-actions" class="operator-action-link">Project Controls</a>
+      <button type="button" class="operator-action-btn" disabled>Close Project</button>
+    </div>
+  `;
+}
+
+function renderOperatorDetailSummary({ deal = {}, status = null, cycles = [], reports = [], returns = [], events = [] } = {}) {
+  const currentIndex = operatorLifecycleIndex(deal, status, cycles, reports, returns);
+  const previousState = currentIndex > 0 ? PROJECT_WORKSPACE_TIMELINE_STAGES[currentIndex - 1] : 'Project intake';
+  const currentState = PROJECT_WORKSPACE_TIMELINE_STAGES[currentIndex] || 'Project review';
+  const nextState = PROJECT_WORKSPACE_TIMELINE_STAGES[currentIndex + 1] || 'Closeout complete';
+  const cards = [
+    ['Previous State', previousState],
+    ['Current State', currentState],
+    ['Next Required Action', operatorNextAction(deal, status, cycles, reports, returns)],
+    ['Recent Activity', `${events.length} recorded event${events.length === 1 ? '' : 's'}`],
+  ];
+  return `
+    <section class="operator-detail-summary" aria-label="Operator timeline summary">
+      ${cards.map(([label, value]) => `
+        <article>
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+          ${label === 'Current State' ? `<small>Next state: ${escapeHtml(nextState)}</small>` : ''}
+        </article>
+      `).join('')}
+    </section>
+  `;
+}
+
+function renderOperatorParticipantPanel(deal = {}) {
+  const rows = [
+    ['Farmer', projectWorkspaceFarmer(deal) || 'Assignment pending'],
+    ['Investor', deal.investor ? formatAddress(deal.investor) : 'Assignment pending'],
+    ['Operator', deal.admin ? formatAddress(deal.admin) : 'AgriPartners'],
+    ['Location', projectWorkspaceLocation(deal) || 'Location pending'],
+  ];
+  return `
+    <section class="operator-panel">
+      <div class="operator-panel-heading"><h2>Participants</h2></div>
+      <dl class="operator-detail-list">
+        ${rows.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('')}
+      </dl>
+    </section>
+  `;
+}
+
+function renderOperatorStatusPanel({ deal = {}, status = null, cycles = [], reports = [], returns = [] } = {}) {
+  const rows = [
+    ['Funding Status', operatorFundingStatus(deal, status)],
+    ['Production Status', projectWorkspaceCurrentCycle(deal, status, cycles)],
+    ['Reports', projectFinancialPendingReports(deal, cycles, reports)],
+    ['Settlement Readiness', operatorSettlementStatus(deal, returns)],
+  ];
+  return `
+    <section class="operator-panel">
+      <div class="operator-panel-heading"><h2>Operational Status</h2></div>
+      <dl class="operator-detail-list">
+        ${rows.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('')}
+      </dl>
+    </section>
+  `;
+}
+
+function renderOperatorProjectConsole(bundle = {}) {
+  const { deal = {}, status = null, cycles = [], adminReturns = [], events = [] } = bundle;
+  const reports = investorCycleReports(cycles);
+  return `
+    <section class="operator-project-console">
+      <div class="operator-project-command">
+        <div>
+          <span>Primary Operator Action</span>
+          <h2>${escapeHtml(operatorNextAction(deal, status, cycles, reports, adminReturns))}</h2>
+          <p>Use this command area to move the Project from the current state to the next required operational step.</p>
+        </div>
+        <div class="operator-primary-action-wrap">
+          ${renderOperatorPrimaryAction(deal, status, cycles, reports, adminReturns)}
+        </div>
+      </div>
+      ${renderOperatorSecondaryActions()}
+      ${renderOperatorDetailSummary({ deal, status, cycles, reports, returns: adminReturns, events })}
+      <div class="operator-detail-grid">
+        ${renderOperatorParticipantPanel(deal)}
+        ${renderOperatorStatusPanel({ deal, status, cycles, reports, returns: adminReturns })}
+      </div>
+    </section>
+  `;
+}
+
 async function showDeal(id) {
   showView('view-detail');
   const el = document.getElementById('view-detail');
@@ -9276,16 +9617,18 @@ function renderDealDetail(el, bundle) {
       deal,
       status,
       cycles,
+      reports: investorCycleReports(cycles),
       returns: adminReturns,
       events,
       role: 'operator',
     })}
     ${resourceErrors.status ? renderAdminResourceUnavailable('Status', resourceErrors.status) : ''}
+    ${isAdmin() ? renderOperatorProjectConsole(bundle) : ''}
     <div class="grid md:grid-cols-2 gap-6 mb-6">
-      <div class="bg-slate-800 rounded-xl p-5 space-y-2">
+      <div class="bg-slate-800 rounded-xl p-5 space-y-2 operator-legacy-panel">
         ${renderParams(deal)}
       </div>
-      <div class="bg-slate-800 rounded-xl p-5 flex flex-col items-center justify-center" id="chart-col">
+      <div class="bg-slate-800 rounded-xl p-5 flex flex-col items-center justify-center operator-legacy-panel" id="chart-col">
         ${resourceErrors.balances ? renderAdminResourceUnavailable('Balances', resourceErrors.balances) : hasCompleteBalanceData(balances)
           ? `<canvas id="balances-chart" width="240" height="240"></canvas>
              <div id="balances-summary" class="w-full mt-4 space-y-2">
@@ -9556,17 +9899,20 @@ function renderAdminActionButton(action, label, status, deal, className = '') {
 
 function renderAdminActions(deal, status) {
   return `
-    <div id="admin-actions" data-status="${escapeHtml(status || 'Unknown')}" class="bg-slate-800 rounded-xl p-5 mb-6">
+    <div id="admin-actions" data-status="${escapeHtml(status || 'Unknown')}" class="bg-slate-800 rounded-xl p-5 mb-6 operator-manage-project">
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wide">Manage Project</h3>
-        <span class="text-xs text-slate-500">Alpha workflow controls are provided for validation only</span>
+        <div>
+          <h3 class="text-sm font-semibold text-slate-100 uppercase tracking-wide">Project Controls</h3>
+          <p class="text-xs text-slate-500 mt-1">Available controls follow the current Project state and existing Alpha APIs.</p>
+        </div>
+        <span class="text-xs text-slate-500">Validation controls</span>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-        ${renderAdminActionButton('fund', 'Record Project Funding', status, deal, 'action-fund')}
-        ${renderAdminActionButton('start-cycle', 'Start Production Cycle', status, deal)}
-        ${renderAdminActionButton('report-profit', 'Record Cycle Result', status, deal)}
+        ${renderAdminActionButton('fund', 'Confirm Funding', status, deal, 'action-fund')}
+        ${renderAdminActionButton('start-cycle', 'Start Next Cycle', status, deal)}
+        ${renderAdminActionButton('report-profit', 'Approve Report / Record Result', status, deal)}
         ${renderAdminActionButton('withdraw-farmer', 'Record Farmer Payout', status, deal)}
-        ${renderAdminActionButton('withdraw-investor', 'Record Investor Settlement', status, deal)}
+        ${renderAdminActionButton('withdraw-investor', 'Confirm Settlement', status, deal)}
         ${renderAdminActionButton('withdraw-platform', 'Record Operator Transfer', status, deal)}
       </div>
       ${IS_PRODUCTION_BUILD ? '<p class="text-xs text-amber-300 mt-3">Alpha transfer controls are disabled in the public environment.</p>' : ''}
