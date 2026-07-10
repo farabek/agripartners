@@ -1638,6 +1638,7 @@ test('investor demo dataset hides test records and renders clean pilot routes', 
   expect(appJs).toContain("status: 'Active'");
   expect(appJs).toContain('activeDeals: deals.filter');
   expect(appJs).toContain('completedDeals: deals.filter');
+  expect(appJs).toContain('showInvestorPortfolioDashboard()');
   expect(appJs).toContain('showInvestorPilotSelector()');
   expect(appJs).toContain('showInvestorPilotProfile(investorPilot[1])');
   expect(appJs).toContain('#investor/pilots/${deal.pilot_key}');
@@ -1650,6 +1651,52 @@ test('investor demo dataset hides test records and renders clean pilot routes', 
   expect(appJs).not.toContain('Deal #4 Unknown');
   expect(appJs).not.toContain('withdraw_signer_test');
   expect(appJs).not.toContain('test_farmer_dashboard');
+});
+
+test('investor portfolio dashboard summarizes demo portfolio and links to project workspaces', () => {
+  const dashboardStart = appJs.indexOf('function showInvestorPortfolioDashboard');
+  const dashboardEnd = appJs.indexOf('function showInvestorPilotSelector', dashboardStart);
+  expect(dashboardStart).toBeGreaterThan(-1);
+  expect(dashboardEnd).toBeGreaterThan(dashboardStart);
+  const dashboardSource = appJs.slice(dashboardStart, dashboardEnd);
+
+  expect(dashboardSource).toContain('Portfolio Dashboard');
+  expect(dashboardSource).toContain('Projected values are demonstration estimates');
+  expect(dashboardSource).toContain('Total Capital');
+  expect(dashboardSource).toContain('Projected Total Payout');
+  expect(dashboardSource).toContain('Projected Profit');
+  expect(dashboardSource).toContain('Average ROI');
+  expect(dashboardSource).toContain('Average APR');
+  expect(dashboardSource).toContain('Projects');
+  expect(dashboardSource).toContain('formatUsdAmount(metrics.totalCapital)');
+  expect(dashboardSource).toContain('formatUsdAmount(metrics.totalPayout)');
+  expect(dashboardSource).toContain('formatUsdAmount(metrics.projectedProfit)');
+  expect(appJs).toContain('Number(pilot.amount || 0) * (1 + Number(pilot.roiPercent || 0) / 100)');
+  expect(dashboardSource).toContain('Open Fidlot Project');
+  expect(dashboardSource).toContain('Open Hissar Project');
+  expect(dashboardSource).toContain('Settlement Completed');
+  expect(dashboardSource).toContain('Current Cycle');
+  expect(dashboardSource).toContain('href="#/investor/pilots/${escapeHtml(pilot.key)}"');
+});
+
+test('investor portfolio dashboard renders allocation, events, activity, and quick actions', () => {
+  const dashboardStart = appJs.indexOf('function showInvestorPortfolioDashboard');
+  const dashboardEnd = appJs.indexOf('function showInvestorPilotSelector', dashboardStart);
+  const dashboardSource = appJs.slice(dashboardStart, dashboardEnd);
+
+  for (const label of ['Uzbekistan', 'Livestock', 'Fidlot', 'Hissar Sheep']) {
+    expect(dashboardSource).toContain(label);
+  }
+  for (const event of ['Hissar Farmer Report Due', 'Hissar Cycle Review', 'Hissar Settlement Review', 'Portfolio Document Update']) {
+    expect(dashboardSource).toContain(event);
+  }
+  for (const activity of ['Fidlot funding confirmed', 'Fidlot reports completed', 'Fidlot settlement completed', 'Hissar funding confirmed', 'Hissar cycle active', 'Hissar next report due']) {
+    expect(dashboardSource).toContain(activity);
+  }
+  expect(dashboardSource).toContain('href="#/investor/pilots"');
+  expect(dashboardSource).toContain('href="#/investor/pilots/fidlot"');
+  expect(dashboardSource).toContain('href="#/investor/pilots/hissar"');
+  expect(dashboardSource).toContain('href="#home"');
 });
 
 test('investor pilot selector lets users choose Fidlot or Hissar before opening details', () => {
@@ -1673,18 +1720,21 @@ test('investor pilot selector lets users choose Fidlot or Hissar before opening 
 test('investor direct pilot routes remain available and detail pages link back to selector', () => {
   const demoStart = appJs.indexOf('function renderInvestorDemoDealDetail');
   const demoEnd = appJs.indexOf('async function showInvestorDeal');
-  const routesStart = appJs.indexOf("if (hash === '#/investor/pilots'");
+  const routesStart = appJs.indexOf("if (hash === '#/investor/dashboard'");
   const routesEnd = appJs.indexOf('const protectionModel', routesStart);
   expect(routesStart).toBeGreaterThan(-1);
   expect(routesEnd).toBeGreaterThan(routesStart);
   const routeSource = appJs.slice(routesStart, routesEnd);
 
+  expect(routeSource).toContain('showInvestorPortfolioDashboard()');
   expect(routeSource).toContain('showInvestorPilotSelector()');
   expect(routeSource).toContain('showInvestorPilotProfile(investorPilot[1])');
   expect(demoStart).toBeGreaterThan(-1);
   expect(demoEnd).toBeGreaterThan(demoStart);
   const demoSource = appJs.slice(demoStart, demoEnd);
 
+  expect(demoSource).toContain('href="#/investor/dashboard"');
+  expect(demoSource).toContain('Back to Portfolio');
   expect(demoSource).toContain('href="#/investor/pilots"');
   expect(demoSource).toContain('text-lg leading-none');
   expect(demoSource).toContain('Back to Investor Pilots');

@@ -1166,6 +1166,11 @@ function route() {
     return;
   }
 
+  if (hash === '#/investor/dashboard' || hash === '#investor/dashboard') {
+    showInvestorPortfolioDashboard();
+    return;
+  }
+
   if (hash === '#/investor/pilots' || hash === '#investor/pilots') {
     showInvestorPilotSelector();
     return;
@@ -1549,7 +1554,7 @@ function showHome() {
               <p>Explore AgriPartners using demonstration data.</p>
             </div>
             <div class="landing-actions" aria-label="Interactive demos">
-              <a class="landing-btn landing-btn-primary" href="#/investor/pilots">Explore Investor Demo</a>
+              <a class="landing-btn landing-btn-primary" href="#/investor/dashboard">Explore Investor Demo</a>
               <a class="landing-btn" href="#farmer/pilots">Explore Farmer Demo</a>
               <a class="landing-btn" href="#demo/admin">Explore Operator Demo</a>
             </div>
@@ -8953,6 +8958,159 @@ function farmerDemoEvents(pilot) {
   ];
 }
 
+function investorPortfolioMetrics() {
+  const totalCapital = INVESTOR_DEMO_PILOTS.reduce((sum, pilot) => sum + Number(pilot.amount || 0), 0);
+  const totalPayout = INVESTOR_DEMO_PILOTS.reduce(
+    (sum, pilot) => sum + (Number(pilot.amount || 0) * (1 + Number(pilot.roiPercent || 0) / 100)),
+    0
+  );
+  const averageRoi = INVESTOR_DEMO_PILOTS.reduce((sum, pilot) => sum + Number(pilot.roiPercent || 0), 0) / INVESTOR_DEMO_PILOTS.length;
+  const averageApr = INVESTOR_DEMO_PILOTS.reduce((sum, pilot) => sum + Number(String(pilot.simpleAnnualizedRoi).replace('%', '') || 0), 0) / INVESTOR_DEMO_PILOTS.length;
+  return {
+    totalCapital,
+    totalPayout,
+    projectedProfit: totalPayout - totalCapital,
+    averageRoi,
+    averageApr,
+    projectCount: INVESTOR_DEMO_PILOTS.length,
+  };
+}
+
+function renderInvestorPortfolioAllocation(label, value) {
+  return `
+    <div class="investor-portfolio-allocation-row">
+      <div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}%</strong></div>
+      <div class="investor-portfolio-allocation-track" aria-hidden="true">
+        <span style="width: ${escapeHtml(value)}%"></span>
+      </div>
+    </div>
+  `;
+}
+
+function showInvestorPortfolioDashboard() {
+  showView('view-investor');
+  const el = document.getElementById('view-investor');
+  const metrics = investorPortfolioMetrics();
+  const metricCards = [
+    ['Total Capital', formatUsdAmount(metrics.totalCapital)],
+    ['Projected Total Payout', formatUsdAmount(metrics.totalPayout)],
+    ['Projected Profit', formatUsdAmount(metrics.projectedProfit)],
+    ['Average ROI', `${metrics.averageRoi.toFixed(1)}%`],
+    ['Average APR', `${metrics.averageApr.toFixed(1)}%`],
+    ['Projects', String(metrics.projectCount)],
+  ];
+  const projectCards = INVESTOR_DEMO_PILOTS.map((pilot) => {
+    const isFidlot = pilot.key === 'fidlot';
+    const statusLabel = isFidlot ? 'Completed' : 'Active / In Progress';
+    const roiLabel = isFidlot ? 'ROI' : 'Projected ROI';
+    const statusNote = isFidlot ? 'Settlement Completed' : `Current Cycle ${escapeHtml(pilot.currentCycle)} of ${escapeHtml(pilot.cycles)}`;
+    const actionLabel = isFidlot ? 'Open Fidlot Project' : 'Open Hissar Project';
+    return `
+      <article class="farmer-pilot-selector-card investor-portfolio-project-card">
+        <div class="farmer-pilot-selector-card-header">
+          <div>
+            <span>${escapeHtml(pilot.type)}</span>
+            <h2>${escapeHtml(pilot.title)}</h2>
+          </div>
+          <span class="farmer-pilot-selector-status is-${escapeHtml(pilot.status.toLowerCase())}">${escapeHtml(statusLabel)}</span>
+        </div>
+        <p>${escapeHtml(pilot.description)}</p>
+        <div class="farmer-pilot-selector-metrics">
+          <div><span>Investment</span><strong>${escapeHtml(pilot.displayAmount)}</strong></div>
+          <div><span>${escapeHtml(roiLabel)}</span><strong>${escapeHtml(pilot.roi)}</strong></div>
+          <div><span>APR</span><strong>${escapeHtml(pilot.simpleAnnualizedRoi)}</strong></div>
+          <div><span>Status</span><strong>${escapeHtml(statusNote)}</strong></div>
+        </div>
+        <a href="#/investor/pilots/${escapeHtml(pilot.key)}" class="landing-btn landing-btn-primary">${escapeHtml(actionLabel)}</a>
+      </article>
+    `;
+  }).join('');
+  const upcomingEvents = [
+    'Hissar Farmer Report Due',
+    'Hissar Cycle Review',
+    'Hissar Settlement Review',
+    'Portfolio Document Update',
+  ];
+  const recentActivity = [
+    'Fidlot funding confirmed',
+    'Fidlot reports completed',
+    'Fidlot settlement completed',
+    'Hissar funding confirmed',
+    'Hissar cycle active',
+    'Hissar next report due',
+  ];
+
+  el.innerHTML = `
+    <div class="investor-portfolio-dashboard">
+      <div class="flex flex-wrap items-center gap-3 mb-6">
+        <a href="#home" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+          <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
+          Back Home
+        </a>
+        <a href="#/investor/pilots" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+          Browse Pilot Projects
+        </a>
+      </div>
+      ${renderEnvironmentBanner('demo', 'Investor Portfolio')}
+      <section class="investor-portfolio-hero">
+        <div>
+          <span>Investor Demo</span>
+          <h1>Portfolio Dashboard</h1>
+          <p>
+            Demo portfolio view for comparing the completed Fidlot workflow and active Hissar workflow.
+            Projected values are demonstration estimates, not guaranteed investment outcomes.
+          </p>
+        </div>
+      </section>
+      <section class="investor-portfolio-kpis" aria-label="Demo portfolio metrics">
+        ${metricCards.map(([label, value]) => `
+          <div>
+            <span>${escapeHtml(label)}</span>
+            <strong>${escapeHtml(value)}</strong>
+          </div>
+        `).join('')}
+      </section>
+      <section class="investor-portfolio-section">
+        <div class="workspace-section-heading">
+          <h2>Portfolio Projects</h2>
+          <p>Open either flagship demonstration pilot to review financials, progress, reports, returns, settlement, and documents.</p>
+        </div>
+        <div class="farmer-pilot-selector-grid">${projectCards}</div>
+      </section>
+      <div class="investor-portfolio-secondary-grid">
+        <section class="investor-portfolio-section">
+          <div class="workspace-section-heading"><h2>Portfolio Allocation</h2><p>Frontend-only demo allocation summary.</p></div>
+          <div class="investor-portfolio-allocation">
+            ${renderInvestorPortfolioAllocation('Uzbekistan', 100)}
+            ${renderInvestorPortfolioAllocation('Livestock', 100)}
+            ${renderInvestorPortfolioAllocation('Fidlot', 50)}
+            ${renderInvestorPortfolioAllocation('Hissar Sheep', 50)}
+          </div>
+        </section>
+        <section class="investor-portfolio-section">
+          <div class="workspace-section-heading"><h2>Upcoming Events</h2><p>Demo reminders based on the active Hissar workflow.</p></div>
+          <ul class="investor-portfolio-list">${upcomingEvents.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+        </section>
+      </div>
+      <div class="investor-portfolio-secondary-grid">
+        <section class="investor-portfolio-section">
+          <div class="workspace-section-heading"><h2>Recent Activity</h2><p>Cross-project activity from the two demo pilot states.</p></div>
+          <ul class="investor-portfolio-list">${recentActivity.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+        </section>
+        <section class="investor-portfolio-section">
+          <div class="workspace-section-heading"><h2>Quick Actions</h2><p>Jump to pilot comparison or a specific project workspace.</p></div>
+          <div class="investor-portfolio-actions">
+            <a class="landing-btn" href="#/investor/pilots">Browse Pilot Projects</a>
+            <a class="landing-btn" href="#/investor/pilots/fidlot">Open Fidlot</a>
+            <a class="landing-btn" href="#/investor/pilots/hissar">Open Hissar</a>
+            <a class="landing-btn" href="#home">Back Home</a>
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+}
+
 function showInvestorPilotSelector() {
   showView('view-investor');
   const el = document.getElementById('view-investor');
@@ -9050,8 +9208,11 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
     ${renderNav()}
     ${renderEnvironmentBanner('demo', 'Investor')}
     <div class="flex flex-wrap items-center gap-3 mb-6">
-      <a href="#/investor/pilots" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+      <a href="#/investor/dashboard" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
+        Back to Portfolio
+      </a>
+      <a href="#/investor/pilots" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
         Back to Investor Pilots
       </a>
       <a href="#home" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-green-300 transition">
