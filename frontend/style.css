@@ -3054,6 +3054,7 @@
 
 .workspace-tab:focus-visible,
 .workspace-primary-button:focus-visible,
+.workspace-document-action:focus-visible,
 .workspace-card-actions a:focus-visible {
   outline: 2px solid #4ade80;
   outline-offset: 2px;
@@ -3321,6 +3322,7 @@
   justify-content: center;
   min-width: 120px;
   padding: 0 14px;
+  text-align: center;
   transition: background-color 0.15s ease;
 }
 
@@ -3329,11 +3331,108 @@
   background-color: #16a34a;
 }
 
+.workspace-document-icon {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.workspace-document-status {
+  white-space: nowrap;
+}
+
+.workspace-document-card {
+  min-width: 0;
+}
+
+.workspace-document-availability {
+  color: #bfdbfe;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-top: 12px;
+}
+
+.workspace-document-category,
+.workspace-document-helper,
+.workspace-document-source {
+  overflow-wrap: anywhere;
+}
+
+.workspace-document-helper,
+.workspace-document-source {
+  color: #64748b;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  margin-top: 8px;
+}
+
+.workspace-document-source {
+  color: #94a3b8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
 .workspace-document-action.is-disabled {
   background-color: #1e293b;
   border-color: #334155;
   color: #64748b;
   cursor: not-allowed;
+}
+
+.workspace-document-action.is-disabled:hover {
+  background-color: #1e293b;
+}
+
+.workspace-document-preview {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.workspace-document-preview-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.workspace-document-preview-card {
+  background-color: #111827;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 14px;
+}
+
+.workspace-document-preview-card:target,
+.workspace-document-preview-card:focus-visible {
+  border-color: #4ade80;
+  outline: 2px solid #4ade80;
+  outline-offset: 2px;
+}
+
+.workspace-document-preview-card h3 {
+  color: #f8fafc;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.workspace-document-preview-card p,
+.workspace-document-preview-card li {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.workspace-document-preview-card ul {
+  display: grid;
+  gap: 5px;
+  list-style: disc;
+  padding-left: 18px;
 }
 
 .workspace-summary-grid {
@@ -3976,6 +4075,10 @@
   }
 
   .workspace-cycle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-document-preview-grid {
     grid-template-columns: 1fr;
   }
 

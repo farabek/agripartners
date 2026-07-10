@@ -4347,22 +4347,6 @@ function projectDocumentSafeUrl(value) {
   return url;
 }
 
-function projectDocumentModelAsset(deal = {}, audience = 'investor') {
-  const projectKey = projectWorkspaceValue(
-    deal.pilot_key,
-    deal.investment_model,
-    deal.investment_model_name,
-    deal.deal_type,
-    deal.title
-  ) || '';
-  const model = /fidlot/i.test(projectKey)
-    ? 'Fidlot-v5.9-6040'
-    : (/hissar|variantb/i.test(projectKey) ? 'VariantB-v2.1-6040' : null);
-  if (!model) return null;
-  const audienceName = audience === 'farmer' ? 'Farmer' : 'Investor';
-  return `assets/financial-models/en/Agri-${audienceName}-${model}-EN.pdf`;
-}
-
 function projectDocumentReportState(reports = [], cycles = []) {
   const cycleReports = cycles.flatMap(cycle => cycle?.report ? [{
     ...cycle.report,
@@ -4382,23 +4366,41 @@ function projectDocumentCard({
   title,
   category,
   description,
-  status = 'Coming Soon',
+  status = 'Draft',
+  availability = 'Coming in Legal Package v1.0',
   url = null,
-  action = null,
+  action = 'View Document',
+  actionType = 'link',
+  targetTab = null,
+  targetId = null,
+  helper = '',
+  source = '',
   roles = [],
+  icon = '&#128196;',
 }) {
   const safeUrl = projectDocumentSafeUrl(url);
-  const normalizedStatus = status === 'Available' && !safeUrl ? 'Coming Soon' : status;
+  const normalizedStatus = String(status || '').trim();
+  const lifecycleStatus = ['Draft', 'Review', 'Accepted', 'Published', 'Architecture Draft / Review'].includes(normalizedStatus)
+    ? normalizedStatus
+    : (['Available', 'Restricted'].includes(normalizedStatus) ? 'Published' : 'Draft');
+  const safeIcon = ['&#128196;', '&#128203;', '&#128221;', '&#9888;', '&#128202;', '&#128179;'].includes(icon)
+    ? icon
+    : '&#128196;';
   return {
     title,
     category,
     description,
-    status: ['Available', 'Coming Soon', 'Restricted'].includes(normalizedStatus)
-      ? normalizedStatus
-      : 'Coming Soon',
+    status: lifecycleStatus,
+    availability,
     url: safeUrl,
-    action: safeUrl ? (action || 'View') : 'Coming Soon',
+    action,
+    actionType,
+    targetTab,
+    targetId,
+    helper,
+    source,
     roles,
+    icon: safeIcon,
   };
 }
 
@@ -4409,19 +4411,6 @@ function projectDocumentCatalog({
   role = 'investor',
 } = {}) {
   const reportState = projectDocumentReportState(reports, cycles);
-  const projectOverviewUrl = projectDocumentSafeUrl(projectWorkspaceValue(
-    deal.projectOverviewUrl,
-    deal.project_overview_url,
-    deal.overview_url
-  )) || '#project-workspace-header';
-  const investorSummaryUrl = projectDocumentSafeUrl(projectWorkspaceValue(
-    deal.investmentSummaryUrl,
-    deal.investment_summary_url
-  )) || projectDocumentModelAsset(deal, 'investor');
-  const financialOverviewUrl = projectDocumentSafeUrl(projectWorkspaceValue(
-    deal.financialOverviewUrl,
-    deal.financial_overview_url
-  )) || '#project-financial-overview';
   const approvedReportUrl = projectDocumentSafeUrl(projectWorkspaceValue(
     reportState.approved[0]?.document_url,
     reportState.approved[0]?.documentUrl,
@@ -4442,49 +4431,105 @@ function projectDocumentCatalog({
     deal.operatingInstructionsUrl,
     deal.operating_instructions_url
   ));
+  const agreementUrl = projectDocumentSafeUrl(projectWorkspaceValue(
+    deal.investmentAgreementUrl,
+    deal.investment_agreement_url,
+    deal.participationAgreementUrl,
+    deal.participation_agreement_url
+  )) || '#document-preview-investment-participation-agreement';
+  const disclosureUrl = projectDocumentSafeUrl(projectWorkspaceValue(
+    deal.projectDisclosureUrl,
+    deal.project_disclosure_url,
+    deal.disclosureSheetUrl,
+    deal.disclosure_sheet_url
+  )) || '#document-preview-project-disclosure-sheet';
+  const riskDisclosureUrl = projectDocumentSafeUrl(projectWorkspaceValue(
+    deal.riskDisclosureUrl,
+    deal.risk_disclosure_url
+  )) || '#document-preview-risk-disclosure';
+  const settlementRecordsUrl = projectDocumentSafeUrl(projectWorkspaceValue(
+    deal.settlementRecordsUrl,
+    deal.settlement_records_url,
+    deal.settlementUrl,
+    deal.settlement_url
+  ));
+  const hasSettlementRecord = Boolean(projectWorkspaceValue(
+    deal.settlement_status,
+    deal.settlementStatus,
+    deal.return_status,
+    deal.returnStatus
+  ));
 
   const investorDocuments = [
     projectDocumentCard({
-      title: 'Project Overview',
-      category: 'Project',
-      description: 'Shared Project identity, lifecycle, participants, and current operating context.',
-      status: 'Available',
-      url: projectOverviewUrl,
+      title: 'Project Disclosure Sheet',
+      category: 'For Investors',
+      description: 'Investor-facing project summary, lifecycle, capital allocation, risks, and review checklist.',
+      status: 'Draft',
+      availability: 'Draft - Preview Available',
+      url: disclosureUrl,
+      helper: 'PDF release planned for Legal Package v1.0.',
+      source: 'docs/legal/PROJECT_DISCLOSURE_SHEET.md',
       roles: ['investor', 'farmer', 'operator'],
+      icon: '&#128203;',
     }),
     projectDocumentCard({
-      title: 'Investment Summary',
-      category: 'Investor',
-      description: 'Approved Investment Model terms and Project investment summary.',
-      status: investorSummaryUrl ? 'Available' : 'Coming Soon',
-      url: investorSummaryUrl,
-      action: 'Download',
+      title: 'Investment Participation Agreement',
+      category: 'Investment Agreement',
+      description: 'Investor participation agreement draft for project access, reporting, treasury, and Settlement workflow.',
+      status: 'Architecture Draft / Review',
+      availability: 'Review - Preview Available',
+      url: agreementUrl,
+      helper: 'Draft architecture preview only; not a signed production agreement.',
+      source: 'docs/legal/INVESTMENT_PARTICIPATION_AGREEMENT.md',
       roles: ['investor', 'operator'],
+      icon: '&#128221;',
     }),
     projectDocumentCard({
-      title: 'Financial Overview',
-      category: 'Investor',
-      description: 'Role-appropriate Project funding, projections, returns, and Settlement status.',
-      status: 'Available',
-      url: financialOverviewUrl,
+      title: 'Risk Disclosure',
+      category: 'Risk Information',
+      description: 'Standalone risk disclosure covering agricultural, operational, financial, platform, and blockchain risks.',
+      status: 'Draft',
+      availability: 'Draft - Preview Available',
+      url: riskDisclosureUrl,
+      helper: 'PDF release planned for Legal Package v1.0.',
+      source: 'docs/legal/RISK_DISCLOSURE.md',
       roles: ['investor', 'operator'],
+      icon: '&#9888;',
     }),
     projectDocumentCard({
-      title: 'Approved Farmer Reports',
-      category: 'Investor Reporting',
+      title: 'Farmer Reports',
+      category: 'Project Reporting',
       description: reportState.approved.length
         ? `${reportState.approved.length} approved Farmer Report${reportState.approved.length === 1 ? '' : 's'} available.`
         : 'Approved Farmer Reports will appear after AgriPartners review.',
-      status: approvedReportUrl ? 'Available' : 'Coming Soon',
+      status: reportState.approved.length ? 'Published' : 'Review',
+      availability: reportState.approved.length ? 'Published' : 'Review - Not Yet Published',
       url: approvedReportUrl,
+      action: 'View Reports',
+      actionType: 'tab',
+      targetTab: 'reports',
+      targetId: 'workspace-panel-reports',
+      helper: reportState.approved.length ? 'Shows the Reports tab for approved Farmer reporting.' : 'Reports are visible after review.',
       roles: ['investor', 'operator'],
+      icon: '&#128202;',
     }),
     projectDocumentCard({
-      title: 'Legal Documents',
-      category: 'Legal',
-      description: 'Project legal documents are controlled under participant and disclosure rules.',
-      status: 'Restricted',
+      title: 'Settlement Records',
+      category: 'Settlement Documentation',
+      description: hasSettlementRecord
+        ? 'Settlement status and recorded return evidence for this Project.'
+        : 'Settlement records will be published after reconciliation and approval.',
+      status: hasSettlementRecord ? 'Accepted' : 'Review',
+      availability: hasSettlementRecord ? 'Accepted - Returns View Available' : 'Review - Not Yet Published',
+      url: settlementRecordsUrl,
+      action: 'View Settlement Records',
+      actionType: 'tab',
+      targetTab: 'returns',
+      targetId: 'workspace-panel-returns',
+      helper: hasSettlementRecord ? 'Shows the Returns tab where Settlement status is tracked.' : 'Settlement records are not yet published as files.',
       roles: ['investor', 'operator'],
+      icon: '&#128179;',
     }),
   ];
 
@@ -4495,10 +4540,12 @@ function projectDocumentCatalog({
       description: farmerAgreementUrl
         ? 'The Farmer Agreement associated with this Project.'
         : 'Agreement access will be provided through the approved Project document process.',
-      status: farmerAgreementUrl ? 'Available' : 'Restricted',
+      status: farmerAgreementUrl ? 'Published' : 'Review',
+      availability: farmerAgreementUrl ? 'Published' : 'Review - Not Yet Published',
       url: farmerAgreementUrl,
-      action: 'Download',
+      action: 'View Document',
       roles: ['farmer', 'operator'],
+      icon: '&#128221;',
     }),
     projectDocumentCard({
       title: 'Submitted Reports',
@@ -4506,18 +4553,23 @@ function projectDocumentCatalog({
       description: reportState.submitted.length
         ? `${reportState.submitted.length} submitted Project Report${reportState.submitted.length === 1 ? '' : 's'} available.`
         : 'Submitted Farmer Reports will appear here.',
-      status: submittedReportUrl ? 'Available' : 'Coming Soon',
+      status: submittedReportUrl ? 'Published' : 'Draft',
+      availability: submittedReportUrl ? 'Published' : 'Draft - Not Yet Published',
       url: submittedReportUrl,
+      action: 'View Reports',
       roles: ['farmer', 'operator'],
+      icon: '&#128202;',
     }),
     projectDocumentCard({
       title: 'Operating Instructions',
       category: 'Operations',
       description: 'Project-specific operating instructions and approved Farmer guidance.',
-      status: operatingInstructionsUrl ? 'Available' : 'Coming Soon',
+      status: operatingInstructionsUrl ? 'Published' : 'Draft',
+      availability: operatingInstructionsUrl ? 'Published' : 'Coming in Legal Package v1.0',
       url: operatingInstructionsUrl,
-      action: 'Download',
+      action: 'View Document',
       roles: ['farmer', 'operator'],
+      icon: '&#128196;',
     }),
   ];
 
@@ -4526,22 +4578,28 @@ function projectDocumentCatalog({
       title: 'Internal Project Notes',
       category: 'Internal',
       description: 'Internal workflow notes and operational decision records.',
-      status: 'Coming Soon',
+      status: 'Draft',
+      availability: 'Coming in Legal Package v1.0',
       roles: ['operator'],
+      icon: '&#128196;',
     }),
     projectDocumentCard({
       title: 'Compliance Documents',
       category: 'Compliance',
       description: 'Controlled compliance and participant review records.',
-      status: 'Restricted',
+      status: 'Review',
+      availability: 'Review - Not Yet Published',
       roles: ['operator'],
+      icon: '&#9888;',
     }),
     projectDocumentCard({
       title: 'Settlement Documents',
       category: 'Settlement',
       description: 'Settlement calculations, approvals, confirmations, and reconciliation records.',
-      status: 'Coming Soon',
+      status: 'Draft',
+      availability: 'Coming in Legal Package v1.0',
       roles: ['operator'],
+      icon: '&#128179;',
     }),
   ];
 
@@ -4568,22 +4626,85 @@ function projectCustomDocuments(documents = [], role = 'investor') {
       category: projectWorkspaceValue(document.category) || 'Project',
       description: projectWorkspaceValue(document.description) || 'Project document.',
       status: projectWorkspaceValue(document.availability, document.status)
-        || (projectDocumentSafeUrl(document.url || document.file_url) ? 'Available' : 'Coming Soon'),
+        || (projectDocumentSafeUrl(document.url || document.file_url) ? 'Published' : 'Draft'),
+      availability: projectWorkspaceValue(document.availabilityLabel, document.availability_label)
+        || (projectDocumentSafeUrl(document.url || document.file_url) ? 'Published' : 'Coming in Legal Package v1.0'),
       url: document.url || document.file_url,
-      action: document.action,
+      action: document.action || 'View Document',
+      actionType: document.actionType || document.action_type || 'link',
+      targetTab: document.targetTab || document.target_tab,
+      targetId: document.targetId || document.target_id,
+      helper: document.helper,
+      source: document.source,
       roles: document.roles,
+      icon: document.icon,
     }));
 }
 
 function renderProjectDocumentAction(document) {
-  if (document.status !== 'Available' || !document.url) {
-    return `<button type="button" disabled class="workspace-document-action is-disabled">Coming Soon</button>`;
+  if (document.actionType === 'tab' && document.targetTab) {
+    return `<button type="button" class="workspace-document-action" data-workspace-tab-target="${escapeHtml(document.targetTab)}" ${document.targetId ? `data-workspace-scroll-target="${escapeHtml(document.targetId)}"` : ''}>${escapeHtml(document.action)}</button>`;
+  }
+  if (!document.url) {
+    return `<button type="button" disabled class="workspace-document-action is-disabled">Not Yet Available</button>`;
   }
   const externalAttributes = document.url.startsWith('#')
     ? ''
     : ' target="_blank" rel="noopener noreferrer"';
-  const downloadAttribute = document.action === 'Download' ? ' download' : '';
-  return `<a href="${escapeHtml(document.url)}"${externalAttributes}${downloadAttribute} class="workspace-document-action">${escapeHtml(document.action)}</a>`;
+  return `<a href="${escapeHtml(document.url)}"${externalAttributes} class="workspace-document-action">${escapeHtml(document.action)}</a>`;
+}
+
+function renderProjectDocumentPreviewPanel() {
+  const previews = [
+    {
+      id: 'project-disclosure-sheet',
+      title: 'Project Disclosure Sheet',
+      source: 'docs/legal/PROJECT_DISCLOSURE_SHEET.md',
+      status: 'Draft v1',
+      summary: 'Standard investor-facing project summary covering project identity, investment overview, reporting, governance, risks, and review checklist.',
+      points: ['Project information and funding terms', 'Production timeline and reporting expectations', 'Investor checklist and disclaimer'],
+    },
+    {
+      id: 'investment-participation-agreement',
+      title: 'Investment Participation Agreement',
+      source: 'docs/legal/INVESTMENT_PARTICIPATION_AGREEMENT.md',
+      status: 'Architecture Draft',
+      summary: 'Architecture draft describing the intended investor agreement, platform responsibilities, reporting access, treasury visibility, and settlement process.',
+      points: ['Investor participates through AgriPartners', 'Farmer is not a party to the investor agreement', 'Production legal version requires counsel review'],
+    },
+    {
+      id: 'risk-disclosure',
+      title: 'Risk Disclosure',
+      source: 'docs/legal/RISK_DISCLOSURE.md',
+      status: 'Draft v1',
+      summary: 'Standalone risk overview for agricultural, operational, financial, platform, blockchain, regulatory, and force majeure risks.',
+      points: ['Projected ROI is not guaranteed', 'Investors may lose part or all invested capital', 'Platform and blockchain records do not replace legal or settlement controls'],
+    },
+  ];
+  return `
+    <section class="workspace-document-preview" aria-label="Legal document previews">
+      <div class="workspace-section-heading">
+        <h2>Legal Document Previews</h2>
+        <p>Alpha previews from repository-backed Markdown drafts. Production PDFs are planned for Legal Package v1.0.</p>
+      </div>
+      <div class="workspace-document-preview-grid">
+        ${previews.map(preview => `
+          <article id="document-preview-${escapeHtml(preview.id)}" class="workspace-document-preview-card" tabindex="-1">
+            <div>
+              <span class="workspace-card-eyebrow">${escapeHtml(preview.status)}</span>
+              <h3>${escapeHtml(preview.title)}</h3>
+              <p>${escapeHtml(preview.summary)}</p>
+            </div>
+            <ul>
+              ${preview.points.map(point => `<li>${escapeHtml(point)}</li>`).join('')}
+            </ul>
+            <p class="workspace-document-source">Source: ${escapeHtml(preview.source)}</p>
+            <p class="workspace-document-helper">PDF release planned for Legal Package v1.0.</p>
+          </article>
+        `).join('')}
+      </div>
+    </section>
+  `;
 }
 
 function renderProjectDocuments({
@@ -4601,33 +4722,39 @@ function renderProjectDocuments({
       ...projectCustomDocuments(Array.isArray(deal.documents) ? deal.documents : [], visibleRole),
     ];
   const statusClasses = {
-    Available: 'border-green-800 bg-green-950 text-green-200',
-    'Coming Soon': 'border-slate-600 bg-slate-800 text-slate-300',
-    Restricted: 'border-amber-700 bg-amber-950 text-amber-200',
+    Draft: 'border-slate-600 bg-slate-800 text-slate-300',
+    Review: 'border-amber-700 bg-amber-950 text-amber-200',
+    Accepted: 'border-blue-700 bg-blue-950 text-blue-200',
+    Published: 'border-green-800 bg-green-950 text-green-200',
+    'Architecture Draft / Review': 'border-amber-700 bg-amber-950 text-amber-200',
   };
   return `
     <section id="project-documents" data-project-documents data-documents-role="${escapeHtml(visibleRole)}" class="mt-5 pt-5 border-t border-slate-700">
       <div>
-        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Project Documents</h2>
-        <p class="text-xs text-slate-500 mt-1">Role-authorized Project files, summaries, and document placeholders.</p>
+        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Document Center</h2>
+        <p class="text-xs text-slate-500 mt-1">Investor legal previews, Project reporting, and Settlement documentation status.</p>
       </div>
       ${cards.length ? `
         <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-3 mt-4" aria-label="Project documents">
           ${cards.map(document => `
-            <article data-document-title="${escapeHtml(document.title)}" data-document-status="${escapeHtml(document.status)}" class="bg-slate-900 border border-slate-700 rounded-lg p-4 flex flex-col">
+            <article data-document-title="${escapeHtml(document.title)}" data-document-status="${escapeHtml(document.status)}" data-document-availability="${escapeHtml(document.availability)}" class="workspace-document-card bg-slate-900 border border-slate-700 rounded-lg p-4 flex flex-col">
               <div class="flex items-start gap-3">
-                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-800 border border-slate-600 text-green-300" aria-hidden="true">&#128196;</span>
+                <span class="workspace-document-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-800 border border-slate-600 text-green-300" aria-hidden="true">${document.icon}</span>
                 <div class="min-w-0 flex-1">
                   <h3 class="text-sm font-semibold text-slate-100">${escapeHtml(document.title)}</h3>
-                  <p class="text-xs text-slate-500 mt-1">Audience: ${escapeHtml(document.category)}</p>
+                  <p class="workspace-document-category text-xs text-slate-500 mt-1">${escapeHtml(document.category)}</p>
                 </div>
-                <span class="shrink-0 text-xs font-semibold border rounded-full px-2 py-0.5 ${statusClasses[document.status]}">${escapeHtml(document.status)}</span>
+                <span class="workspace-document-status shrink-0 text-xs font-semibold border rounded-full px-2 py-0.5 ${statusClasses[document.status] || statusClasses.Draft}">${escapeHtml(document.status)}</span>
               </div>
+              <p class="workspace-document-availability">${escapeHtml(document.availability)}</p>
               <p class="text-sm text-slate-400 mt-3 flex-1">${escapeHtml(document.description)}</p>
               <div class="mt-4">${renderProjectDocumentAction(document)}</div>
+              ${document.source ? `<p class="workspace-document-source">Source: ${escapeHtml(document.source)}</p>` : ''}
+              ${document.helper ? `<p class="workspace-document-helper">${escapeHtml(document.helper)}</p>` : ''}
             </article>
           `).join('')}
         </div>
+        ${visibleRole === 'investor' || visibleRole === 'operator' ? renderProjectDocumentPreviewPanel() : ''}
       ` : `
         <div data-documents-empty class="bg-slate-900 border border-dashed border-slate-700 rounded-lg px-4 py-6 mt-4 text-center">
           <p class="text-sm font-medium text-slate-300">Project documents not yet provided</p>
@@ -5136,6 +5263,17 @@ function bindInvestorWorkspaceTabs(root = document) {
         if (nextIndex == null) return;
         event.preventDefault();
         activate(tabs[nextIndex], true);
+      });
+    });
+    workspace.querySelectorAll('[data-workspace-tab-target]').forEach(control => {
+      control.addEventListener('click', () => {
+        const targetTab = tabs.find(tab => tab.dataset.workspaceTab === control.dataset.workspaceTabTarget);
+        if (!targetTab) return;
+        activate(targetTab);
+        const scrollTarget = control.dataset.workspaceScrollTarget
+          ? workspace.querySelector(`#${CSS.escape(control.dataset.workspaceScrollTarget)}`)
+          : null;
+        (scrollTarget || targetTab).scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
     workspace.dataset.workspaceTabsBound = 'true';

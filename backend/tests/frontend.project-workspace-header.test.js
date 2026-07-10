@@ -35,6 +35,7 @@ function loadProjectWorkspaceHeaderHelpers() {
       renderProjectActivityFeed,
       projectDocumentCatalog,
       renderProjectDocuments,
+      renderInvestorWorkspaceTabs,
       renderProjectWorkspaceHeader,
     };
   `;
@@ -455,24 +456,66 @@ test('Investor Project Documents displays investor documents and hides farmer-on
   const { renderProjectDocuments } = loadProjectWorkspaceHeaderHelpers();
   const html = renderProjectDocuments({
     role: 'investor',
-    deal: { pilot_key: 'fidlot' },
+    deal: { pilot_key: 'fidlot', settlement_status: 'accepted' },
     reports: [{ status: 'approved', document_url: '/reports/approved-1.pdf' }],
   });
 
   for (const title of [
-    'Project Overview',
-    'Investment Summary',
-    'Financial Overview',
-    'Approved Farmer Reports',
-    'Legal Documents',
+    'Project Disclosure Sheet',
+    'Investment Participation Agreement',
+    'Risk Disclosure',
+    'Farmer Reports',
+    'Settlement Records',
   ]) {
     expect(html).toContain(`data-document-title="${title}"`);
   }
-  expect(html).toContain('Agri-Investor-Fidlot-v5.9-6040-EN.pdf');
-  expect(html).toContain('Download');
+  for (const status of ['Draft', 'Architecture Draft / Review', 'Accepted', 'Published']) {
+    expect(html).toContain(`data-document-status="${status}"`);
+  }
+  expect(html.match(/workspace-document-action/g).length).toBeGreaterThanOrEqual(5);
+  expect(html).toContain('View Document');
+  expect(html).toContain('View Reports');
+  expect(html).toContain('View Settlement Records');
+  expect(html).not.toContain('>Open<');
+  expect(html).not.toContain('download');
+  expect(html).toContain('&#128203;');
+  expect(html).toContain('&#128221;');
+  expect(html).toContain('&#9888;');
+  expect(html).toContain('&#128202;');
+  expect(html).toContain('&#128179;');
   expect(html).not.toContain('Farmer Agreement');
   expect(html).not.toContain('Submitted Reports');
   expect(html).not.toContain('Internal Project Notes');
+});
+
+test('Investor Project Documents exposes truthful legal previews without local paths or fake downloads', () => {
+  const { renderProjectDocuments } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectDocuments({ role: 'investor' });
+
+  expect(html).toContain('data-document-availability="Draft - Preview Available"');
+  expect(html).toContain('data-document-availability="Review - Preview Available"');
+  expect(html).toContain('Legal Document Previews');
+  expect(html).toContain('docs/legal/PROJECT_DISCLOSURE_SHEET.md');
+  expect(html).toContain('docs/legal/INVESTMENT_PARTICIPATION_AGREEMENT.md');
+  expect(html).toContain('docs/legal/RISK_DISCLOSURE.md');
+  expect(html).toContain('PDF release planned for Legal Package v1.0');
+  expect(html).not.toContain('C:\\');
+  expect(html).not.toContain('file://');
+  expect(html).not.toContain('download');
+});
+
+test('Investor Project Documents navigates reports and settlement through workspace tabs', () => {
+  const { renderProjectDocuments } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderProjectDocuments({
+    role: 'investor',
+    deal: { settlement_status: 'accepted' },
+    reports: [{ status: 'approved' }],
+  });
+
+  expect(html).toContain('data-workspace-tab-target="reports"');
+  expect(html).toContain('data-workspace-scroll-target="workspace-panel-reports"');
+  expect(html).toContain('data-workspace-tab-target="returns"');
+  expect(html).toContain('data-workspace-scroll-target="workspace-panel-returns"');
 });
 
 test('Farmer Project Documents displays farmer documents without investor-only documents', () => {
@@ -487,7 +530,7 @@ test('Farmer Project Documents displays farmer documents without investor-only d
   });
 
   for (const title of [
-    'Project Overview',
+    'Project Disclosure Sheet',
     'Farmer Agreement',
     'Submitted Reports',
     'Operating Instructions',
@@ -495,10 +538,10 @@ test('Farmer Project Documents displays farmer documents without investor-only d
     expect(html).toContain(`data-document-title="${title}"`);
   }
   expect(html).toContain('1 submitted Project Report available.');
-  expect(html).not.toContain('Investment Summary');
-  expect(html).not.toContain('Financial Overview');
-  expect(html).not.toContain('Approved Farmer Reports');
-  expect(html).not.toContain('Legal Documents');
+  expect(html).not.toContain('Investment Participation Agreement');
+  expect(html).not.toContain('Risk Disclosure');
+  expect(html).not.toContain('Farmer Reports');
+  expect(html).not.toContain('Settlement Records');
 });
 
 test('Operator Project Documents displays investor, farmer and internal document groups', () => {
@@ -509,11 +552,11 @@ test('Operator Project Documents displays investor, farmer and internal document
   });
 
   for (const title of [
-    'Project Overview',
-    'Investment Summary',
-    'Financial Overview',
-    'Approved Farmer Reports',
-    'Legal Documents',
+    'Project Disclosure Sheet',
+    'Investment Participation Agreement',
+    'Risk Disclosure',
+    'Farmer Reports',
+    'Settlement Records',
     'Farmer Agreement',
     'Submitted Reports',
     'Operating Instructions',
@@ -525,15 +568,14 @@ test('Operator Project Documents displays investor, farmer and internal document
   }
 });
 
-test('Project Documents clearly marks restricted and unavailable documents', () => {
+test('Project Documents clearly marks review and draft documents', () => {
   const { renderProjectDocuments } = loadProjectWorkspaceHeaderHelpers();
   const html = renderProjectDocuments({ role: 'farmer' });
 
-  expect(html).toContain('data-document-title="Farmer Agreement" data-document-status="Restricted"');
-  expect(html).toContain('data-document-title="Operating Instructions" data-document-status="Coming Soon"');
+  expect(html).toContain('data-document-title="Farmer Agreement" data-document-status="Review"');
+  expect(html).toContain('data-document-title="Operating Instructions" data-document-status="Draft"');
   expect(html).toContain('disabled');
-  expect(html).toContain('Coming Soon');
-  expect(html).toContain('data-document-status="Available"');
+  expect(html).toContain('Not Yet Available');
 });
 
 test('Project Documents supports an empty state', () => {
@@ -556,6 +598,24 @@ test('Project Documents is responsive and is the final shared Workspace block', 
   expect(workspace.indexOf('data-project-activity-feed'))
     .toBeLessThan(workspace.indexOf('data-project-documents'));
   expect(workspace.indexOf('data-project-documents')).toBeLessThan(workspace.lastIndexOf('</section>'));
+});
+
+test('Investor Documents tab panel is isolated from Returns and Settlement content', () => {
+  const { renderInvestorWorkspaceTabs } = loadProjectWorkspaceHeaderHelpers();
+  const html = renderInvestorWorkspaceTabs({
+    deal: { id: 12, settlement_status: 'accepted' },
+    returns: [{ amount_near: '1', created_at: '2026-07-01T00:00:00Z' }],
+  });
+  const start = html.indexOf('id="workspace-panel-documents"');
+  const end = html.indexOf('id="workspace-panel-history"');
+  const documentsPanel = html.slice(start, end);
+
+  expect(start).toBeGreaterThanOrEqual(0);
+  expect(end).toBeGreaterThan(start);
+  expect(documentsPanel).toContain('data-project-documents');
+  expect(documentsPanel).toContain('Document Center');
+  expect(documentsPanel).not.toContain('Settlement Action');
+  expect(documentsPanel).not.toContain('Returns Ledger');
 });
 
 test('all Admin, Farmer and Investor project detail variants use the shared header', () => {
