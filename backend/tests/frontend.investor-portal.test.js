@@ -1638,6 +1638,7 @@ test('investor demo dataset hides test records and renders clean pilot routes', 
   expect(appJs).toContain("status: 'Active'");
   expect(appJs).toContain('activeDeals: deals.filter');
   expect(appJs).toContain('completedDeals: deals.filter');
+  expect(appJs).toContain('showInvestorPilotSelector()');
   expect(appJs).toContain('showInvestorPilotProfile(investorPilot[1])');
   expect(appJs).toContain('#investor/pilots/${deal.pilot_key}');
   expect(appJs).toContain('renderInvestorDemoDealDetail');
@@ -1651,17 +1652,58 @@ test('investor demo dataset hides test records and renders clean pilot routes', 
   expect(appJs).not.toContain('test_farmer_dashboard');
 });
 
-test('investor pilot demo pages link back to public home', () => {
+test('investor pilot selector lets users choose Fidlot or Hissar before opening details', () => {
+  const selectorStart = appJs.indexOf('function showInvestorPilotSelector');
+  const selectorEnd = appJs.indexOf('function showInvestorPilotProfile', selectorStart);
+  expect(selectorStart).toBeGreaterThan(-1);
+  expect(selectorEnd).toBeGreaterThan(selectorStart);
+  const selectorSource = appJs.slice(selectorStart, selectorEnd);
+
+  expect(selectorSource).toContain('Choose an Investor Pilot Project');
+  expect(selectorSource).toContain('Compare the two flagship AgriPartners pilot workflows');
+  expect(selectorSource).toContain('Fidlot represents a completed workflow');
+  expect(selectorSource).toContain('Hissar represents an active workflow');
+  expect(selectorSource).toContain('Open Fidlot Project');
+  expect(selectorSource).toContain('Open Hissar Project');
+  expect(selectorSource).toContain('href="#/investor/pilots/${escapeHtml(pilot.key)}"');
+  expect(selectorSource).toContain('Back Home');
+  expect(selectorSource).toContain('Opportunity Catalog');
+});
+
+test('investor direct pilot routes remain available and detail pages link back to selector', () => {
   const demoStart = appJs.indexOf('function renderInvestorDemoDealDetail');
   const demoEnd = appJs.indexOf('async function showInvestorDeal');
+  const routesStart = appJs.indexOf("if (hash === '#/investor/pilots'");
+  const routesEnd = appJs.indexOf('const protectionModel', routesStart);
+  expect(routesStart).toBeGreaterThan(-1);
+  expect(routesEnd).toBeGreaterThan(routesStart);
+  const routeSource = appJs.slice(routesStart, routesEnd);
+
+  expect(routeSource).toContain('showInvestorPilotSelector()');
+  expect(routeSource).toContain('showInvestorPilotProfile(investorPilot[1])');
   expect(demoStart).toBeGreaterThan(-1);
   expect(demoEnd).toBeGreaterThan(demoStart);
   const demoSource = appJs.slice(demoStart, demoEnd);
 
-  expect(demoSource).toContain('href="/"');
+  expect(demoSource).toContain('href="#/investor/pilots"');
   expect(demoSource).toContain('text-lg leading-none');
-  expect(demoSource).toContain('Back home');
+  expect(demoSource).toContain('Back to Investor Pilots');
+  expect(demoSource).toContain('Back Home');
   expect(demoSource).not.toContain('Back to Investor Portal');
+});
+
+test('investor pilot selector uses shared pilot financial data and preserves Document Center route surface', () => {
+  expect(appJs).toContain("title: 'Fidlot Livestock Project'");
+  expect(appJs).toContain("title: 'Hissar Sheep Breeding Project'");
+  expect(appJs).toContain("investment: '$50,000'");
+  expect(appJs).toContain("cycles: '7'");
+  expect(appJs).toContain("cycles: '6'");
+  expect(appJs).toContain("roi: '64%'");
+  expect(appJs).toContain("roi: '63.3%'");
+  expect(appJs).toContain("simpleAnnualizedRoi: '21.9%'");
+  expect(appJs).toContain("simpleAnnualizedRoi: '21.1%'");
+  expect(appJs).toContain("['documents', 'Documents']");
+  expect(appJs).toContain("renderProjectDocuments({ deal, cycles, reports, role: 'investor' })");
 });
 
 test('investor demo financial metrics render in USD instead of NEAR', () => {

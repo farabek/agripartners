@@ -1166,6 +1166,11 @@ function route() {
     return;
   }
 
+  if (hash === '#/investor/pilots' || hash === '#investor/pilots') {
+    showInvestorPilotSelector();
+    return;
+  }
+
   const investorPilot = hash.match(/^#\/?investor\/pilots\/([a-z0-9-]+)$/);
   if (investorPilot) {
     showInvestorPilotProfile(investorPilot[1]);
@@ -1544,7 +1549,7 @@ function showHome() {
               <p>Explore AgriPartners using demonstration data.</p>
             </div>
             <div class="landing-actions" aria-label="Interactive demos">
-              <a class="landing-btn landing-btn-primary" href="#/investor/pilots/fidlot">Explore Investor Demo</a>
+              <a class="landing-btn landing-btn-primary" href="#/investor/pilots">Explore Investor Demo</a>
               <a class="landing-btn" href="#farmer/pilots">Explore Farmer Demo</a>
               <a class="landing-btn" href="#demo/admin">Explore Operator Demo</a>
             </div>
@@ -6858,9 +6863,9 @@ function showFarmerPilotProfile(key) {
   if (!pilot) {
     el.innerHTML = `
       ${renderNav()}
-      <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition mb-6">
+      <a href="#/investor/pilots" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition mb-6">
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
-        Back home
+        Back to Investor Pilots
       </a>
       <div class="bg-red-900 text-red-200 px-4 py-3 rounded mt-4">Pilot information is not yet available.</div>
     `;
@@ -8948,6 +8953,69 @@ function farmerDemoEvents(pilot) {
   ];
 }
 
+function showInvestorPilotSelector() {
+  showView('view-investor');
+  const el = document.getElementById('view-investor');
+  const cards = INVESTOR_DEMO_PILOTS.map((pilot) => {
+    const isFidlot = pilot.key === 'fidlot';
+    const statusLabel = isFidlot ? 'Completed' : 'Active / In Progress';
+    const roiLabel = isFidlot ? 'ROI' : 'Projected ROI';
+    const actionLabel = isFidlot ? 'Open Fidlot Project' : 'Open Hissar Project';
+    const note = isFidlot
+      ? 'Completed demo workflow with reports, recorded returns, settlement context, and documents.'
+      : 'Active demo workflow for reviewing funding, progress, reports, projected returns, and documents.';
+    return `
+      <article class="farmer-pilot-selector-card investor-pilot-selector-card">
+        <div class="farmer-pilot-selector-card-header">
+          <div>
+            <span>${escapeHtml(pilot.type)}</span>
+            <h2>${escapeHtml(pilot.title)}</h2>
+          </div>
+          <span class="farmer-pilot-selector-status is-${escapeHtml(pilot.status.toLowerCase())}">${escapeHtml(statusLabel)}</span>
+        </div>
+        <p>${escapeHtml(pilot.description)}</p>
+        <div class="farmer-pilot-selector-metrics">
+          <div><span>Funding</span><strong>${escapeHtml(pilot.displayAmount)}</strong></div>
+          <div><span>Cycles</span><strong>${escapeHtml(pilot.cycles)}</strong></div>
+          <div><span>${escapeHtml(roiLabel)}</span><strong>${escapeHtml(pilot.roi)}</strong></div>
+          <div><span>APR</span><strong>${escapeHtml(pilot.simpleAnnualizedRoi)}</strong></div>
+        </div>
+        <div class="farmer-pilot-selector-note">${escapeHtml(note)}</div>
+        <a href="#/investor/pilots/${escapeHtml(pilot.key)}" class="landing-btn landing-btn-primary">
+          ${escapeHtml(actionLabel)}
+        </a>
+      </article>
+    `;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="farmer-pilot-selector investor-pilot-selector">
+      <div class="flex flex-wrap items-center gap-3 mb-6">
+        <a href="#home" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+          <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
+          Back Home
+        </a>
+        <a href="#/marketplace" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+          Opportunity Catalog
+        </a>
+      </div>
+      ${renderEnvironmentBanner('demo', 'Investor')}
+      <div class="farmer-pilot-selector-heading">
+        <span>Investor Demo</span>
+        <h1>Choose an Investor Pilot Project</h1>
+        <p>
+          Compare the two flagship AgriPartners pilot workflows and open either project to review its
+          financials, progress, reports, returns, settlement, and documents.
+        </p>
+      </div>
+      <div class="farmer-pilot-selector-grid">${cards}</div>
+      <div class="farmer-pilot-selector-warning">
+        Both projects are demonstration pilots: Fidlot represents a completed workflow, while Hissar represents an active workflow.
+      </div>
+    </div>
+  `;
+}
+
 function showInvestorPilotProfile(key) {
   showView('view-investor');
   const el = document.getElementById('view-investor');
@@ -8982,9 +9050,12 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
     ${renderNav()}
     ${renderEnvironmentBanner('demo', 'Investor')}
     <div class="flex flex-wrap items-center gap-3 mb-6">
-      <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
+      <a href="#/investor/pilots" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-green-300 transition">
         <span class="text-lg leading-none" aria-hidden="true">&larr;</span>
-        Back home
+        Back to Investor Pilots
+      </a>
+      <a href="#home" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-green-300 transition">
+        Back Home
       </a>
     </div>
 

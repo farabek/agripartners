@@ -85,7 +85,7 @@ test('landing explains model-specific investor protection immediately after fina
 
 test('landing CTAs route to explicit demo and login destinations', () => {
   expect(appJs).toContain('Explore Investor Demo');
-  expect(appJs).toContain('href="#/investor/pilots/fidlot"');
+  expect(appJs).toContain('href="#/investor/pilots"');
   expect(appJs).toContain('Explore Farmer Demo');
   expect(appJs).toContain('href="#farmer/pilots"');
   expect(appJs).toContain('Explore Operator Demo');
@@ -114,7 +114,8 @@ test('landing renders Operator demo entry without changing Investor and Farmer e
   expect(homeSource).toContain('Opportunity Catalog');
   expect(homeSource).toContain('href="#/marketplace"');
   expect(homeSource).toContain('Explore Investor Demo');
-  expect(homeSource).toContain('href="#/investor/pilots/fidlot"');
+  expect(homeSource).toContain('href="#/investor/pilots"');
+  expect(homeSource).not.toContain('href="#/investor/pilots/fidlot"');
   expect(homeSource).toContain('Explore Farmer Demo');
   expect(homeSource).toContain('href="#farmer/pilots"');
   expect(homeSource).toContain('Explore Operator Demo');
@@ -129,12 +130,13 @@ test('landing renders Operator demo entry without changing Investor and Farmer e
 });
 
 test('demo routes are public while live protected routes still require auth', () => {
-  const publicRoutesStart = appJs.indexOf('const investorPilot');
+  const publicRoutesStart = appJs.indexOf("if (hash === '#/investor/pilots'");
   const authGuardIndex = appJs.indexOf('if (!auth)', publicRoutesStart);
   expect(publicRoutesStart).toBeGreaterThan(-1);
   expect(authGuardIndex).toBeGreaterThan(publicRoutesStart);
 
   const publicRoutesSource = appJs.slice(publicRoutesStart, authGuardIndex);
+  expect(publicRoutesSource).toContain('showInvestorPilotSelector()');
   expect(publicRoutesSource).toContain('showInvestorPilotProfile(investorPilot[1])');
   expect(publicRoutesSource).toContain('showPublicProtectionModel(protectionModel[1])');
   expect(publicRoutesSource).toContain('showFarmerPilotSelector()');
