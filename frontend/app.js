@@ -427,7 +427,7 @@ const PRESENTATION_PROFILES = {
         id: 'quickDemo',
         title: 'Investor Quick Demo',
         duration: '~5 minutes',
-        banner: 'Investor Quick Demo · Alpha v1.2 · NEAR Testnet · Demo-safe',
+        banner: 'Investor Quick Demo · Alpha v1.1 · NEAR Testnet · Demo-safe',
         steps: [
           {
             title: 'Welcome',
@@ -437,7 +437,7 @@ const PRESENTATION_PROFILES = {
             targetLabel: 'Open Landing',
             presenterNote: 'Frame this as Alpha/Testnet presentation mode, not production investor onboarding.',
             nextLabel: 'Next: See opportunities',
-            topics: ['Alpha v1.2', 'NEAR Testnet', 'Demo-safe workflow'],
+            topics: ['Alpha v1.1', 'NEAR Testnet', 'Demo-safe workflow'],
           },
           {
             title: 'Opportunity',
@@ -835,7 +835,7 @@ function renderInvestorPresentationShell(el, flow, stepIndex, profile = presenta
     ${renderNav()}
     <section class="bg-slate-950 border border-green-900 rounded-xl overflow-hidden">
       <div class="bg-green-950/70 border-b border-green-900 px-4 py-3 text-sm font-semibold text-green-100">
-        Investor Quick Demo | Alpha v1.2 | NEAR Testnet | Demo-safe
+        Investor Quick Demo | Alpha v1.1 | NEAR Testnet | Demo-safe
       </div>
       <div class="grid lg:grid-cols-[320px_1fr]">
         <aside class="${settings.showTimeline ? '' : 'hidden'} border-b lg:border-b-0 lg:border-r border-slate-800 p-4 bg-slate-900/70">
@@ -1523,7 +1523,7 @@ function showHome() {
       <section class="landing-hero">
         <div class="landing-hero-copy">
           <div class="landing-badges" aria-label="Environment">
-            <span>Alpha v1.2</span>
+            <span>Alpha v1.1</span>
             <span>NEAR Testnet</span>
             <span>Alpha Demo / Pilot entry separation</span>
           </div>
@@ -3407,7 +3407,7 @@ function renderTreasuryTimeline(deal = {}) {
   const steps = [
     ['Funding', true],
     ['Cycle Started', true],
-    ['Report Submitted', completed],
+    [completed ? 'Report Published' : 'Production Update', completed],
     ['Return Recorded', completed],
     ['Settlement Ready', completed],
     ['Settlement Completed', completed],
@@ -4891,7 +4891,7 @@ function renderInvestorFinancialDashboard({
   return `
     <section id="project-financial-overview" class="workspace-financial-dashboard" data-project-financial-overview data-financial-role="investor">
       <div class="workspace-section-heading">
-        <h2>Project Financial Dashboard</h2>
+        <h2>Financial Dashboard</h2>
         <p>One authoritative view of projected and recorded Project financials.</p>
       </div>
       <dl class="workspace-financial-grid">
@@ -5026,7 +5026,7 @@ function renderInvestorProtectionOverview(deal = {}) {
       </div>
       <div class="workspace-card-actions">
         ${modelKey ? `<a href="#/protection/${escapeHtml(modelKey)}">View protection model</a>` : ''}
-        ${pdfBase ? `<a href="assets/financial-models/en/${pdfBase}-EN.pdf" target="_blank" rel="noopener noreferrer" download>Download model</a>` : ''}
+        ${pdfBase ? `<a href="assets/financial-models/en/${pdfBase}-EN.pdf" target="_blank" rel="noopener noreferrer" download>Download Financial Model</a>` : ''}
       </div>
     </section>
   `;
@@ -5110,6 +5110,7 @@ function investorEventLabel(value) {
     funding_confirmed: 'Funding Confirmed',
     return_recorded: 'Investment Return Recorded',
     next_report_due: 'Next Report Due',
+    next_production_update: 'Next Production Update',
   };
   if (labels[normalized]) return labels[normalized];
   return normalized
@@ -8343,7 +8344,7 @@ function farmerDemoDealFromPilot(pilot, farmerAccount) {
     fundingStatus: 'Funding Confirmed',
     cycleStatus: isFidlot ? 'Completed' : 'Cycle Active',
     reportStatus: isFidlot ? 'submitted' : 'due',
-    reportLabel: isFidlot ? 'Report Submitted' : 'Next Report Due',
+    reportLabel: isFidlot ? 'Report Submitted' : 'Next Production Update',
     returnLabel: isFidlot ? 'Return Recorded' : 'Cycle Active',
   };
 }
@@ -8374,7 +8375,7 @@ function adminDemoDealFromPilot(pilot) {
     reserveRate: pilot.reserveRate,
     cycles: pilot.cycles,
     currentCycle: isFidlot ? 7 : 1,
-    reportStatus: isFidlot ? 'Report Submitted' : 'Next Report Due',
+    reportStatus: isFidlot ? 'Report Submitted' : 'Next Production Update',
     fundingStatus: 'Funding Confirmed',
     cycleStatus: isFidlot ? 'Completed' : 'Cycle Active',
     returnStatus: isFidlot ? 'Return Recorded' : 'Pending',
@@ -8533,7 +8534,7 @@ function adminDemoMetrics(deals) {
     activeDeals: deals.filter((deal) => deal.status === 'Active').length,
     completedDeals: deals.filter((deal) => deal.status === 'Completed').length,
     reportsSubmitted: deals.filter((deal) => deal.reportStatus === 'Report Submitted').length,
-    reportsPending: deals.filter((deal) => deal.reportStatus === 'Next Report Due').length,
+    reportsPending: deals.filter((deal) => ['Next Report Due', 'Next Production Update'].includes(deal.reportStatus)).length,
     returnsRecorded: formatUsdAmount(deals.reduce((sum, deal) => sum + numericReturnAmount(deal.returnedAmount), 0)),
     outstanding: formatUsdAmount(deals.reduce((sum, deal) => sum + numericReturnAmount(deal.outstandingAmount), 0)),
   };
@@ -8860,25 +8861,28 @@ function renderInvestorDealCard(deal) {
 }
 
 function investorDemoCycles(pilot) {
+  const isFidlot = pilot.key === 'fidlot';
   return [{
-    cycle_number: pilot.key === 'fidlot' ? 7 : 1,
-    status: pilot.key === 'fidlot' ? 'reported' : 'funding_sent',
+    cycle_number: isFidlot ? 7 : 1,
+    status: isFidlot ? 'reported' : 'funding_sent',
     funding_sent: true,
     funding_confirmed: true,
-    report_submitted: true,
-    report_title: pilot.reportTitle,
-    report_body: pilot.reportDescription,
-    report_created_at: new Date().toISOString(),
+    report_submitted: isFidlot,
+    report_title: isFidlot ? pilot.reportTitle : '',
+    report_body: isFidlot ? pilot.reportDescription : '',
+    report_created_at: isFidlot ? new Date().toISOString() : null,
   }];
 }
 
 function investorDemoReports(pilot, deal) {
+  if (pilot.key !== 'fidlot') return [];
   return [{
     id: `demo-report-${pilot.key}`,
-    cycle_id: pilot.key === 'fidlot' ? 7 : 1,
+    cycle_id: 7,
     farmer_wallet: deal.farmer,
     title: pilot.reportTitle,
     description: pilot.reportDescription,
+    status: 'Published',
     amount_used: 'Demo pilot operations',
     evidence_url: '',
     submitted_at: new Date().toISOString(),
@@ -8911,6 +8915,7 @@ function investorDemoEvents(pilot) {
   return [
     ...base,
     { event_type: 'cycle_started', cycle_num: 1, tx_hash: null, created_at: now },
+    { event_type: 'next_production_update', cycle_num: 1, tx_hash: null, created_at: now },
   ];
 }
 
@@ -9026,7 +9031,7 @@ function showInvestorPortfolioDashboard() {
     `;
   }).join('');
   const upcomingEvents = [
-    'Hissar Farmer Report Due',
+    'Hissar Next Production Update',
     'Hissar Cycle Review',
     'Hissar Settlement Review',
     'Portfolio Document Update',
@@ -9037,7 +9042,7 @@ function showInvestorPortfolioDashboard() {
     'Fidlot settlement completed',
     'Hissar funding confirmed',
     'Hissar cycle active',
-    'Hissar next report due',
+    'Hissar next production update',
   ];
 
   el.innerHTML = `
@@ -9204,6 +9209,7 @@ function showInvestorPilotProfile(key) {
 }
 
 function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles, returns) {
+  const demoReportStatus = deal.pilot_key === 'fidlot' ? 'Report Published' : 'Next Production Update';
   el.innerHTML = `
     ${renderNav()}
     ${renderEnvironmentBanner('demo', 'Investor')}
@@ -9225,7 +9231,7 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
       ...deal,
       currentCycle: status?.current_cycle || deal.status?.current_cycle || deal.currentCycle || deal.total_cycles,
       fundingStatus: 'Funding Confirmed',
-      reportStatus: reports.length ? 'Report Submitted' : 'Next Report Due',
+      reportStatus: demoReportStatus,
       returnStatus: returns.length ? 'Return Recorded' : 'Settlement Pending',
       expectedReturnAmount: deal.expected_return,
       returnedAmount: deal.display_returned_amount,

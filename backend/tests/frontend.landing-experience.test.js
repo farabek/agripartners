@@ -32,7 +32,7 @@ test('landing explains product audience and Alpha testnet context', () => {
   expect(appJs).toContain('Investors');
   expect(appJs).toContain('Farmers');
   expect(appJs).toContain('AgriPartners / Project Operators');
-  expect(appJs).toContain('Alpha v1.2');
+  expect(appJs).toContain('Alpha v1.1');
   expect(appJs).toContain('NEAR Testnet');
   expect(appJs).toContain('Alpha Demo / Pilot entry separation');
 });

@@ -75,7 +75,7 @@ test('all four presentation routes and profiles are supported', () => {
 test('Investor Quick Demo renders with demo-safe banner and progress shell', () => {
   expect(appJs).toContain('function showInvestorPresentation');
   expect(appJs).toContain('function renderInvestorPresentationShell');
-  expect(appJs).toContain('Investor Quick Demo | Alpha v1.2 | NEAR Testnet | Demo-safe');
+  expect(appJs).toContain('Investor Quick Demo | Alpha v1.1 | NEAR Testnet | Demo-safe');
   expect(appJs).toContain('data-presentation-progress');
   expect(appJs).toContain('data-presentation-percent');
   expect(appJs).toContain('data-presentation-remaining');

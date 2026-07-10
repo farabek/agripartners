@@ -565,7 +565,7 @@ test('investor workspace consolidates financial and return metrics', () => {
   ]) {
     expect(dashboard).toContain(`['${label}'`);
   }
-  expect(appJs).toContain('Project Financial Dashboard');
+  expect(appJs).toContain('Financial Dashboard');
   expect(appJs).toContain('Investment Summary');
   expect(appJs).toContain('ROI Progress');
   expect(appJs).toContain('Payout History');
@@ -1687,10 +1687,10 @@ test('investor portfolio dashboard renders allocation, events, activity, and qui
   for (const label of ['Uzbekistan', 'Livestock', 'Fidlot', 'Hissar Sheep']) {
     expect(dashboardSource).toContain(label);
   }
-  for (const event of ['Hissar Farmer Report Due', 'Hissar Cycle Review', 'Hissar Settlement Review', 'Portfolio Document Update']) {
+  for (const event of ['Hissar Next Production Update', 'Hissar Cycle Review', 'Hissar Settlement Review', 'Portfolio Document Update']) {
     expect(dashboardSource).toContain(event);
   }
-  for (const activity of ['Fidlot funding confirmed', 'Fidlot reports completed', 'Fidlot settlement completed', 'Hissar funding confirmed', 'Hissar cycle active', 'Hissar next report due']) {
+  for (const activity of ['Fidlot funding confirmed', 'Fidlot reports completed', 'Fidlot settlement completed', 'Hissar funding confirmed', 'Hissar cycle active', 'Hissar next production update']) {
     expect(dashboardSource).toContain(activity);
   }
   expect(dashboardSource).toContain('href="#/investor/pilots"');
@@ -1767,7 +1767,7 @@ test('investor demo financial metrics render in USD instead of NEAR', () => {
   const demoEnd = appJs.indexOf('async function showInvestorDeal');
   const demoSource = appJs.slice(demoStart, demoEnd);
   expect(demoSource).toContain('renderProjectWorkspaceHeader({ deal, status, cycles, reports, returns, events');
-  expect(appJs).toContain('Project Financial Dashboard');
+  expect(appJs).toContain('Financial Dashboard');
   expect(appJs).toContain('Returns Ledger');
   expect(demoSource).not.toContain('Recorded Off-chain Returns Ledger');
   expect(demoSource).not.toContain('renderInvestorReturnsManagement(deal, returns)');

@@ -187,7 +187,7 @@ test('farmer demo dataset shows only clean pilot deals', () => {
   expect(appJs).toContain('Hissar Sheep Breeding Project');
   expect(appJs).toContain("fundingStatus: 'Funding Confirmed'");
   expect(appJs).toContain("cycleStatus: isFidlot ? 'Completed' : 'Cycle Active'");
-  expect(appJs).toContain("reportLabel: isFidlot ? 'Report Submitted' : 'Next Report Due'");
+  expect(appJs).toContain("reportLabel: isFidlot ? 'Report Submitted' : 'Next Production Update'");
   expect(appJs).not.toContain('QA Admin Deal');
   expect(appJs).not.toContain('Deal #4 Unknown');
   expect(appJs).not.toContain('withdraw_signer_test');
