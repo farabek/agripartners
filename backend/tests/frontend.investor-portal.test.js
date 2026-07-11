@@ -446,7 +446,7 @@ function loadFundingProgressHelpers() {
   return module.exports;
 }
 
-test('marketplace route and navigation are rendered', () => {
+test('opportunity catalog route and navigation are rendered', () => {
   const marketplaceStart = appJs.indexOf('function showMarketplace');
   expect(marketplaceStart).toBeGreaterThan(-1);
   const marketplaceBody = appJs.slice(marketplaceStart, marketplaceStart + 1200);
@@ -460,7 +460,7 @@ test('marketplace route and navigation are rendered', () => {
   expect(marketplaceBody).toContain('Back home');
   expect(appJs).toContain('href="#/marketplace"');
   expect(appJs).toContain('Investor Portal');
-  expect(appJs).toContain('Marketplace');
+  expect(appJs).toContain('Opportunity Catalog');
   expect(appJs).toContain('Farmer Portal');
   expect(appJs).toContain('Admin Portal');
 });
@@ -601,7 +601,7 @@ test('workspace navigation exposes six same-page keyboard-accessible tabs', () =
   const binding = appJs.slice(end, bindingEnd);
 
   expect(tabs).toContain('role="tablist"');
-  for (const label of ['Overview', 'Production', 'Reports', 'Returns', 'Documents', 'History']) {
+  for (const label of ['Overview', 'Production', 'Project Reports', 'Returns', 'Project Documents', 'History']) {
     expect(tabs).toContain(`'${label}'`);
   }
   expect(tabs).toContain('aria-selected="${index === 0}"');
@@ -1306,7 +1306,7 @@ test('deal card hides secondary fields without presentation value', () => {
   expect(html.indexOf('Project Operator:', secondaryStart)).toBeGreaterThan(secondaryStart);
   expect(html).not.toContain('Farmer Assignment:');
   expect(html).not.toContain('Production Cycle:');
-  expect(html).not.toContain('Farmer Reports:');
+  expect(html).not.toContain('Project Reports:');
   expect(html).toContain('Pending project update');
   expect(html).not.toContain('Unavailable');
   expect(html).not.toContain('Unknown');
@@ -1349,7 +1349,7 @@ test('active and completed cards preserve useful financial and secondary structu
   const active = renderInvestorDealCard({ ...base, status: { status: 'Funded', current_cycle: 0 } });
   const completed = renderInvestorDealCard({ ...base, status: { status: 'Completed', current_cycle: 3 } });
 
-  for (const label of ['Total Invested', 'Recorded Off-chain Returns', 'Projected Outstanding', 'Farmer Assignment:', 'Project Operator:', 'Production Cycle:', 'Farmer Reports:', 'View Project']) {
+  for (const label of ['Total Invested', 'Recorded Off-chain Returns', 'Projected Outstanding', 'Farmer Assignment:', 'Project Operator:', 'Production Cycle:', 'Project Reports:', 'View Project']) {
     expect(active).toContain(label);
     expect(completed).toContain(label);
   }
@@ -1742,7 +1742,7 @@ test('investor direct pilot routes remain available and detail pages link back t
   expect(demoSource).not.toContain('Back to Investor Portal');
 });
 
-test('investor pilot selector uses shared pilot financial data and preserves Document Center route surface', () => {
+test('investor pilot selector uses shared pilot financial data and preserves Project Documents route surface', () => {
   expect(appJs).toContain("title: 'Fidlot Livestock Project'");
   expect(appJs).toContain("title: 'Hissar Sheep Breeding Project'");
   expect(appJs).toContain("investment: '$50,000'");
@@ -1752,7 +1752,7 @@ test('investor pilot selector uses shared pilot financial data and preserves Doc
   expect(appJs).toContain("roi: '63.3%'");
   expect(appJs).toContain("simpleAnnualizedRoi: '21.9%'");
   expect(appJs).toContain("simpleAnnualizedRoi: '21.1%'");
-  expect(appJs).toContain("['documents', 'Documents']");
+  expect(appJs).toContain("['documents', 'Project Documents']");
   expect(appJs).toContain("renderProjectDocuments({ deal, cycles, reports, role: 'investor' })");
 });
 

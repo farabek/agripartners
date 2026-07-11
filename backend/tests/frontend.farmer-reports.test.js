@@ -131,12 +131,12 @@ test.each([
   expect(showDeal).not.toHaveBeenCalled();
 });
 
-test('investor deal detail fetches and renders farmer reports and cycle status', () => {
+test('investor project detail fetches and renders Project Reports and cycle status', () => {
   expect(appJs).toContain("fetch(`${API_BASE}/api/investor/deals/${id}/reports`, { headers })");
   expect(appJs).toContain("fetch(`${API_BASE}/api/investor/deals/${id}/cycles`, { headers })");
   expect(appJs).toContain('function renderInvestorReports');
   expect(appJs).toContain('function renderCycleStatusCards');
-  expect(appJs).toContain('Farmer Reports');
+  expect(appJs).toContain('Project Reports');
   expect(appJs).toContain('id="investor-reports-list"');
   expect(appJs).toContain('id="investor-cycles-list"');
 });

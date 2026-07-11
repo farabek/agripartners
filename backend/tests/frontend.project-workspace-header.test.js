@@ -600,7 +600,7 @@ test('Project Documents is responsive and is the final shared Workspace block', 
   expect(workspace.indexOf('data-project-documents')).toBeLessThan(workspace.lastIndexOf('</section>'));
 });
 
-test('Investor Documents tab panel is isolated from Returns and Settlement content', () => {
+test('Investor Project Documents tab panel is isolated from Returns and Settlement content', () => {
   const { renderInvestorWorkspaceTabs } = loadProjectWorkspaceHeaderHelpers();
   const html = renderInvestorWorkspaceTabs({
     deal: { id: 12, settlement_status: 'accepted' },
@@ -613,7 +613,7 @@ test('Investor Documents tab panel is isolated from Returns and Settlement conte
   expect(start).toBeGreaterThanOrEqual(0);
   expect(end).toBeGreaterThan(start);
   expect(documentsPanel).toContain('data-project-documents');
-  expect(documentsPanel).toContain('Document Center');
+  expect(documentsPanel).toContain('Project Documents');
   expect(documentsPanel).not.toContain('Settlement Action');
   expect(documentsPanel).not.toContain('Returns Ledger');
 });

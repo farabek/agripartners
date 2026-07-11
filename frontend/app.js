@@ -415,12 +415,12 @@ const PRESENTATION_PROFILES = {
   investor: {
     id: 'investor',
     title: 'Investor',
-    description: 'A guided journey through an agricultural investment Project, Farmer Reports, and Settlement readiness.',
+    description: 'A guided journey through an agricultural investment Project, Project Reports, and Settlement readiness.',
     audience: 'Private investors, funds, angels, and pilot backers',
     objective: 'Help investors understand exactly what happened to their investment from opportunity to recorded return.',
     estimatedDuration: '~5 minutes',
     defaultFlow: 'quickDemo',
-    focus: ['Investment Model', 'Project Progress', 'Farmer Reports', 'Return lifecycle', 'Settlement readiness'],
+    focus: ['Investment Model', 'Project Progress', 'Project Reports', 'Return lifecycle', 'Settlement readiness'],
     stepOverrides: {},
     flows: {
       quickDemo: {
@@ -467,7 +467,7 @@ const PRESENTATION_PROFILES = {
             targetLabel: 'Open Farmer Progress',
             presenterNote: 'Avoid technical identity details. Explain that this is the operating side of the same investment story.',
             nextLabel: 'Next: Show recorded returns',
-            topics: ['Farmer reports', 'Funding confirmation', 'Production cycle'],
+            topics: ['Project Reports', 'Funding confirmation', 'Production cycle'],
           },
           {
             title: 'Returns Recorded',
@@ -541,7 +541,7 @@ PRESENTATION_PROFILES.near = {
       transition: 'Next: follow the off-chain operating workflow that surrounds the Testnet references.',
     },
     'Farmer Progress': {
-      keyMessage: 'Farmer reports show the real-world activity that blockchain references alone cannot explain.',
+      keyMessage: 'Project Reports show the real-world activity that blockchain references alone cannot explain.',
       presenterNote: 'Use this step to separate blockchain evidence from agricultural operating evidence.',
     },
     'Returns Recorded': {
@@ -588,7 +588,7 @@ PRESENTATION_PROFILES.accelerator = {
       transition: 'Next: show that this is not only a pitch deck; farmer workflow exists too.',
     },
     'Farmer Progress': {
-      keyMessage: 'Farmer Reports show operational depth within AgriPartners-managed Projects.',
+      keyMessage: 'Project Reports show operational depth within AgriPartners-managed Projects.',
       presenterNote: 'Explain that Farmers work through AgriPartners as Project Operator, not directly with Investors.',
     },
     'Returns Recorded': {
@@ -1582,7 +1582,7 @@ function showHome() {
         <div class="landing-card-grid">
           <article class="landing-card">
             <h3>Investors</h3>
-            <p>Review Projects, Investment Models, Project Progress, Farmer Reports, projected returns, and Settlement status without treating provisional data as realized performance.</p>
+            <p>Review Projects, Investment Models, Project Progress, Project Reports, projected returns, and Settlement status without treating provisional data as realized performance.</p>
             <a class="landing-btn landing-btn-primary mt-4" href="#login/investor">Projects / Investment Models / Portfolio</a>
           </article>
           <article class="landing-card">
@@ -1606,7 +1606,7 @@ function showHome() {
         <div class="landing-feature-list">
           <div><strong>NEAR infrastructure</strong><span>Investor/operator authentication and supplementary transaction references on NEAR Testnet support transparency and auditability.</span></div>
           <div><strong>Farmer reporting</strong><span>Funding Confirmation, Project Reports, Production Cycle history, and AgriPartners-managed operational status.</span></div>
-          <div><strong>Investor visibility</strong><span>Project portfolio, Investment Models, Project Progress, Farmer Reports, events, and Settlement / Returns visibility.</span></div>
+          <div><strong>Investor visibility</strong><span>Project portfolio, Investment Models, Project Progress, Project Reports, events, and Settlement / Returns visibility.</span></div>
           <div><strong>Typed returns</strong><span>Principal, profit, and fee classification with recorded, approved, paid, and reconciled status language.</span></div>
           <div><strong>Treasury foundation</strong><span>Append-only double-entry ledger services with idempotent source references for future workflow integrations.</span></div>
         </div>
@@ -1668,8 +1668,8 @@ function showHome() {
                 </div>
                 <div class="financial-model-stat"><span>Projected net ROI</span><strong>64.0%</strong></div>
                 <div class="financial-document-list" aria-label="Fidlot investor documents">
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf" download aria-label="Download Fidlot investor model in English">↓</a></div>
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf" download aria-label="Download Fidlot investor model in Russian">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Investor-Fidlot-v5.9-6040-EN.pdf" download aria-label="Download Fidlot investor financial model in English">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Investor-Fidlot-v5.9-6040-RU.pdf" download aria-label="Download Fidlot investor financial model in Russian">↓</a></div>
                 </div>
               </section>
               <section class="financial-model-audience" aria-labelledby="fidlot-farmers">
@@ -1682,8 +1682,8 @@ function showHome() {
                   <div class="financial-model-stat"><span>Total benefit</span><strong>$114,250</strong></div>
                 </div>
                 <div class="financial-document-list" aria-label="Fidlot farmer documents">
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" download aria-label="Download Fidlot farmer model in English">↓</a></div>
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" download aria-label="Download Fidlot farmer model in Russian">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" download aria-label="Download Fidlot farmer financial model in English">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" download aria-label="Download Fidlot farmer financial model in Russian">↓</a></div>
                 </div>
               </section>
             </div>
@@ -1710,8 +1710,8 @@ function showHome() {
                 </div>
                 <div class="financial-model-stat"><span>Projected net ROI</span><strong>63.3%</strong></div>
                 <div class="financial-document-list" aria-label="Hissar investor documents">
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf" download aria-label="Download Hissar investor model in English">↓</a></div>
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf" download aria-label="Download Hissar investor model in Russian">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Investor-VariantB-v2.1-6040-EN.pdf" download aria-label="Download Hissar investor financial model in English">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Investor-VariantB-v2.1-6040-RU.pdf" download aria-label="Download Hissar investor financial model in Russian">↓</a></div>
                 </div>
               </section>
               <section class="financial-model-audience" aria-labelledby="hissar-farmers">
@@ -1724,8 +1724,8 @@ function showHome() {
                   <div class="financial-model-stat"><span>Total benefit</span><strong>$101,160</strong></div>
                 </div>
                 <div class="financial-document-list" aria-label="Hissar farmer documents">
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" download aria-label="Download Hissar farmer model in English">↓</a></div>
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" download aria-label="Download Hissar farmer model in Russian">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" download aria-label="Download Hissar farmer financial model in English">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" download aria-label="Download Hissar farmer financial model in Russian">↓</a></div>
                 </div>
               </section>
             </div>
@@ -2101,7 +2101,7 @@ function renderNav() {
     || 'Connected account';
   const roleLinks = {
     investor: [
-      ['#/marketplace', 'Marketplace'],
+      ['#/marketplace', 'Opportunity Catalog'],
       ['#investor', 'Portfolio'],
     ],
     farmer: [
@@ -3104,7 +3104,7 @@ function renderOperatorDashboard(deals = []) {
       <section class="operator-work-grid">
         ${renderOperatorQueueCard('Pending Approvals', queues.approvals, 'Reports and internal reviews that need approval will appear here.')}
         ${renderOperatorQueueCard('Funding Confirmations', queues.funding, 'Projects waiting for funding confirmation will appear here.')}
-        ${renderOperatorQueueCard('Reports Awaiting Review', queues.reports, 'Submitted Farmer Reports will be routed here for review.')}
+        ${renderOperatorQueueCard('Reports Awaiting Review', queues.reports, 'Submitted Project Reports will be routed here for review.')}
         ${renderOperatorQueueCard('Settlement Queue', queues.settlement, 'Projects ready for Settlement review will appear here.')}
       </section>
       ${renderOperatorRecentActivity(deals)}
@@ -4741,7 +4741,7 @@ function renderProjectDocuments({
   return `
     <section id="project-documents" data-project-documents data-documents-role="${escapeHtml(visibleRole)}" class="mt-5 pt-5 border-t border-slate-700">
       <div>
-        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Document Center</h2>
+        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Project Documents</h2>
         <p class="text-xs text-slate-500 mt-1">Investor legal previews, Project reporting, and Settlement documentation status.</p>
       </div>
       ${cards.length ? `
@@ -5178,9 +5178,9 @@ function renderInvestorWorkspaceTabs({
   const tabs = [
     ['overview', 'Overview'],
     ['production', 'Production'],
-    ['reports', 'Reports'],
+    ['reports', 'Project Reports'],
     ['returns', 'Returns'],
-    ['documents', 'Documents'],
+    ['documents', 'Project Documents'],
     ['history', 'History'],
   ];
   return `
@@ -5201,7 +5201,7 @@ function renderInvestorWorkspaceTabs({
       <div id="workspace-panel-reports" class="workspace-tab-panel hidden" role="tabpanel" aria-labelledby="workspace-tab-reports" data-workspace-panel="reports" hidden>
         <section class="workspace-section">
           <div class="workspace-section-heading">
-            <h2>Farmer Reports</h2>
+            <h2>Project Reports</h2>
             <p>${approvedReports.length} approved · ${reports.length} total submitted</p>
           </div>
           <div id="investor-reports-list">${resourceErrors.reports ? renderInvestorWorkspaceResourceError('Farmer reports') : renderInvestorWorkspaceReports(reports)}</div>
@@ -5715,7 +5715,7 @@ async function showOnboarding() {
           </button>
           <button type="button" class="onboarding-role-btn" data-role="investor">
             <span class="onboarding-role-title">Investor</span>
-            <span class="onboarding-role-note">Review Projects, Farmer Reports, and Settlement / Returns.</span>
+            <span class="onboarding-role-note">Review Projects, Project Reports, and Settlement / Returns.</span>
           </button>
         </div>
       </div>
@@ -8821,7 +8821,7 @@ function renderInvestorDealCard(deal) {
     farmer == null ? null : ['Farmer Assignment', formatAddress(farmer)],
     ['Project Operator', 'AgriPartners'],
     currentCycle == null ? null : ['Production Cycle', currentCycle],
-    reportsState == null ? null : ['Farmer Reports', reportsState],
+    reportsState == null ? null : ['Project Reports', reportsState],
   ].filter(Boolean);
   const protectionText = `${deal.pilot_key || ''} ${deal.title || ''} ${deal.deal_type || ''}`.toLowerCase();
   const protectionRate = deal.escrow_pct != null
@@ -9078,7 +9078,7 @@ function showInvestorPortfolioDashboard() {
       <section class="investor-portfolio-section">
         <div class="workspace-section-heading">
           <h2>Portfolio Projects</h2>
-          <p>Open either flagship demonstration pilot to review financials, progress, reports, returns, settlement, and documents.</p>
+          <p>Open either flagship demonstration pilot to review financials, progress, Project Reports, returns, Settlement, and Project Documents.</p>
         </div>
         <div class="farmer-pilot-selector-grid">${projectCards}</div>
       </section>
@@ -9125,8 +9125,8 @@ function showInvestorPilotSelector() {
     const roiLabel = isFidlot ? 'ROI' : 'Projected ROI';
     const actionLabel = isFidlot ? 'Open Fidlot Project' : 'Open Hissar Project';
     const note = isFidlot
-      ? 'Completed demo workflow with reports, recorded returns, settlement context, and documents.'
-      : 'Active demo workflow for reviewing funding, progress, reports, projected returns, and documents.';
+      ? 'Completed demo workflow with Project Reports, recorded returns, Settlement context, and Project Documents.'
+      : 'Active demo workflow for reviewing funding, progress, Project Reports, projected returns, and Project Documents.';
     return `
       <article class="farmer-pilot-selector-card investor-pilot-selector-card">
         <div class="farmer-pilot-selector-card-header">
@@ -9168,7 +9168,7 @@ function showInvestorPilotSelector() {
         <h1>Choose an Investor Pilot Project</h1>
         <p>
           Compare the two flagship AgriPartners pilot workflows and open either project to review its
-          financials, progress, reports, returns, settlement, and documents.
+          financials, progress, Project Reports, returns, Settlement, and Project Documents.
         </p>
       </div>
       <div class="farmer-pilot-selector-grid">${cards}</div>

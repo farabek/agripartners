@@ -37,11 +37,11 @@ test('authenticated header has canonical brand, account and logout controls', ()
   expect(html).not.toContain('Dashboard');
 });
 
-test('Investor navigation exposes only Marketplace and Portfolio', () => {
+test('Investor navigation exposes only Opportunity Catalog and Portfolio', () => {
   const html = loadRenderNav('investor', 'wallet');
 
   expect(html).toContain('href="#/marketplace"');
-  expect(html).toContain('>Marketplace</a>');
+  expect(html).toContain('>Opportunity Catalog</a>');
   expect(html).toContain('href="#investor"');
   expect(html).toContain('>Portfolio</a>');
   expect(html).not.toContain('Investment Models');
