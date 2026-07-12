@@ -551,8 +551,8 @@ without allowing them to govern current work.
 | Archive Index | `docs/archive/README.md` | Manifest and use boundary for archived material | Living | Operations | Yes | — | 2026-06-27 | Unlabeled historical files | — | Canonical only as archive manifest |
 | Alpha v1 Repository Audit EN/RU | `docs/audits/` | Point-in-time implementation assessment | Archived | Engineering | No | Alpha v1 | 2026-06-21 | Earlier informal audit claims | Current source, Architecture, and Releases | Historical evidence |
 | Documentation Architecture Audit EN/RU | `docs/documentation-architecture/` | Prior inventory, reading order, rename plan, and link analysis | Archived | Product | No | 1 | 2026-06-27 | — | `docs/DOCUMENTATION_AUTHORITY_MATRIX.md` | Files remain in place but are logically archived |
-| Archived Comparison PDF | `docs/archive/AgriPartners-Comparison-AllSplits.pdf` | Historical split comparison | Archived | Business | No | — | 2026-06-27 | — | 60/40 authority package | Must not drive current claims |
-| Archived Escrow Analysis PDF | `docs/archive/AgriPartners-Escrow-Analysis.pdf` | Historical escrow analysis | Archived | Business | No | — | 2026-06-27 | — | Current exploratory protection framework | Internal historical context |
+| Archived Comparison PDF | `docs/archive/deprecated/AgriPartners-Comparison-AllSplits.pdf` | Historical split comparison | Archived | Business | No | — | 2026-06-27 | — | 60/40 authority package | Must not drive current claims |
+| Archived Escrow Analysis PDF | `docs/archive/deprecated/AgriPartners-Escrow-Analysis.pdf` | Historical escrow analysis | Archived | Business | No | — | 2026-06-27 | — | Current exploratory protection framework | Internal historical context |
 | Archived Checklist HTML | `docs/archive/checklist.html` | Historical outreach checklist | Archived | Investor Relations | No | — | 2026-06-27 | — | Current outreach CRM | Browser-local historical state |
 
 ### Archive Canonical Documents

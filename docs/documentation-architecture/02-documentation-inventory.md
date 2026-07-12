@@ -39,8 +39,8 @@ These files support investor storytelling, demo readiness, deck preparation, scr
 - `docs/investor-package/AgriPartners_Investor_Deck_v1_RU.pptx`
 - `docs/investor-package/demo-day-script-en.md`
 - `docs/investor-package/demo-day-script-ru.md`
-- `docs/investor-package/demo-script-v1.md`
-- `docs/investor-package/demo-script-v1-ru.md`
+- `docs/archive/investor/demo-script-v1.md`
+- `docs/archive/investor/demo-script-v1-ru.md`
 - `docs/investor-package/demo-video-script-v2.md`
 - `docs/investor-package/investor-one-pager-en-v2.md`
 - `docs/investor-package/investor-one-pager-ru-v2.md`
@@ -49,8 +49,8 @@ These files support investor storytelling, demo readiness, deck preparation, scr
 - `docs/investor-package/one-pager-v1-ru.md`
 - `docs/investor-package/pilot-deals-summary.md`
 - `docs/investor-package/pilot-deals-summary-ru.md`
-- `docs/investor-package/pitch-deck-v1.md`
-- `docs/investor-package/pitch-deck-v1-ru.md`
+- `docs/archive/investor/pitch-deck-v1.md`
+- `docs/archive/investor/pitch-deck-v1-ru.md`
 - `docs/investor-package/pitch-deck-v2.md`
 - `docs/investor-package/pitch-deck-v2-ru.md`
 - `docs/investor-package/presentation-assets-plan.md`
@@ -148,8 +148,8 @@ These files are either legacy outputs, forum/grant materials, PDFs, HTML exports
 - `docs/pitch-deck.html`
 - `docs/funding-strategy.html`
 - `docs/archive/checklist.html`
-- `docs/archive/AgriPartners-Comparison-AllSplits.pdf`
-- `docs/archive/AgriPartners-Escrow-Analysis.pdf`
+- `docs/archive/deprecated/AgriPartners-Comparison-AllSplits.pdf`
+- `docs/archive/deprecated/AgriPartners-Escrow-Analysis.pdf`
 
 ### 60-40 financial models
 
@@ -162,19 +162,19 @@ These files are either legacy outputs, forum/grant materials, PDFs, HTML exports
 
 ### Superpowers Plans And Specs
 
-- `docs/superpowers/plans/2026-05-23-smart-contract.md`
-- `docs/superpowers/plans/2026-05-24-backend.md`
-- `docs/superpowers/plans/2026-05-25-frontend-dashboard.md`
-- `docs/superpowers/plans/2026-05-25-pitch-launch.md`
-- `docs/superpowers/plans/2026-05-25-postgres-railway.md`
-- `docs/superpowers/plans/2026-05-25-testnet-deploy.md`
-- `docs/superpowers/plans/2026-05-26-personal-cabinet.md`
-- `docs/superpowers/specs/2026-05-23-smart-contract-design.md`
-- `docs/superpowers/specs/2026-05-24-backend-design.md`
-- `docs/superpowers/specs/2026-05-25-frontend-design.md`
-- `docs/superpowers/specs/2026-05-25-pitch-launch-design.md`
-- `docs/superpowers/specs/2026-05-25-postgres-railway-design.md`
-- `docs/superpowers/specs/2026-05-25-testnet-deploy-design.md`
+- `docs/archive/deprecated/2026-05-23-smart-contract.md`
+- `docs/archive/deprecated/2026-05-24-backend.md`
+- `docs/archive/deprecated/2026-05-25-frontend-dashboard.md`
+- `docs/archive/deprecated/2026-05-25-pitch-launch.md`
+- `docs/archive/deprecated/2026-05-25-postgres-railway.md`
+- `docs/archive/deprecated/2026-05-25-testnet-deploy.md`
+- `docs/archive/deprecated/2026-05-26-personal-cabinet.md`
+- `docs/archive/deprecated/2026-05-23-smart-contract-design.md`
+- `docs/archive/deprecated/2026-05-24-backend-design.md`
+- `docs/archive/deprecated/2026-05-25-frontend-design.md`
+- `docs/archive/deprecated/2026-05-25-pitch-launch-design.md`
+- `docs/archive/deprecated/2026-05-25-postgres-railway-design.md`
+- `docs/archive/deprecated/2026-05-25-testnet-deploy-design.md`
 
 ## Empty Placeholder Folders
 

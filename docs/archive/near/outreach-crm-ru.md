@@ -1,7 +1,7 @@
 # Outreach CRM (архивная копия)
 
 > **Не обновлять этот файл.** Единый актуальный источник данных:
-> [`outreach-crm.md`](outreach-crm.md). Эта русская копия сохранена только для истории и может
+> [`outreach-crm.md`](../../outreach/outreach-crm.md). Эта русская копия сохранена только для истории и может
 > содержать устаревшие статусы.
 
 Этот файл отслеживает активный founder outreach для AgriPartners Alpha v1.2.
@@ -57,11 +57,11 @@ Track in Outreach CRM
 
 | Contact | Directory Reference | Outreach Status | Date Added | Last Contact | Last Response | Next Action | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Joseph Beverley | [founder-success.md#joseph-beverley](near-directory/founder-success.md#joseph-beverley) | Following | 2026-06-25 | 2026-06-25 | No response yet | Monitor posts and engage | Followed on LinkedIn. Tier 1 Founder Success entry point; role и source details хранятся в Near Directory. |
-| David Mirzadeh | [near-foundation.md#david-mirzadeh](near-directory/near-foundation.md#david-mirzadeh) | Following | 2026-06-25 | Invite sent on 2026-06-25 | No response yet | Отправить короткое intro после acceptance | Existing outreach activity сохранена как operational record; profile details хранятся в Near Directory. |
-| Philipp Suarez | [near-foundation.md#philipp-suarez](near-directory/near-foundation.md#philipp-suarez) | Intro sent | 2026-06-25 | LinkedIn intro отправлено 2026-06-29 в 18:51 | Ответа пока нет | Если ответа не будет, отправить один follow-up 2026-07-03 | Connection принято. Finance-track contact. Не отправлять новое сообщение раньше даты follow-up. Profile details хранятся в Near Directory. |
-| Josh Ford | [near-foundation.md#josh-ford](near-directory/near-foundation.md#josh-ford) | Following | 2026-06-25 | Invite sent and followed on 2026-06-25 | No response yet | Monitor posts and engage; отправить DevX/product feedback intro после acceptance | Tier 2 DevX/Product contact. Profile details хранятся в Near Directory. |
-| Bowen Shen | [proximity-labs.md#bowen-shen](near-directory/proximity-labs.md#bowen-shen) | Following | 2026-06-25 | Invite sent on 2026-06-25 | No response yet | Monitor posts and engage; отправить DeFi/RWA fit intro после acceptance | Proximity Labs contact. Profile details хранятся в Near Directory. |
+| Joseph Beverley | [founder-success.md#joseph-beverley](../../outreach/near-directory/founder-success.md#joseph-beverley) | Following | 2026-06-25 | 2026-06-25 | No response yet | Monitor posts and engage | Followed on LinkedIn. Tier 1 Founder Success entry point; role и source details хранятся в Near Directory. |
+| David Mirzadeh | [near-foundation.md#david-mirzadeh](../../outreach/near-directory/near-foundation.md#david-mirzadeh) | Following | 2026-06-25 | Invite sent on 2026-06-25 | No response yet | Отправить короткое intro после acceptance | Existing outreach activity сохранена как operational record; profile details хранятся в Near Directory. |
+| Philipp Suarez | [near-foundation.md#philipp-suarez](../../outreach/near-directory/near-foundation.md#philipp-suarez) | Intro sent | 2026-06-25 | LinkedIn intro отправлено 2026-06-29 в 18:51 | Ответа пока нет | Если ответа не будет, отправить один follow-up 2026-07-03 | Connection принято. Finance-track contact. Не отправлять новое сообщение раньше даты follow-up. Profile details хранятся в Near Directory. |
+| Josh Ford | [near-foundation.md#josh-ford](../../outreach/near-directory/near-foundation.md#josh-ford) | Following | 2026-06-25 | Invite sent and followed on 2026-06-25 | No response yet | Monitor posts and engage; отправить DevX/product feedback intro после acceptance | Tier 2 DevX/Product contact. Profile details хранятся в Near Directory. |
+| Bowen Shen | [proximity-labs.md#bowen-shen](../../outreach/near-directory/proximity-labs.md#bowen-shen) | Following | 2026-06-25 | Invite sent on 2026-06-25 | No response yet | Monitor posts and engage; отправить DeFi/RWA fit intro после acceptance | Proximity Labs contact. Profile details хранятся в Near Directory. |
 | Alexander Scharrer | Ожидает добавления в Near Directory | Following | 2026-07-03 | Персонализированный запрос на подключение в LinkedIn отправлен 2026-07-03; приглашение ожидает принятия | Ответа пока нет | Дождаться принятия приглашения; после принятия не делать pitch сразу — наблюдать за публикациями и взаимодействовать естественно | NEAR Foundation, Head of Capital Markets. Категория: NEAR Foundation / Capital Markets. Приоритет: P1 / High. Стратегическая цель: Company Funding / Capital Markets / RWA positioning. Текст приглашения: "Hi Alexander, I'm building AgriPartners, an RWA agriculture platform on NEAR. I'd be glad to connect and exchange ideas around tokenized real-world assets." |
 
 ### Подготовленный follow-up — Philipp Suarez

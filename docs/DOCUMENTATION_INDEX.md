@@ -39,6 +39,12 @@ Access values:
 - **Controlled:** share only with the intended audience and after an owner review.
 - **Internal:** for AgriPartners operations, planning, governance, or relationship management.
 
+## Archive Record
+
+[Safe Archive Batch 1](archive/SAFE_ARCHIVE_BATCH_1_MANIFEST.md) moved 32 approved P4,
+non-canonical, low-risk records into `docs/archive/`. These files are Archived and historical;
+their old paths are retained only in the manifest for migration traceability.
+
 ## Recommended Reading Order
 
 ### Start Here вЂ” P1
