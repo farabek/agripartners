@@ -4988,6 +4988,74 @@ function renderInvestorWorkspaceReports(reports = []) {
   }).join('');
 }
 
+const COMMERCIAL_OPERATIONS_STAGES = {
+  alpha: { label: 'Alpha v1.1', badge: 'Planned', availability: 'Available after commercial pilot launch' },
+  beta: { label: 'Beta', badge: 'Preparing', availability: 'Preparing for verified commercial evidence' },
+  production: { label: 'Production', badge: 'Active', availability: 'Commercial operations active' },
+};
+
+function renderCommercialOperationsList(items) {
+  return `
+    <ul class="workspace-commercial-items">
+      ${items.map(item => `<li><span aria-hidden="true"></span>${escapeHtml(item)}</li>`).join('')}
+    </ul>
+  `;
+}
+
+function renderCommercialOperationsSection(stageKey = 'alpha') {
+  const stage = COMMERCIAL_OPERATIONS_STAGES[stageKey] || COMMERCIAL_OPERATIONS_STAGES.alpha;
+  const stages = ['Funding confirmed', 'Livestock purchased', 'Farmer confirmation', 'Photo update', 'Veterinary report', 'Progress review', 'Cycle completed', 'Returns and settlement'];
+  return `
+    <section class="workspace-commercial-operations" data-commercial-operations data-commercial-stage="${escapeHtml(stageKey)}" aria-labelledby="commercial-operations-title">
+      <div class="workspace-commercial-placeholder-heading">
+        <div>
+          <span class="workspace-card-eyebrow">${escapeHtml(stage.label)}</span>
+          <h2 id="commercial-operations-title">Commercial Operations</h2>
+          <p>This workspace is prepared for verified commercial reporting after the first funded pilot begins.</p>
+        </div>
+        <span class="workspace-commercial-status" aria-label="Commercial Operations status: ${escapeHtml(stage.badge)}">${escapeHtml(stage.badge)}</span>
+      </div>
+      <p class="workspace-commercial-guardrail">No commercial evidence is recorded in this Alpha stage. Current project content remains demonstration data.</p>
+      <div class="workspace-commercial-grid">
+        <article class="workspace-commercial-subsection" aria-labelledby="commercial-reporting-title">
+          <div class="workspace-commercial-subsection-heading">
+            <h3 id="commercial-reporting-title">Commercial Reporting</h3>
+            <span>${escapeHtml(stage.availability)}</span>
+          </div>
+          <p>Verified reports will appear here after commercial operations begin.</p>
+          ${renderCommercialOperationsList(['Farmer updates', 'Progress reports', 'Veterinary reports', 'Feeding records', 'Cycle summaries', 'Financial summaries'])}
+        </article>
+        <article class="workspace-commercial-subsection" aria-labelledby="project-gallery-title">
+          <div class="workspace-commercial-subsection-heading">
+            <h3 id="project-gallery-title">Project Gallery</h3>
+            <span>${escapeHtml(stage.availability)}</span>
+          </div>
+          <p>Verified project photos will appear here after commercial operations begin.</p>
+          ${renderCommercialOperationsList(['Livestock arrival', 'Farm infrastructure', 'Feeding activity', 'Veterinary inspection', 'Growth milestones', 'Cycle completion'])}
+        </article>
+        <article class="workspace-commercial-subsection" aria-labelledby="commercial-evidence-title">
+          <div class="workspace-commercial-subsection-heading">
+            <h3 id="commercial-evidence-title">Commercial Evidence Library</h3>
+            <span>${escapeHtml(stage.availability)}</span>
+          </div>
+          <p>Current Alpha documents are demonstration and draft materials. Verified commercial evidence will be added only after a funded pilot begins.</p>
+          ${renderCommercialOperationsList(['Purchase invoices', 'Veterinary certificates', 'Insurance records', 'Feed purchase records', 'Logistics confirmations', 'Bank or settlement confirmations'])}
+        </article>
+        <article class="workspace-commercial-subsection workspace-commercial-workflow" aria-labelledby="commercial-workflow-title">
+          <div class="workspace-commercial-subsection-heading">
+            <h3 id="commercial-workflow-title">Illustrative Commercial Reporting Workflow</h3>
+            <span>Illustrative future workflow</span>
+          </div>
+          <p>Planned lifecycle for future verified reporting.</p>
+          <ol class="workspace-commercial-timeline" aria-label="Future commercial reporting steps">
+            ${stages.map((stageName, index) => `<li aria-label="Step ${index + 1}: ${escapeHtml(stageName)}"><span>${index + 1}</span><strong>${escapeHtml(stageName)}</strong></li>`).join('')}
+          </ol>
+        </article>
+      </div>
+    </section>
+  `;
+}
+
 function renderInvestorWorkspaceCycles(cycles = []) {
   if (!cycles.length) return '<p class="workspace-empty-state">Production begins after funding confirmation.</p>';
   return `
@@ -9283,6 +9351,7 @@ function renderInvestorDemoDealDetail(el, deal, status, events, reports, cycles,
       returnedAmount: deal.display_returned_amount,
       outstandingAmount: deal.display_outstanding_amount,
     })}
+    ${renderCommercialOperationsSection('alpha')}
   `;
   bindInvestorWorkspaceTabs(el);
 }

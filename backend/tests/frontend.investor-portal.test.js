@@ -1756,6 +1756,64 @@ test('investor pilot selector uses shared pilot financial data and preserves Pro
   expect(appJs).toContain("renderProjectDocuments({ deal, cycles, reports, role: 'investor' })");
 });
 
+test('demo investor workspaces expose the permanent Commercial Operations Alpha module', () => {
+  for (const heading of [
+    'Commercial Operations',
+    'Commercial Reporting',
+    'Project Gallery',
+    'Commercial Evidence Library',
+    'Illustrative Commercial Reporting Workflow',
+  ]) {
+    expect(appJs).toContain(heading);
+  }
+  expect(appJs).toContain("alpha: { label: 'Alpha v1.1', badge: 'Planned'");
+  expect(appJs).toContain("beta: { label: 'Beta', badge: 'Preparing'");
+  expect(appJs).toContain("production: { label: 'Production', badge: 'Active'");
+  expect(appJs).toContain('Available after commercial pilot launch');
+  expect(appJs).toContain('No commercial evidence is recorded in this Alpha stage.');
+  expect(appJs).not.toContain('Commercial Placeholders');
+});
+
+test('Commercial Operations preserves demo distinctions and avoids false activity claims', () => {
+  const start = appJs.indexOf('const COMMERCIAL_OPERATIONS_STAGES');
+  const end = appJs.indexOf('function renderInvestorWorkspaceCycles', start);
+  const commercialOperations = appJs.slice(start, end);
+
+  expect(commercialOperations).toContain('Verified commercial evidence will be added only after a funded pilot begins.');
+  expect(commercialOperations).toContain('Illustrative future workflow');
+  for (const unsafePhrase of [
+    'active commercial pilot',
+    'completed commercial pilot',
+    'live commercial reporting',
+    'real deployed capital',
+    'realized return',
+    'verified report submitted',
+    'upload evidence',
+  ]) {
+    expect(commercialOperations.toLowerCase()).not.toContain(unsafePhrase);
+  }
+  expect(appJs).toContain('Fidlot represents a completed workflow');
+  expect(appJs).toContain('Hissar represents an active workflow');
+});
+
+test('both investor demo pilots render Commercial Operations after the core workspace and Settlement', () => {
+  const demoStart = appJs.indexOf('function renderInvestorDemoDealDetail');
+  const demoEnd = appJs.indexOf('async function showInvestorDeal', demoStart);
+  const demoSource = appJs.slice(demoStart, demoEnd);
+  const workspaceIndex = demoSource.indexOf('renderProjectWorkspaceHeader');
+  const settlementIndex = demoSource.indexOf('renderSettlementPanel');
+  const commercialIndex = demoSource.indexOf("renderCommercialOperationsSection('alpha')");
+
+  expect(workspaceIndex).toBeGreaterThan(-1);
+  expect(settlementIndex).toBeGreaterThan(workspaceIndex);
+  expect(commercialIndex).toBeGreaterThan(settlementIndex);
+  expect(appJs).toContain('showInvestorPilotProfile(investorPilot[1])');
+  expect(appJs).toContain("if (pilot.key !== 'fidlot') return []");
+  for (const existingSurface of ['Project Reports', 'Project Documents', 'Returns', 'Settlement', 'Project Timeline']) {
+    expect(appJs).toContain(existingSurface);
+  }
+});
+
 test('investor demo financial metrics render in USD instead of NEAR', () => {
   expect(appJs).toContain("displayAmount: '$50,000'");
   expect(appJs).toContain("displayExpectedReturn: '$82,000'");

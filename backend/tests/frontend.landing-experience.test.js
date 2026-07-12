@@ -34,16 +34,16 @@ test('landing explains product audience and Alpha testnet context', () => {
   expect(appJs).toContain('AgriPartners / Project Operators');
   expect(appJs).toContain('Alpha v1.1');
   expect(appJs).toContain('NEAR Testnet');
-  expect(appJs).toContain('Alpha Demo / Pilot entry separation');
+  expect(appJs).toContain('Self-guided investor demo');
+  expect(appJs).toContain('no live investments are accepted');
 });
 
 test('landing describes core demonstration capabilities', () => {
   for (const phrase of [
-    'NEAR infrastructure',
-    'Farmer reporting',
-    'Investor visibility',
-    'Typed returns',
-    'Treasury foundation',
+    'Portfolio Dashboard',
+    'Pilot Projects',
+    'Project Reports',
+    'Project Documents',
   ]) {
     expect(appJs).toContain(phrase);
   }
@@ -73,7 +73,7 @@ test('landing explains model-specific investor protection immediately after fina
 
   expect(homeSource.indexOf('landing-financial-models')).toBeGreaterThanOrEqual(0);
   expect(homeSource.indexOf('renderHomeInvestorProtection()')).toBeGreaterThan(homeSource.indexOf('landing-financial-models'));
-  expect(appJs).toContain('Explore the Future Protection Concept by Investment Model');
+  expect(appJs).toContain('Review the Protection Framework');
   expect(appJs).toContain('not active in Pilot 1.0');
   expect(appJs).toContain('Protection reserve 44%');
   expect(appJs).toContain('Protection reserve 53%');
@@ -84,49 +84,45 @@ test('landing explains model-specific investor protection immediately after fina
 });
 
 test('landing CTAs route to explicit demo and login destinations', () => {
-  expect(appJs).toContain('Explore Investor Demo');
-  expect(appJs).toContain('href="#/investor/dashboard"');
-  expect(appJs).toContain('Explore Farmer Demo');
-  expect(appJs).toContain('href="#farmer/pilots"');
-  expect(appJs).toContain('Explore Operator Demo');
-  expect(appJs).toContain('href="#demo/admin"');
-  expect(appJs).toContain('id="home-login-wallet"');
-  expect(appJs).toContain('href="#login"');
-  expect(appJs).toContain('href="#login/investor"');
-  expect(appJs).toContain('href="#login/farmer"');
-  expect(appJs).toContain('href="#login/admin"');
-  expect(appJs).toContain('Opportunity Catalog');
-  expect(appJs).toContain('Login with NEAR Wallet');
-  expect(appJs).toContain('NEAR Testnet authentication');
-});
-
-test('landing renders Operator demo entry without changing Investor and Farmer entries', () => {
   const homeStart = appJs.indexOf('function showHome()');
   const homeEnd = appJs.indexOf('function renderPublicFooter()', homeStart);
   const homeSource = appJs.slice(homeStart, homeEnd);
 
-  expect(homeSource).toContain('Investor Portal');
+  expect(homeSource).toContain('Explore Investor Demo');
+  expect(homeSource).toContain('class="landing-btn landing-btn-primary" href="#/investor/dashboard"');
+  expect(homeSource).toContain('Presentation Mode');
+  expect(homeSource).toContain('href="#demo/presentation/investor"');
+  expect(homeSource).toContain('No registration is required.');
+  expect(homeSource).toContain('href="#login"');
   expect(homeSource).toContain('href="#login/investor"');
-  expect(homeSource).toContain('Farmer Portal');
   expect(homeSource).toContain('href="#login/farmer"');
-  expect(homeSource).toContain('Operator Portal');
+  expect(homeSource).toContain('href="#login/admin"');
+  expect(homeSource).toContain('View Opportunity Catalog');
+  expect(homeSource).toContain('href="#/marketplace"');
+  expect(homeSource).toContain('Open Documentation');
+  expect(homeSource).toContain('href="#/platform"');
+});
+
+test('landing preserves participant access routes while prioritizing the self-guided investor demo', () => {
+  const homeStart = appJs.indexOf('function showHome()');
+  const homeEnd = appJs.indexOf('function renderPublicFooter()', homeStart);
+  const homeSource = appJs.slice(homeStart, homeEnd);
+
+  expect(homeSource).toContain('<h3>Investors</h3>');
+  expect(homeSource).toContain('href="#login/investor"');
+  expect(homeSource).toContain('<h3>Farmers</h3>');
+  expect(homeSource).toContain('href="#login/farmer"');
+  expect(homeSource).toContain('<h3>AgriPartners / Project Operators</h3>');
   expect(homeSource).toContain('href="#login/admin"');
   expect(homeSource).toContain('Opportunity Catalog');
   expect(homeSource).toContain('href="#/marketplace"');
   expect(homeSource).toContain('Explore Investor Demo');
   expect(homeSource).toContain('href="#/investor/dashboard"');
   expect(homeSource).not.toContain('href="#/investor/pilots/fidlot"');
-  expect(homeSource).toContain('Explore Farmer Demo');
-  expect(homeSource).toContain('href="#farmer/pilots"');
-  expect(homeSource).toContain('Explore Operator Demo');
-  expect(homeSource).toContain('href="#demo/admin"');
-  expect(homeSource).toContain('Portals');
-  expect(homeSource).toContain('Secure access for platform participants.');
-  expect(homeSource).toContain('Interactive Demos');
-  expect(homeSource).toContain('Explore AgriPartners using demonstration data.');
-  expect(homeSource).toContain('Authentication');
-  expect(homeSource).toContain('Login with NEAR Wallet');
-  expect(homeSource).toContain('NEAR Testnet authentication');
+  expect(homeSource).toContain('Self-guided investor demo');
+  expect(homeSource).toContain('No registration is required.');
+  expect(homeSource).toContain('Alpha v1.1 demonstration on NEAR Testnet');
+  expect(homeSource).toContain('no live investments are accepted');
 });
 
 test('demo routes are public while live protected routes still require auth', () => {
