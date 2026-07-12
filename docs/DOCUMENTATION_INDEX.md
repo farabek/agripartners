@@ -8,6 +8,9 @@ Owner: Product
 
 Last reviewed: 2026-07-12
 
+> **Official documentation entry point:** This document is the canonical map for all
+> AgriPartners documentation and the starting point for selecting the correct package.
+
 ## Purpose
 
 This index is the main audience-based navigation page for the AgriPartners documentation
@@ -67,7 +70,7 @@ and lightweight Alpha v1.2 NEAR CRM are now Archived at their recorded destinati
 'AGENTS.md' is a repository-root operating instruction for compatible AI agents. Read it when
 using an agent in this workspace; it is outside the 'docs/' inventory.
 
-### New team member
+### For new contributors
 
 1. [Documentation Index](DOCUMENTATION_INDEX.md)
 2. [Product Book](PRODUCT_BOOK.md)
@@ -76,7 +79,7 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 5. [Product Operating Model](platform/PRODUCT_OPERATING_MODEL_V1.md)
 6. [Current Release Notes](releases/alpha-v1.2-release-notes.md)
 
-### Investor Relations
+### For investors
 
 1. [Investor Package README](investor/README.md)
 2. [Presentation Master](investor/00_PRESENTATION_MASTER.md)
@@ -94,7 +97,7 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 5. [Farmer Experience Specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md)
 6. [Software Delivery Roadmap](ROADMAP.md)
 
-### Farmer Operations
+### For farmer operations
 
 1. [Farmer Portal Guide](farmer-portal.md)
 2. [Farmer Experience Specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md)
@@ -103,7 +106,7 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 5. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
 6. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
 
-### NEAR Ecosystem
+### For NEAR reviewers
 
 1. [NEAR Executive One-Pager](near/executive-one-pager.md)
 2. [NEAR Ecosystem One-Pager](near/near-ecosystem-one-pager.md)
@@ -121,7 +124,7 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 5. [Risk Disclosure](legal/RISK_DISCLOSURE.md)
 6. [Legal Package Review](legal/LEGAL_PACKAGE_REVIEW.md)
 
-### Partnerships / Business Development
+### For partnerships
 
 1. [Operating Model](business/OPERATING_MODEL.md)
 2. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)

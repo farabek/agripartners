@@ -1,3 +1,5 @@
+<!-- markdownlint-configure-file { "MD013": false, "MD036": false } -->
+
 # AgriPartners
 
 **Transparent agricultural investment workflows on NEAR Protocol**
@@ -188,30 +190,19 @@ agripartners/
 
 ## Documentation
 
-Useful public entry points:
+Project documentation is organized by audience, authority, and priority.
 
-- [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md)
-- [Financial Operating Model](docs/business/FINANCIAL_OPERATING_MODEL.md)
-- [Information Disclosure Policy](docs/business/INFORMATION_DISCLOSURE_POLICY.md)
-- [Feedlot Master Investment Model](docs/business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
-- [Hissar Sheep Master Investment Model](docs/business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
-- [Pilot 1.0 Documentation](docs/platform/pilot/PILOT_1_PLAN.md)
-- [NEAR materials](docs/near/)
-- [Investor materials](docs/investors/)
-- [Release notes](docs/releases/)
-- [Main docs index](docs/README.md)
+If you are new to the project, start with the
+[documentation landing page](docs/README.md), then use the
+[official Documentation Index](docs/DOCUMENTATION_INDEX.md) to navigate to:
 
-Recommended reading order:
-
-1. [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md)
-2. [Financial Operating Model](docs/business/FINANCIAL_OPERATING_MODEL.md)
-3. [Information Disclosure Policy](docs/business/INFORMATION_DISCLOSURE_POLICY.md)
-4. [Feedlot Master Investment Model](docs/business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
-5. [Hissar Sheep Master Investment Model](docs/business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
-6. [Pilot 1.0 Plan](docs/platform/pilot/PILOT_1_PLAN.md)
-7. [Pilot 1.0 Readiness Checklist](docs/platform/pilot/PILOT_READINESS_CHECKLIST.md)
-8. [NEAR executive one-pager](docs/near/executive-one-pager.md)
-9. [Investor executive one-pager](docs/investors/investor-executive-one-pager.md)
+- Product documentation
+- Investor package
+- Farmer package
+- NEAR ecosystem
+- Partnership package
+- Internal operations
+- Archive
 
 ## Roadmap
 

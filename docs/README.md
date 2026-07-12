@@ -1,153 +1,25 @@
-# AgriPartners Documentation Index
+<!-- markdownlint-configure-file { "MD013": false } -->
 
-AgriPartners Alpha v1.2 is a working Alpha platform for transparent agricultural investment workflows on NEAR Testnet. This documentation index is the main entry point for reviewers, ecosystem partners, investors, and internal contributors.
+# AgriPartners Documentation
 
-Alpha v1.2 is not a production investment, custody, payout, settlement, or Mainnet system. Documentation should be read with that boundary in mind.
+Welcome to the AgriPartners documentation.
 
-AgriPartners v2 uses a company-centered operating model: External Investor -> AgriPartners OÜ -> Farmer. The operating model and pilot documents define the target business architecture without changing the current Alpha application.
+## Start Here
 
-Investors may use supported fiat or crypto-asset routes through selected AgriPartners financial
-infrastructure; Farmers always receive and return fiat and never interact with crypto or
-blockchain.
+If you are new to the project, open the
+[official Documentation Index](DOCUMENTATION_INDEX.md).
 
-> **AgriPartners Business Architecture v1.0 is frozen as of 2026-07-02.** Future architecture
-> changes require RFC review. See the [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md).
+The index explains documentation priorities, audiences, canonical documents, archive status,
+and recommended reading paths. It is the canonical map for all documentation packages.
 
-## Recommended Reading Order
+## Documentation Packages
 
-1. [Root README](../README.md)
-2. [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
-3. [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
-4. [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md)
-5. [Information Disclosure Policy](business/INFORMATION_DISCLOSURE_POLICY.md)
-6. [Feedlot Master Investment Model](business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
-7. [Hissar Sheep Master Investment Model](business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
-8. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
-9. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
-10. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
-11. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
-12. [Developer Review Overview](developer-review/README.md)
+- **Product:** start with the [Product Book](PRODUCT_BOOK.md).
+- **Investor:** use the [Investor Package](investor/README.md).
+- **Farmer:** use the [Farmer Portal Guide](farmer-portal.md).
+- **NEAR:** use the [NEAR Ecosystem One-Pager](near/near-ecosystem-one-pager.md).
+- **Partnerships:** use the [Outreach Playbook](outreach/outreach-playbook.md).
+- **Internal:** use the [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md).
+- **Archive:** use the [Archive Guide](archive/README.md) for historical, non-authoritative files.
 
-## Product Overview
-
-AgriPartners brings opportunity review, farmer reporting, return records, Treasury visibility, and guided demos into one role-based product experience.
-
-Current Alpha v1.2 modules include:
-
-- Public Landing and Opportunity Catalog demo.
-- Investor Portal.
-- Farmer Portal.
-- Admin Portal.
-- Treasury Dashboard.
-- Presentation Mode.
-- Wallet Authentication.
-- NEAR Testnet Integration.
-- Treasury Shadow Accounting.
-
-## Role Documentation
-
-- [Investor Portal](investor-portal.md)
-- [Farmer Portal](farmer-portal.md)
-- [Admin Dashboard](admin-dashboard.md)
-- [Investor Executive One Pager](investors/investor-executive-one-pager.md)
-- [Investor Executive One Pager RU](investors/investor-executive-one-pager-ru.md)
-
-## NEAR Ecosystem Materials
-
-- [NEAR Executive One Pager](near/executive-one-pager.md)
-- [NEAR Executive One Pager RU](near/executive-one-pager-ru.md)
-- [NEAR Ecosystem One Pager](near/near-ecosystem-one-pager.md)
-- [NEAR Ecosystem One Pager RU](near/near-ecosystem-one-pager-ru.md)
-- [NEAR Ecosystem CRM](near/near-ecosystem-crm.md)
-- [NEAR Outreach Kit](near/near-outreach-kit.md)
-- [NEAR Track Roadmap](near/near-track-roadmap.md)
-- [NEAR Testnet Status](near-testnet.md)
-- [NEAR Testnet Status RU](near-testnet-ru.md)
-
-## Release And Readiness
-
-- [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
-- [Alpha v1.1 Release Review](releases/alpha-v1.1-release-review.md)
-- [Alpha v1.1 Release Review RU](releases/alpha-v1.1-release-review-ru.md)
-- [Alpha v1 Full Repository Audit](archive/releases/alpha-v1/01-alpha-v1-full-repository-audit.md)
-- [Alpha v1 Full Repository Audit RU](archive/releases/alpha-v1/11-alpha-v1-full-repository-audit-ru.md)
-- [Launch Kit](LAUNCH_KIT.md)
-- [Launch Kit RU](LAUNCH_KIT_RU.md)
-
-## Technical Review
-
-- [Developer Review Overview](developer-review/README.md)
-- [Technical Overview](developer-review/01-technical-overview.md)
-- [Architecture](developer-review/02-architecture.md)
-- [Testnet Validation](developer-review/03-testnet-validation.md)
-- [Smart Contract Status](developer-review/04-smart-contract-status.md)
-- [API Overview](developer-review/05-api-overview.md)
-- [Open Source Roadmap](developer-review/06-open-source-roadmap.md)
-- [Review Questions](developer-review/07-review-questions.md)
-- [Testnet Evidence Packet](developer-review/08-testnet-evidence-packet.md)
-
-## Architecture And Design
-
-- [ADR-001 - Live-first Architecture](architecture/ADR-001-live-first-architecture.md)
-- [ADR-002 - Financial Semantics](architecture/ADR-002-financial-semantics.md)
-- [Typed Return Model Design and Migration Specification](design/typed-return-model-spec.md)
-- [Reconciliation Engine Design Specification](design/reconciliation-engine-spec.md)
-- [Treasury Engine Architecture Specification](design/treasury-engine-spec.md)
-- [Treasury Accounting Model Specification](design/treasury-accounting-model.md)
-- [Treasury Operating Modes Specification](design/treasury-operating-modes-spec.md)
-
-## Demo And Presentation Materials
-
-- [Demo Readiness](demo-readiness/01-demo-scenario.md)
-- [Presentation Readiness](presentation-readiness/01-executive-summary.md)
-- [Pitch Deck Index](pitch-deck/README.md)
-- [Investor Package](investor-package/investor-readiness-review.md)
-- [Investor Pack](investor-pack/README.md)
-- [Screenshots](screenshots/)
-- [Screenshot Checklist](investor-package/screenshot-checklist.md)
-
-## Platform Documentation
-
-- [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
-- [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md)
-- [Information Disclosure Policy](business/INFORMATION_DISCLOSURE_POLICY.md)
-- [Feedlot Master Investment Model](business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
-- [Hissar Sheep Master Investment Model](business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
-- [Platform Documentation](platform/README.md)
-- [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
-- [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
-- [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
-- [Investor Protection Framework](platform/investor-protection/README.md)
-
-Official AgriPartners platform explanation documents in English and Russian.
-
-Investor Protection remains valid as exploratory documentation but is deferred to the Marketplace program. Phase 6 finalizes its design and readiness; any activation is gated by Phase 7 Marketplace approval.
-
-## Outreach Materials
-
-- [Near Directory](outreach/near-directory/SUMMARY.md) - verified ecosystem directory and contact knowledge base.
-- [Outreach CRM](outreach/outreach-crm.md) - active CRM and working pipeline.
-- [Outreach Shortlist](outreach/outreach-shortlist.md) - daily clickable list for LinkedIn actions.
-- [Founder LinkedIn Profile Kit](outreach/founder-linkedin-profile-kit.md) - LinkedIn profile materials.
-- [NEAR Ecosystem CRM](archive/near/alpha-v1.2/near-ecosystem-crm.md)
-- [Outreach Playbook](outreach/outreach-playbook.md) - outreach methodology.
-- [LinkedIn Content Calendar](outreach/linkedin-content-calendar.md) - content calendar.
-- [NEAR Outreach](near-outreach/01-readme.md)
-- [NEAR Outreach Toolkit](near-outreach-toolkit/01-readme.md)
-- [NEAR Ecosystem](near-ecosystem/01-readme.md)
-- [NEAR Execution](near-execution/01-readme.md)
-- [Outreach Research](outreach/01-near-horizon-research.md)
-
-## Planned Or Legacy Sections
-
-The following folders are currently placeholders or legacy planning areas. They are kept for repository continuity and should not be treated as polished public entry points until populated or retired:
-
-- `business-model/` - planned or legacy business-model materials.
-- `demo-guide/` - planned or legacy demo-guide materials.
-- `investor-deck/` - planned or legacy deck materials.
-- `workflows/` - planned or legacy workflow materials.
-- `superpowers/` - internal sprint planning and implementation notes.
-
-## Russian Index
-
-- [Russian Documentation Index](README-ru.md)
+Return to the [repository README](../README.md) for project setup and top-level navigation.
