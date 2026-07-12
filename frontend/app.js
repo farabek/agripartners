@@ -1369,8 +1369,22 @@ function renderHomeInvestorProtection() {
     <section id="investment-protection" class="landing-section investment-protection-home" aria-labelledby="investment-protection-title">
       <div class="landing-section-heading">
         <span>Investor protection</span>
-        <h2 id="investment-protection-title">Explore the Future Protection Concept by Investment Model</h2>
+        <h2 id="investment-protection-title">Review the Protection Framework</h2>
       </div>
+
+      <p class="protection-intro">
+        Explore how model-specific reserves could support future investor protection under defined
+        contractual conditions. This concept is not active in Pilot 1.0 and does not guarantee returns.
+      </p>
+      <div class="protection-home-actions">
+        <a class="landing-btn" href="#/protection/fidlot">Review Fidlot Protection</a>
+        <a class="landing-btn" href="#/protection/hissar">Review Hissar Protection</a>
+        <a class="landing-btn" href="https://github.com/farabek/agripartners/tree/main/docs/platform/investor-protection" target="_blank" rel="noopener noreferrer">Open Documentation</a>
+      </div>
+
+      <details class="home-deep-details">
+        <summary>Review Protection Framework</summary>
+        <div class="home-deep-details-content">
 
       <div class="protection-lead-grid">
         <div>
@@ -1450,6 +1464,9 @@ function renderHomeInvestorProtection() {
         profit, capital preservation, payout, or settlement. Legal ownership while funds are locked remains subject to contract and legal review.
       </div>
 
+        </div>
+      </details>
+
       <div class="protection-home-actions">
         <a class="landing-btn landing-btn-primary" href="#/marketplace">Compare Investment Models</a>
         <a class="landing-btn" href="https://github.com/farabek/agripartners/tree/main/docs/platform/investor-protection" target="_blank" rel="noopener noreferrer">Read Full Framework</a>
@@ -1525,51 +1542,26 @@ function showHome() {
           <div class="landing-badges" aria-label="Environment">
             <span>Alpha v1.1</span>
             <span>NEAR Testnet</span>
-            <span>Alpha Demo / Pilot entry separation</span>
+            <span>Self-guided investor demo</span>
           </div>
-          <h1>Structured agricultural investment Projects with managed operations, transparent reporting, and audit-ready records.</h1>
+          <h1>A transparent operating platform for agricultural investment projects.</h1>
           <p>
-            AgriPartners structures, manages, and monitors agricultural investment Projects. Investors participate
-            through AgriPartners, while Farmers work with AgriPartners as Project Operator. NEAR Testnet supports
-            transparency and auditability as platform infrastructure; future Farmer funding remains fiat-based.
+            AgriPartners helps investors review projects, follow operations, and understand reports, documents, and
+            returns in one place. Farmers and operators use the same project record to keep delivery visible.
           </p>
           <div class="landing-action-group">
             <div class="landing-action-heading">
-              <h2>Portals</h2>
-              <p>Secure access for platform participants.</p>
+              <h2>Explore the investor experience</h2>
+              <p>Walk through the investor journey from portfolio overview to project reporting and returns. No registration is required.</p>
             </div>
-            <div class="landing-actions" aria-label="Portals">
-              <a class="landing-btn landing-btn-primary" href="#login/investor">Investor Portal</a>
-              <a class="landing-btn" href="#login/farmer">Farmer Portal</a>
-              <a class="landing-btn" href="#login/admin">Operator Portal</a>
-              <a class="landing-btn" href="#/marketplace">Opportunity Catalog</a>
-            </div>
-          </div>
-          <p class="landing-note">
-            Pilot 1.0 is in preparation and is not a live production operation. Choose a role entry only if AgriPartners has invited you.
-          </p>
-          <div class="landing-action-group">
-            <div class="landing-action-heading">
-              <h2>Interactive Demos</h2>
-              <p>Explore AgriPartners using demonstration data.</p>
-            </div>
-            <div class="landing-actions" aria-label="Interactive demos">
+            <div class="landing-actions" aria-label="Investor demo actions">
               <a class="landing-btn landing-btn-primary" href="#/investor/dashboard">Explore Investor Demo</a>
-              <a class="landing-btn" href="#farmer/pilots">Explore Farmer Demo</a>
-              <a class="landing-btn" href="#demo/admin">Explore Operator Demo</a>
+              <a class="landing-btn" href="#/marketplace">View Opportunity Catalog</a>
+              <a class="landing-btn" href="#demo/presentation/investor">Presentation Mode</a>
             </div>
-          </div>
-          <div class="landing-action-group landing-auth-group">
-            <div class="landing-action-heading">
-              <h2>Authentication</h2>
-            </div>
-            <div class="landing-actions" aria-label="Authentication">
-              <button type="button" id="home-login-wallet" class="landing-btn landing-btn-wallet">Login with NEAR Wallet</button>
-            </div>
-            <p class="landing-auth-helper">NEAR Testnet authentication</p>
           </div>
           <p class="landing-note">
-            Alpha Demo pages use demonstration profiles and NEAR Testnet functionality. They are separate from future real Pilot operations.
+            Alpha v1.1 demonstration on NEAR Testnet; no live investments are accepted.
           </p>
         </div>
       </section>
@@ -1582,55 +1574,91 @@ function showHome() {
         <div class="landing-card-grid">
           <article class="landing-card">
             <h3>Investors</h3>
-            <p>Review Projects, Investment Models, Project Progress, Project Reports, projected returns, and Settlement status without treating provisional data as realized performance.</p>
+            <p>In a future commercial pilot, enter into an Investment Participation Agreement with AgriPartners and review project progress, reports, documents, and return records.</p>
             <a class="landing-btn landing-btn-primary mt-4" href="#login/investor">Projects / Investment Models / Portfolio</a>
           </article>
           <article class="landing-card">
             <h3>Farmers</h3>
-            <p>Work through AgriPartners as Project Operator to review My Projects, confirm funding, follow Production Cycles, and submit Project Reports.</p>
+            <p>In a future commercial pilot, enter into a separate Farmer Project Agreement with AgriPartners and deliver production updates and project reports.</p>
             <a class="landing-btn landing-btn-primary mt-4" href="#login/farmer">My Projects / Funding Confirmation / Reports</a>
           </article>
           <article class="landing-card">
             <h3>AgriPartners / Project Operators</h3>
-            <p>Manage Projects, select Investment Models, assign Farmers, monitor Project Status, review Project Reports, and maintain Settlement and Treasury records.</p>
+            <p>Act as the central Project Operator, coordinating the separately contracted investor and farmer workflows, project records, reporting, and settlement preparation.</p>
             <a class="landing-btn landing-btn-primary mt-4" href="#login/admin">Manage Projects / Farmer Assignment / Settlement</a>
           </article>
         </div>
+
+        <div class="contract-relationship" aria-labelledby="contract-relationship-title">
+          <div class="landing-section-heading">
+            <span>Intended contractual structure</span>
+            <h2 id="contract-relationship-title">AgriPartners connects both sides of the project</h2>
+          </div>
+          <p class="contract-relationship-summary">
+            Investors and farmers contract separately with AgriPartners, which operates and coordinates the project workflow.
+          </p>
+          <div class="contract-relationship-diagram" role="img" aria-label="Investor contracts with AgriPartners through an Investment Participation Agreement. Farmer contracts separately with AgriPartners through a Farmer Project Agreement. AgriPartners acts as Project Operator.">
+            <div class="contract-party">
+              <span>Investor</span>
+            </div>
+            <div class="contract-connector contract-connector-down">
+              <span aria-hidden="true">&darr;</span>
+              <strong>Investment Participation Agreement</strong>
+            </div>
+            <div class="contract-party contract-operator">
+              <span>AgriPartners</span>
+              <small>Project Operator</small>
+            </div>
+            <div class="contract-connector contract-connector-up">
+              <span aria-hidden="true">&uarr;</span>
+              <strong>Farmer Project Agreement</strong>
+            </div>
+            <div class="contract-party">
+              <span>Farmer</span>
+            </div>
+          </div>
+          <p class="contract-relationship-guardrail">
+            This diagram illustrates the intended contractual structure for future commercial pilots. Alpha v1.1 remains a demonstration and does not accept live investments.
+          </p>
+        </div>
       </section>
 
-      <section class="landing-section" aria-label="What the Alpha demonstrates">
+      <section class="landing-section" aria-label="What you will see in the investor demo">
         <div class="landing-section-heading">
-          <span>Alpha demonstration</span>
-          <h2>What is ready to show</h2>
+          <span>Self-guided walkthrough</span>
+          <h2>What you'll see</h2>
         </div>
         <div class="landing-feature-list">
-          <div><strong>NEAR infrastructure</strong><span>Investor/operator authentication and supplementary transaction references on NEAR Testnet support transparency and auditability.</span></div>
-          <div><strong>Farmer reporting</strong><span>Funding Confirmation, Project Reports, Production Cycle history, and AgriPartners-managed operational status.</span></div>
-          <div><strong>Investor visibility</strong><span>Project portfolio, Investment Models, Project Progress, Project Reports, events, and Settlement / Returns visibility.</span></div>
-          <div><strong>Typed returns</strong><span>Principal, profit, and fee classification with recorded, approved, paid, and reconciled status language.</span></div>
-          <div><strong>Treasury foundation</strong><span>Append-only double-entry ledger services with idempotent source references for future workflow integrations.</span></div>
+          <div><strong>Portfolio Dashboard</strong><span>See project status and modeled financial context at a glance.</span></div>
+          <div><strong>Pilot Projects</strong><span>Compare active and completed demonstration workflows.</span></div>
+          <div><strong>Project Reports</strong><span>Follow production updates and reporting status.</span></div>
+          <div><strong>Project Documents</strong><span>Review the records available for investor diligence.</span></div>
         </div>
       </section>
 
       <section class="landing-section landing-platform" aria-label="AgriPartners platform documentation">
         <div class="landing-section-heading">
           <span>Platform</span>
-          <h2>Learn More About AgriPartners</h2>
+          <h2>Platform Explained</h2>
         </div>
         <p>
-          Read the platform explanation to understand the AgriPartners vision, funding model, NEAR Testnet integration,
-          investor workflow, farmer workflow, treasury visibility, roadmap, and stakeholder benefits.
+          Review the platform vision, role workflows, NEAR Testnet integration, treasury visibility, and roadmap.
         </p>
         <p class="landing-safe-positioning">
           AgriPartners is currently an Alpha platform on NEAR Testnet. It is not a production investment, custody,
           payout, settlement, or Mainnet financial system.
         </p>
         <div class="landing-actions" aria-label="Platform documentation actions">
-          <a class="landing-btn landing-btn-primary" href="#/platform">Read Platform Explained (EN)</a>
-          <a class="landing-btn" href="assets/platform/PLATFORM_EXPLAINED_EN.pdf" download>Download PDF (EN)</a>
-          <a class="landing-btn landing-btn-primary" href="#/platform?lang=ru">Read Platform Explained (RU)</a>
-          <a class="landing-btn" href="assets/platform/PLATFORM_EXPLAINED_RU.pdf" download>Download PDF (RU)</a>
+          <a class="landing-btn landing-btn-primary" href="#/platform">Open Documentation</a>
         </div>
+        <details class="home-deep-details">
+          <summary>Language and PDF options</summary>
+          <div class="landing-actions home-deep-details-content" aria-label="Platform document formats">
+            <a class="landing-btn" href="assets/platform/PLATFORM_EXPLAINED_EN.pdf" download>Download PDF (EN)</a>
+            <a class="landing-btn" href="#/platform?lang=ru">Read Platform Explained (RU)</a>
+            <a class="landing-btn" href="assets/platform/PLATFORM_EXPLAINED_RU.pdf" download>Download PDF (RU)</a>
+          </div>
+        </details>
       </section>
 
       <section class="landing-section landing-financial-models" aria-label="AgriPartners financial models">
@@ -1646,6 +1674,12 @@ function showHome() {
           <span class="financial-model-notice-icon" aria-hidden="true">i</span>
           <span>These materials contain projections, do not guarantee returns, and do not constitute a public offer to invest.</span>
         </p>
+        <div class="landing-actions">
+          <a class="landing-btn landing-btn-primary" href="#/marketplace">Explore Financial Models</a>
+        </div>
+        <details class="home-deep-details">
+          <summary>View detailed 60/40 models and PDF library</summary>
+          <div class="home-deep-details-content">
         <div class="financial-model-catalog">
           <article class="financial-model-card">
             <header class="financial-model-header">
@@ -1731,15 +1765,27 @@ function showHome() {
             </div>
           </article>
         </div>
+          </div>
+        </details>
       </section>
 
       ${renderHomeInvestorProtection()}
+
+      <section class="landing-section landing-platform" aria-label="Continue to the investor demo">
+        <div class="landing-section-heading">
+          <span>Ready to explore</span>
+          <h2>See the investor experience in action</h2>
+        </div>
+        <p>Open the demonstration portfolio and follow a project from overview through reports, documents, and returns.</p>
+        <div class="landing-actions">
+          <a class="landing-btn landing-btn-primary" href="#/investor/dashboard">Explore Investor Demo</a>
+          <a class="landing-btn" href="#/marketplace">View Opportunity Catalog</a>
+        </div>
+      </section>
     </main>
 
     ${renderPublicFooter()}
   `;
-
-  document.getElementById('home-login-wallet')?.addEventListener('click', handleWalletLogin);
 }
 
 function renderPublicFooter() {

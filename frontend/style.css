@@ -486,6 +486,83 @@
   line-height: 1.55;
 }
 
+.contract-relationship {
+  background-color: #142033;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  margin-top: 18px;
+  padding: 22px;
+}
+
+.contract-relationship-summary {
+  color: #cbd5e1;
+  line-height: 1.6;
+  max-width: 760px;
+}
+
+.contract-relationship-diagram {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  margin: 22px auto;
+  max-width: 620px;
+}
+
+.contract-party {
+  background-color: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  color: #f8fafc;
+  display: grid;
+  font-weight: 800;
+  gap: 3px;
+  min-width: min(100%, 300px);
+  padding: 14px 18px;
+  text-align: center;
+}
+
+.contract-party small {
+  color: #bbf7d0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.contract-operator {
+  background-color: #14532d;
+  border-color: #22c55e;
+}
+
+.contract-connector {
+  align-items: center;
+  color: #86efac;
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  text-align: center;
+}
+
+.contract-connector span {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.contract-connector strong {
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.contract-relationship-guardrail {
+  border-top: 1px solid #334155;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  margin-top: 18px;
+  padding-top: 14px;
+}
+
 .landing-feature-list {
   display: grid;
   gap: 10px;
@@ -516,6 +593,28 @@
   color: #cbd5e1;
   line-height: 1.6;
   max-width: 860px;
+}
+
+.home-deep-details {
+  border-top: 1px solid #334155;
+  margin-top: 18px;
+  padding-top: 14px;
+}
+
+.home-deep-details > summary {
+  color: #d1fae5;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.home-deep-details > summary:hover {
+  color: #4ade80;
+}
+
+.home-deep-details-content {
+  margin-top: 18px;
 }
 
 .landing-financial-models {
