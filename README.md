@@ -4,55 +4,60 @@
 
 **Transparent agricultural investment workflows on NEAR Protocol**
 
-[![Alpha](https://img.shields.io/badge/status-Alpha%20v1.2-2d6a4f?style=flat-square)](#current-product-status)
+[![Alpha](https://img.shields.io/badge/status-Alpha%20v1.2-2d6a4f?style=flat-square)](#current-status-and-guardrails)
 [![NEAR](https://img.shields.io/badge/NEAR-Testnet-black?style=flat-square)](#why-near)
 [![Live Demo](https://img.shields.io/badge/demo-agripartners.vercel.app-2d6a4f?style=flat-square)](https://agripartners.vercel.app)
 
-AgriPartners is an Alpha-stage platform for transparent agricultural investment workflows. It helps investors review pilot opportunities, helps farmers report operating progress, and helps platform operators track deals, returns, treasury activity, and lifecycle events. The current product uses NEAR Testnet for wallet-linked workflows and smart contract experimentation while remaining clear that it is not a production investment, custody, payout, or Mainnet settlement system.
+AgriPartners is an Alpha-stage platform for transparent agricultural investment workflows. It
+helps investors review pilot opportunities, farmers report operating progress, and platform
+operators track deals, returns, treasury activity, and lifecycle events.
 
-AgriPartners v2 introduces a company-centered operating model. The Alpha application remains a technical and product-validation environment; the v2 documentation defines how the future business should operate.
+## Current Status and Guardrails
+
+**Current product — Alpha v1.2 demonstration**
+
+- Runs on NEAR Testnet for wallet-linked workflows and smart contract experimentation.
+- Accepts no live investments.
+- Provides no production custody, payout, settlement, or Mainnet investment system.
+
+**Future operating model**
+
+- AgriPartners OÜ is the intended central counterparty.
+- Investors and farmers contract separately with AgriPartners.
+- Farmer funding and return flows remain fiat-only.
+- Production implementation depends on legal, banking, compliance, and partner setup.
 
 > **Business Architecture v1.0 is frozen as of 2026-07-02.** Future architectural changes require
 > RFC review. See the [Business Architecture v1.0 Freeze](docs/business/BUSINESS_ARCHITECTURE_V1_FREEZE.md).
 
-## What Is AgriPartners?
+## Quick Links
 
-AgriPartners is built around a simple trust problem: once agricultural capital leaves the investor's view, reporting and return visibility often become fragmented. The platform brings opportunity review, farmer reporting, return records, treasury visibility, and guided demos into one role-based product experience.
+- [Explore the live Investor Demo](https://agripartners.vercel.app/#demo/presentation/investor)
+- [Open Presentation Mode](https://agripartners.vercel.app/#demo/presentation/near)
+- [Start with Documentation](docs/README.md)
+- [Review the Investor Package](docs/investor/README.md)
+- [Read the Product Book](docs/PRODUCT_BOOK.md)
+- [View the Current Roadmap](docs/ROADMAP.md)
 
-The Alpha v1.2 product focuses on:
+## Documentation
 
-- **Investor transparency:** investors can review pilot profiles, projected economics, recorded returns, and withdrawal-readiness context.
-- **Farmer reporting:** farmers can track funding status, production cycles, reporting tasks, and project progress.
-- **Operational workflows:** admins can manage deal lifecycle, reporting, return records, and oversight views.
-- **Treasury Shadow Accounting:** treasury activity is shown as an Alpha transparency layer before production enforcement.
-- **Presentation Mode:** guided demo flows explain the product to investors, NEAR ecosystem reviewers, accelerators, and strategic partners.
+New to the project?
 
-## AgriPartners v2 Operating Model
+1. Open the [documentation landing page](docs/README.md).
+2. Continue to the [official Documentation Index](docs/DOCUMENTATION_INDEX.md).
+3. Choose the relevant Product, Investor, Farmer, NEAR, Partnerships, Internal, or Archive path.
 
-```text
-External Investor
-        |
-        v
-AgriPartners OÜ
-        |
-        v
-Farmer
-```
+The Documentation Index is the canonical documentation map. This README remains a lightweight
+repository landing page and does not duplicate the detailed index.
 
-Under the target v2 model, AgriPartners OÜ is the legal counterparty for both investors and farmers. Investors interact only with AgriPartners; farmers also interact only with AgriPartners and receive and return funds in fiat currency. Farmers do not use cryptocurrency, wallets, tokens, or blockchain interfaces.
+## Product Overview and Highlights
 
-Investors may use supported crypto assets through selected AgriPartners financial infrastructure.
-Cryptocurrency is limited to the infrastructure between the Investor and AgriPartners OÜ. The
-final bank, payment institution, licensed CASP, or other compliant provider depends on company
-registration, partner setup, and legal review; no provider is selected by this documentation.
+AgriPartners addresses a simple trust problem: once agricultural capital leaves the investor's
+view, reporting and return visibility often become fragmented. The platform brings opportunity
+review, farmer reporting, return records, treasury visibility, and guided demos into one
+role-based product experience.
 
-NEAR is limited to technical infrastructure for transparency, audit trails, automation, and settlement records. It does not replace contracts, banking, accounting, compliance, or authoritative fiat settlement records.
-
-See the canonical [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md) and [Pilot 1.0 Plan](docs/platform/pilot/PILOT_1_PLAN.md).
-
-## Current Product Status
-
-AgriPartners Alpha v1.2 currently includes:
+Alpha v1.2 currently includes:
 
 | Module | Status |
 | --- | --- |
@@ -69,47 +74,36 @@ AgriPartners Alpha v1.2 currently includes:
 | Mainnet Launch | Not started |
 | Production Investment Offering | Not active |
 
-## Explore The Demo
-
-The fastest way to understand AgriPartners is Presentation Mode. It is a guided walkthrough and does not require backend setup, database access, wallet setup, or testnet funds.
-
-- Investor demo: [agripartners.vercel.app/#demo/presentation/investor](https://agripartners.vercel.app/#demo/presentation/investor)
-- NEAR ecosystem demo: [agripartners.vercel.app/#demo/presentation/near](https://agripartners.vercel.app/#demo/presentation/near)
-- Accelerator demo: [agripartners.vercel.app/#demo/presentation/accelerator](https://agripartners.vercel.app/#demo/presentation/accelerator)
-- Enterprise partner demo: [agripartners.vercel.app/#demo/presentation/enterprise](https://agripartners.vercel.app/#demo/presentation/enterprise)
-
-Local frontend preview:
-
-```bash
-cd frontend
-npm install
-npm run dev:wallet-poc
-# Open http://127.0.0.1:5173/#demo/presentation/investor
-```
-
-## Product Highlights
-
 ### Investor Experience
 
-The Investor Portal presents pilot deal context, projected economics, portfolio visibility, recorded returns, and withdrawal-readiness framing. The goal is to make agricultural opportunities easier to understand and compare without overstating Alpha-stage financial certainty.
+The Investor Portal presents pilot deal context, projected economics, portfolio visibility,
+recorded returns, and withdrawal-readiness framing. It makes agricultural opportunities easier
+to understand and compare without overstating Alpha-stage financial certainty.
 
 ### Farmer Workflow
 
-The Farmer Portal gives farmers a structured place to see funding status, production cycles, operational progress, and reporting tasks. It supports the product goal of connecting capital to real-world agricultural activity.
+The Farmer Portal gives farmers a structured place to see funding status, production cycles,
+operational progress, and reporting tasks. It supports the product goal of connecting capital to
+real-world agricultural activity.
 
 ### Returns Tracking
 
-AgriPartners separates projected, recorded, paid, and reconciled language. This matters because Alpha return records are useful for workflow validation, but they should not be presented as audited or production-settled performance.
+AgriPartners separates projected, recorded, paid, and reconciled language. Alpha return records
+are useful for workflow validation but are not audited or production-settled performance.
 
 ### Treasury Visibility
 
-The Treasury Dashboard and Treasury Shadow Accounting layer show how capital activity, return records, and operational events can become more transparent. In Alpha v1.2, this is a visibility and discipline layer, not production treasury enforcement.
+The Treasury Dashboard and Treasury Shadow Accounting layer show how capital activity, return
+records, and operational events can become more transparent. In Alpha v1.2, this is a visibility
+and discipline layer, not production treasury enforcement.
 
 ### Presentation Mode
 
-Presentation Mode turns the product into a guided demo with audience-specific profiles for investors, NEAR ecosystem reviewers, accelerators, and enterprise partners. It is the recommended first entry point for external review.
+Presentation Mode provides guided, audience-specific demos for investors, NEAR ecosystem
+reviewers, accelerators, and enterprise partners. It is the recommended first entry point for
+external review.
 
-## Master Investment Models and Alpha Demonstrations
+### Master Investment Models and Alpha Demonstrations
 
 Feedlot and Hissar Sheep are the official reusable Master Investment Models. The current Alpha
 uses demonstration Project profiles derived from them to validate workflows and product
@@ -120,19 +114,58 @@ experience. The Alpha profiles are not production investment offerings.
 | [Feedlot Master Investment Model](docs/business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md) | Completed demo Project | Shows completed workflow, investment terms, reports, recorded returns, return progress, and treasury visibility. |
 | [Hissar Sheep Master Investment Model](docs/business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md) | Active demo Project | Shows active opportunity review, farmer progress, reporting context, and projected return visibility. |
 
-## Why NEAR?
+## Demo Access
 
-NEAR is used as the Alpha testnet environment for wallet-linked workflows, smart contract experimentation, and future transparent workflow patterns. Under the v2 business model, investor-facing blockchain features may be evaluated separately, but farmers remain entirely within AgriPartners-managed fiat workflows. AgriPartners is evaluating how NEAR can support:
+The fastest way to understand AgriPartners is Presentation Mode. The guided walkthrough does not
+require backend setup, database access, wallet setup, registration, or testnet funds.
 
-- investor and operator infrastructure where legally and operationally appropriate;
-- testnet validation before production or Mainnet decisions;
-- transparent references for lifecycle, audit, settlement, and reconciliation events;
-- developer-friendly smart contract experimentation;
-- clearer audit trails for real-world agricultural workflows.
+- [Investor demo](https://agripartners.vercel.app/#demo/presentation/investor)
+- [NEAR ecosystem demo](https://agripartners.vercel.app/#demo/presentation/near)
+- [Accelerator demo](https://agripartners.vercel.app/#demo/presentation/accelerator)
+- [Enterprise partner demo](https://agripartners.vercel.app/#demo/presentation/enterprise)
 
-Mainnet evaluation should follow stronger security, custody, reconciliation, treasury enforcement, monitoring, and compliance preparation.
+Local frontend preview:
 
-## Architecture
+```bash
+cd frontend
+npm install
+npm run dev:wallet-poc
+# Open http://127.0.0.1:5173/#demo/presentation/investor
+```
+
+## Operating Model
+
+AgriPartners v2 defines the intended company-centered business model. It is future commercial
+architecture, while the current Alpha remains a technical and product-validation environment.
+
+```text
+External Investor
+        |
+        v
+AgriPartners OÜ
+        |
+        v
+Farmer
+```
+
+Under the target model, AgriPartners OÜ is the legal counterparty for both investors and farmers.
+Investors interact only with AgriPartners; farmers also interact only with AgriPartners and
+receive and return funds in fiat currency. Farmers do not use cryptocurrency, wallets, tokens,
+or blockchain interfaces.
+
+Investors may use supported crypto assets through selected AgriPartners financial infrastructure.
+Cryptocurrency is limited to infrastructure between the Investor and AgriPartners OÜ. The final
+bank, payment institution, licensed CASP, or other compliant provider depends on company
+registration, partner setup, and legal review; this documentation selects no provider.
+
+NEAR is limited to technical infrastructure for transparency, audit trails, automation, and
+settlement records. It does not replace contracts, banking, accounting, compliance, or
+authoritative fiat settlement records.
+
+See the canonical [AgriPartners v2 Operating Model](docs/business/OPERATING_MODEL.md) and
+[Pilot 1.0 Plan](docs/platform/pilot/PILOT_1_PLAN.md).
+
+## Architecture and Technology
 
 ```text
 Users
@@ -160,8 +193,6 @@ NEAR Testnet integration
 Rust smart contract experiments
 ```
 
-## Technology Stack
-
 | Layer | Technology |
 | --- | --- |
 | Frontend | Vanilla JavaScript, Vite, Tailwind CSS, Chart.js |
@@ -172,6 +203,22 @@ Rust smart contract experiments
 | Smart Contract | Rust, near-sdk, WASM |
 | Hosting | Vercel frontend, Render backend |
 | Documentation | Markdown docs, investor and NEAR outreach materials |
+
+### Why NEAR?
+
+NEAR is the Alpha testnet environment for wallet-linked workflows, smart contract
+experimentation, and future transparent workflow patterns. Under the v2 business model,
+investor-facing blockchain features may be evaluated separately, but farmers remain entirely
+within AgriPartners-managed fiat workflows. AgriPartners is evaluating NEAR for:
+
+- investor and operator infrastructure where legally and operationally appropriate;
+- testnet validation before production or Mainnet decisions;
+- transparent references for lifecycle, audit, settlement, and reconciliation events;
+- developer-friendly smart contract experimentation;
+- clearer audit trails for real-world agricultural workflows.
+
+Mainnet evaluation should follow stronger security, custody, reconciliation, treasury
+enforcement, monitoring, and compliance preparation.
 
 ## Repository Structure
 
@@ -188,22 +235,6 @@ agripartners/
   render.yaml    Render deployment configuration
 ```
 
-## Documentation
-
-Project documentation is organized by audience, authority, and priority.
-
-If you are new to the project, start with the
-[documentation landing page](docs/README.md), then use the
-[official Documentation Index](docs/DOCUMENTATION_INDEX.md) to navigate to:
-
-- Product documentation
-- Investor package
-- Farmer package
-- NEAR ecosystem
-- Partnership package
-- Internal operations
-- Archive
-
 ## Roadmap
 
 The v2 business roadmap replaces the former Alpha/Beta/Pilot Expansion sequence:
@@ -218,15 +249,20 @@ The v2 business roadmap replaces the former Alpha/Beta/Pilot Expansion sequence:
 | 6 | Investor Protection | Finalize and approve investor-protection mechanisms. |
 | 7 | Marketplace | Launch controlled Marketplace access after all preceding gates are met. |
 
-The existing Investor Protection documentation remains valid as exploratory work but is deferred to the Marketplace program: design and readiness are handled in Phase 6, while activation can occur only as part of an approved Phase 7 Marketplace.
+The existing Investor Protection documentation remains valid as exploratory work but is deferred
+to the Marketplace program: design and readiness are handled in Phase 6, while activation can
+occur only as part of an approved Phase 7 Marketplace.
 
 ## Screenshots
 
-TODO: Refresh and embed current Alpha v1.2 screenshots before using screenshots as public evidence. Existing screenshot assets may reflect earlier demo states and should be reviewed before being promoted in the public README.
+TODO: Refresh and embed current Alpha v1.2 screenshots before using screenshots as public
+evidence. Existing screenshot assets may reflect earlier demo states and should be reviewed
+before being promoted in the public README.
 
 ## Contributing
 
-AgriPartners is currently founder-led and in Alpha. External feedback is welcome, especially around:
+AgriPartners is currently founder-led and in Alpha. External feedback is welcome, especially
+around:
 
 - NEAR ecosystem fit;
 - wallet UX;
@@ -239,4 +275,5 @@ For discussion or collaboration, contact: `farhodmuhamadiev4@gmail.com`.
 
 ## License
 
-No standalone `LICENSE` file is currently present in this repository. Add or confirm the project license before treating the repository as open-source for reuse.
+No standalone `LICENSE` file is currently present in this repository. Add or confirm the project
+license before treating the repository as open-source for reuse.
