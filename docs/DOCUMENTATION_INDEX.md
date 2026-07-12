@@ -54,7 +54,7 @@ and lightweight Alpha v1.2 NEAR CRM are now Archived at their recorded destinati
 
 ## Recommended Reading Order
 
-### Start Here вЂ” P1
+### 🚀 Start Here — Priority 1
 
 1. [Documentation Index](DOCUMENTATION_INDEX.md)
 2. [Product Book](PRODUCT_BOOK.md)
@@ -138,8 +138,8 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Repository README](../README.md) | Introduces AgriPartners, the current Alpha boundary, setup, and top-level project navigation. | General public, reviewers, developers | Ready | Product | Public  P3 | P1 | No | No | Yes |
 | [Product Book](PRODUCT_BOOK.md) | Provides canonical ecosystem navigation across Product, Business, Pilot, Legal, and Engineering documentation. | Reviewers, partners, internal contributors | Ready | Product | Public | P1 | Yes | No | Yes |
-| [Platform Explained РІР‚вЂќ English](platform/PLATFORM_EXPLAINED_EN.pdf) | Explains the platform vision, roles, workflows, NEAR use, and roadmap in a distributable format. | General public, investors, partners | Ready | Product | Public | P3 | No | No | No |
-| [Platform Explained РІР‚вЂќ Russian](platform/PLATFORM_EXPLAINED_RU.pdf) | Russian-language platform explanation. | Russian-speaking public, investors, partners | Ready | Product | Public | P3 | No | No | No |
+| [Platform Explained — English](platform/PLATFORM_EXPLAINED_EN.pdf) | Explains the platform vision, roles, workflows, NEAR use, and roadmap in a distributable format. | General public, investors, partners | Ready | Product | Public | P3 | No | No | No |
+| [Platform Explained — Russian](platform/PLATFORM_EXPLAINED_RU.pdf) | Russian-language platform explanation. | Russian-speaking public, investors, partners | Ready | Product | Public | P3 | No | No | No |
 | [NEAR Testnet Status](near-testnet.md) | Describes the demonstrated Testnet integration and its limitations. | Technical reviewers, ecosystem participants | Ready | Engineering | Public | P3 | No | No | No |
 | [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md) | Records the current Alpha release scope, evidence, and limitations. | General reviewers, Product, Engineering | Ready | Engineering | Public | P1 | Yes | No | Yes |
 | Public FAQ | Provides a concise non-investor overview of common platform and Alpha questions. | General public | Planned | Product | Public | P2 | No | No | No |
@@ -164,7 +164,7 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 | Document Name | Purpose | Audience | Status | Owner | Access | Priority | Canonical | Archive Candidate | Stable Path |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Farmer Portal Guide](farmer-portal.md) | Explains the current Farmer Portal and Alpha workflow. | Farmers, Product reviewers | Ready | Product | Public  P2 | P2 | No | No | No |
-| [Farmer Portal Guide РІР‚вЂќ Russian](farmer-portal-ru.md) | Russian-language Farmer Portal explanation. | Russian-speaking farmers, reviewers | Ready | Product | Public | P2 | No | No | No |
+| [Farmer Portal Guide — Russian](farmer-portal-ru.md) | Russian-language Farmer Portal explanation. | Russian-speaking farmers, reviewers | Ready | Product | Public | P2 | No | No | No |
 | [Canonical Farmer Experience Specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md) | Defines the authoritative Farmer journey, dashboard, workspace, and visibility rules. | Product, Operations, Engineering | Ready | Product | Internal | P3 | Yes | No | Yes |
 | [Farmer Daily Workflow Specification](platform/FARMER_DAILY_WORKFLOW_SPEC.md) | Defines daily Farmer tasks, decisions, reporting, and operational sequence. | Farmers, Operations, Product | Ready | Product | Controlled | P3 | Yes | No | Yes |
 | [Feedlot Master Investment Model](business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md) | Defines the authoritative Feedlot model assumptions and economics. | Business, farmers, diligence reviewers | Ready | Business | Controlled | P2 | Yes | No | Yes |
@@ -190,7 +190,7 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 | [AgriPartners Operating Model](business/OPERATING_MODEL.md) | Defines participant relationships, AgriPartners' operator role, and the target business model. | Strategic partners, Business, Operations | Ready | Business | Controlled  P2 | P2 | Yes | No | Yes |
 | [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md) | Defines the intended controlled pilot scope, roles, controls, and readiness boundaries. | Pilot partners, Operations, Product | Ready | Operations | Controlled | P2 | Yes | No | Yes |
 | [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md) | Describes the operating process for a future controlled pilot. | Operating partners, Operations | Ready | Operations | Internal | P2 | Yes | No | Yes |
-| [Platform Contract Architecture](legal/PLATFORM_CONTRACT_ARCHITECTURE.md) | Describes the intended InvestorРІР‚вЂњAgriPartnersРІР‚вЂњFarmer contractual structure. | Partners, Product, legal reviewers | Draft | Product / Legal | Controlled | P2 | Yes | No | Yes |
+| [Platform Contract Architecture](legal/PLATFORM_CONTRACT_ARCHITECTURE.md) | Describes the intended Investor–AgriPartners–Farmer contractual structure. | Partners, Product, legal reviewers | Draft | Product / Legal | Controlled | P2 | Yes | No | Yes |
 | [Outreach Playbook](outreach/outreach-playbook.md) | Defines relationship-first engagement practices and outreach sequencing. | Founder, Partnerships, Investor Relations | Ready | Partnerships | Internal | P2 | No | No | No |
 | Strategic Partnership Brief | Provides a concise partner value proposition, collaboration models, and qualification criteria. | Prospective strategic partners | Planned | Partnerships | Controlled | P2 | No | No | No |
 | Partner Due Diligence Checklist | Standardizes operational, legal, financial, and delivery review for prospective partners. | Partnerships, Operations, legal reviewers | Planned | Partnerships | Internal | P2 | No | No | No |
