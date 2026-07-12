@@ -30,6 +30,8 @@ authority.
 
 - [Safe Archive Batch 1 Manifest](SAFE_ARCHIVE_BATCH_1_MANIFEST.md) — 32 P4, non-canonical,
   low-risk files archived on 2026-07-12.
+- [Safe Archive Batch 2 Manifest](SAFE_ARCHIVE_BATCH_2_MANIFEST.md) — 13 P4, non-canonical
+  historical files archived on 2026-07-12 after individual review.
 
 ## Historical Materials Previously in This Folder
 

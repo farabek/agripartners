@@ -9,7 +9,7 @@ Version: 1.0
 Last reviewed: 2026-07-06
 
 Supersedes: Governance registry portions of `docs/DOCUMENTATION_GUIDE.md` and the prior
-`docs/documentation-architecture/` audit
+`docs/archive/deprecated/documentation-architecture/` audit
 
 Replaced by: —
 
@@ -55,7 +55,7 @@ conflicts with this matrix, this matrix takes precedence.
 | Presentation | `docs/presentation-readiness/`, `docs/pitch-deck/`, presentation files in `docs/investor-package/`, root presentation HTML |
 | Demo | `docs/demo-readiness/`, `docs/demo-assets/`, `docs/demo-guide/` |
 | Assets | `docs/screenshots/`, `docs/demo-assets/screenshots/`, generated PDF, DOCX, PPTX, and HTML assets |
-| Archive | `docs/archive/`, `docs/audits/`, `docs/documentation-architecture/` |
+| Archive | `docs/archive/`, `docs/audits/`, `docs/archive/deprecated/documentation-architecture/` |
 
 All existing empty documentation folders were reviewed: `docs/business-model/`,
 `docs/demo-guide/`, `docs/investor-deck/`, `docs/workflows/`, and the structural parent folders
@@ -550,7 +550,7 @@ without allowing them to govern current work.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Archive Index | `docs/archive/README.md` | Manifest and use boundary for archived material | Living | Operations | Yes | — | 2026-06-27 | Unlabeled historical files | — | Canonical only as archive manifest |
 | Alpha v1 Repository Audit EN/RU | `docs/audits/` | Point-in-time implementation assessment | Archived | Engineering | No | Alpha v1 | 2026-06-21 | Earlier informal audit claims | Current source, Architecture, and Releases | Historical evidence |
-| Documentation Architecture Audit EN/RU | `docs/documentation-architecture/` | Prior inventory, reading order, rename plan, and link analysis | Archived | Product | No | 1 | 2026-06-27 | — | `docs/DOCUMENTATION_AUTHORITY_MATRIX.md` | Files remain in place but are logically archived |
+| Documentation Architecture Audit EN/RU | `docs/archive/deprecated/documentation-architecture/` | Prior inventory, reading order, rename plan, and link analysis | Archived | Product | No | 1 | 2026-06-27 | — | `docs/DOCUMENTATION_AUTHORITY_MATRIX.md` | Files remain in place but are logically archived |
 | Archived Comparison PDF | `docs/archive/deprecated/AgriPartners-Comparison-AllSplits.pdf` | Historical split comparison | Archived | Business | No | — | 2026-06-27 | — | 60/40 authority package | Must not drive current claims |
 | Archived Escrow Analysis PDF | `docs/archive/deprecated/AgriPartners-Escrow-Analysis.pdf` | Historical escrow analysis | Archived | Business | No | — | 2026-06-27 | — | Current exploratory protection framework | Internal historical context |
 | Archived Checklist HTML | `docs/archive/checklist.html` | Historical outreach checklist | Archived | Investor Relations | No | — | 2026-06-27 | — | Current outreach CRM | Browser-local historical state |
@@ -568,7 +568,7 @@ for current decisions.
 ### Archive Historical Documents
 
 All remaining files under `docs/archive/`, `docs/audits/`, and
-`docs/documentation-architecture/`.
+`docs/archive/deprecated/documentation-architecture/`.
 
 ## Canonical Documentation Map
 
@@ -684,7 +684,7 @@ These documents are low-authority archive candidates after confirming that no op
 required external reference remains:
 
 - `docs/superpowers/`
-- `docs/documentation-architecture/`
+- `docs/archive/deprecated/documentation-architecture/`
 - completed `docs/product-roadmap/01-*` through `05-*` and `11-*` through `15-*`
 - v1 one-pager, pitch-deck, and demo-script files under `docs/investor-package/`
 - v1 investor deck PPTX files

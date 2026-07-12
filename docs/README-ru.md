@@ -60,8 +60,8 @@ AgriPartners объединяет opportunity review, farmer reporting, return r
 - [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
 - [Alpha v1.1 Release Review](releases/alpha-v1.1-release-review.md)
 - [Alpha v1.1 Release Review RU](releases/alpha-v1.1-release-review-ru.md)
-- [Alpha v1 Full Repository Audit](audits/01-alpha-v1-full-repository-audit.md)
-- [Alpha v1 Full Repository Audit RU](audits/11-alpha-v1-full-repository-audit-ru.md)
+- [Alpha v1 Full Repository Audit](archive/releases/alpha-v1/01-alpha-v1-full-repository-audit.md)
+- [Alpha v1 Full Repository Audit RU](archive/releases/alpha-v1/11-alpha-v1-full-repository-audit-ru.md)
 - [Launch Kit](LAUNCH_KIT.md)
 - [Launch Kit RU](LAUNCH_KIT_RU.md)
 

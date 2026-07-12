@@ -69,8 +69,8 @@ Current Alpha v1.2 modules include:
 - [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
 - [Alpha v1.1 Release Review](releases/alpha-v1.1-release-review.md)
 - [Alpha v1.1 Release Review RU](releases/alpha-v1.1-release-review-ru.md)
-- [Alpha v1 Full Repository Audit](audits/01-alpha-v1-full-repository-audit.md)
-- [Alpha v1 Full Repository Audit RU](audits/11-alpha-v1-full-repository-audit-ru.md)
+- [Alpha v1 Full Repository Audit](archive/releases/alpha-v1/01-alpha-v1-full-repository-audit.md)
+- [Alpha v1 Full Repository Audit RU](archive/releases/alpha-v1/11-alpha-v1-full-repository-audit-ru.md)
 - [Launch Kit](LAUNCH_KIT.md)
 - [Launch Kit RU](LAUNCH_KIT_RU.md)
 
@@ -129,7 +129,7 @@ Investor Protection remains valid as exploratory documentation but is deferred t
 - [Outreach CRM](outreach/outreach-crm.md) - active CRM and working pipeline.
 - [Outreach Shortlist](outreach/outreach-shortlist.md) - daily clickable list for LinkedIn actions.
 - [Founder LinkedIn Profile Kit](outreach/founder-linkedin-profile-kit.md) - LinkedIn profile materials.
-- [NEAR Ecosystem CRM](outreach/near-ecosystem-crm.md)
+- [NEAR Ecosystem CRM](archive/near/alpha-v1.2/near-ecosystem-crm.md)
 - [Outreach Playbook](outreach/outreach-playbook.md) - outreach methodology.
 - [LinkedIn Content Calendar](outreach/linkedin-content-calendar.md) - content calendar.
 - [NEAR Outreach](near-outreach/01-readme.md)

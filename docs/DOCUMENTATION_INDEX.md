@@ -45,6 +45,10 @@ Access values:
 non-canonical, low-risk records into `docs/archive/`. These files are Archived and historical;
 their old paths are retained only in the manifest for migration traceability.
 
+[Safe Archive Batch 2](archive/SAFE_ARCHIVE_BATCH_2_MANIFEST.md) moved 13 additional P4,
+non-canonical historical records. The prior documentation-architecture audit, Alpha v1 audits,
+and lightweight Alpha v1.2 NEAR CRM are now Archived at their recorded destinations.
+
 ## Recommended Reading Order
 
 ### Start Here вЂ” P1
@@ -149,6 +153,8 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 | [Investor Demo Script](investor/03_DEMO_SCRIPT.md) | Guides a controlled product demonstration and investor discussion. | Presenters, Investor Relations | Ready | Investor Relations | Internal | P2 | No | No | No |
 | [Pitch Deck Specification](investor/04_PITCH_DECK_SPEC.md) | Defines the content and structure required for the investor pitch deck. | Investor Relations, design reviewers | Draft | Investor Relations | Internal | P2 | No | No | No |
 | [Investor Brief](investor-pack/investor-brief.md) | Provides a compact investor-facing summary derived from project documentation. | Investors, partners | Ready | Investor Relations | Controlled | P2 | No | No | No |
+| [Legacy Presentation Outline RU](investor-package/presentation-outline-ru.md) | Preserves the Russian Alpha v1 presentation outline pending review with its English companion. | Investor Relations, historical reviewers | Draft | Investor Relations | Internal | P3 | No | No | No |
+| [Legacy Screenshot Checklist RU](investor-package/screenshot-checklist-ru.md) | Preserves the Russian screenshot checklist pending UI and translation-pair review. | Investor Relations, Product reviewers | Draft | Investor Relations | Internal | P3 | No | No | No |
 
 ## 3. Farmer Package
 
