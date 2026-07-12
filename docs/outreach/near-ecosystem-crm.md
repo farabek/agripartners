@@ -1,4 +1,7 @@
-# NEAR Ecosystem CRM
+# NEAR Ecosystem CRM (Deprecated)
+
+> Do not record contacts or interactions here. The canonical Relationship CRM is
+> [`outreach-crm.md`](outreach-crm.md). This file remains as historical planning guidance only.
 
 This lightweight CRM is for tracking NEAR ecosystem outreach, technical review conversations, pilot partner leads, and strategic introductions for AgriPartners Alpha v1.2.
 

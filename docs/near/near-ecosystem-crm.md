@@ -1,4 +1,8 @@
-# AgriPartners NEAR Ecosystem CRM
+# AgriPartners NEAR Ecosystem CRM (Deprecated)
+
+> Do not record contacts or interactions here. The canonical Relationship CRM is
+> [`../outreach/outreach-crm.md`](../outreach/outreach-crm.md). This document remains as historical
+> strategy guidance only.
 
 Status: Operational outreach document for Phase 24 NEAR Outreach.
 
@@ -400,4 +404,3 @@ Expected outcome:
 - Better-defined Beta priorities.
 - Stronger NEAR ecosystem positioning.
 - A relationship base that can support future Mainnet evaluation discussions.
-
