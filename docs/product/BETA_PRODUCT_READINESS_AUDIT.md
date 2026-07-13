@@ -11,6 +11,12 @@ Perspective: First-time investor
 Scope: Home → Opportunity Catalog → Hissar Demonstration Project → Project Workspace → Project
 Reports → Project Documents → Returns → Investor Dashboard
 
+> **Governance resolution (2026-07-13):** The audit findings below preserve the version ambiguity
+> observed on 2026-07-12. Repository governance now defines Alpha v1.2 as the current product and
+> presentation release and Alpha v1.1 as an official completed historical milestone. This notice
+> resolves documentation positioning; it does not alter the product evidence recorded by the
+> audit. See the [Release Index](../RELEASES.md).
+
 ## 1. Executive Summary
 
 AgriPartners has a credible self-guided product skeleton. A first-time investor can understand

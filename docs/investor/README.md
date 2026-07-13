@@ -1,3 +1,5 @@
+<!-- markdownlint-configure-file { "MD013": false } -->
+
 # Investor Presentation Kit
 
 Status: Living
@@ -5,6 +7,11 @@ Status: Living
 Language: English
 
 Owner: Investor Relations
+
+> **Release governance notice (2026-07-13):** Alpha v1.2 is the current product and presentation
+> release. Materials in this kit that identify Alpha v1.1 preserve the completed Alpha v1.1
+> milestone narrative and must not be presented as current-release positioning. Use the
+> [Release Index](../RELEASES.md) for canonical release status.
 
 ## 1. Investor Presentation Kit
 

@@ -20,6 +20,10 @@ operators track deals, returns, treasury activity, and lifecycle events.
 - Accepts no live investments.
 - Provides no production custody, payout, settlement, or Mainnet investment system.
 
+[Alpha v1.2](docs/releases/alpha-v1.2-release-notes.md) is the current presentation release.
+[Alpha v1.1](docs/releases/ALPHA_V1_1_RELEASE.md) remains an official completed milestone and the
+foundation of the current presentation release; it is not the current product version.
+
 **Future operating model**
 
 - AgriPartners OÜ is the intended central counterparty.
@@ -38,6 +42,7 @@ operators track deals, returns, treasury activity, and lifecycle events.
 - [Review the Investor Package](docs/investor/README.md)
 - [Read the Product Book](docs/PRODUCT_BOOK.md)
 - [View the Current Roadmap](docs/ROADMAP.md)
+- [Review Current and Historical Releases](docs/RELEASES.md)
 
 ## Documentation
 

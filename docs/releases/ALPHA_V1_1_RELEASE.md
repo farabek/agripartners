@@ -9,6 +9,14 @@
 | Release date | 2026-07-12 |
 | Repository | AgriPartners |
 
+## Governance Position
+
+This document records completion of the official Alpha v1.1 milestone. Alpha v1.1 became the
+product, technical, and documentation foundation of the current **Alpha v1.2 presentation
+release**. It remains an official historical release and is not the current product or
+presentation version. Current-release scope is recorded in the
+[Alpha v1.2 Release Notes](alpha-v1.2-release-notes.md).
+
 ## 1. Executive Summary
 
 AgriPartners Alpha v1.1 is the first end-to-end demonstration of the platform. It brings the
@@ -161,5 +169,6 @@ appropriate review process.
 
 ## 11. Release Statement
 
-AgriPartners Alpha v1.1 establishes the first complete investor demonstration platform and the
-product, technical, and documentation foundation for Beta commercial readiness.
+AgriPartners Alpha v1.1 established the first complete investor demonstration platform and the
+product, technical, and documentation foundation inherited by the current Alpha v1.2 presentation
+release and used for later Beta commercial-readiness planning.

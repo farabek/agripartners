@@ -1,4 +1,4 @@
-<!-- markdownlint-configure-file { "MD024": { "siblings_only": true } } -->
+<!-- markdownlint-configure-file { "MD013": false, "MD024": { "siblings_only": true } } -->
 
 # AgriPartners Product Demo Script
 
@@ -11,6 +11,11 @@ Language: English
 Owner: Investor Relations
 
 Target duration: 10–15 minutes, including questions
+
+> **Release governance notice (2026-07-13):** This script is the official historical Alpha v1.1
+> milestone demo script. Alpha v1.2 is now the current product and presentation release. The
+> Alpha v1.1 wording below is retained as release history and must not be used to describe the
+> current presentation version. See the [Release Index](../RELEASES.md).
 
 ## Purpose
 

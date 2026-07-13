@@ -1,6 +1,8 @@
+<!-- markdownlint-configure-file { "MD013": false } -->
+
 # AgriPartners Relationship CRM
 
-Last reconciled: 2026-07-12 (Asia/Tashkent)
+Last reconciled: 2026-07-13 (Asia/Tashkent)
 
 This document is the single source of truth for AgriPartners investor relations, NEAR ecosystem
 outreach, partnerships, and business development. An interaction is complete only after it is
@@ -58,7 +60,7 @@ interaction history.
 ### Permanent Contact ID registry
 
 - Assigned IDs are immutable and must never be reused, renumbered, or reassigned.
-- The next new contact must receive **`NEAR-008`**.
+- The next new contact must receive **`NEAR-009`**.
 - The `NEAR` prefix is retained for the permanent sequence even when a future contact belongs to a
   different category.
 
@@ -71,6 +73,7 @@ interaction history.
 | NEAR-005 | Bowen Shen |
 | NEAR-006 | Alexander Scharrer |
 | NEAR-007 | Taras Dovgal |
+| NEAR-008 | David Norris |
 
 ### Relationship Score
 
@@ -114,73 +117,72 @@ condition, such as `Follow-up Required`; Pipeline Stage captures relationship ma
 
 ## Relationship Dashboard
 
-Snapshot date: 2026-07-12. Counts reflect the last recorded evidence and must be reconciled against
+Snapshot date: 2026-07-13. Counts reflect the last recorded evidence and must be reconciled against
 LinkedIn before any new action.
 
 | Metric | Count |
 | --- | ---: |
-| Total Contacts | 7 |
+| Total Contacts | 8 |
 | Research | 0 |
-| Following | 1 |
+| Following | 0 |
 | Liked Posts | 0 |
 | Commented | 0 |
-| Invitation Pending | 5 |
-| Connected | 1 |
+| Invitation Pending | 6 |
+| Connected | 2 |
 | Conversations | 0 |
 | Warm Relationships | 0 |
 | Meetings | 0 |
 | Partnerships | 0 |
 | Investor Opportunities | 0 |
 | Partnership Opportunities | 0 |
-| Contacts requiring action this week | 6 |
+| Contacts requiring action this week | 5 |
 | Overdue Follow-ups | 1 |
 
 ### Contacts grouped by status
 
 | Status | Count | Contacts |
 | --- | ---: | --- |
-| Following | 1 | Joseph Beverley |
-| Invitation Sent (Pending) | 5 | David Mirzadeh; Josh Ford; Bowen Shen; Alexander Scharrer; Taras Dovgal |
+| Invitation Sent (Pending) | 6 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris |
+| Connected | 1 | Alexander Scharrer |
 | Follow-up Required | 1 | Philipp Suarez |
 
 ### Contacts grouped by pipeline stage
 
 | Pipeline Stage | Count | Contact IDs | Contacts |
 | --- | ---: | --- | --- |
-| Following | 1 | NEAR-001 | Joseph Beverley |
-| Invitation Sent | 5 | NEAR-002; NEAR-004; NEAR-005; NEAR-006; NEAR-007 | David Mirzadeh; Josh Ford; Bowen Shen; Alexander Scharrer; Taras Dovgal |
-| Connected | 1 | NEAR-003 | Philipp Suarez |
+| Invitation Sent | 6 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris |
+| Connected | 2 | NEAR-003; NEAR-006 | Philipp Suarez; Alexander Scharrer |
 
 ## Weekly Business Development Review
 
-Review period: **2026-07-06 through 2026-07-12** (Asia/Tashkent).
+Review period: **2026-07-13 through 2026-07-19** (Asia/Tashkent).
 
 ### Contacts requiring action
 
 | Contact ID | Contact | Priority | Next Touch | Next Action | Reason |
 | --- | --- | --- | --- | --- | --- |
-| NEAR-003 | Philipp Suarez | Medium | 2026-07-03 (overdue) | Check for a reply; if none, send the single prepared follow-up | The planned follow-up date passed without a recorded reply or follow-up |
-| NEAR-002 | David Mirzadeh | Medium | 2026-07-12 | Check acceptance; after acceptance, send a short routing intro | Confirm whether the pending invitation has changed state |
-| NEAR-004 | Josh Ford | Medium | 2026-07-12 | Check invitation state and relevant posts | Confirm acceptance and identify an authentic DevX engagement point |
-| NEAR-005 | Bowen Shen | Medium | 2026-07-12 | Check invitation state and relevant posts | Confirm acceptance before any DeFi/RWA fit introduction |
-| NEAR-006 | Alexander Scharrer | High | 2026-07-12 | Verify LinkedIn URL/profile and check invitation state | Complete missing profile data and reconcile the pending invitation |
-| NEAR-007 | Taras Dovgal | Low | 2026-07-12 | Verify relevance and invitation state; do not follow up until verified | Current NEAR/RWA relevance is uncertain |
+| NEAR-003 | Philipp Suarez | Medium | 2026-07-13 | Check for a reply; if none, send the single prepared follow-up | The follow-up remains pending and overdue; no reply or sent follow-up is recorded |
+| NEAR-002 | David Mirzadeh | Medium | 2026-07-13 | Check acceptance; after acceptance, send a short routing intro | No confirmed status change is available for the pending invitation |
+| NEAR-004 | Josh Ford | Medium | 2026-07-13 | Check invitation state and relevant posts | No confirmed status change is available for the pending invitation |
+| NEAR-005 | Bowen Shen | Medium | 2026-07-13 | Check invitation state and relevant posts | No confirmed status change is available for the pending invitation |
+| NEAR-006 | Alexander Scharrer | High | 2026-07-16 | Review recent activity and identify a natural engagement point | The invitation is accepted; continue relationship-first engagement without pitching |
 
 ### Pending invitations
 
 | Contact ID | Contact | Invitation Date | Next Touch |
 | --- | --- | --- | --- |
-| NEAR-002 | David Mirzadeh | 2026-06-25 | 2026-07-12 |
-| NEAR-004 | Josh Ford | 2026-06-25 | 2026-07-12 |
-| NEAR-005 | Bowen Shen | 2026-06-25 | 2026-07-12 |
-| NEAR-006 | Alexander Scharrer | 2026-07-03 | 2026-07-12 |
-| NEAR-007 | Taras Dovgal | 2026-06-25 | 2026-07-12 |
+| NEAR-002 | David Mirzadeh | 2026-06-25 | 2026-07-13 |
+| NEAR-004 | Josh Ford | 2026-06-25 | 2026-07-13 |
+| NEAR-005 | Bowen Shen | 2026-06-25 | 2026-07-13 |
+| NEAR-007 | Taras Dovgal | 2026-06-25 | 2026-08-13 |
+| NEAR-001 | Joseph Beverley | 2026-07-13 | 2026-07-20 |
+| NEAR-008 | David Norris | 2026-07-13 | 2026-07-20 |
 
 ### People needing follow-up
 
 | Contact ID | Contact | Due Date | Follow-up State |
 | --- | --- | --- | --- |
-| NEAR-003 | Philipp Suarez | 2026-07-03 | Overdue; verify no reply before sending prepared follow-up |
+| NEAR-003 | Philipp Suarez | 2026-07-13 | Still pending and overdue from 2026-07-03; verify no reply before sending prepared follow-up |
 
 ### New opportunities
 
@@ -189,18 +191,17 @@ interaction evidence.
 
 ### Inactive contacts (>30 days)
 
-None. The oldest recorded last interaction is 2026-06-25, 17 days before the snapshot date.
+None. The oldest recorded last interaction is 2026-06-25, 18 days before the snapshot date.
 
-### Actions due or overdue
+### Actions due this week or overdue
 
 | Contact | Priority | Current status | Required action | Recommended date |
 | --- | --- | --- | --- | --- |
-| Philipp Suarez | Medium | Follow-up Required | Check for a reply; if none, send the single prepared follow-up | 2026-07-12 (overdue from 2026-07-03) |
-| David Mirzadeh | Medium | Invitation Sent (Pending) | Check whether the invitation was accepted; update CRM before messaging | 2026-07-12 |
-| Josh Ford | Medium | Invitation Sent (Pending) | Check invitation state and recent relevant posts | 2026-07-12 |
-| Bowen Shen | Medium | Invitation Sent (Pending) | Check invitation state and recent relevant posts | 2026-07-12 |
-| Alexander Scharrer | High | Invitation Sent (Pending) | Verify LinkedIn URL/profile and check invitation state | 2026-07-12 |
-| Taras Dovgal | Low | Invitation Sent (Pending) | Verify current relevance and invitation state; do not follow up until verified | 2026-07-12 |
+| Philipp Suarez | Medium | Follow-up Required | Check for a reply; if none, send the single prepared follow-up | 2026-07-13 (overdue from 2026-07-03) |
+| David Mirzadeh | Medium | Invitation Sent (Pending) | Check whether the invitation was accepted; update CRM before messaging | 2026-07-13 |
+| Josh Ford | Medium | Invitation Sent (Pending) | Check invitation state and recent relevant posts | 2026-07-13 |
+| Bowen Shen | Medium | Invitation Sent (Pending) | Check invitation state and recent relevant posts | 2026-07-13 |
+| Alexander Scharrer | High | Connected | Review recent activity and identify a natural engagement point | 2026-07-16 |
 
 ### Active conversations
 
@@ -218,13 +219,14 @@ None recorded. Do not infer an investor opportunity from a finance or capital-ma
 
 | Contact ID | Full Name | Organization | Position | LinkedIn URL | Country | Category | Priority | Relationship Score | Pipeline Stage | Status | Last Interaction | Next Touch Date | Next Action | Next Touch Reason |
 | --- | --- | --- | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- |
-| NEAR-001 | Joseph Beverley | NEAR Foundation | Founder Success Manager | [LinkedIn](https://www.linkedin.com/in/joey-be/) | Unknown | NEAR | High | 2 | Following | Following | Followed on 2026-06-25 | 2026-07-14 | Review profile/posts and engage only when relevant | Maintain a relevant, authentic Founder Success relationship |
-| NEAR-002 | David Mirzadeh | NEAR Foundation | Chief of Staff | [LinkedIn](https://www.linkedin.com/in/mirzdame/) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Invitation sent 2026-06-25 | 2026-07-12 | Check acceptance; after acceptance, send a short routing intro | Confirm whether the pending invitation has changed state |
-| NEAR-003 | Philipp Suarez | NEAR Foundation | Head of Finance | [LinkedIn](https://www.linkedin.com/in/philipp-suarez-83ab4593/) | Unknown | NEAR | Medium | 6 | Connected | Follow-up Required | Intro sent 2026-06-29 | 2026-07-03 | Check for reply; if none, send the single prepared follow-up | The planned follow-up is overdue and no reply is recorded |
-| NEAR-004 | Josh Ford | NEAR Protocol | Senior Product Manager, DevX | [LinkedIn](https://www.linkedin.com/in/thisisjoshford) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Invitation sent and followed 2026-06-25 | 2026-07-12 | Check acceptance and relevant posts; intro after acceptance | Confirm acceptance and identify an authentic DevX engagement point |
-| NEAR-005 | Bowen Shen | Proximity Labs | Chief Chess Player | [LinkedIn](https://www.linkedin.com/in/bowen-shen-558479a0/) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Invitation sent 2026-06-25 | 2026-07-12 | Check acceptance and relevant posts; send fit intro only after acceptance | Confirm acceptance before any DeFi/RWA fit introduction |
-| NEAR-006 | Alexander Scharrer | NEAR Foundation | Head of Capital Markets | Unknown (verification required) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | Personalized invitation sent 2026-07-03 | 2026-07-12 | Verify profile URL and acceptance; do not pitch immediately after acceptance | Complete missing profile data and reconcile the invitation state |
-| NEAR-007 | Taras Dovgal | NoVPS (last observed; unverified) | Business Co-Founder (last observed; unverified) | [LinkedIn](https://www.linkedin.com/in/tarasdovgal/?locale=en) | Unknown | Other | Low | 5 | Invitation Sent | Invitation Sent (Pending) | Historical invitation sent 2026-06-25 | 2026-07-12 | Verify current ecosystem relevance and invitation state before any follow-up | Current NEAR/RWA relevance is uncertain |
+| NEAR-001 | Joseph Beverley | NEAR Foundation | Founder Success Manager | [LinkedIn](https://www.linkedin.com/in/joey-be/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | Personalized invitation sent 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted; do not message before acceptance | Wait for a response to the personalized invitation |
+| NEAR-002 | David Mirzadeh | NEAR Foundation | Chief of Staff | [LinkedIn](https://www.linkedin.com/in/mirzdame/) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Invitation sent 2026-06-25 | 2026-07-13 | Check acceptance; after acceptance, send a short routing intro | No confirmed status change is available for the pending invitation |
+| NEAR-003 | Philipp Suarez | NEAR Foundation | Head of Finance | [LinkedIn](https://www.linkedin.com/in/philipp-suarez-83ab4593/) | Unknown | NEAR | Medium | 6 | Connected | Follow-up Required | Follow-up status verified 2026-07-13 | 2026-07-13 | Check for reply; if none, send the single prepared follow-up | The follow-up remains pending and overdue; no reply or sent follow-up is recorded |
+| NEAR-004 | Josh Ford | NEAR Protocol | Senior Product Manager, DevX | [LinkedIn](https://www.linkedin.com/in/thisisjoshford) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Invitation sent and followed 2026-06-25 | 2026-07-13 | Check acceptance and relevant posts; intro after acceptance | No confirmed status change is available for the pending invitation |
+| NEAR-005 | Bowen Shen | Proximity Labs | Chief Chess Player | [LinkedIn](https://www.linkedin.com/in/bowen-shen-558479a0/) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Invitation sent 2026-06-25 | 2026-07-13 | Check acceptance and relevant posts; send fit intro only after acceptance | No confirmed status change is available for the pending invitation |
+| NEAR-006 | Alexander Scharrer | NEAR Foundation | Head of Capital Markets | Unknown (verification required) | Unknown | NEAR | High | 6 | Connected | Connected | Invitation accepted 2026-07-13 | 2026-07-16 | Review recent activity and identify a natural engagement point | Continue relationship-first engagement after the confirmed acceptance |
+| NEAR-007 | Taras Dovgal | NoVPS (last observed; unverified) | Business Co-Founder (last observed; unverified) | [LinkedIn](https://www.linkedin.com/in/tarasdovgal/?locale=en) | Unknown | Other | Low | 5 | Invitation Sent | Invitation Sent (Pending) | Priority and relevance reviewed 2026-07-13 | 2026-08-13 | Reassess current ecosystem relevance before any follow-up | Current NEAR/RWA relevance remains uncertain; low priority is retained |
+| NEAR-008 | David Norris | NEAR Foundation | CFO & CSO | [LinkedIn](https://ae.linkedin.com/in/davidnorrisaca) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Personalized invitation sent 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted; do not message before acceptance | Wait for a response to the personalized invitation |
 
 ## Interaction history
 
@@ -234,9 +236,11 @@ None recorded. Do not infer an investor opportunity from a finance or capital-ma
   NEAR Foundation through LinkedIn and NEAR ecosystem sources. Added as a high-priority Founder
   Success routing contact.
 - **2026-06-25 — Followed:** Followed on LinkedIn. No message or reply recorded.
+- **2026-07-13 — Connection request sent:** Personalized LinkedIn invitation sent. No acceptance
+  or reply is recorded.
 
-Next action: Review the profile and recent posts; engage only when there is a relevant, authentic
-reason. Recommended date: **2026-07-14**.
+Next action: Check whether the invitation was accepted. Do not message before acceptance.
+Recommended date: **2026-07-20**.
 
 ### David Mirzadeh
 
@@ -246,7 +250,8 @@ reason. Recommended date: **2026-07-14**.
   recorded.
 
 Next action: Check whether the invitation was accepted. If accepted, update the CRM first and send
-a short routing-oriented introduction. Recommended date: **2026-07-12**.
+a short routing-oriented introduction. No confirmed status change is available. Recommended date:
+**2026-07-13**.
 
 ### Philipp Suarez
 
@@ -256,9 +261,11 @@ a short routing-oriented introduction. Recommended date: **2026-07-12**.
 - **2026-06-29 18:51 — Message sent:** Introductory LinkedIn message sent. No reply is recorded.
 - **2026-07-03 — Status changed:** Follow-up became due because no reply was recorded by the planned
   date. The follow-up itself is not recorded as sent.
+- **2026-07-13 — Follow-up status verified:** The connection and previously sent intro remain
+  confirmed. No reply or sent follow-up is recorded, so the follow-up is still pending.
 
 Next action: Check the conversation for a reply. If there is none, send the single prepared
-follow-up below and immediately record it. Recommended date: **2026-07-12**.
+follow-up below and immediately record it. Recommended date: **2026-07-13**.
 
 Prepared follow-up:
 
@@ -284,7 +291,8 @@ After sending, do not send another follow-up for at least seven days.
   recorded.
 
 Next action: Check invitation state and recent relevant posts. If accepted, update the CRM before
-sending a DevX/product-feedback introduction. Recommended date: **2026-07-12**.
+sending a DevX/product-feedback introduction. No confirmed status change is available.
+Recommended date: **2026-07-13**.
 
 ### Bowen Shen
 
@@ -294,7 +302,8 @@ sending a DevX/product-feedback introduction. Recommended date: **2026-07-12**.
   recorded.
 
 Next action: Check invitation state and recent relevant posts. Send a short DeFi/RWA fit message
-only after acceptance. Recommended date: **2026-07-12**.
+only after acceptance. No confirmed status change is available. Recommended date:
+**2026-07-13**.
 
 ### Alexander Scharrer
 
@@ -303,9 +312,11 @@ only after acceptance. Recommended date: **2026-07-12**.
 - **2026-07-03 — Connection request sent:** Personalized LinkedIn invitation sent; no acceptance or
   reply is recorded. Invitation note: "Hi Alexander, I'm building AgriPartners, an RWA agriculture
   platform on NEAR. I'd be glad to connect and exchange ideas around tokenized real-world assets."
+- **2026-07-13 — Connected:** LinkedIn invitation acceptance confirmed. No message or reply after
+  acceptance is recorded.
 
-Next action: Verify the LinkedIn URL and current position, then check invitation state. If accepted,
-observe and engage naturally before pitching. Recommended date: **2026-07-12**.
+Next action: Review recent activity and identify a natural engagement point. Do not pitch
+immediately after acceptance. Recommended date: **2026-07-16**.
 
 ### Taras Dovgal
 
@@ -316,9 +327,24 @@ observe and engage naturally before pitching. Recommended date: **2026-07-12**.
   is recorded.
 - **2026-06-25 — Status reviewed:** Marked as requiring relevance verification before any further
   outreach.
+- **2026-07-13 — Priority and relevance reviewed:** Low priority is retained. Current NEAR/RWA
+  relevance and invitation acceptance remain unconfirmed; no follow-up is authorized.
 
-Next action: Verify current role, relevance, and invitation state. Do not send a follow-up unless
-relevance is confirmed. Recommended date: **2026-07-12**.
+Next action: Reassess current role, relevance, and invitation state. Do not send a follow-up unless
+relevance is confirmed. Recommended date: **2026-08-13**.
+
+### David Norris
+
+- **2026-06-25 — Profile verified outside the active CRM:** Near Directory recorded David Norris
+  as CFO & CSO at NEAR Foundation and relevant to financial-model, treasury-transparency, and
+  sustainability framing. This verification record predates his permanent CRM entry.
+- **2026-07-13 — Added to canonical CRM:** Assigned permanent Contact ID `NEAR-008`; the prior Near
+  Directory identity and relevance record remains intact.
+- **2026-07-13 — Connection request sent:** Personalized LinkedIn invitation sent. No acceptance or
+  reply is recorded.
+
+Next action: Check whether the invitation was accepted. Do not message before acceptance.
+Recommended date: **2026-07-20**.
 
 ## Legacy Outreach History (Read-only)
 
@@ -432,11 +458,12 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
 - [x] Every tracked contact has a Relationship Score from 0 through 10.
 - [x] Every tracked contact belongs to exactly one Pipeline Stage.
 - [x] Every tracked contact has a Next Touch Date, Next Action, and Next Touch Reason.
-- [x] Dashboard counters reconcile to the seven contact-register records.
+- [x] Dashboard counters reconcile to the eight contact-register records.
 - [x] Weekly review lists reconcile to the snapshot date and recorded next-touch dates.
 - [x] Historical interactions from the prior operational CRM are retained.
 - [x] The complete pre-migration CRM structure and wording are retained as read-only history.
 - [x] Pending invitations, active conversations, partnership opportunities, and investor
   opportunities are explicitly summarized.
-- [ ] Reconcile today's LinkedIn state for the six contacts due on 2026-07-12.
+- [x] Reconcile the confirmed 2026-07-13 LinkedIn outreach state without inferring responses.
+- [ ] Check the still-pending invitation states for David Mirzadeh, Josh Ford, and Bowen Shen.
 - [ ] Verify Alexander Scharrer's canonical LinkedIn URL.

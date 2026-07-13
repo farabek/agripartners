@@ -1,3 +1,5 @@
+<!-- markdownlint-configure-file { "MD013": false } -->
+
 # AgriPartners Documentation Authority Matrix
 
 Status: Living
@@ -6,7 +8,7 @@ Owner: Product
 
 Version: 1.0
 
-Last reviewed: 2026-07-06
+Last reviewed: 2026-07-13
 
 Supersedes: Governance registry portions of `docs/DOCUMENTATION_GUIDE.md` and the prior
 `docs/archive/deprecated/documentation-architecture/` audit
@@ -418,8 +420,9 @@ historical release evidence.
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Releases Index | `docs/RELEASES.md` | Current release and release-history index | Living | Engineering | Yes | 1.0 | 2026-07-06 | Distributed release navigation | — | Does not copy detailed release notes |
-| Alpha v1.2 Release Notes | `docs/releases/alpha-v1.2-release-notes.md` | Current Alpha release record | Accepted | Engineering | Yes | Alpha v1.2 | 2026-06-24 | Alpha v1.1 current-release status | — | Current release evidence with stated limitations |
+| Releases Index | `docs/RELEASES.md` | Current release and release-history index | Living | Engineering | Yes | 1.0 | 2026-07-13 | Distributed release navigation | — | Does not copy detailed release notes |
+| Alpha v1.2 Release Notes | `docs/releases/alpha-v1.2-release-notes.md` | Current product and presentation release record | Accepted | Engineering | Yes | Alpha v1.2 | 2026-07-13 | Alpha v1.1 current-release status | — | Current release evidence with stated limitations |
+| Alpha v1.1 Completed Release | `docs/releases/ALPHA_V1_1_RELEASE.md` | Official completed Alpha v1.1 milestone | Frozen | Engineering | Yes | Alpha v1.1 | 2026-07-12 | — | Alpha v1.2 Release Notes for current status | Historical foundation of the current Alpha v1.2 presentation release |
 | Alpha v1.1 Release Review EN | `docs/releases/alpha-v1.1-release-review.md` | Historical Alpha v1.1 assessment | Frozen | Engineering | Yes | Alpha v1.1 | 2026-06-23 | — | Alpha v1.2 Release Notes for current status | Immutable historical release record |
 | Alpha v1.1 Release Review RU | `docs/releases/alpha-v1.1-release-review-ru.md` | Russian historical Alpha v1.1 assessment | Frozen | Engineering | Yes | Alpha v1.1 | 2026-06-23 | — | Alpha v1.2 Release Notes for current status | Translation of historical record |
 

@@ -12,6 +12,15 @@ If you are new to the project, open the
 The index explains documentation priorities, audiences, canonical documents, archive status,
 and recommended reading paths. It is the canonical map for all documentation packages.
 
+## Release Governance
+
+- **Current product and presentation release:**
+  [Alpha v1.2](releases/alpha-v1.2-release-notes.md).
+- **Official completed milestone:**
+  [Alpha v1.1](releases/ALPHA_V1_1_RELEASE.md), which established the foundation for Alpha v1.2
+  and remains historical rather than current.
+- **Canonical release navigation:** [Release Index](RELEASES.md).
+
 ## Documentation Packages
 
 - **Product:** start with the [Product Book](PRODUCT_BOOK.md).

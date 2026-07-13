@@ -6,7 +6,7 @@ Status: Ready
 
 Owner: Product
 
-Last reviewed: 2026-07-12
+Last reviewed: 2026-07-13
 
 > **Official documentation entry point:** This document is the canonical map for all
 > AgriPartners documentation and the starting point for selecting the correct package.
@@ -142,6 +142,7 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 | [Platform Explained — Russian](platform/PLATFORM_EXPLAINED_RU.pdf) | Russian-language platform explanation. | Russian-speaking public, investors, partners | Ready | Product | Public | P3 | No | No | No |
 | [NEAR Testnet Status](near-testnet.md) | Describes the demonstrated Testnet integration and its limitations. | Technical reviewers, ecosystem participants | Ready | Engineering | Public | P3 | No | No | No |
 | [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md) | Records the current Alpha release scope, evidence, and limitations. | General reviewers, Product, Engineering | Ready | Engineering | Public | P1 | Yes | No | Yes |
+| [Alpha v1.1 Completed Release](releases/ALPHA_V1_1_RELEASE.md) | Records the completed Alpha v1.1 milestone that became the foundation of the current Alpha v1.2 presentation release. | Historical reviewers, Product, Engineering | Ready | Engineering | Public | P3 | Yes | No | Yes |
 | Public FAQ | Provides a concise non-investor overview of common platform and Alpha questions. | General public | Planned | Product | Public | P2 | No | No | No |
 
 ## 2. Investor Package

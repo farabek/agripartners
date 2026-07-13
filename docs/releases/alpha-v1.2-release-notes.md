@@ -1,3 +1,5 @@
+<!-- markdownlint-configure-file { "MD013": false } -->
+
 # AgriPartners Alpha v1.2 Release Notes
 
 Release scope: Alpha v1.2 repository and public outreach readiness.
@@ -7,6 +9,10 @@ Status: Alpha/Testnet demonstration release. Not production investment, custody,
 ## Overview
 
 AgriPartners Alpha v1.2 is a working Alpha platform for transparent agricultural investment workflows on NEAR Testnet. The release strengthens the public product presentation, role-based demo experience, Treasury visibility, and external-review documentation needed before NEAR ecosystem outreach.
+
+Alpha v1.2 is the current product and presentation release. It builds on the official completed
+[Alpha v1.1 milestone](ALPHA_V1_1_RELEASE.md), which remains a historical release record rather
+than the current presentation version.
 
 The product remains intentionally conservative: pilot deal records, return records, Treasury Shadow Accounting, and NEAR Testnet references support workflow validation, but they are not production financial proof or audited settlement evidence.
 
