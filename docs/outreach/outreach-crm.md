@@ -60,7 +60,7 @@ interaction history.
 ### Permanent Contact ID registry
 
 - Assigned IDs are immutable and must never be reused, renumbered, or reassigned.
-- The next new contact must receive **`NEAR-009`**.
+- The next new contact must receive **`NEAR-011`**.
 - The `NEAR` prefix is retained for the permanent sequence even when a future contact belongs to a
   different category.
 
@@ -74,6 +74,8 @@ interaction history.
 | NEAR-006 | Alexander Scharrer |
 | NEAR-007 | Taras Dovgal |
 | NEAR-008 | David Norris |
+| NEAR-009 | Abhishek Vaidyanathan |
+| NEAR-010 | Bianca Guimaraes-Chadwick |
 
 ### Relationship Score
 
@@ -122,12 +124,12 @@ LinkedIn before any new action.
 
 | Metric | Count |
 | --- | ---: |
-| Total Contacts | 8 |
+| Total Contacts | 10 |
 | Research | 0 |
 | Following | 0 |
 | Liked Posts | 0 |
 | Commented | 0 |
-| Invitation Pending | 6 |
+| Invitation Pending | 8 |
 | Connected | 2 |
 | Conversations | 0 |
 | Warm Relationships | 0 |
@@ -142,7 +144,7 @@ LinkedIn before any new action.
 
 | Status | Count | Contacts |
 | --- | ---: | --- |
-| Invitation Sent (Pending) | 6 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris |
+| Invitation Sent (Pending) | 8 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick |
 | Connected | 1 | Alexander Scharrer |
 | Follow-up Required | 1 | Philipp Suarez |
 
@@ -150,7 +152,7 @@ LinkedIn before any new action.
 
 | Pipeline Stage | Count | Contact IDs | Contacts |
 | --- | ---: | --- | --- |
-| Invitation Sent | 6 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris |
+| Invitation Sent | 8 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick |
 | Connected | 2 | NEAR-003; NEAR-006 | Philipp Suarez; Alexander Scharrer |
 
 ## Weekly Business Development Review
@@ -177,6 +179,8 @@ Review period: **2026-07-13 through 2026-07-19** (Asia/Tashkent).
 | NEAR-007 | Taras Dovgal | 2026-06-25 | 2026-08-13 |
 | NEAR-001 | Joseph Beverley | 2026-07-13 | 2026-07-20 |
 | NEAR-008 | David Norris | 2026-07-13 | 2026-07-20 |
+| NEAR-009 | Abhishek Vaidyanathan | 2026-07-13 | 2026-07-20 |
+| NEAR-010 | Bianca Guimaraes-Chadwick | 2026-07-13 | 2026-07-20 |
 
 ### People needing follow-up
 
@@ -227,6 +231,8 @@ None recorded. Do not infer an investor opportunity from a finance or capital-ma
 | NEAR-006 | Alexander Scharrer | NEAR Foundation | Head of Capital Markets | Unknown (verification required) | Unknown | NEAR | High | 6 | Connected | Connected | Invitation accepted 2026-07-13 | 2026-07-16 | Review recent activity and identify a natural engagement point | Continue relationship-first engagement after the confirmed acceptance |
 | NEAR-007 | Taras Dovgal | NoVPS (last observed; unverified) | Business Co-Founder (last observed; unverified) | [LinkedIn](https://www.linkedin.com/in/tarasdovgal/?locale=en) | Unknown | Other | Low | 5 | Invitation Sent | Invitation Sent (Pending) | Priority and relevance reviewed 2026-07-13 | 2026-08-13 | Reassess current ecosystem relevance before any follow-up | Current NEAR/RWA relevance remains uncertain; low priority is retained |
 | NEAR-008 | David Norris | NEAR Foundation | CFO & CSO | [LinkedIn](https://ae.linkedin.com/in/davidnorrisaca) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Personalized invitation sent 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted; do not message before acceptance | Wait for a response to the personalized invitation |
+| NEAR-009 | Abhishek Vaidyanathan | NEAR Foundation | Chief Legal Officer | [LinkedIn](https://www.linkedin.com/in/abhishek-vaidyanathan-10056528/) | Canada | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn invitation sent without a note 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted | Strategic legal stakeholder for RWA, tokenized assets, compliance, and NEAR Foundation relationships |
+| NEAR-010 | Bianca Guimaraes-Chadwick | NEAR Foundation | General Counsel | Unknown (not provided) | United Kingdom | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn invitation sent without a note 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted | NEAR Ecosystem legal stakeholder for RWA and compliance relationships |
 
 ## Interaction history
 
@@ -346,6 +352,32 @@ relevance is confirmed. Recommended date: **2026-08-13**.
 Next action: Check whether the invitation was accepted. Do not message before acceptance.
 Recommended date: **2026-07-20**.
 
+### Abhishek Vaidyanathan
+
+- **2026-07-13 — Added to canonical CRM:** Assigned permanent Contact ID `NEAR-009`. Confirmed
+  identity details recorded as Chief Legal Officer at NEAR Foundation, located in Toronto,
+  Ontario, Canada. No profile-review action is inferred or recorded.
+- **2026-07-13 — Connection request sent without a note:** A standard LinkedIn invitation was sent
+  without a personalized note because the monthly LinkedIn limit for personalized invitations
+  was exhausted. LinkedIn displayed “Invitation sent to Abhishek.” Current LinkedIn status is
+  Pending. No acceptance or reply is recorded.
+
+Next action: Check whether the invitation was accepted. Recommended date: **2026-07-20**. This
+contact is a strategic legal stakeholder for RWA, tokenized assets, compliance, and NEAR Foundation
+relationships.
+
+### Bianca Guimaraes-Chadwick
+
+- **2026-07-13 — Added to canonical CRM:** Assigned permanent Contact ID `NEAR-010`. Confirmed
+  identity details recorded as General Counsel at NEAR Foundation, located in the United Kingdom.
+  No profile-review action is inferred or recorded. LinkedIn URL was not provided.
+- **2026-07-13 — Connection request sent without a note:** A LinkedIn connection invitation was
+  sent without a personalized note because the monthly LinkedIn custom invitation limit had
+  already been reached. Current LinkedIn status is Pending. No acceptance or reply is recorded.
+
+Next action: Check whether the invitation was accepted. Recommended date: **2026-07-20**. Track:
+NEAR Ecosystem / Legal / RWA / Compliance.
+
 ## Legacy Outreach History (Read-only)
 
 This section preserves the complete pre-migration Outreach CRM structure and wording from the last
@@ -458,7 +490,7 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
 - [x] Every tracked contact has a Relationship Score from 0 through 10.
 - [x] Every tracked contact belongs to exactly one Pipeline Stage.
 - [x] Every tracked contact has a Next Touch Date, Next Action, and Next Touch Reason.
-- [x] Dashboard counters reconcile to the eight contact-register records.
+- [x] Dashboard counters reconcile to the ten contact-register records.
 - [x] Weekly review lists reconcile to the snapshot date and recorded next-touch dates.
 - [x] Historical interactions from the prior operational CRM are retained.
 - [x] The complete pre-migration CRM structure and wording are retained as read-only history.
