@@ -2,7 +2,7 @@
 
 # AgriPartners Relationship CRM
 
-Last reconciled: 2026-07-13 (Asia/Tashkent)
+Last reconciled: 2026-07-16 (Asia/Tashkent)
 
 This document is the single source of truth for AgriPartners investor relations, NEAR ecosystem
 outreach, partnerships, and business development. An interaction is complete only after it is
@@ -46,6 +46,7 @@ Relationship statuses:
 - `Commented`
 - `Invitation Sent (Pending)`
 - `Connected`
+- `Connected — Intro Message Sent`
 - `First Conversation`
 - `Active Conversation`
 - `Follow-up Required`
@@ -60,7 +61,7 @@ interaction history.
 ### Permanent Contact ID registry
 
 - Assigned IDs are immutable and must never be reused, renumbered, or reassigned.
-- The next new contact must receive **`NEAR-011`**.
+- The next new contact must receive **`NEAR-013`**.
 - The `NEAR` prefix is retained for the permanent sequence even when a future contact belongs to a
   different category.
 
@@ -76,6 +77,8 @@ interaction history.
 | NEAR-008 | David Norris |
 | NEAR-009 | Abhishek Vaidyanathan |
 | NEAR-010 | Bianca Guimaraes-Chadwick |
+| NEAR-011 | Vitalii Y. |
+| NEAR-012 | Iker Alustiza Beitia |
 
 ### Relationship Score
 
@@ -119,24 +122,25 @@ condition, such as `Follow-up Required`; Pipeline Stage captures relationship ma
 
 ## Relationship Dashboard
 
-Snapshot date: 2026-07-13. Counts reflect the last recorded evidence and must be reconciled against
+Snapshot date: 2026-07-16. Counts reflect the last recorded evidence and must be reconciled against
 LinkedIn before any new action.
 
 | Metric | Count |
 | --- | ---: |
-| Total Contacts | 10 |
+| Total Contacts | 12 |
 | Research | 0 |
 | Following | 0 |
 | Liked Posts | 0 |
 | Commented | 0 |
-| Invitation Pending | 8 |
-| Connected | 2 |
+| Invitation Pending | 9 |
+| Connected | 3 |
 | Conversations | 0 |
 | Warm Relationships | 0 |
 | Meetings | 0 |
 | Partnerships | 0 |
 | Investor Opportunities | 0 |
 | Partnership Opportunities | 0 |
+| Grant Opportunities | 0 |
 | Contacts requiring action this week | 5 |
 | Overdue Follow-ups | 1 |
 
@@ -144,16 +148,17 @@ LinkedIn before any new action.
 
 | Status | Count | Contacts |
 | --- | ---: | --- |
-| Invitation Sent (Pending) | 8 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick |
+| Invitation Sent (Pending) | 9 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y. |
 | Connected | 1 | Alexander Scharrer |
+| Connected — Intro Message Sent | 1 | Iker Alustiza Beitia |
 | Follow-up Required | 1 | Philipp Suarez |
 
 ### Contacts grouped by pipeline stage
 
 | Pipeline Stage | Count | Contact IDs | Contacts |
 | --- | ---: | --- | --- |
-| Invitation Sent | 8 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick |
-| Connected | 2 | NEAR-003; NEAR-006 | Philipp Suarez; Alexander Scharrer |
+| Invitation Sent | 9 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010; NEAR-011 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y. |
+| Connected | 3 | NEAR-003; NEAR-006; NEAR-012 | Philipp Suarez; Alexander Scharrer; Iker Alustiza Beitia |
 
 ## Weekly Business Development Review
 
@@ -181,6 +186,13 @@ Review period: **2026-07-13 through 2026-07-19** (Asia/Tashkent).
 | NEAR-008 | David Norris | 2026-07-13 | 2026-07-20 |
 | NEAR-009 | Abhishek Vaidyanathan | 2026-07-13 | 2026-07-20 |
 | NEAR-010 | Bianca Guimaraes-Chadwick | 2026-07-13 | 2026-07-20 |
+| NEAR-011 | Vitalii Y. | 2026-07-16 | 2026-07-23 |
+
+### Newly connected contacts
+
+| Contact ID | Contact | Connection Date | Current State | Next Touch |
+| --- | --- | --- | --- | --- |
+| NEAR-012 | Iker Alustiza Beitia | 2026-07-16 | Introduction sent; awaiting response | 2026-07-23 |
 
 ### People needing follow-up
 
@@ -195,7 +207,7 @@ interaction evidence.
 
 ### Inactive contacts (>30 days)
 
-None. The oldest recorded last interaction is 2026-06-25, 18 days before the snapshot date.
+None. The oldest recorded last interaction is 2026-06-25, 21 days before the snapshot date.
 
 ### Actions due this week or overdue
 
@@ -215,6 +227,10 @@ None recorded.
 
 None recorded. Do not infer an opportunity from a pending invitation.
 
+### Grant opportunities
+
+None recorded. Do not infer an opportunity from ecosystem relevance or a sent introduction.
+
 ### Investor opportunities
 
 None recorded. Do not infer an investor opportunity from a finance or capital-markets role.
@@ -233,6 +249,8 @@ None recorded. Do not infer an investor opportunity from a finance or capital-ma
 | NEAR-008 | David Norris | NEAR Foundation | CFO & CSO | [LinkedIn](https://ae.linkedin.com/in/davidnorrisaca) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Personalized invitation sent 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted; do not message before acceptance | Wait for a response to the personalized invitation |
 | NEAR-009 | Abhishek Vaidyanathan | NEAR Foundation | Chief Legal Officer | [LinkedIn](https://www.linkedin.com/in/abhishek-vaidyanathan-10056528/) | Canada | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn invitation sent without a note 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted | Strategic legal stakeholder for RWA, tokenized assets, compliance, and NEAR Foundation relationships |
 | NEAR-010 | Bianca Guimaraes-Chadwick | NEAR Foundation | General Counsel | Unknown (not provided) | United Kingdom | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn invitation sent without a note 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted | NEAR Ecosystem legal stakeholder for RWA and compliance relationships |
+| NEAR-011 | Vitalii Y. | NEAR Foundation | Lead Business Development and Ecosystem in SEA Region | [LinkedIn](https://www.linkedin.com/in/vitalii-y-b72779106/) | Bangkok, Thailand | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | Profile reviewed; invitation sent and confirmed pending 2026-07-16 | 2026-07-23 | Check whether the invitation was accepted | Allow approximately one week before reviewing the pending invitation |
+| NEAR-012 | Iker Alustiza Beitia | NEAR Foundation | Partner Engineer | [LinkedIn](https://www.linkedin.com/in/iker-alustiza-beitia-68803a2b/) | Spain | NEAR | High | 6 | Connected | Connected — Intro Message Sent | Invitation accepted and first introduction message sent 2026-07-16; awaiting response | 2026-07-23 | Check for a reply to the introduction message | Allow approximately one week before considering any follow-up |
 
 ## Interaction history
 
@@ -378,6 +396,54 @@ relationships.
 Next action: Check whether the invitation was accepted. Recommended date: **2026-07-20**. Track:
 NEAR Ecosystem / Legal / RWA / Compliance.
 
+<!-- markdownlint-disable-next-line MD026 -->
+### Vitalii Y.
+
+- **2026-07-16 — Profile reviewed in detail:** Verified as Lead Business Development and Ecosystem
+  in SEA Region at NEAR Foundation, located in Bangkok, Thailand. Strategic relevance includes
+  NEAR ecosystem navigation, business development, ecosystem partnerships, APAC/SEA growth,
+  regional introductions, and potential grant direction. Experience relevant to this assessment
+  includes NEAR Intents, HOT Wallet, institutional business development, and ecosystem scaling.
+- **2026-07-16 — Connection request sent:** LinkedIn invitation sent through the standard
+  connection flow without a personalized note.
+- **2026-07-16 — Invitation state confirmed:** Invitation is Pending. No acceptance, message, or
+  response is recorded.
+
+Next action: Check whether the invitation was accepted. Recommended date: **2026-07-23**. Allow
+approximately one week before reviewing the pending invitation.
+
+### Iker Alustiza Beitia
+
+- **2026-07-16 — Profile reviewed:** Verified as Partner Engineer at NEAR Foundation in Spain.
+  Relevant to technical partnerships, partner engineering, infrastructure success, ecosystem
+  integration, technical navigation, integration guidance, and product-fit feedback for the
+  AgriPartners Alpha prototype on NEAR Testnet.
+- **2026-07-16 — Connection request sent:** LinkedIn invitation sent.
+- **2026-07-16 — Connected:** Invitation accepted on the same date.
+- **2026-07-16 — First introduction message sent:** Message sent; no response is recorded.
+
+Exact first message:
+
+> Hi Iker,
+>
+> Thank you for connecting.
+>
+> I'm building AgriPartners, a blockchain-based investment platform for agricultural projects
+> using NEAR.
+>
+> We've already completed an Alpha prototype on NEAR Testnet and are now preparing for ecosystem
+> partnerships and grant opportunities.
+>
+> I'd be happy to stay connected and learn more about the NEAR ecosystem.
+>
+> Best regards,
+> Farhod
+
+Next action: Check for a reply to the introduction message. Recommended date: **2026-07-23**.
+Allow approximately one week before considering any follow-up. Do not infer an active
+conversation, partnership opportunity, grant opportunity, offered support, introduction, meeting,
+or feedback without new evidence.
+
 ## Legacy Outreach History (Read-only)
 
 This section preserves the complete pre-migration Outreach CRM structure and wording from the last
@@ -490,12 +556,14 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
 - [x] Every tracked contact has a Relationship Score from 0 through 10.
 - [x] Every tracked contact belongs to exactly one Pipeline Stage.
 - [x] Every tracked contact has a Next Touch Date, Next Action, and Next Touch Reason.
-- [x] Dashboard counters reconcile to the ten contact-register records.
+- [x] Dashboard counters reconcile to the twelve contact-register records.
 - [x] Weekly review lists reconcile to the snapshot date and recorded next-touch dates.
 - [x] Historical interactions from the prior operational CRM are retained.
 - [x] The complete pre-migration CRM structure and wording are retained as read-only history.
 - [x] Pending invitations, active conversations, partnership opportunities, and investor
   opportunities are explicitly summarized.
 - [x] Reconcile the confirmed 2026-07-13 LinkedIn outreach state without inferring responses.
+- [x] Record the verified 2026-07-16 activity for Vitalii Y. and Iker Alustiza Beitia without
+  inferring responses or opportunities.
 - [ ] Check the still-pending invitation states for David Mirzadeh, Josh Ford, and Bowen Shen.
 - [ ] Verify Alexander Scharrer's canonical LinkedIn URL.
