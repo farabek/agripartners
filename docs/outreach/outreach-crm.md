@@ -2,7 +2,7 @@
 
 # AgriPartners Relationship CRM
 
-Last reconciled: 2026-07-16 (Asia/Tashkent)
+Last reconciled: 2026-07-17 (Asia/Tashkent)
 
 This document is the single source of truth for AgriPartners investor relations, NEAR ecosystem
 outreach, partnerships, and business development. An interaction is complete only after it is
@@ -61,7 +61,7 @@ interaction history.
 ### Permanent Contact ID registry
 
 - Assigned IDs are immutable and must never be reused, renumbered, or reassigned.
-- The next new contact must receive **`NEAR-013`**.
+- The next new contact must receive **`NEAR-016`**.
 - The `NEAR` prefix is retained for the permanent sequence even when a future contact belongs to a
   different category.
 
@@ -79,6 +79,9 @@ interaction history.
 | NEAR-010 | Bianca Guimaraes-Chadwick |
 | NEAR-011 | Vitalii Y. |
 | NEAR-012 | Iker Alustiza Beitia |
+| NEAR-013 | Matt Kummell |
+| NEAR-014 | Danny Carpentier Balough |
+| NEAR-015 | Dillon Freeman |
 
 ### Relationship Score
 
@@ -122,17 +125,17 @@ condition, such as `Follow-up Required`; Pipeline Stage captures relationship ma
 
 ## Relationship Dashboard
 
-Snapshot date: 2026-07-16. Counts reflect the last recorded evidence and must be reconciled against
+Snapshot date: 2026-07-17. Counts reflect the last recorded evidence and must be reconciled against
 LinkedIn before any new action.
 
 | Metric | Count |
 | --- | ---: |
-| Total Contacts | 12 |
+| Total Contacts | 15 |
 | Research | 0 |
 | Following | 0 |
 | Liked Posts | 0 |
 | Commented | 0 |
-| Invitation Pending | 9 |
+| Invitation Pending | 12 |
 | Connected | 3 |
 | Conversations | 0 |
 | Warm Relationships | 0 |
@@ -141,14 +144,14 @@ LinkedIn before any new action.
 | Investor Opportunities | 0 |
 | Partnership Opportunities | 0 |
 | Grant Opportunities | 0 |
-| Contacts requiring action this week | 5 |
+| Contacts requiring action this week | 8 |
 | Overdue Follow-ups | 1 |
 
 ### Contacts grouped by status
 
 | Status | Count | Contacts |
 | --- | ---: | --- |
-| Invitation Sent (Pending) | 9 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y. |
+| Invitation Sent (Pending) | 12 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y.; Matt Kummell; Danny Carpentier Balough; Dillon Freeman |
 | Connected | 1 | Alexander Scharrer |
 | Connected — Intro Message Sent | 1 | Iker Alustiza Beitia |
 | Follow-up Required | 1 | Philipp Suarez |
@@ -157,7 +160,7 @@ LinkedIn before any new action.
 
 | Pipeline Stage | Count | Contact IDs | Contacts |
 | --- | ---: | --- | --- |
-| Invitation Sent | 9 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010; NEAR-011 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y. |
+| Invitation Sent | 12 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010; NEAR-011; NEAR-013; NEAR-014; NEAR-015 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y.; Matt Kummell; Danny Carpentier Balough; Dillon Freeman |
 | Connected | 3 | NEAR-003; NEAR-006; NEAR-012 | Philipp Suarez; Alexander Scharrer; Iker Alustiza Beitia |
 
 ## Weekly Business Development Review
@@ -173,6 +176,9 @@ Review period: **2026-07-13 through 2026-07-19** (Asia/Tashkent).
 | NEAR-004 | Josh Ford | Medium | 2026-07-13 | Check invitation state and relevant posts | No confirmed status change is available for the pending invitation |
 | NEAR-005 | Bowen Shen | Medium | 2026-07-13 | Check invitation state and relevant posts | No confirmed status change is available for the pending invitation |
 | NEAR-006 | Alexander Scharrer | High | 2026-07-16 | Review recent activity and identify a natural engagement point | The invitation is accepted; continue relationship-first engagement without pitching |
+| NEAR-013 | Matt Kummell | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
+| NEAR-014 | Danny Carpentier Balough | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
+| NEAR-015 | Dillon Freeman | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 
 ### Pending invitations
 
@@ -187,6 +193,9 @@ Review period: **2026-07-13 through 2026-07-19** (Asia/Tashkent).
 | NEAR-009 | Abhishek Vaidyanathan | 2026-07-13 | 2026-07-20 |
 | NEAR-010 | Bianca Guimaraes-Chadwick | 2026-07-13 | 2026-07-20 |
 | NEAR-011 | Vitalii Y. | 2026-07-16 | 2026-07-23 |
+| NEAR-013 | Matt Kummell | 2026-07-17 | 2026-07-19 |
+| NEAR-014 | Danny Carpentier Balough | 2026-07-17 | 2026-07-19 |
+| NEAR-015 | Dillon Freeman | 2026-07-17 | 2026-07-19 |
 
 ### Newly connected contacts
 
@@ -207,7 +216,7 @@ interaction evidence.
 
 ### Inactive contacts (>30 days)
 
-None. The oldest recorded last interaction is 2026-06-25, 21 days before the snapshot date.
+None. The oldest recorded last interaction is 2026-06-25, 22 days before the snapshot date.
 
 ### Actions due this week or overdue
 
@@ -218,6 +227,9 @@ None. The oldest recorded last interaction is 2026-06-25, 21 days before the sna
 | Josh Ford | Medium | Invitation Sent (Pending) | Check invitation state and recent relevant posts | 2026-07-13 |
 | Bowen Shen | Medium | Invitation Sent (Pending) | Check invitation state and recent relevant posts | 2026-07-13 |
 | Alexander Scharrer | High | Connected | Review recent activity and identify a natural engagement point | 2026-07-16 |
+| Matt Kummell | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
+| Danny Carpentier Balough | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
+| Dillon Freeman | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
 
 ### Active conversations
 
@@ -251,6 +263,9 @@ None recorded. Do not infer an investor opportunity from a finance or capital-ma
 | NEAR-010 | Bianca Guimaraes-Chadwick | NEAR Foundation | General Counsel | Unknown (not provided) | United Kingdom | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn invitation sent without a note 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted | NEAR Ecosystem legal stakeholder for RWA and compliance relationships |
 | NEAR-011 | Vitalii Y. | NEAR Foundation | Lead Business Development and Ecosystem in SEA Region | [LinkedIn](https://www.linkedin.com/in/vitalii-y-b72779106/) | Bangkok, Thailand | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | Profile reviewed; invitation sent and confirmed pending 2026-07-16 | 2026-07-23 | Check whether the invitation was accepted | Allow approximately one week before reviewing the pending invitation |
 | NEAR-012 | Iker Alustiza Beitia | NEAR Foundation | Partner Engineer | [LinkedIn](https://www.linkedin.com/in/iker-alustiza-beitia-68803a2b/) | Spain | NEAR | High | 6 | Connected | Connected — Intro Message Sent | Invitation accepted and first introduction message sent 2026-07-16; awaiting response | 2026-07-23 | Check for a reply to the introduction message | Allow approximately one week before considering any follow-up |
+| NEAR-013 | Matt Kummell | NEAR Foundation / S&P Global | Advisor at NEAR Foundation; Head of Business Acceleration & Special Projects at S&P Global | [LinkedIn](https://www.linkedin.com/in/kummell/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
+| NEAR-014 | Danny Carpentier Balough | NEAR Foundation | Director, Product Marketing and GTM Strategy | [LinkedIn](https://www.linkedin.com/in/danny-carpentier-balough/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
+| NEAR-015 | Dillon Freeman | NEAR Foundation | Partnerships | [LinkedIn](https://www.linkedin.com/in/dillonfreeman1/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 
 ## Interaction history
 
@@ -444,6 +459,44 @@ Allow approximately one week before considering any follow-up. Do not infer an a
 conversation, partnership opportunity, grant opportunity, offered support, introduction, meeting,
 or feedback without new evidence.
 
+### Matt Kummell
+
+- **2026-07-17 — Added to canonical CRM / profile reviewed:** Assigned permanent Contact ID
+  `NEAR-013`. Current roles recorded as Advisor at NEAR Foundation and Head of Business
+  Acceleration & Special Projects at S&P Global; previous NEAR role was Chief Commercial Officer.
+  Relevant areas are Commercial Strategy / Partnerships / RWA / Institutional Finance. Former
+  NEAR Foundation CCO, currently Advisor. Relevant to RWA, TradFi/DeFi, commercial strategy, and
+  institutional partnerships. Mutual connection: Alexander Scharrer.
+- **2026-07-17 — Connection request sent:** LinkedIn connection invitation sent. Current status is
+  Pending. No acceptance, message, or response is recorded.
+
+Next action: Check whether the invitation was accepted. Recommended date: **2026-07-19**.
+
+### Danny Carpentier Balough
+
+- **2026-07-17 — Added to canonical CRM / profile reviewed:** Assigned permanent Contact ID
+  `NEAR-014`. Verified as Director, Product Marketing and GTM Strategy at NEAR Foundation.
+  Relevant areas are GTM / Product Marketing / Enterprise / Government / Ecosystem Growth. Current
+  NEAR Foundation employee who defines GTM strategy for consumer, enterprise, and government
+  markets. Active in NEAR Protocol and NEAR AI communications. Mutual connection: Alexander
+  Scharrer.
+- **2026-07-17 — Connection request sent:** LinkedIn connection invitation sent. Current status is
+  Pending. No acceptance, message, or response is recorded.
+
+Next action: Check whether the invitation was accepted. Recommended date: **2026-07-19**.
+
+### Dillon Freeman
+
+- **2026-07-17 — Added to canonical CRM / profile reviewed:** Assigned permanent Contact ID
+  `NEAR-015`. LinkedIn display name is Dillon F. Verified in Partnerships at NEAR Foundation.
+  Relevant areas are Partnerships / Ecosystem / Integrations / Pilot Opportunities. Directly
+  relevant to AgriPartners because he works in Partnerships at NEAR Foundation. Mutual connections
+  include Vitalii, Iker, and at least one other contact.
+- **2026-07-17 — Connection request sent:** LinkedIn connection invitation sent. Current status is
+  Pending. No acceptance, message, or response is recorded.
+
+Next action: Check whether the invitation was accepted. Recommended date: **2026-07-19**.
+
 ## Legacy Outreach History (Read-only)
 
 This section preserves the complete pre-migration Outreach CRM structure and wording from the last
@@ -556,7 +609,7 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
 - [x] Every tracked contact has a Relationship Score from 0 through 10.
 - [x] Every tracked contact belongs to exactly one Pipeline Stage.
 - [x] Every tracked contact has a Next Touch Date, Next Action, and Next Touch Reason.
-- [x] Dashboard counters reconcile to the twelve contact-register records.
+- [x] Dashboard counters reconcile to the fifteen contact-register records.
 - [x] Weekly review lists reconcile to the snapshot date and recorded next-touch dates.
 - [x] Historical interactions from the prior operational CRM are retained.
 - [x] The complete pre-migration CRM structure and wording are retained as read-only history.
@@ -565,5 +618,7 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
 - [x] Reconcile the confirmed 2026-07-13 LinkedIn outreach state without inferring responses.
 - [x] Record the verified 2026-07-16 activity for Vitalii Y. and Iker Alustiza Beitia without
   inferring responses or opportunities.
+- [x] Record the 2026-07-17 LinkedIn invitations for Matt Kummell, Danny Carpentier Balough, and
+  Dillon Freeman without inferring acceptances, responses, or opportunities.
 - [ ] Check the still-pending invitation states for David Mirzadeh, Josh Ford, and Bowen Shen.
 - [ ] Verify Alexander Scharrer's canonical LinkedIn URL.
