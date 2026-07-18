@@ -8,7 +8,7 @@ Owner: Product
 
 Version: 1.0
 
-Last reviewed: 2026-07-13
+Last reviewed: 2026-07-18
 
 Supersedes: Governance registry portions of `docs/DOCUMENTATION_GUIDE.md` and the prior
 `docs/archive/deprecated/documentation-architecture/` audit
@@ -44,7 +44,7 @@ conflicts with this matrix, this matrix takes precedence.
 
 | Category | Documentation folders and locations reviewed |
 | --- | --- |
-| Product | `docs/` entry points, `docs/platform/` product documents, `docs/product-roadmap/`, `docs/workflows/` |
+| Product | `docs/` entry points, `docs/governance/`, `docs/platform/` product documents, `docs/product-roadmap/`, `docs/workflows/` |
 | Architecture | `docs/architecture/`, `docs/design/` |
 | Business | `docs/business/`, `docs/business/investment-models/`, `docs/60-40/`, `docs/business-model/` |
 | Pilots | `docs/platform/pilot/`, Pilot implementation material in `docs/platform/` |
@@ -76,6 +76,7 @@ interaction rules, user experiences, review state, and software delivery priorit
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | AgriPartners Product Book | `docs/PRODUCT_BOOK.md` | Top-level ecosystem and canonical-document navigation | Living | Product | Yes | 1.0 | 2026-07-06 | Fragmented top-level product navigation | — | Does not duplicate detailed specifications |
 | Documentation Authority Matrix | `docs/DOCUMENTATION_AUTHORITY_MATRIX.md` | Status, ownership, and authority registry | Living | Product | Yes | 1.0 | 2026-07-06 | Prior authority inventories and conflicting registry guidance | — | Highest authority for documentation governance |
+| Workstream Operating Model | `docs/governance/WORKSTREAM_OPERATING_MODEL.md` | Repository workstream classification, coordination, and planning boundaries | Accepted | Product | Yes | 1.0 | 2026-07-18 | Ad hoc cross-workstream routing | — | Subordinate to domain authorities for their facts |
 | Documentation Guide | `docs/DOCUMENTATION_GUIDE.md` | Documentation procedure, naming, versioning, and lifecycle guidance | Accepted | Product | No | 1.0 | 2026-07-06 | — | `docs/DOCUMENTATION_AUTHORITY_MATRIX.md` for registry decisions | Procedural companion |
 | Software Delivery Roadmap | `docs/ROADMAP.md` | Living software release roadmap | Living | Product | Yes | 1.0 | 2026-07-06 | Distributed Alpha/Beta delivery plans | — | Does not replace the frozen business roadmap |
 | Product Operating Model v1.0 | `docs/platform/PRODUCT_OPERATING_MODEL_V1.md` | Project-centric product architecture and role model | Frozen | Product | Yes | 1.0 | 2026-07-04 | Earlier dashboard/deal-centric product assumptions | — | Frozen under its declared change control |
@@ -90,9 +91,9 @@ interaction rules, user experiences, review state, and software delivery priorit
 
 ### Product Canonical Documents
 
-The canonical Product set is the Product Book, Authority Matrix, Master Roadmap v2, Software
-Delivery Roadmap, Product Operating Model, accepted Workspace and Farmer specifications, Product
-Review Checklist, and UX/UI Audit Log.
+The canonical Product set is the Product Book, Authority Matrix, Workstream Operating Model,
+Master Roadmap v2, Software Delivery Roadmap, Product Operating Model, accepted Workspace and
+Farmer specifications, Product Review Checklist, and UX/UI Audit Log.
 
 ### Product Supporting Documents
 
@@ -579,6 +580,7 @@ All remaining files under `docs/archive/`, `docs/audits/`, and
 DOCUMENTATION_AUTHORITY_MATRIX.md
   |
   +-- governance procedure --> DOCUMENTATION_GUIDE.md
+  +-- workstream routing ----> governance/WORKSTREAM_OPERATING_MODEL.md
   |
   +-- ecosystem entry -------> PRODUCT_BOOK.md
   |                              |
@@ -714,6 +716,7 @@ strategy:
 - `docs/PRODUCT_BOOK.md`
 - `docs/DOCUMENTATION_AUTHORITY_MATRIX.md`
 - `docs/DOCUMENTATION_GUIDE.md`
+- `docs/governance/WORKSTREAM_OPERATING_MODEL.md`
 - `docs/ARCHITECTURE.md`
 - `docs/ROADMAP.md`
 - `docs/RELEASES.md`

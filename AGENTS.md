@@ -1,4 +1,32 @@
+<!-- markdownlint-configure-file { "MD013": false } -->
+
 # AgriPartners Workspace Instructions
+
+## Mandatory workstream classification
+
+Substantial repository tasks belong to one primary workstream:
+
+1. **AgriPartners Product** — product, engineering, UX/UI, QA, demo workflows, and product
+   documentation.
+2. **NEAR Ecosystem & Investor Relations** — outreach, relationships, investors, partners,
+   meetings, and CRM operations.
+3. **Grants & Strategy** — grant research, applications, funding readiness, milestones, evidence,
+   and strategic funding planning.
+
+Before material changes, report the primary workstream, objective, canonical documents to read,
+and any affected secondary workstream. Select the primary workstream from the outcome requested by
+the user, minimize secondary-workstream changes, and never treat classification as authorization
+to expand scope.
+
+Alpha v1.2 is the current presentation release. Prefer focused refinement supporting funding,
+relationships, grants, demonstrations, or pilot readiness. Do not begin Beta-02, new Commercial
+Operations backend architecture, large production systems, or speculative features without
+explicit user authorization.
+
+Use existing canonical plans instead of creating parallel roadmaps, trackers, or sources of truth.
+The complete operating model, authority boundaries, current planning ownership, and reporting
+rules are defined in
+[`docs/governance/WORKSTREAM_OPERATING_MODEL.md`](docs/governance/WORKSTREAM_OPERATING_MODEL.md).
 
 ## Mandatory Relationship CRM workflow
 

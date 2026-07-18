@@ -6,7 +6,7 @@ Status: Ready
 
 Owner: Product
 
-Last reviewed: 2026-07-13
+Last reviewed: 2026-07-18
 
 > **Official documentation entry point:** This document is the canonical map for all
 > AgriPartners documentation and the starting point for selecting the correct package.
@@ -60,12 +60,13 @@ and lightweight Alpha v1.2 NEAR CRM are now Archived at their recorded destinati
 2. [Product Book](PRODUCT_BOOK.md)
 3. [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md)
 4. [Documentation Guide](DOCUMENTATION_GUIDE.md)
-5. [Software Delivery Roadmap](ROADMAP.md)
-6. [Master Roadmap v2](MASTER_ROADMAP_V2.md)
-7. [Release Index](RELEASES.md)
-8. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
-9. [Architecture](ARCHITECTURE.md)
-10. [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
+5. [Workstream Operating Model](governance/WORKSTREAM_OPERATING_MODEL.md)
+6. [Software Delivery Roadmap](ROADMAP.md)
+7. [Master Roadmap v2](MASTER_ROADMAP_V2.md)
+8. [Release Index](RELEASES.md)
+9. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
+10. [Architecture](ARCHITECTURE.md)
+11. [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
 
 'AGENTS.md' is a repository-root operating instruction for compatible AI agents. Read it when
 using an agent in this workspace; it is outside the 'docs/' inventory.
@@ -200,8 +201,9 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 
 | Document Name | Purpose | Audience | Status | Owner | Access | Priority | Canonical | Archive Candidate | Stable Path |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md) | Defines canonical authority, status, ownership, and lifecycle across the documentation ecosystem. | All internal contributors | Ready | Product | Internal  P1 | P1 | Yes | No | Yes |
-| [Documentation Guide](DOCUMENTATION_GUIDE.md) | Defines documentation creation, review, versioning, maintenance, and archival procedures. | All internal contributors | Ready | Product | Internal | P1 | Yes | No | Yes |
+| [Workstream Operating Model](governance/WORKSTREAM_OPERATING_MODEL.md) | Defines the three permanent workstreams, task routing, cross-workstream boundaries, and canonical planning rules. | All internal contributors | Ready | Product | Internal | P1 | Yes | No | Yes |
+| [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md) | Defines canonical authority, status, ownership, and lifecycle across the documentation ecosystem. | All internal contributors | Ready | Product | Internal | P1 | Yes | No | Yes |
+| [Documentation Guide](DOCUMENTATION_GUIDE.md) | Defines documentation creation, review, versioning, maintenance, and archival procedures. | All internal contributors | Ready | Product | Internal | P1 | No | No | Yes |
 | [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md) | Protects the approved business baseline and its change-control process. | Business, Product, Operations | Ready | Business | Internal | P1 | Yes | No | Yes |
 | [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md) | Defines funding, fiat/crypto boundaries, settlement, and financial workflow principles. | Business, Operations, Finance reviewers | Ready | Business | Internal | P2 | Yes | No | Yes |
 | [Information Disclosure Policy](business/INFORMATION_DISCLOSURE_POLICY.md) | Defines disclosure ownership, timing, evidence, and participant visibility. | Business, Operations, Investor Relations | Ready | Business | Internal | P2 | Yes | No | Yes |
