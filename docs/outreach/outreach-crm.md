@@ -2,7 +2,7 @@
 
 # AgriPartners Relationship CRM
 
-Last reconciled: 2026-07-17 (Asia/Tashkent)
+Last reconciled: 2026-07-18 (Asia/Tashkent)
 
 This document is the single source of truth for AgriPartners investor relations, NEAR ecosystem
 outreach, partnerships, and business development. An interaction is complete only after it is
@@ -61,7 +61,7 @@ interaction history.
 ### Permanent Contact ID registry
 
 - Assigned IDs are immutable and must never be reused, renumbered, or reassigned.
-- The next new contact must receive **`NEAR-016`**.
+- The next new contact must receive **`NEAR-018`**.
 - The `NEAR` prefix is retained for the permanent sequence even when a future contact belongs to a
   different category.
 
@@ -82,6 +82,8 @@ interaction history.
 | NEAR-013 | Matt Kummell |
 | NEAR-014 | Danny Carpentier Balough |
 | NEAR-015 | Dillon Freeman |
+| NEAR-016 | Harshit Tiwari |
+| NEAR-017 | Charlie Bussat |
 
 ### Relationship Score
 
@@ -125,17 +127,17 @@ condition, such as `Follow-up Required`; Pipeline Stage captures relationship ma
 
 ## Relationship Dashboard
 
-Snapshot date: 2026-07-17. Counts reflect the last recorded evidence and must be reconciled against
+Snapshot date: 2026-07-18. Counts reflect the last recorded evidence and must be reconciled against
 LinkedIn before any new action.
 
 | Metric | Count |
 | --- | ---: |
-| Total Contacts | 15 |
+| Total Contacts | 17 |
 | Research | 0 |
 | Following | 0 |
 | Liked Posts | 0 |
 | Commented | 0 |
-| Invitation Pending | 12 |
+| Invitation Pending | 14 |
 | Connected | 3 |
 | Conversations | 0 |
 | Warm Relationships | 0 |
@@ -144,14 +146,14 @@ LinkedIn before any new action.
 | Investor Opportunities | 0 |
 | Partnership Opportunities | 0 |
 | Grant Opportunities | 0 |
-| Contacts requiring action this week | 8 |
+| Contacts requiring action this week | 10 |
 | Overdue Follow-ups | 1 |
 
 ### Contacts grouped by status
 
 | Status | Count | Contacts |
 | --- | ---: | --- |
-| Invitation Sent (Pending) | 12 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y.; Matt Kummell; Danny Carpentier Balough; Dillon Freeman |
+| Invitation Sent (Pending) | 14 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y.; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Charlie Bussat |
 | Connected | 1 | Alexander Scharrer |
 | Connected — Intro Message Sent | 1 | Iker Alustiza Beitia |
 | Follow-up Required | 1 | Philipp Suarez |
@@ -160,7 +162,7 @@ LinkedIn before any new action.
 
 | Pipeline Stage | Count | Contact IDs | Contacts |
 | --- | ---: | --- | --- |
-| Invitation Sent | 12 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010; NEAR-011; NEAR-013; NEAR-014; NEAR-015 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y.; Matt Kummell; Danny Carpentier Balough; Dillon Freeman |
+| Invitation Sent | 14 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010; NEAR-011; NEAR-013; NEAR-014; NEAR-015; NEAR-016; NEAR-017 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y.; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Charlie Bussat |
 | Connected | 3 | NEAR-003; NEAR-006; NEAR-012 | Philipp Suarez; Alexander Scharrer; Iker Alustiza Beitia |
 
 ## Weekly Business Development Review
@@ -179,6 +181,8 @@ Review period: **2026-07-13 through 2026-07-19** (Asia/Tashkent).
 | NEAR-013 | Matt Kummell | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 | NEAR-014 | Danny Carpentier Balough | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 | NEAR-015 | Dillon Freeman | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
+| NEAR-016 | Harshit Tiwari | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
+| NEAR-017 | Charlie Bussat | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 
 ### Pending invitations
 
@@ -196,6 +200,8 @@ Review period: **2026-07-13 through 2026-07-19** (Asia/Tashkent).
 | NEAR-013 | Matt Kummell | 2026-07-17 | 2026-07-19 |
 | NEAR-014 | Danny Carpentier Balough | 2026-07-17 | 2026-07-19 |
 | NEAR-015 | Dillon Freeman | 2026-07-17 | 2026-07-19 |
+| NEAR-016 | Harshit Tiwari | 2026-07-18 | 2026-07-19 |
+| NEAR-017 | Charlie Bussat | 2026-07-18 | 2026-07-19 |
 
 ### Newly connected contacts
 
@@ -216,7 +222,7 @@ interaction evidence.
 
 ### Inactive contacts (>30 days)
 
-None. The oldest recorded last interaction is 2026-06-25, 22 days before the snapshot date.
+None. The oldest recorded last interaction is 2026-06-25, 23 days before the snapshot date.
 
 ### Actions due this week or overdue
 
@@ -230,6 +236,8 @@ None. The oldest recorded last interaction is 2026-06-25, 22 days before the sna
 | Matt Kummell | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
 | Danny Carpentier Balough | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
 | Dillon Freeman | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
+| Harshit Tiwari | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
+| Charlie Bussat | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
 
 ### Active conversations
 
@@ -266,6 +274,8 @@ None recorded. Do not infer an investor opportunity from a finance or capital-ma
 | NEAR-013 | Matt Kummell | NEAR Foundation / S&P Global | Advisor at NEAR Foundation; Head of Business Acceleration & Special Projects at S&P Global | [LinkedIn](https://www.linkedin.com/in/kummell/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 | NEAR-014 | Danny Carpentier Balough | NEAR Foundation | Director, Product Marketing and GTM Strategy | [LinkedIn](https://www.linkedin.com/in/danny-carpentier-balough/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 | NEAR-015 | Dillon Freeman | NEAR Foundation | Partnerships | [LinkedIn](https://www.linkedin.com/in/dillonfreeman1/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
+| NEAR-016 | Harshit Tiwari | NEAR Foundation | Vice President of Growth | [LinkedIn](https://www.linkedin.com/in/harshit-tiwari-is-near/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-18 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
+| NEAR-017 | Charlie Bussat | NEAR Foundation / near.com | Head of Marketing | [LinkedIn](https://www.linkedin.com/in/charliebussat/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-18 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 
 ## Interaction history
 
@@ -497,6 +507,33 @@ Next action: Check whether the invitation was accepted. Recommended date: **2026
 
 Next action: Check whether the invitation was accepted. Recommended date: **2026-07-19**.
 
+### Harshit Tiwari
+
+- **2026-07-18 — Added to canonical CRM / profile reviewed:** Assigned permanent Contact ID
+  `NEAR-016`. Verified as Vice President of Growth at NEAR Foundation, responsible for growth and
+  distribution across core offerings including NEAR Intents and Smart Accounts. Previous NEAR
+  Foundation roles include Head of Ecosystem Strategy and Senior Web3 BD Lead. Relevant areas are
+  Growth / Ecosystem Strategy / Distribution / Business Development / GTM. Mutual connection:
+  Alexander Scharrer. LinkedIn also shows Philipp Suarez and other NEAR Foundation contacts as
+  possible introduction paths.
+- **2026-07-18 — Connection request sent:** LinkedIn connection invitation sent. Current status is
+  Pending. No acceptance, message, or response is recorded.
+
+Next action: Check whether the invitation was accepted. Recommended date: **2026-07-19**.
+
+### Charlie Bussat
+
+- **2026-07-18 — Added to canonical CRM / profile reviewed:** Assigned permanent Contact ID
+  `NEAR-017`. Verified as Head of Marketing at NEAR Foundation, focused on near.com and Web3
+  go-to-market; public LinkedIn headline is Head of Marketing & Growth at near.com. Relevant areas
+  are Marketing / Growth / Web3 GTM / DeFi / Cross-chain / Ecosystem Promotion. Experience includes
+  blockchain marketing, DeFi, cross-chain products, community initiatives, and partner growth.
+  Mutual connection: Alexander Scharrer.
+- **2026-07-18 — Connection request sent:** LinkedIn connection invitation sent. Current status is
+  Pending. No acceptance, message, or response is recorded.
+
+Next action: Check whether the invitation was accepted. Recommended date: **2026-07-19**.
+
 ## Legacy Outreach History (Read-only)
 
 This section preserves the complete pre-migration Outreach CRM structure and wording from the last
@@ -609,7 +646,7 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
 - [x] Every tracked contact has a Relationship Score from 0 through 10.
 - [x] Every tracked contact belongs to exactly one Pipeline Stage.
 - [x] Every tracked contact has a Next Touch Date, Next Action, and Next Touch Reason.
-- [x] Dashboard counters reconcile to the fifteen contact-register records.
+- [x] Dashboard counters reconcile to the seventeen contact-register records.
 - [x] Weekly review lists reconcile to the snapshot date and recorded next-touch dates.
 - [x] Historical interactions from the prior operational CRM are retained.
 - [x] The complete pre-migration CRM structure and wording are retained as read-only history.
@@ -620,5 +657,7 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
   inferring responses or opportunities.
 - [x] Record the 2026-07-17 LinkedIn invitations for Matt Kummell, Danny Carpentier Balough, and
   Dillon Freeman without inferring acceptances, responses, or opportunities.
+- [x] Record the 2026-07-18 LinkedIn invitations for Harshit Tiwari and Charlie Bussat without
+  inferring acceptances, responses, or opportunities.
 - [ ] Check the still-pending invitation states for David Mirzadeh, Josh Ford, and Bowen Shen.
 - [ ] Verify Alexander Scharrer's canonical LinkedIn URL.
