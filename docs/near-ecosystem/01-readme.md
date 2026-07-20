@@ -18,6 +18,7 @@ The workstream is not only about funding. It is also about:
 
 ## English Reading Order
 
+- [NEAR Ecosystem Intelligence](README.md)
 - [NEAR Ecosystem Map](02-near-ecosystem-map.md)
 - [NEAR Priority Targets](03-near-priority-targets.md)
 - [NEAR Engagement Plan](04-near-engagement-plan.md)

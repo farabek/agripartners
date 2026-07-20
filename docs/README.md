@@ -26,7 +26,8 @@ and recommended reading paths. It is the canonical map for all documentation pac
 - **Product:** start with the [Product Book](PRODUCT_BOOK.md).
 - **Investor:** use the [Investor Package](investor/README.md).
 - **Farmer:** use the [Farmer Portal Guide](farmer-portal.md).
-- **NEAR:** use the [NEAR Ecosystem One-Pager](near/near-ecosystem-one-pager.md).
+- **NEAR:** use the public-facing [NEAR Ecosystem One-Pager](near/near-ecosystem-one-pager.md) and
+  the internal [NEAR Ecosystem Intelligence knowledge base](near-ecosystem/README.md).
 - **Partnerships:** use the [Outreach Playbook](outreach/outreach-playbook.md).
 - **Internal:** use the [Workstream Operating Model](governance/WORKSTREAM_OPERATING_MODEL.md) and
   [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md).
