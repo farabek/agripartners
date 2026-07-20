@@ -77,7 +77,7 @@ interaction history.
 | NEAR-008 | David Norris |
 | NEAR-009 | Abhishek Vaidyanathan |
 | NEAR-010 | Bianca Guimaraes-Chadwick |
-| NEAR-011 | Vitalii Y. |
+| NEAR-011 | Vitalii Yevlakhov |
 | NEAR-012 | Iker Alustiza Beitia |
 | NEAR-013 | Matt Kummell |
 | NEAR-014 | Danny Carpentier Balough |
@@ -139,8 +139,8 @@ LinkedIn before any new action.
 | Following | 0 |
 | Liked Posts | 0 |
 | Commented | 0 |
-| Invitation Pending | 16 |
-| Connected | 3 |
+| Invitation Pending | 14 |
+| Connected | 5 |
 | Conversations | 0 |
 | Warm Relationships | 0 |
 | Meetings | 0 |
@@ -155,8 +155,8 @@ LinkedIn before any new action.
 
 | Status | Count | Contacts |
 | --- | ---: | --- |
-| Invitation Sent (Pending) | 16 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y.; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Charlie Bussat; Aminu Bin Ibrahim; Clemens Scherf |
-| Connected | 1 | Alexander Scharrer |
+| Invitation Sent (Pending) | 14 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Aminu Bin Ibrahim; Clemens Scherf |
+| Connected | 3 | Alexander Scharrer; Vitalii Yevlakhov; Charlie Bussat |
 | Connected — Intro Message Sent | 1 | Iker Alustiza Beitia |
 | Follow-up Required | 1 | Philipp Suarez |
 
@@ -164,8 +164,8 @@ LinkedIn before any new action.
 
 | Pipeline Stage | Count | Contact IDs | Contacts |
 | --- | ---: | --- | --- |
-| Invitation Sent | 16 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010; NEAR-011; NEAR-013; NEAR-014; NEAR-015; NEAR-016; NEAR-017; NEAR-018; NEAR-019 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Vitalii Y.; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Charlie Bussat; Aminu Bin Ibrahim; Clemens Scherf |
-| Connected | 3 | NEAR-003; NEAR-006; NEAR-012 | Philipp Suarez; Alexander Scharrer; Iker Alustiza Beitia |
+| Invitation Sent | 14 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010; NEAR-013; NEAR-014; NEAR-015; NEAR-016; NEAR-018; NEAR-019 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Aminu Bin Ibrahim; Clemens Scherf |
+| Connected | 5 | NEAR-003; NEAR-006; NEAR-011; NEAR-012; NEAR-017 | Philipp Suarez; Alexander Scharrer; Vitalii Yevlakhov; Iker Alustiza Beitia; Charlie Bussat |
 
 ## Weekly Business Development Review
 
@@ -184,12 +184,12 @@ Review period: **2026-07-20 through 2026-07-26** (Asia/Tashkent).
 | NEAR-014 | Danny Carpentier Balough | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 | NEAR-015 | Dillon Freeman | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 | NEAR-016 | Harshit Tiwari | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
-| NEAR-017 | Charlie Bussat | High | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
+| NEAR-017 | Charlie Bussat | High | 2026-07-23 | Review recent activity and identify a natural engagement point | The invitation is accepted; continue relationship-first engagement without pitching |
 | NEAR-001 | Joseph Beverley | High | 2026-07-20 | Check whether the invitation was accepted; do not message before acceptance | Wait for a response to the personalized invitation |
 | NEAR-008 | David Norris | Medium | 2026-07-20 | Check whether the invitation was accepted; do not message before acceptance | Wait for a response to the personalized invitation |
 | NEAR-009 | Abhishek Vaidyanathan | High | 2026-07-20 | Check whether the invitation was accepted | Strategic legal stakeholder for RWA, tokenized assets, compliance, and NEAR Foundation relationships |
 | NEAR-010 | Bianca Guimaraes-Chadwick | High | 2026-07-20 | Check whether the invitation was accepted | NEAR Ecosystem legal stakeholder for RWA and compliance relationships |
-| NEAR-011 | Vitalii Y. | High | 2026-07-23 | Check whether the invitation was accepted | Allow approximately one week before reviewing the pending invitation |
+| NEAR-011 | Vitalii Yevlakhov | High | 2026-07-23 | Review recent activity and identify a natural engagement point | The invitation is accepted; continue relationship-first engagement without pitching |
 | NEAR-012 | Iker Alustiza Beitia | High | 2026-07-23 | Check for a reply to the introduction message | Allow approximately one week before considering any follow-up |
 
 ### Pending invitations
@@ -204,12 +204,10 @@ Review period: **2026-07-20 through 2026-07-26** (Asia/Tashkent).
 | NEAR-008 | David Norris | 2026-07-13 | 2026-07-20 |
 | NEAR-009 | Abhishek Vaidyanathan | 2026-07-13 | 2026-07-20 |
 | NEAR-010 | Bianca Guimaraes-Chadwick | 2026-07-13 | 2026-07-20 |
-| NEAR-011 | Vitalii Y. | 2026-07-16 | 2026-07-23 |
 | NEAR-013 | Matt Kummell | 2026-07-17 | 2026-07-19 |
 | NEAR-014 | Danny Carpentier Balough | 2026-07-17 | 2026-07-19 |
 | NEAR-015 | Dillon Freeman | 2026-07-17 | 2026-07-19 |
 | NEAR-016 | Harshit Tiwari | 2026-07-18 | 2026-07-19 |
-| NEAR-017 | Charlie Bussat | 2026-07-18 | 2026-07-19 |
 | NEAR-018 | Aminu Bin Ibrahim | 2026-07-20 | 2026-07-27 |
 | NEAR-019 | Clemens Scherf | 2026-07-20 | 2026-07-27 |
 
@@ -225,6 +223,8 @@ Review period: **2026-07-20 through 2026-07-26** (Asia/Tashkent).
 | Contact ID | Contact | Connection Date | Current State | Next Touch |
 | --- | --- | --- | --- | --- |
 | NEAR-012 | Iker Alustiza Beitia | 2026-07-16 | Introduction sent; awaiting response | 2026-07-23 |
+| NEAR-011 | Vitalii Yevlakhov | 2026-07-20 | Invitation accepted; no message sent | 2026-07-23 |
+| NEAR-017 | Charlie Bussat | 2026-07-20 | Invitation accepted; no message sent | 2026-07-23 |
 
 ### People needing follow-up
 
@@ -254,12 +254,12 @@ None. The oldest recorded last interaction is 2026-06-25, 25 days before the sna
 | Danny Carpentier Balough | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
 | Dillon Freeman | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
 | Harshit Tiwari | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
-| Charlie Bussat | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-19 |
+| Charlie Bussat | High | Connected | Review recent activity and identify a natural engagement point | 2026-07-23 |
 | Joseph Beverley | High | Invitation Sent (Pending) | Check whether the invitation was accepted; do not message before acceptance | 2026-07-20 |
 | David Norris | Medium | Invitation Sent (Pending) | Check whether the invitation was accepted; do not message before acceptance | 2026-07-20 |
 | Abhishek Vaidyanathan | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-20 |
 | Bianca Guimaraes-Chadwick | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-20 |
-| Vitalii Y. | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-23 |
+| Vitalii Yevlakhov | High | Connected | Review recent activity and identify a natural engagement point | 2026-07-23 |
 | Iker Alustiza Beitia | High | Connected — Intro Message Sent | Check for a reply to the introduction message | 2026-07-23 |
 
 ### Active conversations
@@ -292,13 +292,13 @@ None recorded. Do not infer an investor opportunity from a finance or capital-ma
 | NEAR-008 | David Norris | NEAR Foundation | CFO & CSO | [LinkedIn](https://ae.linkedin.com/in/davidnorrisaca) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Personalized invitation sent 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted; do not message before acceptance | Wait for a response to the personalized invitation |
 | NEAR-009 | Abhishek Vaidyanathan | NEAR Foundation | Chief Legal Officer | [LinkedIn](https://www.linkedin.com/in/abhishek-vaidyanathan-10056528/) | Canada | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn invitation sent without a note 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted | Strategic legal stakeholder for RWA, tokenized assets, compliance, and NEAR Foundation relationships |
 | NEAR-010 | Bianca Guimaraes-Chadwick | NEAR Foundation | General Counsel | Unknown (not provided) | United Kingdom | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn invitation sent without a note 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted | NEAR Ecosystem legal stakeholder for RWA and compliance relationships |
-| NEAR-011 | Vitalii Y. | NEAR Foundation | Lead Business Development and Ecosystem in SEA Region | [LinkedIn](https://www.linkedin.com/in/vitalii-y-b72779106/) | Bangkok, Thailand | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | Profile reviewed; invitation sent and confirmed pending 2026-07-16 | 2026-07-23 | Check whether the invitation was accepted | Allow approximately one week before reviewing the pending invitation |
+| NEAR-011 | Vitalii Yevlakhov | NEAR Foundation | Lead Business Development and Ecosystem in SEA Region | [LinkedIn](https://www.linkedin.com/in/vitalii-y-b72779106/) | Bangkok, Thailand | NEAR | High | 6 | Connected | Connected | LinkedIn invitation accepted 2026-07-20 | 2026-07-23 | Review recent activity and identify a natural engagement point | Continue relationship-first engagement after the confirmed acceptance; no message is recorded |
 | NEAR-012 | Iker Alustiza Beitia | NEAR Foundation | Partner Engineer | [LinkedIn](https://www.linkedin.com/in/iker-alustiza-beitia-68803a2b/) | Spain | NEAR | High | 6 | Connected | Connected — Intro Message Sent | Invitation accepted and first introduction message sent 2026-07-16; awaiting response | 2026-07-23 | Check for a reply to the introduction message | Allow approximately one week before considering any follow-up |
 | NEAR-013 | Matt Kummell | NEAR Foundation / S&P Global | Advisor at NEAR Foundation; Head of Business Acceleration & Special Projects at S&P Global | [LinkedIn](https://www.linkedin.com/in/kummell/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 | NEAR-014 | Danny Carpentier Balough | NEAR Foundation | Director, Product Marketing and GTM Strategy | [LinkedIn](https://www.linkedin.com/in/danny-carpentier-balough/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 | NEAR-015 | Dillon Freeman | NEAR Foundation | Partnerships | [LinkedIn](https://www.linkedin.com/in/dillonfreeman1/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 | NEAR-016 | Harshit Tiwari | NEAR Foundation | Vice President of Growth | [LinkedIn](https://www.linkedin.com/in/harshit-tiwari-is-near/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-18 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
-| NEAR-017 | Charlie Bussat | NEAR Foundation / near.com | Head of Marketing | [LinkedIn](https://www.linkedin.com/in/charliebussat/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-18 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
+| NEAR-017 | Charlie Bussat | NEAR Foundation / near.com | Head of Marketing | [LinkedIn](https://www.linkedin.com/in/charliebussat/) | Unknown | NEAR | High | 6 | Connected | Connected | LinkedIn invitation accepted 2026-07-20 | 2026-07-23 | Review recent activity and identify a natural engagement point | Continue relationship-first engagement after the confirmed acceptance; no message is recorded |
 | NEAR-018 | Aminu Bin Ibrahim | Startbench Limited | Managing Director; Economist; Web3 & AI; Enterprise Solutions Architect | [LinkedIn](https://www.linkedin.com/in/aminubi/) | Unknown | NEAR | A+ | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-20 | 2026-07-27 | Check whether the invitation was accepted; do not message before acceptance | Build a relationship around former NEAR grant technical review and early-stage Web3 mentorship without making a funding request |
 | NEAR-019 | Clemens Scherf | Coinbase | Growth Lead, Western Europe and UK | [LinkedIn](https://www.linkedin.com/in/clemens-scherf/) | Unknown | NEAR | A+ | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-20 | 2026-07-27 | Check whether the invitation was accepted; do not message before acceptance | Build a relationship around former NEAR ecosystem relations and venture building plus current European Web3 growth experience without making a funding request |
 
@@ -447,7 +447,7 @@ Next action: Check whether the invitation was accepted. Recommended date: **2026
 NEAR Ecosystem / Legal / RWA / Compliance.
 
 <!-- markdownlint-disable-next-line MD026 -->
-### Vitalii Y.
+### Vitalii Yevlakhov
 
 - **2026-07-16 — Profile reviewed in detail:** Verified as Lead Business Development and Ecosystem
   in SEA Region at NEAR Foundation, located in Bangkok, Thailand. Strategic relevance includes
@@ -458,9 +458,11 @@ NEAR Ecosystem / Legal / RWA / Compliance.
   connection flow without a personalized note.
 - **2026-07-16 — Invitation state confirmed:** Invitation is Pending. No acceptance, message, or
   response is recorded.
+- **2026-07-20 — Connected:** LinkedIn invitation acceptance confirmed. No message, reply,
+  conversation, opportunity, introduction, or meeting is recorded.
 
-Next action: Check whether the invitation was accepted. Recommended date: **2026-07-23**. Allow
-approximately one week before reviewing the pending invitation.
+Next action: Review recent activity and identify a natural engagement point. Recommended date:
+**2026-07-23**. Continue relationship-first engagement without pitching.
 
 ### Iker Alustiza Beitia
 
@@ -556,8 +558,11 @@ Next action: Check whether the invitation was accepted. Recommended date: **2026
   Mutual connection: Alexander Scharrer.
 - **2026-07-18 — Connection request sent:** LinkedIn connection invitation sent. Current status is
   Pending. No acceptance, message, or response is recorded.
+- **2026-07-20 — Connected:** LinkedIn invitation acceptance confirmed. No message, reply,
+  conversation, opportunity, introduction, or meeting is recorded.
 
-Next action: Check whether the invitation was accepted. Recommended date: **2026-07-19**.
+Next action: Review recent activity and identify a natural engagement point. Recommended date:
+**2026-07-23**. Continue relationship-first engagement without pitching.
 
 ### Aminu Bin Ibrahim
 
@@ -711,7 +716,7 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
 - [x] Pending invitations, active conversations, partnership opportunities, and investor
   opportunities are explicitly summarized.
 - [x] Reconcile the confirmed 2026-07-13 LinkedIn outreach state without inferring responses.
-- [x] Record the verified 2026-07-16 activity for Vitalii Y. and Iker Alustiza Beitia without
+- [x] Record the verified 2026-07-16 activity for Vitalii Yevlakhov and Iker Alustiza Beitia without
   inferring responses or opportunities.
 - [x] Record the 2026-07-17 LinkedIn invitations for Matt Kummell, Danny Carpentier Balough, and
   Dillon Freeman without inferring acceptances, responses, or opportunities.
@@ -719,5 +724,7 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
   inferring acceptances, responses, or opportunities.
 - [x] Record the 2026-07-20 LinkedIn invitations for Aminu Bin Ibrahim and Clemens Scherf without
   inferring acceptances, messages, responses, conversations, or opportunities.
+- [x] Record the confirmed 2026-07-20 invitation acceptances for Vitalii Yevlakhov and Charlie
+  Bussat without inferring messages, responses, conversations, or opportunities.
 - [ ] Check the still-pending invitation states for David Mirzadeh, Josh Ford, and Bowen Shen.
 - [ ] Verify Alexander Scharrer's canonical LinkedIn URL.
