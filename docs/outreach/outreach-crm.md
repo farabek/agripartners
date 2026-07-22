@@ -2,7 +2,7 @@
 
 # AgriPartners Relationship CRM
 
-Last reconciled: 2026-07-20 (Asia/Tashkent)
+Last reconciled: 2026-07-22 (Asia/Tashkent)
 
 This document is the single source of truth for AgriPartners investor relations, NEAR ecosystem
 outreach, partnerships, and business development. An interaction is complete only after it is
@@ -61,7 +61,7 @@ interaction history.
 ### Permanent Contact ID registry
 
 - Assigned IDs are immutable and must never be reused, renumbered, or reassigned.
-- The next new contact must receive **`NEAR-020`**.
+- The next new contact must receive **`NEAR-022`**.
 - The `NEAR` prefix is retained for the permanent sequence even when a future contact belongs to a
   different category.
 
@@ -86,6 +86,8 @@ interaction history.
 | NEAR-017 | Charlie Bussat |
 | NEAR-018 | Aminu Bin Ibrahim |
 | NEAR-019 | Clemens Scherf |
+| NEAR-020 | Vlad Frolov |
+| NEAR-021 | Olha Lesik |
 
 ### Relationship Score
 
@@ -129,17 +131,17 @@ condition, such as `Follow-up Required`; Pipeline Stage captures relationship ma
 
 ## Relationship Dashboard
 
-Snapshot date: 2026-07-20. Counts reflect the last recorded evidence and must be reconciled against
+Snapshot date: 2026-07-22. Counts reflect the last recorded evidence and must be reconciled against
 LinkedIn before any new action.
 
 | Metric | Count |
 | --- | ---: |
-| Total Contacts | 19 |
+| Total Contacts | 21 |
 | Research | 0 |
 | Following | 0 |
 | Liked Posts | 0 |
 | Commented | 0 |
-| Invitation Pending | 14 |
+| Invitation Pending | 16 |
 | Connected | 4 |
 | Conversations | 1 |
 | Warm Relationships | 0 |
@@ -155,7 +157,7 @@ LinkedIn before any new action.
 
 | Status | Count | Contacts |
 | --- | ---: | --- |
-| Invitation Sent (Pending) | 14 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Aminu Bin Ibrahim; Clemens Scherf |
+| Invitation Sent (Pending) | 16 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Aminu Bin Ibrahim; Clemens Scherf; Vlad Frolov; Olha Lesik |
 | Connected | 3 | Alexander Scharrer; Vitalii Yevlakhov; Charlie Bussat |
 | Conversation Started | 1 | Iker Alustiza Beitia |
 | Follow-up Required | 1 | Philipp Suarez |
@@ -164,7 +166,7 @@ LinkedIn before any new action.
 
 | Pipeline Stage | Count | Contact IDs | Contacts |
 | --- | ---: | --- | --- |
-| Invitation Sent | 14 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010; NEAR-013; NEAR-014; NEAR-015; NEAR-016; NEAR-018; NEAR-019 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Aminu Bin Ibrahim; Clemens Scherf |
+| Invitation Sent | 16 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010; NEAR-013; NEAR-014; NEAR-015; NEAR-016; NEAR-018; NEAR-019; NEAR-020; NEAR-021 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Aminu Bin Ibrahim; Clemens Scherf; Vlad Frolov; Olha Lesik |
 | Connected | 4 | NEAR-003; NEAR-006; NEAR-011; NEAR-017 | Philipp Suarez; Alexander Scharrer; Vitalii Yevlakhov; Charlie Bussat |
 | Conversation | 1 | NEAR-012 | Iker Alustiza Beitia |
 
@@ -210,6 +212,8 @@ Review period: **2026-07-20 through 2026-07-26** (Asia/Tashkent).
 | NEAR-016 | Harshit Tiwari | 2026-07-18 | 2026-07-19 |
 | NEAR-018 | Aminu Bin Ibrahim | 2026-07-20 | 2026-07-27 |
 | NEAR-019 | Clemens Scherf | 2026-07-20 | 2026-07-27 |
+| NEAR-020 | Vlad Frolov | 2026-07-22 | 2026-07-29 |
+| NEAR-021 | Olha Lesik | 2026-07-22 | 2026-07-29 |
 
 ### Outreach activity recorded this week
 
@@ -218,6 +222,12 @@ Review period: **2026-07-20 through 2026-07-26** (Asia/Tashkent).
 | NEAR-018 | Aminu Bin Ibrahim | 2026-07-20 | LinkedIn connection invitation sent; pending |
 | NEAR-019 | Clemens Scherf | 2026-07-20 | LinkedIn connection invitation sent; pending |
 | NEAR-012 | Iker Alustiza Beitia | 2026-07-20 | Iker initiated the conversation and recommended connecting with other NEAR builders and successful ecosystem projects; response sent |
+| NEAR-020 | Vlad Frolov | 2026-07-22 | LinkedIn connection invitation sent; pending |
+| NEAR-021 | Olha Lesik | 2026-07-22 | LinkedIn connection invitation sent; pending |
+
+Also reviewed on 2026-07-22: Philipp Suarez, Alexander Scharrer, Iker Alustiza Beitia, Vitalii
+Yevlakhov, and Charlie Bussat. No new replies or meaningful relationship updates were observed, so
+their existing statuses and next actions remain unchanged.
 
 ### Newly connected contacts
 
@@ -240,7 +250,7 @@ interaction evidence.
 
 ### Inactive contacts (>30 days)
 
-None. The oldest recorded last interaction is 2026-06-25, 25 days before the snapshot date.
+None. The oldest recorded last interaction is 2026-06-25, 27 days before the snapshot date.
 
 ### Actions due this week or overdue
 
@@ -303,6 +313,8 @@ None recorded. Do not infer an investor opportunity from a finance or capital-ma
 | NEAR-017 | Charlie Bussat | NEAR Foundation / near.com | Head of Marketing | [LinkedIn](https://www.linkedin.com/in/charliebussat/) | Unknown | NEAR | High | 6 | Connected | Connected | LinkedIn invitation accepted 2026-07-20 | 2026-07-23 | Review recent activity and identify a natural engagement point | Continue relationship-first engagement after the confirmed acceptance; no message is recorded |
 | NEAR-018 | Aminu Bin Ibrahim | Startbench Limited | Managing Director; Economist; Web3 & AI; Enterprise Solutions Architect | [LinkedIn](https://www.linkedin.com/in/aminubi/) | Unknown | NEAR | A+ | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-20 | 2026-07-27 | Check whether the invitation was accepted; do not message before acceptance | Build a relationship around former NEAR grant technical review and early-stage Web3 mentorship without making a funding request |
 | NEAR-019 | Clemens Scherf | Coinbase | Growth Lead, Western Europe and UK | [LinkedIn](https://www.linkedin.com/in/clemens-scherf/) | Unknown | NEAR | A+ | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-20 | 2026-07-27 | Check whether the invitation was accepted; do not message before acceptance | Build a relationship around former NEAR ecosystem relations and venture building plus current European Web3 growth experience without making a funding request |
+| NEAR-020 | Vlad Frolov | Trezu / NEAR DevHub / NEAR Protocol | CEO at Trezu; Co-Founder at NEAR DevHub; Software Engineer at NEAR Protocol | Unknown (not provided) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-22 | 2026-07-29 | Wait for invitation acceptance; do not send a follow-up before acceptance | Direct NEAR builder ecosystem experience; potential source of technical and ecosystem feedback relevant to NEAR development, infrastructure, smart contracts, and builder connections |
+| NEAR-021 | Olha Lesik | NEAR DevHub | Product Designer | Unknown (not provided) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-22 | 2026-07-29 | Wait for invitation acceptance; do not send a follow-up before acceptance | Potential product and UX feedback for investor and farmer workflows; direct connection to NEAR DevHub product work |
 
 ## Interaction history
 
@@ -601,6 +613,34 @@ Next action: Check whether the invitation was accepted. Recommended date: **2026
 accepted, build the relationship around his NEAR ecosystem background and current European Web3
 growth experience; do not begin with a funding request.
 
+### Vlad Frolov
+
+- **2026-07-22 — Added to canonical CRM / profile reviewed:** Assigned permanent Contact ID
+  `NEAR-020`. Current roles confirmed as CEO at Trezu, Co-Founder at NEAR DevHub, and Software
+  Engineer at NEAR Protocol. Contact focus: Builder / Founder / Technical. Priority: High. Direct
+  NEAR builder ecosystem experience makes him a potential source of technical and ecosystem
+  feedback relevant to NEAR development, infrastructure, smart contracts, and builder connections.
+  Mutual connections visible: Charlie Bussat and Alexander Scharrer.
+- **2026-07-22 — Connection request sent:** LinkedIn connection invitation sent. The invitation was
+  pending at the time of review. No acceptance, message, conversation, or response is recorded.
+
+Next action: Wait for invitation acceptance; do not send a follow-up before acceptance.
+Recommended date: **2026-07-29**.
+
+### Olha Lesik
+
+- **2026-07-22 — Added to canonical CRM / profile reviewed:** Assigned permanent Contact ID
+  `NEAR-021`. Current role confirmed as Product Designer at NEAR DevHub. Professional focus:
+  UX/Product Design, UX Research, User Experience, Wireframing, Interface Design, Information
+  Architecture, and Prototyping. Contact focus: Product / UX / Builder Ecosystem. Priority: High.
+  Relevant as a potential source of product and UX feedback for improving investor and farmer
+  workflows, with a direct connection to NEAR DevHub product work.
+- **2026-07-22 — Connection request sent:** LinkedIn connection invitation sent. The invitation was
+  pending at the time of review. No acceptance, message, conversation, or response is recorded.
+
+Next action: Wait for invitation acceptance; do not send a follow-up before acceptance.
+Recommended date: **2026-07-29**.
+
 ## Legacy Outreach History (Read-only)
 
 This section preserves the complete pre-migration Outreach CRM structure and wording from the last
@@ -713,7 +753,7 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
 - [x] Every tracked contact has a Relationship Score from 0 through 10.
 - [x] Every tracked contact belongs to exactly one Pipeline Stage.
 - [x] Every tracked contact has a Next Touch Date, Next Action, and Next Touch Reason.
-- [x] Dashboard counters reconcile to the nineteen contact-register records.
+- [x] Dashboard counters reconcile to the twenty-one contact-register records.
 - [x] Weekly review lists reconcile to the snapshot date and recorded next-touch dates.
 - [x] Historical interactions from the prior operational CRM are retained.
 - [x] The complete pre-migration CRM structure and wording are retained as read-only history.
@@ -730,5 +770,7 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
   inferring acceptances, messages, responses, conversations, or opportunities.
 - [x] Record the confirmed 2026-07-20 invitation acceptances for Vitalii Yevlakhov and Charlie
   Bussat without inferring messages, responses, conversations, or opportunities.
+- [x] Record the 2026-07-22 LinkedIn invitations for Vlad Frolov and Olha Lesik without inferring
+  acceptances, messages, responses, conversations, recommendations, or opportunities.
 - [ ] Check the still-pending invitation states for David Mirzadeh, Josh Ford, and Bowen Shen.
 - [ ] Verify Alexander Scharrer's canonical LinkedIn URL.
