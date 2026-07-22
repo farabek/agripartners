@@ -4,16 +4,23 @@ Status: Working operating procedure for Phase 3 Pilot 1.0. This guide must be ad
 
 ## Non-Negotiable Operating Rules
 
-1. Investors and farmers interact contractually and operationally only with AgriPartners OÜ.
-2. Farmers receive and return fiat only.
-3. Farmers do not use wallets, tokens, cryptocurrency, or blockchain interfaces.
-4. Investors may use supported crypto assets only through approved AgriPartners investment
+1. External Investors contract with AgriPartners OÜ; the Uzbekistan Feedlot Operator contracts
+   separately with AgriPartners OÜ.
+2. Only AgriPartners OÜ in Estonia may receive approved crypto assets, and cryptocurrency stops
+   there.
+3. AgriPartners OÜ converts approved crypto assets through approved crypto-to-fiat infrastructure
+   before any Uzbekistan activity is financed.
+4. The Uzbekistan Feedlot Operator receives and returns funds only by fiat bank or payment
+   transfer. Farmer is a non-crypto product role.
+5. Uzbekistan participants do not use wallets, tokens, cryptocurrency, crypto conversion,
+   smart-contract payments, or blockchain interfaces.
+6. Investors may use supported crypto assets only through approved AgriPartners investment
    infrastructure.
-5. Pilot 1.0 is one complete Project lifecycle, not one Production Cycle.
-6. Every money movement requires agreement coverage, supporting evidence, dual approval, and reconciliation.
-7. Bank, approved provider, and accounting records are authoritative; NEAR records are supplementary.
-8. Operators never describe a projection or recorded event as paid or reconciled.
-9. Pilot limits cannot be increased informally.
+7. Pilot 1.0 is one complete Project lifecycle, not one Production Cycle.
+8. Every money movement requires agreement coverage, supporting evidence, dual approval, and reconciliation.
+9. Bank, approved provider, and accounting records are authoritative; NEAR records are supplementary.
+10. Operators never describe a projection or recorded event as paid or reconciled.
+11. Pilot limits cannot be increased informally.
 
 ## Daily Control Rhythm
 

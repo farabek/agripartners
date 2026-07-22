@@ -33,10 +33,17 @@ participants.
 
 ### Farmer
 
-The Farmer contracts only with AgriPartners OÜ. The Farmer receives project funding and returns
-the agreed amounts only in fiat currency, such as USD, EUR, or an approved local currency. The
-Farmer does not receive, hold, convert, or return cryptocurrency and is not required to use a
-crypto wallet or smart contract.
+The Farmer is a non-crypto product role for operational work, reporting, evidence, and
+confirmations. The Farmer does not receive, hold, convert, transfer, or return cryptocurrency and
+is not required to use a crypto wallet, token, smart contract, or on-chain transaction.
+
+### Uzbekistan Feedlot Operator
+
+The Uzbekistan Feedlot Operator is the legal and operational fiat recipient. It contracts with
+AgriPartners OÜ under a separate written agreement, receives Project financing only by fiat bank
+or payment transfer in USD, EUR, UZS, or another permitted fiat currency, pays Project expenses in
+fiat, and returns proceeds, repayments, and settlements only in fiat through approved banking or
+payment channels.
 
 ### Banking Partner
 
@@ -79,6 +86,14 @@ financial institution, banking partner, exchange, custodian, or counterparty.
   authoritative.
 - Every financial movement must be attributable to an approved participant, agreement, project,
   purpose, authorization, and reconciliation record.
+- Only AgriPartners OÜ may receive approved crypto assets from External Investors, NEAR ecosystem
+  programs, grant programs, or other authorized funding sources.
+- Cryptocurrency stops at AgriPartners OÜ in Estonia. No crypto asset crosses the
+  Estonia-to-Uzbekistan boundary in either direction.
+- Direct cryptocurrency transfers between External Investors and Uzbekistan-based operators,
+  Farmers, suppliers, employees, or other local participants are prohibited.
+- An on-chain record never replaces governing agreements, bank statements, accounting records,
+  reconciliation records, or authoritative evidence that a fiat payment cleared.
 
 ## 4. Investor-to-Farmer Funding Flow
 
@@ -90,17 +105,18 @@ External Investor
         v
 AgriPartners OÜ
         |
+        | approved crypto-to-fiat infrastructure
+        | cryptocurrency stops in Estonia
         v
-Selected financial infrastructure
-(bank, payment institution, licensed CASP,
-or other compliant provider depending on
-the final implementation)
+Cleared fiat in AgriPartners OÜ account
         |
+        | fiat bank or payment transfer
+        | separate written operator agreement
         v
 USD / EUR / Local Currency
         |
         v
-Farmer
+Uzbekistan Feedlot Operator
 ```
 
 Under this route:
@@ -111,9 +127,12 @@ Under this route:
 3. AgriPartners OÜ uses the selected compliant financial infrastructure to receive, convert,
    safeguard, and transfer funds as required by the approved implementation.
 4. Fiat proceeds are made available through an approved AgriPartners OÜ bank or payment account.
-5. AgriPartners OÜ authorizes and reconciles the fiat transfer to the Farmer.
-6. The Farmer receives fiat only and does not participate in crypto, wallet, conversion, or
-   blockchain stages.
+5. AgriPartners OÜ authorizes and reconciles the fiat bank or payment transfer to the Uzbekistan
+   Feedlot Operator under the separate written operator agreement.
+6. The Uzbekistan Feedlot Operator confirms receipt separately from payment instruction and uses
+   fiat for approved Project expenses.
+7. The Operator, Farmer, suppliers, employees, and other Uzbekistan-based participants do not
+   participate in crypto, wallet, conversion, smart-contract-payment, or blockchain stages.
 
 The selected infrastructure may be a bank, payment institution, licensed CASP, or another
 compliant provider. No specific provider or conversion implementation is selected by this
@@ -128,7 +147,7 @@ rail.
 The intended farmer return route is:
 
 ```text
-Farmer
+Uzbekistan Feedlot Operator
         |
         v
 USD / EUR / Local Currency
@@ -143,8 +162,9 @@ Financial reconciliation
 Investor settlement
 ```
 
-The Farmer repays only to an approved AgriPartners OÜ bank or payment account. AgriPartners OÜ
-matches the cleared receipt to the Farmer, project, agreement, and expected amount; records it in
+The Uzbekistan Feedlot Operator pays proceeds, repayments, and settlements only to an approved
+AgriPartners OÜ bank or payment account using fiat. AgriPartners OÜ matches the cleared receipt to
+the Operator, Project, agreement, and expected amount; records it in
 the approved financial ledger; resolves any variance; calculates the contractual allocation; and
 authorizes investor settlement.
 
@@ -201,6 +221,27 @@ An on-chain record does not by itself prove that fiat funds cleared, that legal 
 occurred, or that a participant's contractual obligation was satisfied. On-chain events must be
 reconciled with the authoritative contractual, banking, payment-partner, and accounting records.
 Personal data and confidential financial information must not be placed on a public blockchain.
+
+NEAR audit and automation infrastructure may operate only on the External Investor and Estonia
+side for approved transactions, automation, hashes, workflow states, transparency, and audit
+trails. It must not create a wallet, token, crypto-payment interface, conversion interface,
+smart-contract payment requirement, or on-chain transaction requirement for the Uzbekistan
+Feedlot Operator, Farmer, supplier, employee, or other local participant.
+
+### Required financial-state separation
+
+Systems and documents must preserve these distinct states:
+
+1. Investor Funding received by AgriPartners OÜ;
+2. crypto-to-fiat conversion in the Estonia layer, when applicable;
+3. cleared fiat available to AgriPartners OÜ;
+4. Operator Fiat Disbursement initiated by fiat bank or payment transfer;
+5. Uzbekistan Feedlot Operator confirmation of cleared receipt;
+6. Project expenses paid through permitted local fiat channels;
+7. fiat proceeds returned from Uzbekistan and reconciled by AgriPartners OÜ;
+8. Investor Settlement under the governing investor agreement.
+
+No state may be inferred solely from an on-chain event or collapsed into another state.
 
 ## 9. Pilot Phase
 

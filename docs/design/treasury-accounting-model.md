@@ -1,5 +1,12 @@
 # Treasury Accounting Model Specification
 
+> **Target-architecture override:** `Farmer withdrawal` and NEAR-denominated Farmer-disbursement
+> terminology below describes **Legacy Testnet Alpha — historical technical demonstration, not the
+> target production financial architecture**. Target accounting separates Investor Funding,
+> Estonia-layer crypto-to-fiat conversion, cleared fiat, Operator Fiat Disbursement, Uzbekistan
+> Feedlot Operator confirmation, Project expenses, fiat proceeds returned, reconciliation, and
+> Investor Settlement.
+
 ## 1. Purpose
 
 This specification defines the Treasury Accounting Model for AgriPartners Alpha v1.1 Phase 20. It is a design document only. It does not authorize or implement database migrations, backend APIs, application code, frontend changes, or tests.

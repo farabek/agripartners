@@ -1,5 +1,11 @@
 # Treasury Engine Architecture Specification
 
+> **Target-architecture override:** Blockchain transfers to a Farmer, Uzbekistan Feedlot Operator,
+> or other Uzbekistan participant are prohibited. Cryptocurrency stops at AgriPartners OÜ in
+> Estonia. Local disbursements and returns use fiat bank or payment transfer only. Any contrary
+> mechanism below is **Legacy Testnet Alpha — historical technical demonstration, not the target
+> production financial architecture**.
+
 ## 1. Purpose
 
 This specification defines the target Treasury Engine architecture for AgriPartners Alpha v1.1 Phase 20. It is a design document only. It does not authorize or implement a migration, backend API change, application code change, frontend change, or test change.

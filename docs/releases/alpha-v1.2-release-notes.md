@@ -6,6 +6,11 @@ Release scope: Alpha v1.2 repository and public outreach readiness.
 
 Status: Alpha/Testnet demonstration release. Not production investment, custody, payout, settlement, or Mainnet infrastructure.
 
+Farmer wallet authentication, Farmer withdrawal, NEAR funding, and smart-contract payout behavior
+in this release is **Legacy Testnet Alpha — historical technical demonstration, not the target
+production financial architecture**. The target keeps cryptocurrency at AgriPartners OÜ in
+Estonia and gives the Uzbekistan Feedlot Operator and Farmer role a fiat-only, non-crypto workflow.
+
 ## Overview
 
 AgriPartners Alpha v1.2 is a working Alpha platform for transparent agricultural investment workflows on NEAR Testnet. The release strengthens the public product presentation, role-based demo experience, Treasury visibility, and external-review documentation needed before NEAR ecosystem outreach.

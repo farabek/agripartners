@@ -2,6 +2,14 @@
 
 AgriPartners — ready answers for grants.near.org
 
+Status: Draft; must be revalidated against current program requirements before submission.
+
+Financial architecture: AgriPartners OÜ in Estonia is the sole recipient of any approved grant or
+crypto funding. Cryptocurrency stops at AgriPartners OÜ and is converted through approved
+crypto-to-fiat infrastructure before any Uzbekistan activity is financed. The Uzbekistan Feedlot
+Operator receives and returns fiat only. The Farmer product role has no wallet, token,
+crypto-payment, smart-contract-payment, or on-chain transaction requirement.
+
 ---
 
 ## Project Name
@@ -12,7 +20,8 @@ AgriPartners
 
 ## One-liner (Tweet-size description)
 
-Blockchain platform that tokenizes livestock investment deals on NEAR Protocol — giving emerging-market farmers access to capital and investors verified on-chain returns of +64% ROI.
+Agricultural investment workflow platform using NEAR for Estonia-side audit and automation
+infrastructure while financing Uzbekistan operations exclusively through fiat.
 
 ---
 
@@ -34,15 +43,26 @@ This locks 500M+ smallholder farmers out of growth, despite the global livestock
 
 ## Solution
 
-AgriPartners replaces paper investment agreements with NEAR smart contracts. Every deal term — profit split, cycle schedule, payout amounts — is encoded on-chain. Payouts to investor and farmer execute automatically at the end of each cycle with no manual intervention.
+AgriPartners supplements, but never replaces, governing agreements and authoritative financial
+records with transparent workflow states and approved NEAR audit references. External Investors
+contract with AgriPartners OÜ. If approved crypto assets are received, they stop at AgriPartners
+OÜ in Estonia and are converted through approved crypto-to-fiat infrastructure before Project
+funds move to Uzbekistan.
 
 **How it works:**
 
-1. Platform deploys a NEAR smart contract with all deal parameters
-2. Investor sends funds — locked in contract until payout
-3. Farmer raises and sells livestock over 5-month cycles
-4. At cycle end: investor and farmer receive their shares automatically
-5. After 7 cycles (35 months): capital returned, feedlot asset transferred to farmer
+1. External Investor enters an approved agreement and funds AgriPartners OÜ through an approved
+   fiat or crypto route.
+2. Any approved crypto asset is converted to fiat in the Estonia layer and reconciled against
+   provider, bank, accounting, and internal records.
+3. AgriPartners OÜ sends fiat to the Uzbekistan Feedlot Operator under a separate written
+   agreement by approved bank or payment transfer.
+4. The Operator confirms cleared receipt, pays Project expenses in fiat, and submits operational
+   evidence through the non-crypto Farmer product experience.
+5. The Operator returns proceeds in fiat to AgriPartners OÜ; AgriPartners reconciles the receipt
+   before Investor Settlement.
+6. NEAR may record approved hashes, workflow states, and audit references on the Investor and
+   Estonia side, but no on-chain record proves fiat settlement by itself.
 
 **Investment model — Fidlot v5.9 (60/40 split):**
 
@@ -54,10 +74,10 @@ AgriPartners replaces paper investment agreements with NEAR smart contracts. Eve
 
 ## Why NEAR Protocol?
 
-- Near-zero transaction fees (<$0.001) — critical for micropayments per cycle
-- 1-second finality — essential for real-time deal tracking
+- Low-cost infrastructure for approved Estonia-side audit and automation events
+- Fast finality for timestamped workflow-state and evidence references
 - Carbon-neutral blockchain — aligned with agricultural sustainability
-- Human-readable account IDs — accessible for non-crypto farmers
+- Developer-friendly infrastructure without requiring Uzbekistan participants to use blockchain
 - Active RWA ecosystem and grant support
 
 ---
@@ -70,9 +90,13 @@ AgriPartners replaces paper investment agreements with NEAR smart contracts. Eve
 | Backend API (Node.js + PostgreSQL) | ✅ Live on Render |
 | Investor + farmer dashboard | ✅ Live on Vercel |
 | JWT auth with farmer/investor/admin roles | ✅ Implemented |
-| Full lifecycle demo (fund → 7 cycles → payout) | ✅ Completed on testnet |
+| Legacy full lifecycle crypto demo (fund → 7 cycles → payout) | ✅ Historical Testnet Alpha evidence |
 | Security audit | ⏳ Pending funding |
-| Mainnet launch | ⏳ Pending audit |
+| Production financial architecture | ⏳ Requires Stage 2 migration and legal/financial readiness |
+
+The smart contract, Farmer wallet, Farmer withdrawal, NEAR funding, and automated payout behavior
+above is **Legacy Testnet Alpha — historical technical demonstration, not the target production
+financial architecture**.
 
 **Real-world traction:**
 A livestock farmer has signed a Letter of Intent for 2 deals at $50,000 each = **$100,000 in committed deals**, pending mainnet launch.
@@ -96,10 +120,10 @@ Requested amount: **$40,000 USD**
 
 | Budget Line | Amount | Details |
 | --- | --- | --- |
-| Smart contract security audit | $10,000 | Independent audit by NEAR-ecosystem firm (e.g. OtterSec) — required before mainnet |
+| NEAR audit-infrastructure review | $10,000 | Review Estonia-side audit, automation, signer, privacy, and evidence-boundary design |
 | Infrastructure (2 years) | $3,000 | Render hosting, PostgreSQL (Neon), domain, SSL, NEAR mainnet gas |
-| Legal & first deal | $5,000 | Legal review of smart contract terms, notarization of 2 farmer agreements |
-| Developer salary (6 months) | $15,000 | Founder at $2,500/month — mainnet deployment, NEAR Wallet integration, maintenance |
+| Legal & first pilot | $5,000 | Review investor agreement, Uzbekistan Feedlot Operator agreement, and Estonia-to-Uzbekistan fiat route |
+| Developer salary (6 months) | $15,000 | Founder at $2,500/month — Stage 2 migration, investor/Estonia NEAR infrastructure, maintenance |
 | Company incorporation (Estonia e-Residency) | $3,000 | Legal entity for platform operations — e-Residency + LLC registration (OÜ, Osaühing — Estonian equivalent of LLC) |
 | AI development tools (1 year) | $1,000 | Claude Pro, GitHub Copilot — used daily for development |
 | Operational reserve | $3,000 | Buffer for unexpected issues and investor/farmer meetings |
@@ -109,23 +133,23 @@ Requested amount: **$40,000 USD**
 
 ## Milestones
 
-### Milestone 1 — Security Audit (Month 1–2) · $10,000
+### Milestone 1 — Architecture and Security Review (Month 1–2) · $10,000
 
 - [ ] Select and engage NEAR-ecosystem security firm
-- [ ] Complete full smart contract audit
+- [ ] Complete the Stage 2 financial-boundary and NEAR audit-infrastructure review
 - [ ] Resolve all critical and high findings
 - [ ] Publish audit report publicly on GitHub
 
-### Milestone 2 — Mainnet Launch (Month 2–3) · $8,000
+### Milestone 2 — Estonia-side Infrastructure (Month 2–3) · $8,000
 
-- [ ] Deploy audited contract to NEAR mainnet
 - [ ] Integrate NEAR Wallet Selector for investor self-custody
-- [ ] Launch first 2 live deals ($100,000 total)
-- [ ] Legal agreements signed and notarized
+- [ ] Remove all Uzbekistan-facing wallet, crypto, withdrawal, and on-chain requirements
+- [ ] Validate approved crypto-to-fiat and fiat bank/payment evidence states
+- [ ] Complete legal, banking, accounting, compliance, and pilot readiness gates
 
 ### Milestone 3 — Growth (Month 3–6) · $22,000
 
-- [ ] Reach 5 active deals on mainnet
+- [ ] Validate controlled pilot workflows only after all readiness gates pass
 - [ ] Add Telegram notifications for cycle events
 - [ ] Add VariantB model (sheep breeding) support
 - [ ] First platform revenue (fee from completed cycles)
@@ -135,9 +159,9 @@ Requested amount: **$40,000 USD**
 
 ## Impact on NEAR Ecosystem
 
-1. **RWA on NEAR** — Demonstrates real-world asset tokenization with actual revenue-generating deals, not synthetic finance
-2. **New users** — Brings farmers and agro-investors to NEAR who have never used blockchain before
-3. **TVL** — $100k in committed deals at launch; target $500k by end of Year 1
+1. **RWA workflow infrastructure** — Demonstrates how NEAR can support audit and automation without replacing legal and fiat settlement evidence
+2. **Non-crypto participant inclusion** — Lets the Uzbekistan Feedlot Operator and Farmers use a fiat-only product workflow
+3. **Responsible architecture** — Keeps crypto on the External Investor and AgriPartners OÜ Estonia side
 4. **Open source** — Full contract and platform code on GitHub for other builders to fork and adapt
 5. **Proof of concept** — Shows NEAR can power real financial infrastructure in emerging markets beyond DeFi
 
@@ -147,7 +171,10 @@ Requested amount: **$40,000 USD**
 
 AgriPartners is not a DeFi protocol or a speculative token — it is a real business with real farmers, real livestock, and real signed agreements. The $100,000 in committed deals is not projected — a farmer has already agreed to the terms and is waiting for mainnet to sign.
 
-The platform is fully functional today on testnet. The only blocker to launching real deals is a security audit. This grant directly removes that blocker.
+The Alpha is functional as a historical Testnet technical demonstration. It is not production
+financial infrastructure. Production consideration requires Stage 2 implementation migration,
+AgriPartners OÜ registration, approved agreements, banking/payment and crypto-to-fiat partners,
+accounting and reconciliation controls, compliance review, security review, and Pilot readiness.
 
 Demo: [agripartners.vercel.app](https://agripartners.vercel.app)
 GitHub: [github.com/farabek/agripartners](https://github.com/farabek/agripartners)

@@ -4,6 +4,11 @@ Status: Mandatory go/no-go checklist for Phase 3 Pilot 1.0.
 
 Each item must have an owner, evidence link or location, review date, and status. A checked box without reviewable evidence is not complete.
 
+The Pilot cannot proceed unless cryptocurrency stops at AgriPartners OÜ in Estonia, any approved
+crypto is converted through approved crypto-to-fiat infrastructure, and every Uzbekistan-facing
+payment uses a fiat bank or payment transfer. The Uzbekistan Feedlot Operator is the legal and
+operational fiat recipient; Farmer is a non-crypto product role.
+
 ## 1. Corporate and Governance
 
 - [ ] AgriPartners OÜ registration and beneficial ownership records are complete.

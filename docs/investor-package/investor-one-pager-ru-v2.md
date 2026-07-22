@@ -1,5 +1,12 @@
 # AgriPartners: инвестиционный one-pager v2
 
+> External Investor заключает договор с AgriPartners OÜ в Эстонии. Криптовалюта останавливается в
+> AgriPartners OÜ и конвертируется через approved crypto-to-fiat infrastructure до fiat bank or
+> payment transfer в пользу Uzbekistan Feedlot Operator. Farmer — не-криптовалютная продуктовая
+> роль. Alpha wallet, withdrawal, NEAR funding и smart-contract payout механики — **Legacy Testnet
+> Alpha — историческая техническая демонстрация, а не целевая производственная финансовая
+> архитектура**.
+
 ## Видение
 
 AgriPartners строит прозрачный investment workflow для сельского хозяйства. Платформа помогает инвесторам понятнее оценивать пилотные агропроекты, фермерам - дисциплинированно отчитываться, а партнерам - проверять ход исполнения.

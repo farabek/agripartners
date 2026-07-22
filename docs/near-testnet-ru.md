@@ -1,5 +1,11 @@
 # NEAR Testnet
 
+> **Legacy Testnet Alpha:** описанные здесь Farmer wallet, Farmer withdrawal, NEAR funding и
+> smart-contract payout механики являются исторической технической демонстрацией, а не целевой
+> производственной финансовой архитектурой. Криптовалюта останавливается в AgriPartners OÜ в
+> Эстонии. Uzbekistan Feedlot Operator и Farmer используют только fiat и не нуждаются в кошельке,
+> токене, smart contract или on-chain транзакции.
+
 AgriPartners Pilot MVP использует инфраструктуру NEAR Testnet, чтобы показать wallet-authenticated access, contract-backed deal flows и transaction-oriented project operations.
 
 ## NEAR Testnet Deployment
@@ -65,4 +71,3 @@ Hissar представлен как active project. Он показывает c
 ## Demo Positioning
 
 NEAR Testnet доказывает, что платформа может поддерживать wallet-authenticated, contract-aware agricultural investment operations. Investor-facing demo layer представляет эти операции понятным business language для screenshots, walkthroughs и fundraising conversations.
-

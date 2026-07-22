@@ -1,5 +1,10 @@
 # AgriPartners Elevator Pitch
 
+> Target boundary: cryptocurrency stops at AgriPartners OÜ in Estonia; Uzbekistan Feedlot Operator
+> and Farmer workflows are fiat-only. Any Farmer-linked contract funding, reporting transaction,
+> or withdrawal below is **Legacy Testnet Alpha — historical technical demonstration, not the
+> target production financial architecture**.
+
 ## 30-Second Version
 
 AgriPartners is a working Alpha v1 platform for transparent agricultural investment workflows on NEAR. It helps investors review livestock pilot deals, helps farmers report operational progress, and gives admins a clear view of funding, reporting, returns, and lifecycle events. The MVP is live for controlled demos with investor, farmer, and admin portals, plus NEAR Testnet validation for contract-aware workflows.

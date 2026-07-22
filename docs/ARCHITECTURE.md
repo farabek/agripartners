@@ -12,6 +12,12 @@ This document is the high-level architecture entry point for AgriPartners. It de
 current Alpha system and the canonical product boundaries that future delivery must preserve.
 Detailed implementation and product rules remain in the linked sources.
 
+> **Legacy implementation boundary:** Farmer-wallet authentication, Farmer withdrawal, NEAR
+> funding, and smart-contract payout behavior in the current code are **Legacy Testnet Alpha —
+> historical technical demonstration, not the target production financial architecture**. They
+> remain documented as implementation evidence until Stage 2 migration and must not be read as an
+> approved production flow.
+
 ## Ecosystem Overview
 
 AgriPartners combines a browser application, REST API, PostgreSQL database, and NEAR Testnet
@@ -43,6 +49,29 @@ remain outside the authority of this architecture summary.
 The business boundary is defined by the
 [Operating Model](business/OPERATING_MODEL.md) and
 [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md).
+
+The target financial boundary is:
+
+```text
+External Investor
+        |
+        | approved fiat or approved crypto assets
+        v
+AgriPartners OÜ — Estonia
+        |
+        | approved crypto-to-fiat infrastructure
+        | cryptocurrency stops here
+        v
+Cleared fiat in AgriPartners OÜ account
+        |
+        | fiat bank or payment transfer
+        v
+Uzbekistan Feedlot Operator
+        |
+        v
+Farmer product role / suppliers / employees
+        (fiat-only; no wallet or on-chain requirement)
+```
 
 ## Frontend
 
@@ -98,6 +127,11 @@ The current integration targets NEAR Testnet. It supports:
 - status and balance reads;
 - selected funding, lifecycle, reporting, and withdrawal calls;
 - transaction references recorded in PostgreSQL.
+
+These funding and withdrawal calls are Legacy Testnet Alpha behavior. Target production NEAR
+audit and automation infrastructure is limited to the External Investor and Estonia side and may
+record approved hashes, workflow states, transparency references, and audit events. It must not
+initiate or require an Uzbekistan-facing crypto transaction.
 
 NEAR records are supplementary to approved business, legal, banking, accounting, and
 reconciliation evidence. Mainnet use, audited contracts, production custody, and production
@@ -184,6 +218,12 @@ API response with status and references
         v
 Role-filtered Project Workspace
 ```
+
+This diagram describes the current hybrid Alpha application. For the target architecture, any
+NEAR branch is available only to an authorized External Investor or AgriPartners OÜ actor in the
+Estonia layer. Uzbekistan Feedlot Operator and Farmer actions terminate in authoritative
+application, agreement, bank/payment, accounting, and reconciliation records; they do not require
+a NEAR transaction.
 
 Not every Project event is on-chain. Profiles, reports, presentation events, and recorded
 returns may be off-chain, while selected contract status, balances, and transactions are

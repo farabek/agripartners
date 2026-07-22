@@ -1,5 +1,16 @@
 # Executive Summary
 
+> **Mandatory financial boundary:** AgriPartners OÜ in Estonia is the External Investor's legal
+> counterparty and the only permitted crypto recipient. Cryptocurrency stops at AgriPartners OÜ,
+> is converted through approved crypto-to-fiat infrastructure, and reaches the Uzbekistan Feedlot
+> Operator only by fiat bank or payment transfer. Farmer is a non-crypto product role. NEAR audit
+> and automation infrastructure remains on the Investor and Estonia side; on-chain records do not
+> replace agreements or authoritative fiat-clearing evidence.
+>
+> Farmer wallets, Farmer withdrawals, NEAR funding, and smart-contract payouts described in this
+> Alpha brief are **Legacy Testnet Alpha — historical technical demonstration, not the target
+> production financial architecture**.
+
 AgriPartners is an agricultural real-world asset platform that demonstrates a transparent workflow for funding, reporting, ROI visibility, and investor review.
 
 AgriPartners Alpha v1 shows how investors, farmers, and administrators can interact with agricultural pilot deals through a marketplace, investor portal, farmer portal, funding progress views, reporting states, and NEAR Testnet-based verification flows.

@@ -6,6 +6,12 @@ Status: Official Master Investment Model of AgriPartners, derived from the exist
 This document defines a reusable investment model. It does not amend, replace, restate, or
 override the original agreement or any other legal document.
 
+Financial boundary: the Uzbekistan Feedlot Operator is the legal and operational fiat recipient
+under a separate written agreement with AgriPartners OÜ. Cryptocurrency stops at AgriPartners OÜ
+in Estonia; Operator financing, expenses, proceeds, repayments, and settlements use fiat bank or
+payment transfers only. Farmer is a non-crypto product role. NEAR audit and automation
+infrastructure does not replace agreements or authoritative fiat-clearing evidence.
+
 ## 1. Executive Summary
 
 The Feedlot Master Investment Model defines how AgriPartners may structure, operate, monitor, and

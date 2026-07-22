@@ -1,12 +1,57 @@
-# Sprint 1: Project Lifecycle Refactoring Audit
+<!-- markdownlint-configure-file { "MD013": false, "MD029": false } -->
 
-Status: Read-only implementation audit
+# Stage 2 Financial Architecture and Project Lifecycle Migration Plan
+
+Status: Approved implementation migration plan; not started
 
 Audit date: 2026-07-03
 
 Repository baseline: `8abb4fc`
 
 Architecture baseline: Business Architecture v1.0, frozen 2026-07-02
+
+## Stage 2 approval and mandatory boundary
+
+This existing plan is the single implementation migration authority for Stage 2; no parallel
+roadmap is created. Stage 2 must migrate the Rust contract, backend, database, authentication,
+frontend, tests, and deployment configuration to this permanent flow:
+
+```text
+External Investor
+        |
+        v
+AgriPartners OÜ — Estonia
+        |
+        | approved crypto-to-fiat infrastructure
+        | cryptocurrency stops here
+        v
+Cleared fiat in AgriPartners OÜ account
+        |
+        | fiat bank or payment transfer
+        v
+Uzbekistan Feedlot Operator
+        |
+        v
+Farmer product role / Project expenses
+        (fiat-only; no wallet or on-chain requirement)
+```
+
+The Uzbekistan Feedlot Operator is the legal and operational fiat recipient under a separate
+written agreement with AgriPartners OÜ. Farmer is a non-crypto product role for operational work,
+reporting, evidence, tasks, and confirmations. Target implementation must preserve Investor
+Funding receipt, Estonia-layer conversion, cleared fiat, Operator Fiat Disbursement, Operator
+confirmation, Project expenses, fiat proceeds returned, reconciliation, and Investor Settlement
+as separate states. Governing agreements and authoritative provider, bank/payment, accounting,
+and reconciliation evidence control those states; an on-chain record never does so by itself.
+
+Current Farmer wallets, Farmer withdrawals, NEAR funding, and smart-contract payouts must remain
+preserved and labeled as **Legacy Testnet Alpha — historical technical demonstration, not the
+target production financial architecture** until their Stage 2 retirement or isolation.
+
+Stage 2 is complete only after repository-wide validation confirms that no active
+Uzbekistan-facing workflow, route, schema constraint, signer, screen, test, or deployment setting
+requires cryptocurrency, a crypto wallet, token, smart contract, crypto conversion, or on-chain
+transaction.
 
 ## Objective
 

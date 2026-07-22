@@ -1,5 +1,12 @@
 # AgriPartners Investor One-Pager v2
 
+> External Investors contract with AgriPartners OÜ in Estonia. Cryptocurrency stops at
+> AgriPartners OÜ and is converted through approved crypto-to-fiat infrastructure before a fiat
+> bank or payment transfer to the Uzbekistan Feedlot Operator. Farmer is a non-crypto product
+> role. Alpha wallet, withdrawal, NEAR funding, and smart-contract payout mechanics are **Legacy
+> Testnet Alpha — historical technical demonstration, not the target production financial
+> architecture**.
+
 ## Vision
 
 AgriPartners is building a transparent investment workflow for agriculture. The platform is designed to make pilot agricultural projects easier for investors to review, easier for farmers to report, and easier for partners to validate.

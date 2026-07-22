@@ -16,6 +16,13 @@ This document does not replace the specifications, policies, plans, or release r
 below. When a summary here conflicts with a more specific accepted or frozen document, the
 specific document takes precedence within its declared scope.
 
+The permanent financial boundary is owned by the Financial Operating Model: cryptocurrency stops
+at AgriPartners OÜ in Estonia; the Uzbekistan Feedlot Operator receives and returns fiat only by
+bank or approved payment transfer; Farmer is a non-crypto product role; and NEAR audit and
+automation infrastructure remains on the External Investor and Estonia side. Current Farmer
+wallet, withdrawal, NEAR funding, and smart-contract payout behavior is **Legacy Testnet Alpha —
+historical technical demonstration, not the target production financial architecture**.
+
 ## Vision
 
 AgriPartners makes agricultural investment Projects understandable, reviewable, and
