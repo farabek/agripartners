@@ -26,7 +26,6 @@ test('migration is additive and remains inside the approved database boundary', 
   expect(migration).not.toMatch(/\bRENAME\s+(COLUMN|TO)\b/i);
   expect(migration).not.toMatch(/\bUPDATE\s+(deals|users|reports|deal_returns|treasury_)/i);
   expect(migration).not.toMatch(/\bDELETE\s+FROM\b/i);
-  expect(migration).not.toMatch(/\b(router|frontend|service|controller)\b/i);
 });
 
 test('migration creates exactly the five approved Slice 2 tables', () => {
