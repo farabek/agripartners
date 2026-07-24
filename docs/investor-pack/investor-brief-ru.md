@@ -1,5 +1,13 @@
 # Executive Summary
 
+> **Обязательная финансовая граница:** AgriPartners OÜ в Эстонии — юридический контрагент
+> External Investor и единственный разрешённый получатель криптоактивов. Криптовалюта
+> останавливается в AgriPartners OÜ, конвертируется через approved crypto-to-fiat infrastructure,
+> а Uzbekistan Feedlot Operator получает и возвращает средства только через fiat bank or payment
+> transfer. Farmer — не-криптовалютная продуктовая роль. Описанные ниже farmer wallet,
+> withdrawal, NEAR funding и smart-contract payout — **Legacy Testnet Alpha — историческая
+> техническая демонстрация, а не целевая производственная финансовая архитектура**.
+
 AgriPartners - agricultural real-world asset platform, которая демонстрирует transparent workflow для funding, reporting, ROI visibility and investor review.
 
 AgriPartners Alpha v1 показывает, как investors, farmers and administrators can interact with agricultural pilot deals through marketplace, investor portal, farmer portal, funding progress views, reporting states and NEAR Testnet-based verification flows.

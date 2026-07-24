@@ -2,6 +2,13 @@
 
 Status: Phase 23 executive summary for NEAR ecosystem, partner, accelerator, and investor conversations.
 
+Financial boundary: AgriPartners OÜ in Estonia is the sole approved crypto recipient;
+cryptocurrency stops there and is converted through approved crypto-to-fiat infrastructure before
+fiat bank or payment transfer to the Uzbekistan Feedlot Operator. Farmer is a non-crypto product
+role. Current Farmer wallet, withdrawal, NEAR funding, and smart-contract payout behavior is
+**Legacy Testnet Alpha — historical technical demonstration, not the target production financial
+architecture**.
+
 ## 1. Project Overview
 
 AgriPartners is an Alpha-stage platform for transparent agricultural investment workflows. It connects investors, farmers, and platform operators through a marketplace, role-based portals, farmer reporting, return tracking, and Treasury Shadow Mode. The current product uses NEAR Testnet for wallet-linked workflows and smart contract experimentation while keeping financial claims conservative. AgriPartners is not yet a production investment, custody, payout, or Mainnet settlement system. The Alpha product demonstrates how agricultural capital can be presented, monitored, reported, and prepared for stronger reconciliation and Treasury controls.

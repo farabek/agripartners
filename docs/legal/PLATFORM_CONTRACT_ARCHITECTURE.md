@@ -13,6 +13,15 @@ Last reviewed: 2026-07-07
 PDF export readiness: Ready for draft PDF export after link check and counsel-review disclaimer
 verification. Do not treat exported PDFs as production legal agreements.
 
+Mandatory financial boundary for counsel review: External Investors contract with AgriPartners
+OÜ in Estonia. Only AgriPartners OÜ may receive approved crypto assets, and cryptocurrency stops
+there. AgriPartners OÜ converts approved crypto through approved crypto-to-fiat infrastructure
+before a fiat bank or payment transfer under a separate written agreement with the Uzbekistan
+Feedlot Operator. The Operator is the legal and operational fiat recipient; Farmer is a
+non-crypto product role. No Uzbekistan participant may receive, hold, convert, transfer, or return
+crypto. On-chain records never replace the governing agreements or authoritative fiat-clearing
+evidence.
+
 ## Purpose
 
 This document defines the intended platform contract architecture for AgriPartners. It separates

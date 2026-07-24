@@ -1,5 +1,13 @@
 # AgriPartners Investor Pitch Deck v2
 
+> **Обязательная целевая архитектура:** External Investor → AgriPartners OÜ в Эстонии → approved
+> crypto-to-fiat infrastructure → fiat bank or payment transfer → Uzbekistan Feedlot Operator.
+> Криптовалюта останавливается в AgriPartners OÜ. Farmer — не-криптовалютная продуктовая роль;
+> NEAR audit and automation infrastructure ограничена стороной External Investor и Эстонии.
+> Любые Alpha farmer wallet, withdrawal, NEAR funding или smart-contract payout ниже — **Legacy
+> Testnet Alpha — историческая техническая демонстрация, а не целевая производственная финансовая
+> архитектура**.
+
 ## 1. Обложка
 
 AgriPartners Alpha v1

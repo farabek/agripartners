@@ -1,5 +1,10 @@
 # NEAR Use Case
 
+> Farmer wallet and withdrawal steps below are **Legacy Testnet Alpha — historical technical
+> demonstration, not the target production financial architecture**. Target NEAR audit and
+> automation infrastructure remains on the External Investor and AgriPartners OÜ Estonia side;
+> Uzbekistan participants use fiat-only workflows.
+
 ## Current Alpha v1 Use
 
 AgriPartners Alpha v1 uses NEAR testnet to demonstrate how agricultural investment workflows can connect to blockchain-based identity, contract interaction, and verification.

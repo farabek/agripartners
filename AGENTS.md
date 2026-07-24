@@ -28,6 +28,51 @@ The complete operating model, authority boundaries, current planning ownership, 
 rules are defined in
 [`docs/governance/WORKSTREAM_OPERATING_MODEL.md`](docs/governance/WORKSTREAM_OPERATING_MODEL.md).
 
+## Mandatory Estonia-to-Uzbekistan financial boundary
+
+This boundary is permanent and non-negotiable. It applies to product design, implementation,
+documentation, diagrams, presentations, grants, investment materials, demos, and future plans.
+
+1. **AgriPartners OÜ** in Estonia is the central operating company and the legal counterparty for
+   every **External Investor**.
+2. Only AgriPartners OÜ may receive approved crypto assets from External Investors, NEAR ecosystem
+   programs, grant programs, or other authorized funding sources.
+3. Cryptocurrency stops at AgriPartners OÜ in Estonia. Before any Uzbekistan activity is financed,
+   AgriPartners OÜ must convert approved crypto assets through **approved crypto-to-fiat
+   infrastructure** and confirm cleared fiat using authoritative provider, bank, accounting, and
+   reconciliation records.
+4. AgriPartners OÜ finances the **Uzbekistan Feedlot Operator** under a separate written agreement
+   only by **fiat bank or payment transfer** in USD, EUR, UZS, or another permitted fiat currency.
+5. Uzbekistan-based Feedlot operators, Farmers, suppliers, employees, and other local participants
+   must not receive, hold, convert, transfer, or return cryptocurrency within the AgriPartners
+   operating model. Every payment, proceed, repayment, and settlement from Uzbekistan to
+   AgriPartners OÜ must also use approved fiat banking or payment channels.
+6. Direct cryptocurrency transfers between External Investors and Uzbekistan-based operators,
+   Farmers, suppliers, employees, or other local participants are prohibited.
+7. **NEAR audit and automation infrastructure** may be used only on the External Investor and
+   Estonia side for approved transactions, automation, hashes, workflow states, transparency, and
+   audit trails. An on-chain record never replaces governing agreements, bank statements,
+   accounting records, reconciliation records, or authoritative evidence that fiat cleared.
+8. Never design or implement Uzbekistan-facing cryptocurrency wallets, tokens, crypto-payment or
+   crypto-conversion interfaces, smart-contract payment requirements, or blockchain transaction
+   requirements. The Uzbekistan Feedlot Operator and the Farmer product role must have a fiat-only,
+   non-crypto user experience and operational workflow.
+9. **Uzbekistan Feedlot Operator** means the legal and operational entity receiving and returning
+   fiat under its separate agreement with AgriPartners OÜ. **Farmer** means a non-crypto product
+   role used for operational work, reporting, evidence, and confirmations; it is not a crypto
+   recipient, wallet owner, or on-chain financial actor.
+10. Preserve the financial-state distinction between Investor Funding received by AgriPartners
+    OÜ, crypto-to-fiat conversion in the Estonia layer, fiat disbursement to the Uzbekistan Feedlot
+    Operator, Operator confirmation, Project expenses, fiat proceeds returned from Uzbekistan,
+    and Investor Settlement.
+
+Existing farmer-wallet, farmer-withdrawal, NEAR-funding, and smart-contract-payout code is
+**Legacy Testnet Alpha — historical technical demonstration, not the target production financial
+architecture**. Preserve it only as historical Alpha evidence until its approved implementation
+migration; never present it as a current or target production flow. The canonical rules are in
+[`docs/business/FINANCIAL_OPERATING_MODEL.md`](docs/business/FINANCIAL_OPERATING_MODEL.md) and
+[`docs/business/OPERATING_MODEL.md`](docs/business/OPERATING_MODEL.md).
+
 ## Mandatory Relationship CRM workflow
 
 For every investor-relations, NEAR ecosystem, partnership, or business-development task:

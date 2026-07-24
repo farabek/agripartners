@@ -1,5 +1,12 @@
 # Treasury Operating Modes Specification
 
+> **Target-architecture override:** Any Farmer withdrawal, Farmer wallet, NEAR funding, or
+> smart-contract payout below is **Legacy Testnet Alpha — historical technical demonstration, not
+> the target production financial architecture**. Cryptocurrency stops at AgriPartners OÜ in
+> Estonia. The Uzbekistan Feedlot Operator and Farmer product role are fiat-only; target Treasury
+> enforcement uses provider, bank/payment, accounting, and reconciliation evidence rather than a
+> local-participant blockchain transaction.
+
 ## 1. Purpose
 
 This specification defines the operating modes for the AgriPartners Treasury Engine and the migration path from Alpha shadow accounting to authoritative Treasury. It is documentation only. It does not authorize backend changes, frontend changes, database migrations, API changes, or tests.

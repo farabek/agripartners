@@ -14,6 +14,21 @@ The freeze confirms the accepted architecture decisions below. It does not autho
 activity, approve a financial provider, complete company registration, replace legal review, or
 change application behavior.
 
+## Approved financial-boundary amendment — 2026-07-22
+
+The freeze is clarified by the permanent Estonia-to-Uzbekistan boundary. AgriPartners OÜ in
+Estonia is the External Investor's legal counterparty and the only permitted recipient of
+approved crypto assets. Cryptocurrency stops at AgriPartners OÜ and is converted through approved
+crypto-to-fiat infrastructure before any fiat bank or payment transfer to the Uzbekistan Feedlot
+Operator. The Operator is the legal and operational fiat recipient under a separate written
+agreement. Farmer is a non-crypto product role. NEAR audit and automation infrastructure is
+limited to the External Investor and Estonia side and never replaces authoritative fiat-clearing
+evidence. Direct crypto transfers to or from any Uzbekistan participant are prohibited.
+
+Legacy Farmer wallets, Farmer withdrawals, NEAR funding, and smart-contract payouts remain only
+as **Legacy Testnet Alpha — historical technical demonstration, not the target production
+financial architecture**.
+
 ## Scope of the Freeze
 
 The freeze covers:

@@ -13,9 +13,13 @@ External Investor
         v
 AgriPartners OÜ
         |
-        | farmer agreement and fiat disbursement
+        | approved crypto-to-fiat infrastructure
+        | cryptocurrency stops in Estonia
         v
-Farmer
+Fiat bank or payment transfer
+        |
+        v
+Uzbekistan Feedlot Operator
 ```
 
 AgriPartners OÜ is the central operating company and the intended legal counterparty for both sides of each transaction:
@@ -26,6 +30,26 @@ AgriPartners OÜ is the central operating company and the intended legal counter
 - there is no direct contractual or payment relationship between an external investor and a farmer.
 
 Until AgriPartners OÜ is registered and the required legal and operational controls are approved, this is a target model only. No document in this repository authorizes accepting or deploying real funds.
+
+### Mandatory Estonia-to-Uzbekistan boundary
+
+AgriPartners OÜ in Estonia is the only entity in the operating model permitted to receive approved
+crypto assets. Cryptocurrency stops at AgriPartners OÜ in Estonia. Before financing activity in
+Uzbekistan, AgriPartners OÜ converts approved crypto assets through approved crypto-to-fiat
+infrastructure and confirms cleared fiat against authoritative provider, bank, accounting, and
+reconciliation records.
+
+The **Uzbekistan Feedlot Operator** is the legal and operational entity that contracts separately
+with AgriPartners OÜ, receives Project financing by fiat bank or payment transfer, and returns
+Project proceeds or repayments through approved fiat banking or payment channels. The
+**Farmer** is a non-crypto product role for operational work, reporting, evidence, and
+confirmations. Neither role receives, holds, converts, transfers, or returns cryptocurrency, uses
+a crypto wallet, or performs a required on-chain transaction.
+
+Direct crypto transfers between an External Investor and any Uzbekistan-based operator, Farmer,
+supplier, employee, or other local participant are prohibited. NEAR audit and automation
+infrastructure remains on the External Investor and Estonia side and never replaces governing
+agreements or authoritative evidence that fiat cleared.
 
 ## Core Principles
 
@@ -65,7 +89,7 @@ AgriPartners OÜ:
 
 ### Farmer
 
-The farmer:
+The Farmer is a non-crypto product role. The Farmer:
 
 - contracts only with AgriPartners OÜ;
 - receives approved financing from AgriPartners OÜ in fiat;
@@ -73,6 +97,20 @@ The farmer:
 - submits operational evidence and reports to AgriPartners;
 - returns principal, proceeds, fees, or other agreed amounts to AgriPartners OÜ in fiat;
 - does not interact with investors, cryptocurrency, wallets, tokens, or smart contracts.
+
+### Uzbekistan Feedlot Operator
+
+The Uzbekistan Feedlot Operator:
+
+- is the legal and operational fiat recipient under a separate written agreement with
+  AgriPartners OÜ;
+- receives Project financing only by fiat bank or payment transfer in USD, EUR, UZS, or another
+  permitted fiat currency;
+- confirms cleared fiat receipt separately from AgriPartners OÜ's payment instruction;
+- pays Project expenses through permitted local fiat channels;
+- returns proceeds, repayments, and other settlements only in fiat through approved banking or
+  payment channels;
+- does not receive, hold, convert, transfer, or return cryptocurrency.
 
 ## Money, Information, and Record Flows
 
@@ -84,22 +122,23 @@ External Investor
         v
 AgriPartners OÜ
         |
+        | approved crypto-to-fiat infrastructure
+        | cryptocurrency stops in Estonia
         v
-Selected financial infrastructure
-(bank, payment institution, licensed CASP,
-or other compliant provider)
+Cleared fiat in AgriPartners OÜ account
         |
+        | fiat bank or payment transfer
         v
 USD / EUR / Local Currency
         |
         v
-Farmer
+Uzbekistan Feedlot Operator
 ```
 
 Investors may use supported crypto assets through the AgriPartners investment infrastructure.
-Cryptocurrency is limited to the investment infrastructure between the External Investor and
-AgriPartners OÜ. Farmers never use cryptocurrency, crypto wallets, or blockchain and always
-receive fiat.
+Cryptocurrency stops at AgriPartners OÜ in Estonia. The Uzbekistan Feedlot Operator, Farmers, and
+other local participants never use cryptocurrency, crypto wallets, or blockchain and always
+receive and return fiat.
 
 AgriPartners OÜ verifies contractual and operational conditions before accepting or disbursing
 funds. The selected infrastructure may use a bank, payment institution, licensed CASP, or another
@@ -110,7 +149,7 @@ relationships, payment partners, and legal review.
 ### Return and Settlement
 
 ```text
-Farmer
+Uzbekistan Feedlot Operator
         |
         v
 USD / EUR / Local Currency
@@ -151,7 +190,18 @@ how farmer verification and redacted agreement disclosures are handled.
   Model.
 - **Investor Funding** — funds received from an Investor through selected AgriPartners financial
   infrastructure.
-- **Farmer Disbursement** — fiat funds transferred by AgriPartners OÜ to the Farmer.
+- **Approved crypto-to-fiat infrastructure** — appropriately regulated infrastructure approved
+  by AgriPartners OÜ to convert supported crypto assets into fiat in the Estonia layer.
+- **Uzbekistan Feedlot Operator** — the legal and operational fiat recipient under a separate
+  written agreement with AgriPartners OÜ.
+- **Farmer** — a non-crypto product role for operations, reporting, evidence, and confirmations.
+- **Farmer Disbursement** — legacy shorthand for fiat funds transferred by AgriPartners OÜ to the
+  Uzbekistan Feedlot Operator; new documents should use **Operator Fiat Disbursement**.
+- **Fiat bank or payment transfer** — the exclusive means of moving Project funds across the
+  Estonia-to-Uzbekistan boundary in either direction.
+- **NEAR audit and automation infrastructure** — approved External Investor- and Estonia-side
+  technical infrastructure for hashes, workflow states, transparency, audit trails, and permitted
+  automation; it is not a Uzbekistan payment rail.
 - **Production Cycle** — one agricultural operating period inside a Project.
 - **Settlement** — the approved calculation, reconciliation, and payment process under the
   applicable agreements.

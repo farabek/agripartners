@@ -2,6 +2,13 @@
 
 Status: Phase 3 planning document. No real-funds activity is authorized by this plan.
 
+Mandatory boundary: AgriPartners OÜ in Estonia is the only permitted recipient of approved crypto
+assets. Cryptocurrency stops there and is converted through approved crypto-to-fiat infrastructure
+before a fiat bank or payment transfer to the Uzbekistan Feedlot Operator. The Operator is the
+legal and operational fiat recipient; Farmer is a non-crypto product role. No Uzbekistan
+participant uses a wallet, token, crypto payment or conversion, smart-contract payment, or
+required on-chain transaction.
+
 ## Purpose
 
 Pilot 1.0 validates the AgriPartners v2 operating model through one small, controlled, complete

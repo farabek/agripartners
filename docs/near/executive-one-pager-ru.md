@@ -1,5 +1,12 @@
 # AgriPartners Executive One Pager RU
 
+> AgriPartners OÜ в Эстонии — единственный разрешённый получатель криптоактивов; криптовалюта
+> останавливается там и конвертируется через approved crypto-to-fiat infrastructure до fiat bank
+> or payment transfer в пользу Uzbekistan Feedlot Operator. Farmer — не-криптовалютная
+> продуктовая роль. Текущие Farmer wallet, withdrawal, NEAR funding и smart-contract payout —
+> **Legacy Testnet Alpha — историческая техническая демонстрация, а не целевая производственная
+> финансовая архитектура**.
+
 Статус: executive summary для Phase 23, NEAR ecosystem, партнерских, акселераторских и инвестиционных разговоров.
 
 ## 1. Обзор проекта

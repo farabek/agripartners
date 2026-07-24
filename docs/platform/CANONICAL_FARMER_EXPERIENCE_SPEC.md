@@ -6,6 +6,22 @@ Document type: RFC / Product UX specification
 
 Applies to: Every AgriPartners Farmer-facing screen
 
+## Mandatory financial role boundary
+
+`Farmer` is a non-crypto product role for operational work, reporting, evidence, tasks, and
+confirmations. It is distinct from the **Uzbekistan Feedlot Operator**, which is the legal and
+operational fiat recipient under a separate written agreement with AgriPartners OÜ.
+
+Every Farmer-facing experience must be fiat-only. It must not require or present a cryptocurrency
+wallet, token, crypto payment, crypto conversion, smart-contract payment action, private key, or
+on-chain transaction. Funding Confirmation confirms the relevant cleared fiat operational state;
+it does not confirm crypto receipt or prove payment from an on-chain event. Governing agreements,
+bank/payment evidence, accounting records, and reconciliation remain authoritative.
+
+Any current Alpha screen or implementation that exposes a Farmer wallet or withdrawal is
+**Legacy Testnet Alpha — historical technical demonstration, not the target production financial
+architecture** and must not guide new design.
+
 ## 1. Purpose
 
 This specification is the single source of truth for the AgriPartners Farmer Experience. It

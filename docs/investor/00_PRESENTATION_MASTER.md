@@ -8,6 +8,16 @@ Owner: Investor Relations
 
 Product position: Alpha v1.1 demonstration platform on NEAR Testnet; no live investments
 
+Mandatory financial narrative: External Investor → AgriPartners OÜ in Estonia → approved
+crypto-to-fiat infrastructure → fiat bank or payment transfer → Uzbekistan Feedlot Operator.
+Cryptocurrency stops at AgriPartners OÜ. The Farmer is a non-crypto product role. NEAR audit and
+automation infrastructure remains on the External Investor and Estonia side and never replaces
+agreements or authoritative fiat-clearing evidence.
+
+Any Farmer wallet, Farmer withdrawal, NEAR funding, or smart-contract payout shown in Alpha
+screens is **Legacy Testnet Alpha — historical technical demonstration, not the target production
+financial architecture**. Every presentation must say this before showing such evidence.
+
 ## Purpose
 
 This document is the content and presentation master for the 16-slide AgriPartners investor deck.
@@ -721,7 +731,8 @@ by project disclosure, risk disclosure, agreement drafts, and controlled operato
 ### Visible Content
 
 - **Defined roles before live capital**
-- Investor ↔ AgriPartners Platform Operator ↔ Farmer / Pilot Farm
+- External Investor ↔ AgriPartners OÜ (Estonia) ↔ fiat bank or payment transfer ↔ Uzbekistan
+  Feedlot Operator
 - Investment Participation Agreement draft
 - Project Disclosure Sheet
 - Risk Disclosure
@@ -735,7 +746,11 @@ by project disclosure, risk disclosure, agreement drafts, and controlled operato
 | LEGAL & GOVERNANCE                                               |
 | Defined roles before live capital                               |
 |                                                                  |
-| [INVESTOR] <--> [AGRIPARTNERS PLATFORM OPERATOR] <--> [FARMER]   |
+| [EXTERNAL INVESTOR] <--> [AGRIPARTNERS OÜ — ESTONIA]            |
+|                                  |                               |
+|                    crypto stops; convert to fiat                 |
+|                                  v                               |
+|                 [UZBEKISTAN FEEDLOT OPERATOR]                    |
 |                         |                                        |
 |          [DISCLOSURE] [RISK] [AGREEMENTS] [RECORDS]              |
 |                                                                  |

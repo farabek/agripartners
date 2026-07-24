@@ -1,5 +1,9 @@
 # Demo Script
 
+> Перед демонстрацией Farmer wallet или withdrawal необходимо сказать, что это **Legacy Testnet
+> Alpha — историческая техническая демонстрация, а не целевая производственная финансовая
+> архитектура**. Целевой workflow Uzbekistan Feedlot Operator и Farmer использует только fiat.
+
 ## Audience
 
 Этот script написан для NEAR ecosystem reviewers, investors, accelerators и strategic partners.

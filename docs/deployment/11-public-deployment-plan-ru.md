@@ -94,8 +94,8 @@ Vercel не должен получать backend private keys, JWT secrets, dat
 | `RUN_SEED` | Нет | Принудительный seed в production | Оставить unset/false, кроме намеренной инициализации пустой database |
 | `NEAR_INVESTOR_SIGNER_ACCOUNT_ID` | Условно | Investor withdrawal signer | Добавлять только при сохранении текущей signer model |
 | `NEAR_INVESTOR_SIGNER_PRIVATE_KEY` | Условно | Investor signer key | Railway secret |
-| `NEAR_FARMER_SIGNER_ACCOUNT_ID` | Demo-only/условно | Backend farmer signer | Избегать в public Alpha при наличии direct wallet signing |
-| `NEAR_FARMER_SIGNER_PRIVATE_KEY` | Demo-only/условно | Farmer signer key | Не настраивать без явной необходимости |
+| `NEAR_FARMER_SIGNER_ACCOUNT_ID` | Legacy Testnet Alpha | Backend farmer signer | Историческая демонстрация; удалить из целевой Stage 2 deployment configuration |
+| `NEAR_FARMER_SIGNER_PRIVATE_KEY` | Legacy Testnet Alpha | Farmer signer key | Не настраивать; удалить и выполнить approved secrets rotation в Stage 2 |
 | `NEAR_PLATFORM_SIGNER_ACCOUNT_ID` | Условно | Platform signer | Задокументировать роль до включения |
 | `NEAR_PLATFORM_SIGNER_PRIVATE_KEY` | Условно | Platform signer key | Railway secret |
 

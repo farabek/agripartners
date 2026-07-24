@@ -6,6 +6,22 @@ Language: English
 
 Owner: Investor Relations
 
+Mandatory financial architecture for every resulting deck:
+
+- AgriPartners OÜ in Estonia is the External Investor's legal counterparty and the only permitted
+  recipient of approved crypto assets.
+- Cryptocurrency stops at AgriPartners OÜ and is converted through approved crypto-to-fiat
+  infrastructure before any Uzbekistan activity is financed.
+- The Uzbekistan Feedlot Operator is the separate legal and operational fiat recipient; every
+  cross-border disbursement, proceed, repayment, and settlement uses fiat bank or payment transfer.
+- Farmer is a non-crypto product role without wallet, token, crypto-payment, conversion,
+  smart-contract-payment, or on-chain transaction requirements.
+- NEAR audit and automation infrastructure is limited to the External Investor and Estonia side;
+  on-chain records never replace governing agreements or authoritative fiat-clearing evidence.
+- Any Alpha Farmer wallet, withdrawal, NEAR funding, or contract payout screenshot must be labeled
+  **Legacy Testnet Alpha — historical technical demonstration, not the target production financial
+  architecture**.
+
 ## Purpose
 
 This document defines the future official AgriPartners Investor Pitch Deck. It is not the

@@ -6,6 +6,13 @@ Sheep agricultural agreement.
 This document defines a reusable investment model. It does not amend, replace, restate, or
 override the original agreement or any other legal document.
 
+Financial boundary: the Uzbekistan Feedlot Operator or other separately approved Uzbekistan
+agricultural operator is the legal and operational fiat recipient under a written agreement with
+AgriPartners OÜ. Cryptocurrency stops at AgriPartners OÜ in Estonia; local financing, expenses,
+proceeds, repayments, and settlements use fiat bank or payment transfers only. Farmer is a
+non-crypto product role. NEAR audit and automation infrastructure does not replace agreements or
+authoritative fiat-clearing evidence.
+
 ## 1. Executive Summary
 
 The Hissar Sheep Master Investment Model defines how AgriPartners may structure, operate, monitor,

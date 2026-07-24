@@ -1,5 +1,9 @@
 # AgriPartners Alpha v1 Public Deployment Plan
 
+> Farmer signer credentials and Uzbekistan-facing wallet, funding, withdrawal, or contract-payout
+> routes are **Legacy Testnet Alpha — historical technical demonstration, not the target production
+> financial architecture**. Stage 2 must remove them from target deployment configuration.
+
 Plan date: 2026-06-19
 
 Target environment: public Alpha v1 on NEAR Testnet

@@ -23,6 +23,17 @@ participant, Project, information, and financial boundaries into a consistent us
 If a product interpretation conflicts with either frozen model, the frozen business and
 financial architecture takes precedence.
 
+The **Uzbekistan Feedlot Operator** is the legal and operational fiat recipient under a separate
+written agreement with AgriPartners OÜ. The **Farmer** is a non-crypto product role for
+operational work, reporting, evidence, tasks, and confirmations. Cryptocurrency stops at
+AgriPartners OÜ in Estonia; the Operator and Farmer experience is fiat-only and never requires a
+wallet, token, crypto payment or conversion, smart-contract payment action, or on-chain
+transaction.
+
+Existing Farmer wallet, withdrawal, NEAR funding, and smart-contract payout behavior is
+**Legacy Testnet Alpha — historical technical demonstration, not the target production financial
+architecture**.
+
 ## 2. Product Vision
 
 AgriPartners is a **project-centric investment platform**.

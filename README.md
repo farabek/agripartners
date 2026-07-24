@@ -26,10 +26,20 @@ foundation of the current presentation release; it is not the current product ve
 
 **Future operating model**
 
-- AgriPartners OÜ is the intended central counterparty.
-- Investors and farmers contract separately with AgriPartners.
-- Farmer funding and return flows remain fiat-only.
+- AgriPartners OÜ in Estonia is the central operating company and legal counterparty for External
+  Investors.
+- Cryptocurrency stops at AgriPartners OÜ in Estonia and is converted through approved
+  crypto-to-fiat infrastructure before any Uzbekistan activity is financed.
+- AgriPartners OÜ and the Uzbekistan Feedlot Operator contract separately; every disbursement,
+  proceed, repayment, and return crossing the Estonia-to-Uzbekistan boundary uses a fiat bank or
+  payment transfer.
+- The Uzbekistan Feedlot Operator and Farmer product role are fiat-only and non-crypto.
 - Production implementation depends on legal, banking, compliance, and partner setup.
+
+The current farmer-wallet, farmer-withdrawal, NEAR-funding, and smart-contract-payout
+implementation is **Legacy Testnet Alpha — historical technical demonstration, not the target
+production financial architecture**. It is retained as Alpha evidence and must not be interpreted
+as an approved production flow.
 
 > **Business Architecture v1.0 is frozen as of 2026-07-02.** Future architectural changes require
 > RFC review. See the [Business Architecture v1.0 Freeze](docs/business/BUSINESS_ARCHITECTURE_V1_FREEZE.md).
@@ -149,17 +159,23 @@ External Investor
         v
 AgriPartners OÜ
         |
+        | approved crypto-to-fiat infrastructure
+        | cryptocurrency stops in Estonia
         v
-Farmer
+Fiat bank or payment transfer
+        |
+        v
+Uzbekistan Feedlot Operator
 ```
 
-Under the target model, AgriPartners OÜ is the legal counterparty for both investors and farmers.
-Investors interact only with AgriPartners; farmers also interact only with AgriPartners and
-receive and return funds in fiat currency. Farmers do not use cryptocurrency, wallets, tokens,
-or blockchain interfaces.
+Under the target model, AgriPartners OÜ is the legal counterparty for External Investors and signs
+a separate operating agreement with the Uzbekistan Feedlot Operator. The Operator receives and
+returns funds only in fiat currency. `Farmer` is a non-crypto product role for operational work,
+reporting, evidence, and confirmations; it is not a wallet owner or on-chain financial actor.
 
 Investors may use supported crypto assets through selected AgriPartners financial infrastructure.
-Cryptocurrency is limited to infrastructure between the Investor and AgriPartners OÜ. The final
+Cryptocurrency is limited to the External Investor and AgriPartners OÜ Estonia layer and stops at
+AgriPartners OÜ. The final
 bank, payment institution, licensed CASP, or other compliant provider depends on company
 registration, partner setup, and legal review; this documentation selects no provider.
 
