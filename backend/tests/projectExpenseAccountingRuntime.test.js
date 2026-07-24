@@ -303,8 +303,8 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
     return client;
   }
 
-  async function waitUntilBlocked(client, label) {
-    const deadline = Date.now() + 5000;
+  async function waitUntilBlocked(client, label, timeoutMs = 5000) {
+    const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
       const result = await pool.query(
         `SELECT wait_event_type, cardinality(pg_blocking_pids($1)) AS blocker_count
@@ -323,6 +323,19 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
     if (!client) return;
     await client.query('ROLLBACK').catch(() => {});
     client.release();
+  }
+
+  async function withTwoTransactionalClients(callback) {
+    let first;
+    let second;
+    try {
+      first = await beginClient();
+      second = await beginClient();
+      return await callback(first, second);
+    } finally {
+      await rollbackAndRelease(second);
+      await rollbackAndRelease(first);
+    }
   }
 
   beforeAll(async () => {
@@ -860,12 +873,17 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
     );
   });
 
-  test('projection pointers cannot move backward or to a non-latest event', async () => {
+  test('projection pointer cannot move backward to the initial event', async () => {
     const context = await createContext();
     let expense = await createExpense(context, '18.00', 'pointer-requester');
     const requestedEventId = expense.current_state_event_id;
     expense = await approveExpense(expense, '18.00', 'pointer-approver');
     const approvedEventId = expense.current_state_event_id;
+    const before = await reloadExpense(expense.id);
+    const eventCountBefore = (await pool.query(
+      'SELECT count(*)::int AS count FROM project_expense_state_events WHERE expense_id = $1',
+      [expense.id]
+    )).rows[0].count;
     await expectReject(
       pool.query(
         `UPDATE project_expenses
@@ -876,8 +894,69 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
       /projection fields may advance only through an event|projection event from_state is stale/
     );
     const unchanged = await reloadExpense(expense.id);
-    expect(unchanged.current_state).toBe('APPROVED');
+    expect(unchanged).toEqual(before);
     expect(unchanged.current_state_event_id).toBe(approvedEventId);
+    expect(unchanged.approved_amount).toBe('18.00000000');
+    expect(unchanged.paid_amount).toBeNull();
+    expect((await pool.query(
+      'SELECT count(*)::int AS count FROM project_expense_state_events WHERE expense_id = $1',
+      [expense.id]
+    )).rows[0].count).toBe(eventCountBefore);
+  });
+
+  test('projection pointer cannot select a same-Expense event that is not latest', async () => {
+    const context = await createContext();
+    let expense = await createExpense(context, '19.00', 'nonlatest-requester');
+    expense = await approveExpense(expense, '19.00', 'nonlatest-approver');
+    // Build two constraint-valid owned candidates while deliberately bypassing
+    // only the event triggers. This isolates the projection's latest-event
+    // guard; ordinary lifecycle inserts could never create this adversarial
+    // history because the first candidate would advance the projection.
+    const fixtureClient = await pool.connect();
+    let nonLatestEventId;
+    try {
+      await fixtureClient.query("SET session_replication_role = 'replica'");
+      nonLatestEventId = (await fixtureClient.query(
+        `INSERT INTO project_expense_state_events (
+           expense_id, from_state, to_state, requested_amount, approved_amount,
+           actor_id, actor_role, idempotency_key
+         ) VALUES ($1, 'APPROVED', 'CANCELLED', $2, $3, 'fixture-a',
+                   'EXPENSE_CANCELLER', $4)
+         RETURNING id`,
+        [expense.id, expense.requested_amount, expense.approved_amount, key('nonlatest-fixture')]
+      )).rows[0].id;
+      await fixtureClient.query(
+        `INSERT INTO project_expense_state_events (
+           expense_id, from_state, to_state, requested_amount, approved_amount,
+           actor_id, actor_role, idempotency_key
+         ) VALUES ($1, 'APPROVED', 'CANCELLED', $2, $3, 'fixture-b',
+                   'EXPENSE_CANCELLER', $4)`,
+        [expense.id, expense.requested_amount, expense.approved_amount, key('latest-fixture')]
+      );
+    } finally {
+      await fixtureClient.query("SET session_replication_role = 'origin'").catch(() => {});
+      fixtureClient.release();
+    }
+    const before = { ...expense };
+    const countBefore = (await pool.query(
+      'SELECT count(*)::int AS count FROM project_expense_state_events WHERE expense_id = $1',
+      [expense.id]
+    )).rows[0].count;
+    await expectReject(
+      pool.query(
+        `UPDATE project_expenses
+            SET current_state = 'CANCELLED', current_state_event_id = $2,
+                paid_amount = NULL
+          WHERE id = $1`,
+        [expense.id, nonLatestEventId]
+      ),
+      /latest authoritative event/
+    );
+    expect(await reloadExpense(expense.id)).toEqual(before);
+    expect((await pool.query(
+      'SELECT count(*)::int AS count FROM project_expense_state_events WHERE expense_id = $1',
+      [expense.id]
+    )).rows[0].count).toBe(countBefore);
   });
 
   test('evidence history rejects timestamp updates and deletes', async () => {
@@ -893,6 +972,12 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
     )).rows[0];
     expense = await approveExpense(expense);
     const evidence = await addAuthoritativeEvidence(expense);
+    const evidenceBefore = (await pool.query(
+      'SELECT * FROM project_expense_evidence WHERE expense_id = $1 ORDER BY id', [expense.id]
+    )).rows;
+    const eventBefore = (await pool.query(
+      'SELECT * FROM project_expense_state_events WHERE id = $1', [expense.current_state_event_id]
+    )).rows[0];
     await expectReject(
       pool.query('UPDATE project_expense_evidence SET recorded_at = recorded_at + interval \'1 second\' WHERE id = $1', [evidence.id]),
       /evidence is immutable/
@@ -909,29 +994,56 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
       pool.query('UPDATE project_expense_state_events SET occurred_at = occurred_at + interval \'1 second\' WHERE id = $1', [expense.current_state_event_id]),
       /state history is immutable/
     );
+    expect((await pool.query(
+      'SELECT * FROM project_expense_evidence WHERE expense_id = $1 ORDER BY id', [expense.id]
+    )).rows).toEqual(evidenceBefore);
+    expect((await pool.query(
+      'SELECT * FROM project_expense_state_events WHERE id = $1', [expense.current_state_event_id]
+    )).rows[0]).toEqual(eventBefore);
   });
 
   test('category, budget, and Expense ownership records cannot be deleted', async () => {
     const context = await createContext();
     const expense = await createExpense(context);
+    const categoryBefore = { ...context.category };
+    const budgetBefore = { ...context.budget };
+    const expenseBefore = await reloadExpense(expense.id);
+    const expenseHistoryBefore = (await pool.query(
+      'SELECT * FROM project_expense_state_events WHERE expense_id = $1 ORDER BY id', [expense.id]
+    )).rows;
     await expectReject(pool.query('DELETE FROM project_expenses WHERE id = $1', [expense.id]), /cannot be deleted/);
     let terminal = await createExpense(context, '5.00', 'delete-terminal-requester');
     await transitionExpense(terminal, 'REJECTED', { actor: 'delete-terminal-rejector', role: 'EXPENSE_REJECTOR' });
     terminal = await reloadExpense(terminal.id);
+    const terminalBefore = { ...terminal };
     await expectReject(pool.query('DELETE FROM project_expenses WHERE id = $1', [terminal.id]), /cannot be deleted/);
     await expectReject(pool.query('DELETE FROM financial_workflow_budgets WHERE id = $1', [context.budget.id]), /violates foreign key|cannot be deleted/i);
     await expectReject(pool.query('DELETE FROM expense_categories WHERE id = $1', [context.category.id]), /violates foreign key|cannot be deleted/i);
+    expect((await pool.query('SELECT * FROM expense_categories WHERE id = $1', [context.category.id])).rows[0]).toEqual(categoryBefore);
+    expect((await pool.query('SELECT * FROM financial_workflow_budgets WHERE id = $1', [context.budget.id])).rows[0]).toEqual(budgetBefore);
+    expect(await reloadExpense(expense.id)).toEqual(expenseBefore);
+    expect(await reloadExpense(terminal.id)).toEqual(terminalBefore);
+    expect((await pool.query(
+      'SELECT * FROM project_expense_state_events WHERE expense_id = $1 ORDER BY id', [expense.id]
+    )).rows).toEqual(expenseHistoryBefore);
   });
 
   test('category, Budget, and Expense identity fields are immutable', async () => {
     const context = await createContext();
     const expense = await createExpense(context, '22.00');
+    const categoryBefore = { ...context.category };
     for (const [column, value] of [['id', context.category.id + 999999], ['code', 'CHANGED'], ['created_at', new Date(0)]]) {
       await expectReject(
         pool.query(`UPDATE expense_categories SET ${column} = $2 WHERE id = $1`, [context.category.id, value]),
         /category identity is immutable/i
       );
+      expect((await pool.query(
+        'SELECT * FROM expense_categories WHERE id = $1', [context.category.id]
+      )).rows[0]).toEqual(categoryBefore);
     }
+    const budgetBefore = (await pool.query(
+      'SELECT * FROM financial_workflow_budgets WHERE id = $1', [context.budget.id]
+    )).rows[0];
     const budgetMutations = [
       ['workflow_id', context.workflow.id + 999999], ['category_id', context.category.id + 999999],
       ['currency_type', 'CRYPTO'], ['currency', 'EUR'], ['created_by', 'changed'],
@@ -942,7 +1054,11 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
         pool.query(`UPDATE financial_workflow_budgets SET ${column} = $2 WHERE id = $1`, [context.budget.id, value]),
         /budget identity is immutable/i
       );
+      expect((await pool.query(
+        'SELECT * FROM financial_workflow_budgets WHERE id = $1', [context.budget.id]
+      )).rows[0]).toEqual(budgetBefore);
     }
+    const expenseBefore = await reloadExpense(expense.id);
     const mutations = [
       ['workflow_id', context.workflow.id + 999999],
       ['deal_id', context.deal.id + 999999],
@@ -961,6 +1077,7 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
         pool.query(`UPDATE project_expenses SET ${column} = $2 WHERE id = $1`, [expense.id, value]),
         /immutable|foreign key|ownership/i
       );
+      expect(await reloadExpense(expense.id)).toEqual(expenseBefore);
     }
   });
 
@@ -977,6 +1094,7 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
     await transitionExpense(cancelled, 'CANCELLED', { actor: 'terminal-canceller', role: 'EXPENSE_CANCELLER' });
     cancelled = await reloadExpense(cancelled.id);
     for (const terminal of [paid, rejected, cancelled]) {
+      const before = await reloadExpense(terminal.id);
       for (const [column, expression] of [
         ['purpose', "purpose || ' changed'"],
         ['description', "'changed'"],
@@ -987,6 +1105,7 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
           pool.query(`UPDATE project_expenses SET ${column} = ${expression} WHERE id = $1`, [terminal.id]),
           /Terminal Project Expense records are immutable/
         );
+        expect(await reloadExpense(terminal.id)).toEqual(before);
       }
     }
   });
@@ -1017,13 +1136,41 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
     expense = await approveExpense(expense, '16.00');
     const expenseEventsBefore = await pool.query('SELECT count(*)::int AS count FROM project_expense_state_events WHERE expense_id = $1', [expense.id]);
     const expensePointer = expense.current_state_event_id;
+    const reservationBefore = (await pool.query(
+      `SELECT COALESCE(SUM(approved_amount), 0) AS amount FROM project_expenses
+        WHERE budget_id = $1 AND current_state IN ('APPROVED', 'PAID')`,
+      [context.budget.id]
+    )).rows[0].amount;
+    const evidenceBefore = (await pool.query(
+      'SELECT count(*)::int AS count FROM project_expense_evidence WHERE expense_id = $1',
+      [expense.id]
+    )).rows[0].count;
     await expectReject(payExpense(expense), /requires authoritative fiat payment evidence/);
+    await expectReject(
+      transitionExpense(expense, 'PAID', {
+        actor: 'invalid-snapshot-payer',
+        role: 'EXPENSE_PAYER',
+        approvedAmount: expense.approved_amount,
+        paidAmount: '1.00',
+      }),
+      /snapshot_check|Paid amount/
+    );
     const expenseAfter = await reloadExpense(expense.id);
     expect(expenseAfter.current_state).toBe('APPROVED');
     expect(expenseAfter.current_state_event_id).toBe(expensePointer);
     expect(expenseAfter.paid_amount).toBeNull();
+    expect(expenseAfter.approved_amount).toBe(expense.approved_amount);
     expect((await pool.query('SELECT count(*)::int AS count FROM project_expense_state_events WHERE expense_id = $1', [expense.id])).rows[0].count)
       .toBe(expenseEventsBefore.rows[0].count);
+    expect((await pool.query(
+      `SELECT COALESCE(SUM(approved_amount), 0) AS amount FROM project_expenses
+        WHERE budget_id = $1 AND current_state IN ('APPROVED', 'PAID')`,
+      [context.budget.id]
+    )).rows[0].amount).toBe(reservationBefore);
+    expect((await pool.query(
+      'SELECT count(*)::int AS count FROM project_expense_evidence WHERE expense_id = $1',
+      [expense.id]
+    )).rows[0].count).toBe(evidenceBefore);
 
     const workflowBefore = (await pool.query('SELECT current_state, current_state_event_id FROM financial_workflows WHERE id = $1', [context.workflow.id])).rows[0];
     const workflowEventCount = (await pool.query('SELECT count(*)::int AS count FROM financial_state_events WHERE workflow_id = $1', [context.workflow.id])).rows[0].count;
@@ -1035,6 +1182,85 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
     expect(workflowAfter).toEqual(workflowBefore);
     expect((await pool.query('SELECT count(*)::int AS count FROM financial_state_events WHERE workflow_id = $1', [context.workflow.id])).rows[0].count)
       .toBe(workflowEventCount);
+  });
+
+  test('all failed workflow linkage variants preserve workflow and Expense state', async () => {
+    const primary = await createContext({ advanceToConfirmed: true });
+    let paid = await createExpense(primary, '8.00', 'linkage-paid-requester');
+    paid = await approveExpense(paid, '8.00', 'linkage-paid-approver');
+    await addAuthoritativeEvidence(paid);
+    paid = await payExpense(paid, 'linkage-paid-payer');
+    const unpaid = await createExpense(primary, '7.00', 'linkage-unpaid-requester');
+    const other = await createContext({ advanceToConfirmed: true });
+
+    async function workflowSnapshot(workflowId) {
+      const workflow = (await pool.query(
+        'SELECT current_state, current_state_event_id FROM financial_workflows WHERE id = $1',
+        [workflowId]
+      )).rows[0];
+      const count = (await pool.query(
+        'SELECT count(*)::int AS count FROM financial_state_events WHERE workflow_id = $1',
+        [workflowId]
+      )).rows[0].count;
+      return { workflow, count };
+    }
+
+    async function expectLinkageRollback(context, attempt, pattern, expenseIds) {
+      const before = await workflowSnapshot(context.workflow.id);
+      const expensesBefore = [];
+      for (const id of expenseIds) expensesBefore.push(await reloadExpense(id));
+      await expectReject(attempt(), pattern);
+      expect(await workflowSnapshot(context.workflow.id)).toEqual(before);
+      for (let index = 0; index < expenseIds.length; index += 1) {
+        expect(await reloadExpense(expenseIds[index])).toEqual(expensesBefore[index]);
+      }
+    }
+
+    await expectLinkageRollback(
+      primary,
+      () => insertFinancialEvent(
+        primary.workflow.id, 'OPERATOR_DISBURSEMENT_CONFIRMED', 'PROJECT_EXPENSE_RECORDED'
+      ),
+      /linked paid Expense|project_expense_link_check/,
+      [paid.id]
+    );
+    await expectLinkageRollback(
+      primary,
+      () => insertFinancialEvent(
+        primary.workflow.id, 'OPERATOR_DISBURSEMENT_CONFIRMED', 'PROJECT_EXPENSE_RECORDED',
+        { projectExpenseId: unpaid.id }
+      ),
+      /requires a paid Expense/,
+      [unpaid.id]
+    );
+    await expectLinkageRollback(
+      other,
+      () => insertFinancialEvent(
+        other.workflow.id, 'OPERATOR_DISBURSEMENT_CONFIRMED', 'PROJECT_EXPENSE_RECORDED',
+        { projectExpenseId: paid.id }
+      ),
+      /project_expense_workflow_fkey|same workflow/,
+      [paid.id]
+    );
+
+    const accepted = await insertFinancialEvent(
+      primary.workflow.id, 'OPERATOR_DISBURSEMENT_CONFIRMED', 'PROJECT_EXPENSE_RECORDED',
+      { projectExpenseId: paid.id }
+    );
+    await expectLinkageRollback(
+      primary,
+      () => insertFinancialEvent(
+        primary.workflow.id, 'PROJECT_EXPENSE_RECORDED', 'PROJECT_EXPENSE_RECORDED',
+        { projectExpenseId: paid.id }
+      ),
+      /financial_state_events_project_expense_unique/,
+      [paid.id]
+    );
+    const links = await pool.query(
+      'SELECT * FROM financial_state_events WHERE project_expense_id = $1', [paid.id]
+    );
+    expect(links.rows).toHaveLength(1);
+    expect(links.rows[0].id).toBe(accepted.id);
   });
 
   test('equal event timestamps still order projection by immutable event id', async () => {
@@ -1057,9 +1283,9 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
     const context = await createContext({ budgetAmount: '100.00' });
     const first = await createExpense(context, '60.00', 'requester-concurrent-1');
     const second = await createExpense(context, '60.00', 'requester-concurrent-2');
-    const winner = await beginClient();
-    const loser = await beginClient();
-    try {
+    const firstRequestedPointer = first.current_state_event_id;
+    const secondRequestedPointer = second.current_state_event_id;
+    await withTwoTransactionalClients(async (winner, loser) => {
       await winner.query('SELECT id FROM financial_workflow_budgets WHERE id = $1 FOR UPDATE', [context.budget.id]);
       const blocked = transitionExpense(second, 'APPROVED', {
         actor: 'approver-concurrent-2', role: 'EXPENSE_APPROVER', approvedAmount: '60.00', queryable: loser,
@@ -1071,25 +1297,49 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
       await winner.query('COMMIT');
       expect((await blocked).message).toMatch(/exceeds available budget/);
       await loser.query('ROLLBACK');
-      expect((await reloadExpense(first.id)).current_state).toBe('APPROVED');
-      expect((await reloadExpense(second.id)).current_state).toBe('REQUESTED');
-    } finally {
-      await rollbackAndRelease(winner);
-      await rollbackAndRelease(loser);
-    }
+    });
+    const finalExpenses = (await pool.query(
+      'SELECT * FROM project_expenses WHERE id = ANY($1::bigint[]) ORDER BY id',
+      [[first.id, second.id]]
+    )).rows;
+    const approved = finalExpenses.filter((row) => row.current_state === 'APPROVED');
+    const requested = finalExpenses.filter((row) => row.current_state === 'REQUESTED');
+    expect(approved).toHaveLength(1);
+    expect(requested).toHaveLength(1);
+    const approvalEvents = (await pool.query(
+      `SELECT * FROM project_expense_state_events
+        WHERE expense_id = ANY($1::bigint[]) AND to_state = 'APPROVED'`,
+      [[first.id, second.id]]
+    )).rows;
+    expect(approvalEvents).toHaveLength(1);
+    expect(approved[0].current_state_event_id).toBe(approvalEvents[0].id);
+    expect(requested[0].current_state_event_id).toBe(
+      requested[0].id === first.id ? firstRequestedPointer : secondRequestedPointer
+    );
+    expect(requested[0].approved_amount).toBeNull();
+    const capacity = (await pool.query(
+      `SELECT b.budget_amount,
+              COALESCE(SUM(e.approved_amount) FILTER (
+                WHERE e.current_state IN ('APPROVED', 'PAID')
+              ), 0) AS reserved
+         FROM financial_workflow_budgets b
+         LEFT JOIN project_expenses e ON e.budget_id = b.id
+        WHERE b.id = $1 GROUP BY b.id`,
+      [context.budget.id]
+    )).rows[0];
+    expect(capacity.reserved).toBe('60.00000000');
+    expect(Number(capacity.reserved)).toBeLessThanOrEqual(Number(capacity.budget_amount));
   });
 
   test('approval concurrent with budget reduction preserves capacity', async () => {
     const context = await createContext({ budgetAmount: '100.00' });
     const expense = await createExpense(context, '60.00', 'requester-reduction');
-    const budgetClient = await pool.connect();
-    try {
-      await budgetClient.query('BEGIN');
+    const requestedPointer = expense.current_state_event_id;
+    await withTwoTransactionalClients(async (budgetClient, approvalClient) => {
       await budgetClient.query(
         'UPDATE financial_workflow_budgets SET budget_amount = 50 WHERE id = $1',
         [context.budget.id]
       );
-      const approvalClient = await beginClient();
       const approval = transitionExpense(expense, 'APPROVED', {
         actor: 'approver-reduction',
         role: 'EXPENSE_APPROVER',
@@ -1099,51 +1349,94 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
       await waitUntilBlocked(approvalClient, 'approval behind budget reduction');
       await budgetClient.query('COMMIT');
       expect((await approval).message).toMatch(/exceeds available budget/);
-      await rollbackAndRelease(approvalClient);
-    } finally {
-      await budgetClient.query('ROLLBACK').catch(() => {});
-      budgetClient.release();
-    }
+      await approvalClient.query('ROLLBACK');
+    });
+    const finalBudget = (await pool.query(
+      'SELECT * FROM financial_workflow_budgets WHERE id = $1', [context.budget.id]
+    )).rows[0];
+    const finalExpense = await reloadExpense(expense.id);
+    const history = await pool.query(
+      'SELECT * FROM project_expense_state_events WHERE expense_id = $1 ORDER BY id', [expense.id]
+    );
+    expect(finalBudget.budget_amount).toBe('50.00000000');
+    expect(finalExpense.current_state).toBe('REQUESTED');
+    expect(finalExpense.current_state_event_id).toBe(requestedPointer);
+    expect(finalExpense.approved_amount).toBeNull();
+    expect(history.rows).toHaveLength(1);
+    const reserved = (await pool.query(
+      `SELECT COALESCE(SUM(approved_amount), 0) AS amount FROM project_expenses
+        WHERE budget_id = $1 AND current_state IN ('APPROVED', 'PAID')`,
+      [context.budget.id]
+    )).rows[0].amount;
+    expect(reserved).toBe('0');
+    expect(Number(finalBudget.budget_amount)).toBeGreaterThanOrEqual(Number(reserved));
   });
 
   test('competing transitions and duplicate PAID attempts use deterministic row-lock barriers', async () => {
     const context = await createContext();
     let expense = await createExpense(context, '25.00', 'requester-race');
-    let winner = await beginClient();
-    let loser = await beginClient();
-    await winner.query('SELECT id FROM project_expenses WHERE id = $1 FOR UPDATE', [expense.id]);
-    let blocked = transitionExpense(expense, 'REJECTED', {
-      actor: 'rejector-race', role: 'EXPENSE_REJECTOR', queryable: loser,
-    }).then(() => null, (error) => error);
-    await waitUntilBlocked(loser, 'competing Expense transition');
-    await transitionExpense(expense, 'APPROVED', {
-      actor: 'approver-race-1', role: 'EXPENSE_APPROVER', approvedAmount: '25.00', queryable: winner,
+    await withTwoTransactionalClients(async (winner, loser) => {
+      await winner.query('SELECT id FROM project_expenses WHERE id = $1 FOR UPDATE', [expense.id]);
+      const blocked = transitionExpense(expense, 'REJECTED', {
+        actor: 'rejector-race', role: 'EXPENSE_REJECTOR', queryable: loser,
+      }).then(() => null, (error) => error);
+      await waitUntilBlocked(loser, 'competing Expense transition');
+      await transitionExpense(expense, 'APPROVED', {
+        actor: 'approver-race-1', role: 'EXPENSE_APPROVER', approvedAmount: '25.00', queryable: winner,
+      });
+      await winner.query('COMMIT');
+      expect((await blocked).message).toMatch(/transition expected from/);
+      await loser.query('ROLLBACK');
     });
-    await winner.query('COMMIT');
-    expect((await blocked).message).toMatch(/transition expected from/);
-    await loser.query('ROLLBACK');
-    await rollbackAndRelease(winner);
-    await rollbackAndRelease(loser);
     expense = await reloadExpense(expense.id);
+    const competingEvents = (await pool.query(
+      `SELECT * FROM project_expense_state_events
+        WHERE expense_id = $1 AND to_state IN ('APPROVED', 'REJECTED')`, [expense.id]
+    )).rows;
+    expect(competingEvents).toHaveLength(1);
+    expect(competingEvents[0].to_state).toBe('APPROVED');
+    expect(expense.current_state).toBe('APPROVED');
+    expect(expense.current_state_event_id).toBe(competingEvents[0].id);
+    expect(expense.approved_amount).toBe('25.00000000');
+    expect((await pool.query(
+      `SELECT COALESCE(SUM(approved_amount), 0) AS amount FROM project_expenses
+        WHERE budget_id = $1 AND current_state IN ('APPROVED', 'PAID')`,
+      [context.budget.id]
+    )).rows[0].amount).toBe('25.00000000');
     await addAuthoritativeEvidence(expense);
-    winner = await beginClient();
-    loser = await beginClient();
-    await winner.query('SELECT id FROM project_expenses WHERE id = $1 FOR UPDATE', [expense.id]);
-    blocked = transitionExpense(expense, 'PAID', {
-      actor: 'payer-race-2', role: 'EXPENSE_PAYER', approvedAmount: expense.approved_amount,
-      paidAmount: expense.approved_amount, queryable: loser,
-    }).then(() => null, (error) => error);
-    await waitUntilBlocked(loser, 'duplicate PAID transition');
-    await transitionExpense(expense, 'PAID', {
-      actor: 'payer-race-1', role: 'EXPENSE_PAYER', approvedAmount: expense.approved_amount,
-      paidAmount: expense.approved_amount, queryable: winner,
+    await withTwoTransactionalClients(async (winner, loser) => {
+      await winner.query('SELECT id FROM project_expenses WHERE id = $1 FOR UPDATE', [expense.id]);
+      const blocked = transitionExpense(expense, 'PAID', {
+        actor: 'payer-race-2', role: 'EXPENSE_PAYER', approvedAmount: expense.approved_amount,
+        paidAmount: expense.approved_amount, queryable: loser,
+      }).then(() => null, (error) => error);
+      await waitUntilBlocked(loser, 'duplicate PAID transition');
+      await transitionExpense(expense, 'PAID', {
+        actor: 'payer-race-1', role: 'EXPENSE_PAYER', approvedAmount: expense.approved_amount,
+        paidAmount: expense.approved_amount, queryable: winner,
+      });
+      await winner.query('COMMIT');
+      expect((await blocked).message).toMatch(/transition expected from|Terminal Project Expense/);
+      await loser.query('ROLLBACK');
     });
-    await winner.query('COMMIT');
-    expect((await blocked).message).toMatch(/transition expected from|Terminal Project Expense/);
-    await loser.query('ROLLBACK');
-    await rollbackAndRelease(winner);
-    await rollbackAndRelease(loser);
-    expect((await reloadExpense(expense.id)).current_state).toBe('PAID');
+    const finalExpense = await reloadExpense(expense.id);
+    const paidEvents = (await pool.query(
+      "SELECT * FROM project_expense_state_events WHERE expense_id = $1 AND to_state = 'PAID'",
+      [expense.id]
+    )).rows;
+    expect(paidEvents).toHaveLength(1);
+    expect(finalExpense.current_state).toBe('PAID');
+    expect(finalExpense.current_state_event_id).toBe(paidEvents[0].id);
+    expect(finalExpense.paid_amount).toBe(finalExpense.approved_amount);
+    expect((await pool.query(
+      "SELECT count(*)::int AS count FROM project_expense_evidence WHERE expense_id = $1 AND evidence_role = 'AUTHORITATIVE_PAYMENT'",
+      [expense.id]
+    )).rows[0].count).toBe(1);
+    expect((await pool.query(
+      `SELECT COALESCE(SUM(approved_amount), 0) AS amount FROM project_expenses
+        WHERE budget_id = $1 AND current_state IN ('APPROVED', 'PAID')`,
+      [context.budget.id]
+    )).rows[0].amount).toBe('25.00000000');
   });
 
   test('workflow, budget, Expense, and evidence lock hierarchy completes without deadlock', async () => {
@@ -1152,9 +1445,12 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
     expense = await approveExpense(expense, '14.00', 'lock-order-approver');
     const evidence = await addAuthoritativeEvidence(expense);
     expense = await payExpense(expense, 'lock-order-payer');
-    const holder = await beginClient();
-    const contender = await beginClient();
-    try {
+    const evidenceCountBefore = (await pool.query(
+      'SELECT count(*)::int AS count FROM project_expense_evidence WHERE expense_id = $1',
+      [expense.id]
+    )).rows[0].count;
+    let acceptedEvent;
+    await withTwoTransactionalClients(async (holder, contender) => {
       await holder.query('SELECT id FROM financial_workflows WHERE id = $1 FOR UPDATE', [context.workflow.id]);
       await holder.query('SELECT id FROM financial_workflow_budgets WHERE id = $1 FOR UPDATE', [context.budget.id]);
       await holder.query('SELECT id FROM project_expenses WHERE id = $1 FOR UPDATE', [expense.id]);
@@ -1168,11 +1464,29 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
       const outcome = await blocked;
       expect(outcome.error).toBeUndefined();
       expect(outcome.event.project_expense_id).toBe(expense.id);
+      acceptedEvent = outcome.event;
       await contender.query('COMMIT');
-    } finally {
-      await rollbackAndRelease(holder);
-      await rollbackAndRelease(contender);
-    }
+    });
+    const workflow = (await pool.query(
+      'SELECT * FROM financial_workflows WHERE id = $1', [context.workflow.id]
+    )).rows[0];
+    const finalExpense = await reloadExpense(expense.id);
+    expect(workflow.current_state).toBe('PROJECT_EXPENSE_RECORDED');
+    expect(workflow.current_state_event_id).toBe(acceptedEvent.id);
+    expect(finalExpense.current_state).toBe('PAID');
+    expect((await pool.query(
+      'SELECT expense_id FROM project_expense_state_events WHERE id = $1',
+      [finalExpense.current_state_event_id]
+    )).rows[0].expense_id).toBe(expense.id);
+    expect((await pool.query(
+      'SELECT count(*)::int AS count FROM project_expense_evidence WHERE expense_id = $1',
+      [expense.id]
+    )).rows[0].count).toBe(evidenceCountBefore);
+    expect((await pool.query(
+      `SELECT COALESCE(SUM(approved_amount), 0) AS amount FROM project_expenses
+        WHERE budget_id = $1 AND current_state IN ('APPROVED', 'PAID')`,
+      [context.budget.id]
+    )).rows[0].amount).toBe('14.00000000');
   });
 
   test('concurrent duplicate workflow recording commits only once without deadlock', async () => {
@@ -1182,10 +1496,16 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
     await addAuthoritativeEvidence(expense);
     expense = await payExpense(expense, 'payer-workflow-race');
 
-    const winner = await beginClient();
-    const loser = await beginClient();
-    try {
-      await insertFinancialEvent(
+    const workflowBefore = (await pool.query(
+      'SELECT current_state_event_id FROM financial_workflows WHERE id = $1', [context.workflow.id]
+    )).rows[0];
+    const countBefore = (await pool.query(
+      'SELECT count(*)::int AS count FROM financial_state_events WHERE workflow_id = $1',
+      [context.workflow.id]
+    )).rows[0].count;
+    let acceptedEvent;
+    await withTwoTransactionalClients(async (winner, loser) => {
+      acceptedEvent = await insertFinancialEvent(
         context.workflow.id, 'OPERATOR_DISBURSEMENT_CONFIRMED', 'PROJECT_EXPENSE_RECORDED',
         { projectExpenseId: expense.id, queryable: winner }
       );
@@ -1202,9 +1522,26 @@ describeRuntime('Migration 017 disposable PostgreSQL runtime verification', () =
         [expense.id]
       );
       expect(links.rows[0].count).toBe(1);
-    } finally {
-      await rollbackAndRelease(winner);
-      await rollbackAndRelease(loser);
-    }
+    });
+    const workflow = (await pool.query(
+      'SELECT * FROM financial_workflows WHERE id = $1', [context.workflow.id]
+    )).rows[0];
+    const events = await pool.query(
+      'SELECT * FROM financial_state_events WHERE workflow_id = $1 ORDER BY id',
+      [context.workflow.id]
+    );
+    expect(events.rowCount).toBe(countBefore + 1);
+    expect(workflow.current_state_event_id).not.toBe(workflowBefore.current_state_event_id);
+    expect(workflow.current_state_event_id).toBe(acceptedEvent.id);
+    expect(events.rows.filter((row) => row.project_expense_id === expense.id)).toHaveLength(1);
+  });
+
+  test('two-client failure path releases transactions and checked-out clients', async () => {
+    const beforeWaiting = pool.waitingCount;
+    await expect(withTwoTransactionalClients(async (_first, second) => {
+      await waitUntilBlocked(second, 'deliberately absent barrier', 50);
+    })).rejects.toThrow(/did not reach the expected PostgreSQL lock barrier/);
+    expect(pool.waitingCount).toBe(beforeWaiting);
+    expect(pool.idleCount).toBe(pool.totalCount);
   });
 });

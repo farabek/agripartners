@@ -52,17 +52,53 @@ function childConnectionString(parsed, database) {
   return child.toString();
 }
 
-async function createDisposableDatabase({ adminUrl, optIn }) {
+function redactText(value, sensitiveValues = []) {
+  if (typeof value !== 'string') return value;
+  let redacted = value;
+  for (const sensitive of sensitiveValues.filter(Boolean)) {
+    redacted = redacted.split(String(sensitive)).join('[redacted]');
+  }
+  return redacted.replace(
+    /postgres(?:ql)?:\/\/[^\s"'<>]+/gi,
+    '[redacted PostgreSQL URL]'
+  );
+}
+
+function sanitizeError(error, { context, adminUrl } = {}) {
+  const parsed = (() => {
+    try { return new URL(adminUrl); } catch { return null; }
+  })();
+  const secrets = [
+    adminUrl,
+    parsed?.username,
+    parsed?.password,
+    parsed?.username ? decodeURIComponent(parsed.username) : null,
+    parsed?.password ? decodeURIComponent(parsed.password) : null,
+  ];
+  const message = redactText(error?.message || String(error), secrets);
+  const sanitized = new Error(context ? `${context}: ${message}` : message);
+  if (error?.code) sanitized.code = error.code;
+  if (error?.detail) sanitized.detail = redactText(error.detail, secrets);
+  if (error?.cause) sanitized.cause = sanitizeError(error.cause, { adminUrl });
+  return sanitized;
+}
+
+async function createDisposableDatabase({
+  adminUrl,
+  optIn,
+  PoolClass = Pool,
+  database = createOwnedDatabaseName(),
+  runId = crypto.randomUUID(),
+}) {
   const { parsed } = validateAdminUrl(adminUrl, optIn);
-  const database = createOwnedDatabaseName();
-  const runId = crypto.randomUUID();
-  const adminPool = new Pool({ connectionString: parsed.toString(), max: 2 });
+  quoteIdentifier(database);
+  const adminPool = new PoolClass({ connectionString: parsed.toString(), max: 2 });
   let pool;
   let databaseCreated = false;
   try {
     await adminPool.query(`CREATE DATABASE ${quoteIdentifier(database)}`);
     databaseCreated = true;
-    pool = new Pool({ connectionString: childConnectionString(parsed, database), max: 10 });
+    pool = new PoolClass({ connectionString: childConnectionString(parsed, database), max: 10 });
     await pool.query(
       `CREATE TABLE public.agripartners_test_database_sentinel (
          run_id UUID PRIMARY KEY,
@@ -74,7 +110,7 @@ async function createDisposableDatabase({ adminUrl, optIn }) {
       'INSERT INTO public.agripartners_test_database_sentinel (run_id, database_name) VALUES ($1, $2)',
       [runId, database]
     );
-    return { adminPool, pool, database, runId };
+    return { adminPool, pool, database, runId, adminUrl };
   } catch (error) {
     if (pool) await pool.end().catch(() => {});
     if (databaseCreated) {
@@ -85,7 +121,10 @@ async function createDisposableDatabase({ adminUrl, optIn }) {
       await adminPool.query(`DROP DATABASE ${quoteIdentifier(database)}`).catch(() => {});
     }
     await adminPool.end().catch(() => {});
-    throw error;
+    throw sanitizeError(error, {
+      context: `Disposable PostgreSQL setup failed for ${database}`,
+      adminUrl,
+    });
   }
 }
 
@@ -107,6 +146,11 @@ async function destroyDisposableDatabase(harness) {
       [database]
     );
     await adminPool.query(`DROP DATABASE ${identifier}`);
+  } catch (error) {
+    throw sanitizeError(error, {
+      context: `Disposable PostgreSQL cleanup failed for ${database}`,
+      adminUrl: harness.adminUrl,
+    });
   } finally {
     if (!pool.ended) await pool.end().catch(() => {});
     await adminPool.end().catch(() => {});
@@ -120,7 +164,7 @@ function redactConnectionString(rawUrl) {
     if (parsed.password) parsed.password = '[redacted]';
     return `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
   } catch {
-    return '[invalid PostgreSQL URL]';
+  return '[invalid PostgreSQL URL]';
   }
 }
 
@@ -131,5 +175,7 @@ module.exports = {
   destroyDisposableDatabase,
   quoteIdentifier,
   redactConnectionString,
+  redactText,
+  sanitizeError,
   validateAdminUrl,
 };
