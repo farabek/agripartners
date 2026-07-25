@@ -206,3 +206,27 @@ Before ending every session:
 2. Verify that dashboard statistics are updated.
 3. Verify that every active contact has a current status.
 4. Verify that every active contact has a Next Touch Date and Next Action.
+
+## Mandatory local verification
+
+Before declaring repository changes ready for commit, push, or pull-request review, run:
+
+```powershell
+.\scripts\verify-local.ps1
+```
+
+The verification must complete the backend dependency install and test suite, the frontend
+dependency install and production build, and `git diff --check`. Report the exact pass, skip,
+warning, and failure counts in the handoff or pull-request description. A Vercel Preview with a
+`Ready` status is additionally required for frontend-affecting pull requests.
+
+`backend/tests/slice2CommitScope.test.js` is a checkpoint-specific Stage 2 audit guard. On later
+branches it may reject legitimate files outside its historical correction allowlist. The local
+verification script must first run the complete backend suite. If that run fails, it reruns the
+suite excluding only this checkpoint guard. The script succeeds with a clearly printed warning
+only when every remaining backend test passes; any other backend failure remains blocking.
+
+A failed GitHub Actions check is not automatically evidence of a product regression. Before
+diagnosing code or changing `.github/workflows/ci.yml`, inspect whether the job executed any steps.
+If no steps ran and GitHub reports an account or billing lock, preserve the workflow and use this
+local verification plus Vercel Preview until GitHub Actions is restored.
