@@ -2,7 +2,7 @@
 
 # AgriPartners Relationship CRM
 
-Last reconciled: 2026-07-22 (Asia/Tashkent)
+Last reconciled: 2026-07-25 (Asia/Tashkent)
 
 This document is the single source of truth for AgriPartners investor relations, NEAR ecosystem
 outreach, partnerships, and business development. An interaction is complete only after it is
@@ -61,7 +61,7 @@ interaction history.
 ### Permanent Contact ID registry
 
 - Assigned IDs are immutable and must never be reused, renumbered, or reassigned.
-- The next new contact must receive **`NEAR-022`**.
+- The next new contact must receive **`NEAR-023`**.
 - The `NEAR` prefix is retained for the permanent sequence even when a future contact belongs to a
   different category.
 
@@ -88,6 +88,7 @@ interaction history.
 | NEAR-019 | Clemens Scherf |
 | NEAR-020 | Vlad Frolov |
 | NEAR-021 | Olha Lesik |
+| NEAR-022 | Elliot Braem |
 
 ### Relationship Score
 
@@ -131,17 +132,17 @@ condition, such as `Follow-up Required`; Pipeline Stage captures relationship ma
 
 ## Relationship Dashboard
 
-Snapshot date: 2026-07-22. Counts reflect the last recorded evidence and must be reconciled against
+Snapshot date: 2026-07-25. Counts reflect the last recorded evidence and must be reconciled against
 LinkedIn before any new action.
 
 | Metric | Count |
 | --- | ---: |
-| Total Contacts | 21 |
+| Total Contacts | 22 |
 | Research | 0 |
 | Following | 0 |
 | Liked Posts | 0 |
 | Commented | 0 |
-| Invitation Pending | 16 |
+| Invitation Pending | 17 |
 | Connected | 4 |
 | Conversations | 1 |
 | Warm Relationships | 0 |
@@ -150,23 +151,23 @@ LinkedIn before any new action.
 | Investor Opportunities | 0 |
 | Partnership Opportunities | 0 |
 | Grant Opportunities | 0 |
-| Contacts requiring action this week | 15 |
+| Contacts requiring action this week | 16 |
 | Overdue Follow-ups | 1 |
 
 ### Contacts grouped by status
 
 | Status | Count | Contacts |
 | --- | ---: | --- |
-| Invitation Sent (Pending) | 16 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Aminu Bin Ibrahim; Clemens Scherf; Vlad Frolov; Olha Lesik |
+| Invitation Sent (Pending) | 17 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Aminu Bin Ibrahim; Clemens Scherf; Vlad Frolov; Olha Lesik; Elliot Braem |
 | Connected | 3 | Alexander Scharrer; Vitalii Yevlakhov; Charlie Bussat |
-| Conversation Started | 1 | Iker Alustiza Beitia |
+| Active Conversation | 1 | Iker Alustiza Beitia |
 | Follow-up Required | 1 | Philipp Suarez |
 
 ### Contacts grouped by pipeline stage
 
 | Pipeline Stage | Count | Contact IDs | Contacts |
 | --- | ---: | --- | --- |
-| Invitation Sent | 16 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010; NEAR-013; NEAR-014; NEAR-015; NEAR-016; NEAR-018; NEAR-019; NEAR-020; NEAR-021 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Aminu Bin Ibrahim; Clemens Scherf; Vlad Frolov; Olha Lesik |
+| Invitation Sent | 17 | NEAR-001; NEAR-002; NEAR-004; NEAR-005; NEAR-007; NEAR-008; NEAR-009; NEAR-010; NEAR-013; NEAR-014; NEAR-015; NEAR-016; NEAR-018; NEAR-019; NEAR-020; NEAR-021; NEAR-022 | Joseph Beverley; David Mirzadeh; Josh Ford; Bowen Shen; Taras Dovgal; David Norris; Abhishek Vaidyanathan; Bianca Guimaraes-Chadwick; Matt Kummell; Danny Carpentier Balough; Dillon Freeman; Harshit Tiwari; Aminu Bin Ibrahim; Clemens Scherf; Vlad Frolov; Olha Lesik; Elliot Braem |
 | Connected | 4 | NEAR-003; NEAR-006; NEAR-011; NEAR-017 | Philipp Suarez; Alexander Scharrer; Vitalii Yevlakhov; Charlie Bussat |
 | Conversation | 1 | NEAR-012 | Iker Alustiza Beitia |
 
@@ -178,7 +179,7 @@ Review period: **2026-07-20 through 2026-07-26** (Asia/Tashkent).
 
 | Contact ID | Contact | Priority | Next Touch | Next Action | Reason |
 | --- | --- | --- | --- | --- | --- |
-| NEAR-003 | Philipp Suarez | Medium | 2026-07-13 | Check for a reply; if none, send the single prepared follow-up | The follow-up remains pending and overdue; no reply or sent follow-up is recorded |
+| NEAR-003 | Philipp Suarez | Medium | 2026-07-25 | Verify the LinkedIn conversation; if there is still no reply, send the revised single follow-up | The last repository-confirmed review on 2026-07-22 found no reply or sent follow-up; one low-pressure finance-relevant follow-up is appropriate now |
 | NEAR-002 | David Mirzadeh | Medium | 2026-07-13 | Check acceptance; after acceptance, send a short routing intro | No confirmed status change is available for the pending invitation |
 | NEAR-004 | Josh Ford | Medium | 2026-07-13 | Check invitation state and relevant posts | No confirmed status change is available for the pending invitation |
 | NEAR-005 | Bowen Shen | Medium | 2026-07-13 | Check invitation state and relevant posts | No confirmed status change is available for the pending invitation |
@@ -193,6 +194,7 @@ Review period: **2026-07-20 through 2026-07-26** (Asia/Tashkent).
 | NEAR-009 | Abhishek Vaidyanathan | High | 2026-07-20 | Check whether the invitation was accepted | Strategic legal stakeholder for RWA, tokenized assets, compliance, and NEAR Foundation relationships |
 | NEAR-010 | Bianca Guimaraes-Chadwick | High | 2026-07-20 | Check whether the invitation was accepted | NEAR Ecosystem legal stakeholder for RWA and compliance relationships |
 | NEAR-011 | Vitalii Yevlakhov | High | 2026-07-23 | Review recent activity and identify a natural engagement point | The invitation is accepted; continue relationship-first engagement without pitching |
+| NEAR-012 | Iker Alustiza Beitia | High | 2026-07-25 | Tell Iker that Elliot's LinkedIn invitation has been sent and is pending | Iker asked whether AgriPartners is already in contact with Elliot; answer factually without inferring an introduction |
 
 ### Pending invitations
 
@@ -214,6 +216,7 @@ Review period: **2026-07-20 through 2026-07-26** (Asia/Tashkent).
 | NEAR-019 | Clemens Scherf | 2026-07-20 | 2026-07-27 |
 | NEAR-020 | Vlad Frolov | 2026-07-22 | 2026-07-29 |
 | NEAR-021 | Olha Lesik | 2026-07-22 | 2026-07-29 |
+| NEAR-022 | Elliot Braem | 2026-07-25 | 2026-08-01 |
 
 ### Outreach activity recorded this week
 
@@ -224,6 +227,9 @@ Review period: **2026-07-20 through 2026-07-26** (Asia/Tashkent).
 | NEAR-012 | Iker Alustiza Beitia | 2026-07-20 | Iker initiated the conversation and recommended connecting with other NEAR builders and successful ecosystem projects; response sent |
 | NEAR-020 | Vlad Frolov | 2026-07-22 | LinkedIn connection invitation sent; pending |
 | NEAR-021 | Olha Lesik | 2026-07-22 | LinkedIn connection invitation sent; pending |
+| NEAR-012 | Iker Alustiza Beitia | 2026-07-25 | Recommended the Near Builders initiative and specifically Elliot Braem; asked whether AgriPartners is already in contact with Elliot |
+| NEAR-022 | Elliot Braem | 2026-07-25 | Added from Iker's recommendation; LinkedIn connection invitation sent; pending |
+| NEAR-003 | Philipp Suarez | 2026-07-25 | Follow-up readiness reviewed; revised Alpha / NEAR Testnet follow-up prepared but not sent |
 
 Also reviewed on 2026-07-22: Philipp Suarez, Alexander Scharrer, Iker Alustiza Beitia, Vitalii
 Yevlakhov, and Charlie Bussat. No new replies or meaningful relationship updates were observed, so
@@ -241,7 +247,7 @@ their existing statuses and next actions remain unchanged.
 
 | Contact ID | Contact | Due Date | Follow-up State |
 | --- | --- | --- | --- |
-| NEAR-003 | Philipp Suarez | 2026-07-13 | Still pending and overdue from 2026-07-03; verify no reply before sending prepared follow-up |
+| NEAR-003 | Philipp Suarez | 2026-07-25 | Verify the live LinkedIn conversation; if there is still no reply, send the revised single follow-up; draft is prepared but not sent |
 
 ### New opportunities
 
@@ -250,13 +256,13 @@ interaction evidence.
 
 ### Inactive contacts (>30 days)
 
-None. The oldest recorded last interaction is 2026-06-25, 27 days before the snapshot date.
+None. The oldest recorded last interaction is 2026-06-25, 30 days before the snapshot date.
 
 ### Actions due this week or overdue
 
 | Contact | Priority | Current status | Required action | Recommended date |
 | --- | --- | --- | --- | --- |
-| Philipp Suarez | Medium | Follow-up Required | Check for a reply; if none, send the single prepared follow-up | 2026-07-13 (overdue from 2026-07-03) |
+| Philipp Suarez | Medium | Follow-up Required | Verify the LinkedIn conversation; if there is still no reply, send the revised single follow-up | 2026-07-25 (originally overdue from 2026-07-03) |
 | David Mirzadeh | Medium | Invitation Sent (Pending) | Check whether the invitation was accepted; update CRM before messaging | 2026-07-13 |
 | Josh Ford | Medium | Invitation Sent (Pending) | Check invitation state and recent relevant posts | 2026-07-13 |
 | Bowen Shen | Medium | Invitation Sent (Pending) | Check invitation state and recent relevant posts | 2026-07-13 |
@@ -271,12 +277,19 @@ None. The oldest recorded last interaction is 2026-06-25, 27 days before the sna
 | Abhishek Vaidyanathan | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-20 |
 | Bianca Guimaraes-Chadwick | High | Invitation Sent (Pending) | Check whether the invitation was accepted | 2026-07-20 |
 | Vitalii Yevlakhov | High | Connected | Review recent activity and identify a natural engagement point | 2026-07-23 |
+| Iker Alustiza Beitia | High | Active Conversation | Tell Iker that Elliot's LinkedIn invitation has been sent and is pending | 2026-07-25 |
 
 ### Active conversations
 
 | Contact ID | Contact | Started | Current State | Next Touch |
 | --- | --- | --- | --- | --- |
-| NEAR-012 | Iker Alustiza Beitia | 2026-07-20 | Iker recommended connecting with other NEAR builders and successful ecosystem projects; response sent | 2026-07-27 |
+| NEAR-012 | Iker Alustiza Beitia | 2026-07-20 | Iker recommended Near Builders and Elliot Braem, and asked whether AgriPartners is already in contact with Elliot | 2026-07-25 |
+
+### Relationship targets
+
+| Target | Type | Source | Priority | Current State | Next Action |
+| --- | --- | --- | --- | --- | --- |
+| Near Builders | NEAR ecosystem initiative | Iker Alustiza Beitia (`NEAR-012`), 2026-07-25 | High | Relationship target identified; Elliot Braem (`NEAR-022`) invitation pending | Build the relationship through Elliot; research the initiative before any further outreach and avoid duplicate contact attempts |
 
 ### Partnership opportunities
 
@@ -296,7 +309,7 @@ None recorded. Do not infer an investor opportunity from a finance or capital-ma
 | --- | --- | --- | --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- |
 | NEAR-001 | Joseph Beverley | NEAR Foundation | Founder Success Manager | [LinkedIn](https://www.linkedin.com/in/joey-be/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | Personalized invitation sent 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted; do not message before acceptance | Wait for a response to the personalized invitation |
 | NEAR-002 | David Mirzadeh | NEAR Foundation | Chief of Staff | [LinkedIn](https://www.linkedin.com/in/mirzdame/) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Invitation sent 2026-06-25 | 2026-07-13 | Check acceptance; after acceptance, send a short routing intro | No confirmed status change is available for the pending invitation |
-| NEAR-003 | Philipp Suarez | NEAR Foundation | Head of Finance | [LinkedIn](https://www.linkedin.com/in/philipp-suarez-83ab4593/) | Unknown | NEAR | Medium | 6 | Connected | Follow-up Required | Follow-up status verified 2026-07-13 | 2026-07-13 | Check for reply; if none, send the single prepared follow-up | The follow-up remains pending and overdue; no reply or sent follow-up is recorded |
+| NEAR-003 | Philipp Suarez | NEAR Foundation | Head of Finance | [LinkedIn](https://www.linkedin.com/in/philipp-suarez-83ab4593/) | Unknown | NEAR | Medium | 6 | Connected | Follow-up Required | Follow-up readiness reviewed and revised draft prepared 2026-07-25; not sent | 2026-07-25 | Verify the LinkedIn conversation; if there is still no reply, send the revised single follow-up | One low-pressure follow-up is appropriate because the 2026-06-29 intro has no recorded reply; Philipp is relevant to finance, treasury transparency, sustainability, and model-readiness framing |
 | NEAR-004 | Josh Ford | NEAR Protocol | Senior Product Manager, DevX | [LinkedIn](https://www.linkedin.com/in/thisisjoshford) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Invitation sent and followed 2026-06-25 | 2026-07-13 | Check acceptance and relevant posts; intro after acceptance | No confirmed status change is available for the pending invitation |
 | NEAR-005 | Bowen Shen | Proximity Labs | Chief Chess Player | [LinkedIn](https://www.linkedin.com/in/bowen-shen-558479a0/) | Unknown | NEAR | Medium | 5 | Invitation Sent | Invitation Sent (Pending) | Invitation sent 2026-06-25 | 2026-07-13 | Check acceptance and relevant posts; send fit intro only after acceptance | No confirmed status change is available for the pending invitation |
 | NEAR-006 | Alexander Scharrer | NEAR Foundation | Head of Capital Markets | Unknown (verification required) | Unknown | NEAR | High | 6 | Connected | Connected | Invitation accepted 2026-07-13 | 2026-07-16 | Review recent activity and identify a natural engagement point | Continue relationship-first engagement after the confirmed acceptance |
@@ -305,7 +318,7 @@ None recorded. Do not infer an investor opportunity from a finance or capital-ma
 | NEAR-009 | Abhishek Vaidyanathan | NEAR Foundation | Chief Legal Officer | [LinkedIn](https://www.linkedin.com/in/abhishek-vaidyanathan-10056528/) | Canada | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn invitation sent without a note 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted | Strategic legal stakeholder for RWA, tokenized assets, compliance, and NEAR Foundation relationships |
 | NEAR-010 | Bianca Guimaraes-Chadwick | NEAR Foundation | General Counsel | Unknown (not provided) | United Kingdom | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn invitation sent without a note 2026-07-13 | 2026-07-20 | Check whether the invitation was accepted | NEAR Ecosystem legal stakeholder for RWA and compliance relationships |
 | NEAR-011 | Vitalii Yevlakhov | NEAR Foundation | Lead Business Development and Ecosystem in SEA Region | [LinkedIn](https://www.linkedin.com/in/vitalii-y-b72779106/) | Bangkok, Thailand | NEAR | High | 6 | Connected | Connected | LinkedIn invitation accepted 2026-07-20 | 2026-07-23 | Review recent activity and identify a natural engagement point | Continue relationship-first engagement after the confirmed acceptance; no message is recorded |
-| NEAR-012 | Iker Alustiza Beitia | NEAR Foundation | Partner Engineer | [LinkedIn](https://www.linkedin.com/in/iker-alustiza-beitia-68803a2b/) | Spain | NEAR | High | 7 | Conversation | Conversation Started | Iker initiated the conversation and recommended connecting with other NEAR builders and successful ecosystem projects; response sent 2026-07-20 | 2026-07-27 | Check whether Iker shared any specific builder or project recommendations | Continue ecosystem outreach independently while leaving space for specific recommendations from Iker |
+| NEAR-012 | Iker Alustiza Beitia | NEAR Foundation | Partner Engineer | [LinkedIn](https://www.linkedin.com/in/iker-alustiza-beitia-68803a2b/) | Spain | NEAR | High | 7 | Conversation | Active Conversation | Iker recommended Near Builders and Elliot Braem and asked whether AgriPartners is already in contact with Elliot 2026-07-25 | 2026-07-25 | Tell Iker that Elliot's LinkedIn invitation has been sent and is pending | Close the factual loop on Iker's recommendation while preserving the active relationship |
 | NEAR-013 | Matt Kummell | NEAR Foundation / S&P Global | Advisor at NEAR Foundation; Head of Business Acceleration & Special Projects at S&P Global | [LinkedIn](https://www.linkedin.com/in/kummell/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 | NEAR-014 | Danny Carpentier Balough | NEAR Foundation | Director, Product Marketing and GTM Strategy | [LinkedIn](https://www.linkedin.com/in/danny-carpentier-balough/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
 | NEAR-015 | Dillon Freeman | NEAR Foundation | Partnerships | [LinkedIn](https://www.linkedin.com/in/dillonfreeman1/) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-17 | 2026-07-19 | Check whether the invitation was accepted | Review the new pending invitation within the current weekly review period |
@@ -315,6 +328,7 @@ None recorded. Do not infer an investor opportunity from a finance or capital-ma
 | NEAR-019 | Clemens Scherf | Coinbase | Growth Lead, Western Europe and UK | [LinkedIn](https://www.linkedin.com/in/clemens-scherf/) | Unknown | NEAR | A+ | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-20 | 2026-07-27 | Check whether the invitation was accepted; do not message before acceptance | Build a relationship around former NEAR ecosystem relations and venture building plus current European Web3 growth experience without making a funding request |
 | NEAR-020 | Vlad Frolov | Trezu / NEAR DevHub / NEAR Protocol | CEO at Trezu; Co-Founder at NEAR DevHub; Software Engineer at NEAR Protocol | Unknown (not provided) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-22 | 2026-07-29 | Wait for invitation acceptance; do not send a follow-up before acceptance | Direct NEAR builder ecosystem experience; potential source of technical and ecosystem feedback relevant to NEAR development, infrastructure, smart contracts, and builder connections |
 | NEAR-021 | Olha Lesik | NEAR DevHub | Product Designer | Unknown (not provided) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-22 | 2026-07-29 | Wait for invitation acceptance; do not send a follow-up before acceptance | Potential product and UX feedback for investor and farmer workflows; direct connection to NEAR DevHub product work |
+| NEAR-022 | Elliot Braem | NEAR Foundation | DevRel | Unknown (not provided) | Unknown | NEAR | High | 5 | Invitation Sent | Invitation Sent (Pending) | LinkedIn connection invitation sent 2026-07-25 following Iker Alustiza Beitia's recommendation | 2026-08-01 | Check whether the invitation was accepted; do not send another invitation or message before acceptance | Iker recommended Elliot as the specific contact for Near Builders; previous role: Lead Engineer at Potlock |
 
 ## Interaction history
 
@@ -351,24 +365,34 @@ a short routing-oriented introduction. No confirmed status change is available. 
   date. The follow-up itself is not recorded as sent.
 - **2026-07-13 — Follow-up status verified:** The connection and previously sent intro remain
   confirmed. No reply or sent follow-up is recorded, so the follow-up is still pending.
+- **2026-07-22 — Conversation state reviewed:** No new reply or meaningful relationship update was
+  observed. The follow-up remained pending and was not recorded as sent.
+- **2026-07-25 — Follow-up approach reviewed:** Repository evidence still contains no reply and no
+  sent follow-up. The original 2026-06-29 message text is not preserved in the repository. The
+  prior follow-up draft was replaced with a shorter, relationship-first request for finance
+  perspective consistent with the current Alpha / NEAR Testnet positioning. The revised draft is
+  prepared but not sent.
 
-Next action: Check the conversation for a reply. If there is none, send the single prepared
-follow-up below and immediately record it. Recommended date: **2026-07-13**.
+Next action: Verify the live LinkedIn conversation. If there is still no reply, send the single
+revised follow-up below and immediately record it. Recommended date: **2026-07-25**.
 
-Prepared follow-up:
+Revised prepared follow-up:
 
 > Hi Philipp,
 >
-> Just following up on my message. We've prepared a public AgriPartners demo, including
-> model-specific investor protection and transparent farmer payment schedules:
+> Just following up on my earlier note. AgriPartners now has an Alpha prototype running on NEAR
+> Testnet, focused on transparent agricultural investment workflows and investor-side
+> auditability.
 >
-> [AgriPartners public demo](https://frontend-omega-woad-90.vercel.app)
->
-> Would you be open to a brief 15-minute introduction next week?
+> Given your finance role at NEAR Foundation, I'd value any brief feedback on whether this is the
+> right stage and framing for ecosystem engagement.
 >
 > Best, Farhod
 
-After sending, do not send another follow-up for at least seven days.
+After sending, do not send another direct follow-up. If there is no reply after ten days, move the
+contact to a passive relationship-maintenance approach rather than closing the relationship:
+monitor relevant activity and engage naturally only when there is a specific finance-related
+reason.
 
 ### Josh Ford
 
@@ -489,6 +513,10 @@ Next action: Review recent activity and identify a natural engagement point. Rec
 - **2026-07-16 — First introduction message sent:** Message sent; no response is recorded.
 - **2026-07-20 — Conversation Started:** Iker initiated the conversation and recommended
   connecting with other NEAR builders and successful ecosystem projects. Response sent.
+- **2026-07-25 — Specific recommendation received:** Iker recommended the Near Builders
+  initiative and specifically recommended contacting Elliot Braem. Iker asked whether
+  AgriPartners is already in contact with Elliot. Elliot's LinkedIn invitation has been sent and
+  is pending; no reply to Iker about that status is recorded yet.
 
 Exact first message:
 
@@ -507,9 +535,9 @@ Exact first message:
 > Best regards,
 > Farhod
 
-Next action: Check whether Iker shared any specific builder or project recommendations.
-Recommended date: **2026-07-27**. Continue ecosystem outreach independently while leaving space
-for specific recommendations from Iker. Do not infer a partnership opportunity, grant opportunity,
+Next action: Tell Iker that Elliot's LinkedIn invitation has been sent and is pending. Recommended
+date: **2026-07-25**. Continue ecosystem outreach independently while preserving Near Builders as
+a high-priority relationship target. Do not infer a partnership opportunity, grant opportunity,
 offered introduction, or meeting without new evidence.
 
 ### Matt Kummell
@@ -641,6 +669,22 @@ Recommended date: **2026-07-29**.
 Next action: Wait for invitation acceptance; do not send a follow-up before acceptance.
 Recommended date: **2026-07-29**.
 
+### Elliot Braem
+
+- **2026-07-25 — Added to canonical CRM from a trusted recommendation:** Assigned permanent
+  Contact ID `NEAR-022`. Current role recorded as DevRel at NEAR Foundation; previous role
+  recorded as Lead Engineer at Potlock. Source of introduction: Iker Alustiza Beitia
+  (`NEAR-012`), who specifically recommended Elliot in connection with the Near Builders
+  initiative. Strategic purpose: NEAR Ecosystem / Builder Relationships. Priority: High.
+- **2026-07-25 — Connection request sent:** LinkedIn connection invitation sent. Current status
+  is Pending. No acceptance, message, reply, conversation, offered introduction, opportunity, or
+  meeting is recorded.
+
+Next action: Check whether the invitation was accepted; do not send another invitation or message
+before acceptance. Recommended date: **2026-08-01**. If accepted, review Elliot's recent activity
+and prepare a short, personalized relationship-first message referencing Iker's recommendation
+and AgriPartners' interest in the Near Builders initiative.
+
 ## Legacy Outreach History (Read-only)
 
 This section preserves the complete pre-migration Outreach CRM structure and wording from the last
@@ -753,7 +797,7 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
 - [x] Every tracked contact has a Relationship Score from 0 through 10.
 - [x] Every tracked contact belongs to exactly one Pipeline Stage.
 - [x] Every tracked contact has a Next Touch Date, Next Action, and Next Touch Reason.
-- [x] Dashboard counters reconcile to the twenty-one contact-register records.
+- [x] Dashboard counters reconcile to the twenty-two contact-register records.
 - [x] Weekly review lists reconcile to the snapshot date and recorded next-touch dates.
 - [x] Historical interactions from the prior operational CRM are retained.
 - [x] The complete pre-migration CRM structure and wording are retained as read-only history.
@@ -772,5 +816,11 @@ Hi [Name], just following up in case this is relevant. I am building AgriPartner
   Bussat without inferring messages, responses, conversations, or opportunities.
 - [x] Record the 2026-07-22 LinkedIn invitations for Vlad Frolov and Olha Lesik without inferring
   acceptances, messages, responses, conversations, recommendations, or opportunities.
+- [x] Record Iker Alustiza Beitia's 2026-07-25 Near Builders and Elliot Braem recommendation and
+  question without inferring an offered introduction or opportunity.
+- [x] Record Elliot Braem as `NEAR-022` and his pending 2026-07-25 LinkedIn invitation without
+  inferring acceptance, message, reply, conversation, or opportunity.
+- [x] Review Philipp Suarez's follow-up readiness on 2026-07-25 and prepare a revised Alpha / NEAR
+  Testnet follow-up without recording it as sent or inferring a reply.
 - [ ] Check the still-pending invitation states for David Mirzadeh, Josh Ford, and Bowen Shen.
 - [ ] Verify Alexander Scharrer's canonical LinkedIn URL.
