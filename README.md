@@ -12,6 +12,16 @@ AgriPartners is an Alpha-stage platform for transparent agricultural investment 
 helps investors review pilot opportunities, farmers report operating progress, and platform
 operators track deals, returns, treasury activity, and lifecycle events.
 
+## Start Here — Platform Model
+
+Read the [Canonical AgriPartners Platform Model](docs/platform/AGRIPARTNERS_PLATFORM_MODEL.md)
+first. It connects participants, legal relationships, the crypto/fiat boundary, financial
+workflows, technical architecture, pilot mappings, implementation status, safe verification,
+accepted limitations, and the roadmap.
+
+Current status: Alpha / working prototype on NEAR Testnet. Stage 2 Slice 2 is merged at the
+verified `main` checkpoint; Stage 2 Slice 3 and the Project Expense API are not implemented.
+
 ## Current Status and Guardrails
 
 **Current product — Alpha v1.2 demonstration**
@@ -46,6 +56,7 @@ as an approved production flow.
 
 ## Quick Links
 
+- [Start with the Canonical Platform Model](docs/platform/AGRIPARTNERS_PLATFORM_MODEL.md)
 - [Explore the live Investor Demo](https://agripartners.vercel.app/#demo/presentation/investor)
 - [Open Presentation Mode](https://agripartners.vercel.app/#demo/presentation/near)
 - [Start with Documentation](docs/README.md)

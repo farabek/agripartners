@@ -11,6 +11,11 @@ Last reviewed: 2026-07-18
 > **Official documentation entry point:** This document is the canonical map for all
 > AgriPartners documentation and the starting point for selecting the correct package.
 
+> **Canonical platform entry point:** Start with the
+> [AgriPartners Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md) for participants, legal
+> relationships, the crypto/fiat boundary, architecture, Stage 2 financial foundations, pilot
+> mappings, implementation status, limitations, verification, and roadmap.
+
 ## Purpose
 
 This index is the main audience-based navigation page for the AgriPartners documentation
@@ -56,29 +61,31 @@ and lightweight Alpha v1.2 NEAR CRM are now Archived at their recorded destinati
 
 ### 🚀 Start Here — Priority 1
 
-1. [Documentation Index](DOCUMENTATION_INDEX.md)
-2. [Product Book](PRODUCT_BOOK.md)
-3. [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md)
-4. [Documentation Guide](DOCUMENTATION_GUIDE.md)
-5. [Workstream Operating Model](governance/WORKSTREAM_OPERATING_MODEL.md)
-6. [Software Delivery Roadmap](ROADMAP.md)
-7. [Master Roadmap v2](MASTER_ROADMAP_V2.md)
-8. [Release Index](RELEASES.md)
-9. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
-10. [Architecture](ARCHITECTURE.md)
-11. [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
+1. [Canonical AgriPartners Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md)
+2. [Documentation Index](DOCUMENTATION_INDEX.md)
+3. [Product Book](PRODUCT_BOOK.md)
+4. [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md)
+5. [Documentation Guide](DOCUMENTATION_GUIDE.md)
+6. [Workstream Operating Model](governance/WORKSTREAM_OPERATING_MODEL.md)
+7. [Software Delivery Roadmap](ROADMAP.md)
+8. [Master Roadmap v2](MASTER_ROADMAP_V2.md)
+9. [Release Index](RELEASES.md)
+10. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
+11. [Architecture](ARCHITECTURE.md)
+12. [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
 
 'AGENTS.md' is a repository-root operating instruction for compatible AI agents. Read it when
 using an agent in this workspace; it is outside the 'docs/' inventory.
 
 ### For new contributors
 
-1. [Documentation Index](DOCUMENTATION_INDEX.md)
-2. [Product Book](PRODUCT_BOOK.md)
-3. [Business Architecture Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
-4. [Operating Model](business/OPERATING_MODEL.md)
-5. [Product Operating Model](platform/PRODUCT_OPERATING_MODEL_V1.md)
-6. [Current Release Notes](releases/alpha-v1.2-release-notes.md)
+1. [Canonical AgriPartners Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md)
+2. [Documentation Index](DOCUMENTATION_INDEX.md)
+3. [Product Book](PRODUCT_BOOK.md)
+4. [Business Architecture Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
+5. [Operating Model](business/OPERATING_MODEL.md)
+6. [Product Operating Model](platform/PRODUCT_OPERATING_MODEL_V1.md)
+7. [Current Release Notes](releases/alpha-v1.2-release-notes.md)
 
 ### For investors
 
@@ -91,12 +98,13 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 
 ### Product / Engineering
 
-1. [Product Book](PRODUCT_BOOK.md)
-2. [Architecture](ARCHITECTURE.md)
-3. [Product Operating Model](platform/PRODUCT_OPERATING_MODEL_V1.md)
-4. [Project Workspace Specification](platform/CANONICAL_PROJECT_WORKSPACE_SPEC.md)
-5. [Farmer Experience Specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md)
-6. [Software Delivery Roadmap](ROADMAP.md)
+1. [Canonical AgriPartners Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md)
+2. [Product Book](PRODUCT_BOOK.md)
+3. [Architecture](ARCHITECTURE.md)
+4. [Product Operating Model](platform/PRODUCT_OPERATING_MODEL_V1.md)
+5. [Project Workspace Specification](platform/CANONICAL_PROJECT_WORKSPACE_SPEC.md)
+6. [Farmer Experience Specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md)
+7. [Software Delivery Roadmap](ROADMAP.md)
 
 ### For farmer operations
 
@@ -137,6 +145,7 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 
 | Document Name | Purpose | Audience | Status | Owner | Access | Priority | Canonical | Archive Candidate | Stable Path |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| [Canonical AgriPartners Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md) | Connects participant, legal, financial, technical, pilot, implementation, verification, and roadmap models in one evidence-backed entry point. | General public, developers, auditors, legal and grant reviewers, investors, operators, NEAR reviewers | Ready | Product | Public | P1 | Yes | No | Yes |
 | [Repository README](../README.md) | Introduces AgriPartners, the current Alpha boundary, setup, and top-level project navigation. | General public, reviewers, developers | Ready | Product | Public  P3 | P1 | No | No | Yes |
 | [Product Book](PRODUCT_BOOK.md) | Provides canonical ecosystem navigation across Product, Business, Pilot, Legal, and Engineering documentation. | Reviewers, partners, internal contributors | Ready | Product | Public | P1 | Yes | No | Yes |
 | [Platform Explained — English](platform/PLATFORM_EXPLAINED_EN.pdf) | Preserves a pre-boundary distributable platform explanation; do not use as current financial-architecture guidance. | Historical reviewers | Legacy Testnet Alpha | Product | Internal | P4 | No | Yes | No |
