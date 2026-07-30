@@ -2,6 +2,9 @@
 
 Status: Draft v1
 
+> **Historical Alpha v1.1 material:** Retained as milestone presentation history. Alpha v1.2 is
+> the current presentation release. Do not use this document as the current investor narrative.
+
 Language: English
 
 Owner: Investor Relations

@@ -8,10 +8,12 @@ Language: English
 
 Owner: Investor Relations
 
-> **Release governance notice (2026-07-13):** Alpha v1.2 is the current product and presentation
-> release. Materials in this kit that identify Alpha v1.1 preserve the completed Alpha v1.1
-> milestone narrative and must not be presented as current-release positioning. Use the
-> [Release Index](../RELEASES.md) for canonical release status.
+> **Current package notice (2026-07-30):** Alpha v1.2 is the only current product and
+> presentation release. Use the
+> [Alpha v1.2 Investor Executive One Pager](../investors/investor-executive-one-pager.md) as the
+> current investor summary and the [Platform Model](../platform/AGRIPARTNERS_PLATFORM_MODEL.md)
+> for detailed facts. Files in this directory that identify Alpha v1.1 are historical milestone
+> materials and must not be used as current-release positioning.
 
 ## 1. Investor Presentation Kit
 
@@ -34,29 +36,32 @@ This kit is intended for:
 - Strategic Partners
 - NEAR Ecosystem Representatives
 
-## 3. Presentation Flow
+## 3. Current Investor Review Package
 
-Recommended investor meeting flow:
+Use this order for current investor and partner review:
 
-1. Executive Pitch Deck
-2. One Pager
-3. Live Product Demo
-4. Project Disclosure Sheet
-5. Risk Disclosure
-6. Investment Participation Agreement
-7. Data Room
-8. Follow-up Materials
+1. [Alpha v1.2 Investor Executive One Pager](../investors/investor-executive-one-pager.md)
+2. [Canonical Platform Model](../platform/AGRIPARTNERS_PLATFORM_MODEL.md)
+3. [Alpha v1.2 Release Notes](../releases/alpha-v1.2-release-notes.md)
+4. [Product Book](../PRODUCT_BOOK.md)
+5. [Project Disclosure Sheet](../legal/PROJECT_DISCLOSURE_SHEET.md) — Draft; controlled review
+6. [Risk Disclosure](../legal/RISK_DISCLOSURE.md) — Draft; controlled review
+7. [Investment Participation Agreement](../legal/INVESTMENT_PARTICIPATION_AGREEMENT.md) —
+   Architecture Draft; not a production agreement
 
-## 4. Document Index
+No current investor deck, FAQ, data-room package, or demo script is designated Ready. Create or
+approve those publications only through a later, separately authorized investor-publication task.
+
+## 4. Historical Alpha v1.1 Materials
 
 | Document | Status | Purpose |
 | --- | --- | --- |
-| `01_Executive_Pitch_Deck.md` | Planned | Investor meeting narrative and slide-by-slide presentation guide. |
-| `02_One_Pager.md` | Planned | Concise investor summary for pre-meeting or follow-up sharing. |
-| `03_Demo_Script.md` | Planned | Guided product demonstration flow for Alpha v1.1 investor meetings. |
-| `04_FAQ.md` | Planned | Common investor, partner, and NEAR ecosystem questions with approved answers. |
-| `05_Data_Room_Index.md` | Planned | Index of due diligence materials and canonical references. |
-| `06_Follow_Up_Guide.md` | Planned | Post-meeting communication, next steps, and requested-materials workflow. |
+| `00_PRESENTATION_MASTER.md` | Historical / Draft | Alpha v1.1 presentation design source. |
+| `01_ONE_PAGER.md` | Historical / Draft | Alpha v1.1 investor summary. |
+| `02_INVESTOR_FAQ.md` | Historical / Draft | Alpha v1.1 FAQ. |
+| `03_DATA_ROOM_INDEX.md` | Historical / Draft | Alpha v1.1 data-room index. |
+| `03_DEMO_SCRIPT.md` | Historical | Official Alpha v1.1 milestone demo script. |
+| `04_PITCH_DECK_SPEC.md` | Historical / Draft | Alpha v1.1 pitch-deck specification. |
 
 ## 5. Existing Canonical References
 
@@ -69,7 +74,7 @@ Use these canonical documents instead of duplicating their content in investor m
 - [Project Disclosure Sheet](../legal/PROJECT_DISCLOSURE_SHEET.md)
 - [Risk Disclosure](../legal/RISK_DISCLOSURE.md)
 
-Supporting investor materials that may inform future kit documents:
+Historical or review-stage investor materials that may inform future publications:
 
 - [Investor Pack](../investor-pack/README.md)
 - [Investor Package](../investor-package/investor-readiness-review.md)
@@ -80,7 +85,7 @@ Supporting investor materials that may inform future kit documents:
 ### Before Meeting
 
 - Confirm the audience type and meeting objective.
-- Select the appropriate pitch deck, one pager, and demo path.
+- Open the current Alpha v1.2 Executive One Pager and canonical Platform Model.
 - Review the Product Book, Master Roadmap v2, and current release notes.
 - Confirm Alpha/Testnet boundaries and avoid production investment claims.
 - Prepare links to the Project Disclosure Sheet, Risk Disclosure, and Investment Participation
@@ -89,7 +94,7 @@ Supporting investor materials that may inform future kit documents:
 
 ### During Meeting
 
-- Start with the investor problem, AgriPartners model, and Alpha v1.1 demo scope.
+- Start with the investor problem, AgriPartners model, and Alpha v1.2 demonstration scope.
 - Show the Investor Portfolio Dashboard before technical details.
 - Explain Fidlot as the completed workflow and Hissar as the active workflow.
 - Use the Document Center to introduce disclosures, risk, agreement structure, reports, and
@@ -110,8 +115,8 @@ Supporting investor materials that may inform future kit documents:
 
 | Field | Value |
 | --- | --- |
-| Version | Alpha v1.1 |
+| Version | Alpha v1.2 |
 | Status | Living |
 | Language | English |
 | Owner | Investor Relations |
-| Last Review | 2026-07-10 |
+| Last Review | 2026-07-30 |

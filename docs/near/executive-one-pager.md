@@ -51,7 +51,8 @@ AgriPartners has already built a substantial Alpha product:
 - Typed Returns implemented.
 - Return Status Lifecycle implemented.
 - NEAR Testnet integration exists.
-- Automated test suite currently passes with 462 tests across 29 suites.
+- Automated tests cover the Alpha workflows; current validation evidence is maintained in the
+  repository's current release and verification records rather than as a fixed count here.
 
 This status reflects the current repository baseline and should be presented as Alpha/Testnet readiness, not production financial readiness.
 
@@ -83,7 +84,8 @@ NEAR is a strong ecosystem fit for AgriPartners because it supports user-friendl
 
 Relevant NEAR fit:
 
-- Wallet-first experience for investor, farmer, and operator access.
+- Wallet-linked access for approved Investor and Estonia-side roles, without making Farmer access
+  dependent on a crypto wallet.
 - Developer-friendly environment for smart contract and workflow experimentation.
 - Testnet validation before production or Mainnet decisions.
 - Scalable architecture for many operational events, reports, references, and future settlement workflows.
@@ -146,7 +148,7 @@ The current goal is learning, alignment, and relationship-building. AgriPartners
 | Typed Returns | Implemented |
 | Return Status Lifecycle | Implemented |
 | NEAR integration | NEAR Testnet |
-| Automated tests | 462 passing tests across 29 suites |
+| Automated tests | Alpha workflow coverage; current counts belong to release verification records |
 
 ## 10. Closing Statement
 

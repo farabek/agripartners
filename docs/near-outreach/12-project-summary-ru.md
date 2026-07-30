@@ -1,5 +1,13 @@
 # AgriPartners: краткое описание проекта
 
+Status: Historical — Legacy Testnet Alpha project summary.
+
+> Документ сохраняет позиционирование Alpha v1 и не является актуальным описанием продукта или
+> производственной архитектуры. Farmer wallet, crypto funding, contract withdrawal и
+> автоматические on-chain payouts относятся к исторической демонстрации. Используйте актуальный
+> [`../near/near-ecosystem-one-pager-ru.md`](../near/near-ecosystem-one-pager-ru.md) и каноническую
+> [`../platform/AGRIPARTNERS_PLATFORM_MODEL.md`](../platform/AGRIPARTNERS_PLATFORM_MODEL.md).
+
 ## Что такое AgriPartners
 
 AgriPartners - это платформа для прозрачных инвестиционных процессов в сельском хозяйстве на базе NEAR. Она помогает инвесторам оценивать пилотные агропроекты, фермерам - отчитываться о ходе работы, а партнерам - отслеживать жизненный цикл сделок через отдельные роли и кабинеты.

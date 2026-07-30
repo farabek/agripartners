@@ -1,12 +1,23 @@
 # AgriPartners Investor Executive One Pager
 
-Status: Investor-facing summary for Phase 25 Investor Track.
+Status: Accepted investor-facing summary for Alpha v1.2.
 
 Audience: prospective strategic investors, pilot partners, agriculture operators, technical founders, and long-term relationship partners.
 
+Owner: Investor Relations
+
+Last reviewed: 2026-07-30
+
+> **Current financial boundary:** External Investors contract with AgriPartners OÜ in Estonia.
+> Cryptocurrency stops at AgriPartners OÜ and is converted through approved crypto-to-fiat
+> infrastructure before any Uzbekistan activity is financed. The Uzbekistan Feedlot Operator
+> receives and returns fiat only. Farmer is a non-crypto product role. Current Farmer-wallet,
+> withdrawal, NEAR-funding, and smart-contract-payout behavior is **Legacy Testnet Alpha —
+> historical technical demonstration, not the target production financial architecture**.
+
 ## 1. Executive Summary
 
-AgriPartners is an Alpha v1.2 platform for transparent agricultural investment workflows. It is designed to help investors understand where capital is allocated, how farm operations progress, how reports are submitted, how returns are recorded, and how treasury activity can be reviewed. The platform combines a Marketplace, Investor Portal, Farmer Portal, Admin Portal, farmer reporting, returns tracking, Presentation Mode, and Treasury Shadow Accounting. NEAR Testnet integration supports wallet-linked workflows and blockchain-enabled accountability while the product remains in Alpha and avoids production-readiness claims. From an investor perspective, AgriPartners is building an operating layer for agricultural capital: clearer opportunity presentation, better reporting visibility, stronger treasury discipline, and a practical path toward Beta, production pilots, reconciliation, and future Mainnet evaluation.
+AgriPartners is an Alpha v1.2 platform for transparent agricultural investment workflows. It is designed to help investors understand where capital is allocated, how farm operations progress, how reports are submitted, how returns are recorded, and how treasury activity can be reviewed. The platform combines a Marketplace, Investor Portal, Farmer Portal, Admin Portal, farmer reporting, returns tracking, Presentation Mode, and Treasury Shadow Accounting. NEAR Testnet integration supports approved Investor- and Estonia-side wallet-linked workflows and blockchain-enabled accountability without requiring Farmer crypto access, while the product remains in Alpha and avoids production-readiness claims. From an investor perspective, AgriPartners is building an operating layer for agricultural capital: clearer opportunity presentation, better reporting visibility, stronger treasury discipline, and a practical path toward Beta, production pilots, reconciliation, and future Mainnet evaluation.
 
 ## 2. Market Problem
 
@@ -92,7 +103,9 @@ Strengths:
 - Treasury discipline through Shadow Accounting and dashboard visibility.
 - Presentation-ready workflow for investor, ecosystem, accelerator, and enterprise audiences.
 - Reusable architecture that can support multiple agricultural models and future real-world capital workflows.
-- NEAR Testnet integration that supports wallet-linked accountability without claiming premature production readiness.
+- NEAR Testnet integration that supports approved Investor- and Estonia-side wallet-linked
+  accountability without making Farmer access crypto-dependent or claiming premature production
+  readiness.
 
 These strengths are early-stage and should be validated through Beta development, partner feedback, and pilot discussions.
 
@@ -146,4 +159,3 @@ Repository-supported metrics:
 ## 10. Closing Statement
 
 AgriPartners is building transparent investment infrastructure for agriculture while creating a scalable operational framework for real-world capital workflows. The project is still early, but the Alpha already demonstrates a serious direction: clearer reporting, stronger investor visibility, treasury discipline, and a practical path toward Beta validation.
-

@@ -25,7 +25,7 @@ The purpose of outreach is to introduce AgriPartners as a serious builder in the
 
 ### 30 seconds
 
-AgriPartners is an Alpha v1.2 platform for transparent agricultural investment workflows on NEAR Testnet. It connects investor, farmer, admin, reporting, returns, and Treasury views into one guided workflow. The current product includes role-based portals, pilot demonstration models, Presentation Mode, and Treasury Shadow Accounting. We are using NEAR because wallet-first access and transparent workflow records fit the trust problem in agricultural finance. At this stage, we are looking for ecosystem feedback, technical review, and partnership conversations, not funding.
+AgriPartners is an Alpha v1.2 platform for transparent agricultural investment workflows on NEAR Testnet. It connects investor, farmer, admin, reporting, returns, and Treasury views into one guided workflow. The current product includes role-based portals, pilot demonstration models, Presentation Mode, and Treasury Shadow Accounting. We are using NEAR because approved Investor- and Estonia-side wallet-linked access and transparent workflow records fit the trust problem in agricultural finance; Farmer access is not dependent on a crypto wallet. At this stage, we are looking for ecosystem feedback, technical review, and partnership conversations, not funding.
 
 ### 2 minutes
 
@@ -33,7 +33,7 @@ AgriPartners is building transparent investment workflows for agriculture. Agric
 
 The current product is Alpha v1.2. It already includes a public landing page, marketplace, Investor Portal, Farmer Portal, Admin Portal, Presentation Mode, Treasury Dashboard, Treasury Shadow Accounting, typed returns, and NEAR Testnet integration. The flagship demo models are a Feedlot / Fidlot workflow and a Hissar Sheep workflow, both used to validate the platform experience rather than represent production investment offerings.
 
-NEAR is a natural fit because the project needs wallet-first access, transparent records, developer-friendly infrastructure, and a path toward more accountable capital workflows. We are currently seeking ecosystem feedback, technical review, and strategic conversations to help shape the Beta roadmap and future Mainnet evaluation.
+NEAR is a natural fit because the project needs approved Investor- and Estonia-side wallet-linked access, transparent records, developer-friendly infrastructure, and a path toward more accountable capital workflows. Farmer is a non-crypto role. We are currently seeking ecosystem feedback, technical review, and strategic conversations to help shape the Beta roadmap and future Mainnet evaluation.
 
 ### 5 minutes
 
@@ -41,7 +41,7 @@ AgriPartners is an Alpha v1.2 platform focused on making agricultural investment
 
 The platform currently includes several working components. The Marketplace presents pilot models. The Investor Portal shows investment context, portfolio visibility, returns, and withdrawal-readiness framing. The Farmer Portal supports funding status, production cycle visibility, and reporting. The Admin Portal supports oversight, return recording, and lifecycle management. The Treasury Dashboard and Treasury Shadow Accounting provide a non-authoritative transparency layer for understanding account activity and ledger discipline. Presentation Mode turns the existing Alpha screens into guided demos for different audiences, including investors, NEAR ecosystem reviewers, accelerators, and enterprise partners.
 
-AgriPartners uses NEAR Testnet because the project is exploring how wallet-first workflows and transparent blockchain-linked records can support real-world agriculture and capital workflows. The goal is not to oversell blockchain or claim Mainnet readiness. The goal is to validate a practical pattern: business workflows first, transparent records where they add value, and a responsible path toward stronger reconciliation and future production readiness.
+AgriPartners uses NEAR Testnet because the project is exploring how wallet-linked Investor and Estonia-side workflows and transparent blockchain-linked records can support real-world agriculture and capital workflows without requiring Farmer crypto access. The goal is not to oversell blockchain or claim Mainnet readiness. The goal is to validate a practical pattern: business workflows first, transparent records where they add value, and a responsible path toward stronger reconciliation and future production readiness.
 
 The current outreach goal is feedback. We are looking for ecosystem perspective, technical review, architecture guidance, demo critique, and conversations with teams that understand NEAR infrastructure, real-world workflows, RWA-style use cases, and startup development. Funding is not the ask at this stage. The ask is: help us understand what should be strengthened before Beta and what would make AgriPartners a credible NEAR ecosystem project.
 
@@ -74,7 +74,7 @@ I am working on AgriPartners, an Alpha v1.2 agriculture workflow platform that u
 
 The current Alpha includes role-based portals for investors, farmers, and admins, plus marketplace, reporting, return tracking, Presentation Mode, Treasury Dashboard, and Treasury Shadow Accounting.
 
-I would appreciate technical feedback from a NEAR developer relations perspective, especially around wallet-first UX, Testnet usage, smart contract boundaries, and what should be improved before Beta or Mainnet evaluation.
+I would appreciate technical feedback from a NEAR developer relations perspective, especially around approved wallet-linked UX, Testnet usage, smart contract boundaries, the non-crypto Farmer boundary, and what should be improved before Beta or Mainnet evaluation.
 
 This is not a funding request. I am looking for practical technical review and ecosystem guidance.
 
@@ -175,7 +175,7 @@ Agriculture is operationally complex and often under-served by transparent capit
 
 ### Why NEAR?
 
-NEAR offers a wallet-first experience, developer-friendly environment, Testnet validation path, and infrastructure that can support transparent workflow records. AgriPartners is using NEAR Testnet to validate practical workflow transparency before any Mainnet claims.
+NEAR offers wallet-linked access for approved roles, a developer-friendly environment, a Testnet validation path, and infrastructure that can support transparent workflow records. AgriPartners is using NEAR Testnet to validate practical workflow transparency before any Mainnet claims; Farmer access is not dependent on a crypto wallet.
 
 ### Is this production-ready?
 
@@ -265,4 +265,3 @@ Before sending any outreach message, verify:
 - The ask is feedback, review, or conversation, not funding.
 - Alpha status is clear.
 - Claims about Mainnet, production pilots, and financial outcomes are not overstated.
-

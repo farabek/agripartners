@@ -101,10 +101,10 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 ### For investors
 
 1. [Investor Package README](investor/README.md)
-2. [Presentation Master](investor/00_PRESENTATION_MASTER.md)
-3. [Investor One-Pager](investor/01_ONE_PAGER.md)
-4. [Investor FAQ](investor/02_INVESTOR_FAQ.md)
-5. [Data Room Index](investor/03_DATA_ROOM_INDEX.md)
+2. [Alpha v1.2 Investor Executive One Pager](investors/investor-executive-one-pager.md)
+3. [Canonical Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md)
+4. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
+5. [Product Book](PRODUCT_BOOK.md)
 6. [Relationship CRM](outreach/outreach-crm.md)
 
 ### Product / Engineering
@@ -119,12 +119,11 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 
 ### For farmer operations
 
-1. [Farmer Portal Guide](farmer-portal.md)
-2. [Farmer Experience Specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md)
-3. [Farmer Daily Workflow](platform/FARMER_DAILY_WORKFLOW_SPEC.md)
-4. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
-5. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
-6. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
+1. [Farmer Experience Specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md)
+2. [Farmer Daily Workflow](platform/FARMER_DAILY_WORKFLOW_SPEC.md)
+3. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
+4. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
+5. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
 
 ### For NEAR reviewers
 
@@ -170,23 +169,21 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 
 | Document Name | Purpose | Audience | Status | Owner | Access | Priority | Canonical | Archive Candidate | Stable Path |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Investor Package README](investor/README.md) | Defines the current investor package and recommended reading order. | Investors, Investor Relations | Ready | Investor Relations | Controlled  P2 | P2 | No | No | No |
-| [Presentation Master](investor/00_PRESENTATION_MASTER.md) | Maintains the approved investor presentation narrative and claims. | Investor Relations, presenters | Ready | Investor Relations | Internal | P2 | No | No | No |
-| [Investor One-Pager](investor/01_ONE_PAGER.md) | Gives investors a concise overview of the opportunity, product, and readiness boundary. | Investors, strategic reviewers | Ready | Investor Relations | Controlled | P2 | No | No | No |
-| [Investor FAQ](investor/02_INVESTOR_FAQ.md) | Answers common investor questions without overstating Alpha or commercial readiness. | Investors, diligence reviewers | Ready | Investor Relations | Controlled | P2 | No | No | No |
-| [Investor Data Room Index](investor/03_DATA_ROOM_INDEX.md) | Navigates diligence materials and supporting evidence. | Qualified investors, advisors | Ready | Investor Relations | Controlled | P2 | No | No | No |
-| [Investor Demo Script](investor/03_DEMO_SCRIPT.md) | Guides a controlled product demonstration and investor discussion. | Presenters, Investor Relations | Ready | Investor Relations | Internal | P2 | No | No | No |
-| [Pitch Deck Specification](investor/04_PITCH_DECK_SPEC.md) | Defines the content and structure required for the investor pitch deck. | Investor Relations, design reviewers | Draft | Investor Relations | Internal | P2 | No | No | No |
-| [Investor Brief](investor-pack/investor-brief.md) | Provides a compact investor-facing summary derived from project documentation. | Investors, partners | Ready | Investor Relations | Controlled | P2 | No | No | No |
-| [Legacy Presentation Outline RU](investor-package/presentation-outline-ru.md) | Preserves the Russian Alpha v1 presentation outline pending review with its English companion. | Investor Relations, historical reviewers | Draft | Investor Relations | Internal | P3 | No | No | No |
-| [Legacy Screenshot Checklist RU](investor-package/screenshot-checklist-ru.md) | Preserves the Russian screenshot checklist pending UI and translation-pair review. | Investor Relations, Product reviewers | Draft | Investor Relations | Internal | P3 | No | No | No |
+| [Investor Package README](investor/README.md) | Defines the current package boundary and separates current Alpha v1.2 sources from historical Alpha v1.1 material. | Investors, Investor Relations | Ready | Investor Relations | Controlled | P2 | No | No | Yes |
+| [Alpha v1.2 Investor Executive One Pager](investors/investor-executive-one-pager.md) | Provides the current controlled investor summary. | Investors, strategic reviewers | Ready | Investor Relations | Controlled | P2 | No | No | Yes |
+| [Canonical Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md) | Provides detailed platform, implementation, financial-boundary, and limitation facts. | Investors, diligence reviewers | Ready | Product | Public | P1 | Yes | No | Yes |
+| [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md) | Defines current product and presentation release scope. | Investors, diligence reviewers | Ready | Engineering | Public | P1 | Yes | No | Yes |
+| [Project Disclosure Sheet](legal/PROJECT_DISCLOSURE_SHEET.md) | Draft project-specific disclosure template for controlled review. | Qualified investors, advisors | Draft | Product / Legal | Controlled | P2 | No | No | Yes |
+| [Risk Disclosure](legal/RISK_DISCLOSURE.md) | Draft risk-disclosure source for controlled review. | Qualified investors, advisors | Draft | Product / Legal | Controlled | P2 | No | No | Yes |
+| [Alpha v1.1 Presentation Master](investor/00_PRESENTATION_MASTER.md) | Preserves historical Alpha v1.1 presentation design. | Historical reviewers | Historical / Draft | Investor Relations | Internal | P4 | No | Yes | No |
+| [Alpha v1.1 Demo Script](investor/03_DEMO_SCRIPT.md) | Preserves the official historical Alpha v1.1 milestone demo. | Historical reviewers | Historical | Investor Relations | Internal | P4 | No | Yes | No |
 
 ## 3. Farmer Package
 
 | Document Name | Purpose | Audience | Status | Owner | Access | Priority | Canonical | Archive Candidate | Stable Path |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Farmer Portal Guide](farmer-portal.md) | Explains the current Farmer Portal and Alpha workflow. | Farmers, Product reviewers | Ready | Product | Public  P2 | P2 | No | No | No |
-| [Farmer Portal Guide — Russian](farmer-portal-ru.md) | Russian-language Farmer Portal explanation. | Russian-speaking farmers, reviewers | Ready | Product | Public | P2 | No | No | No |
+| [Farmer Portal Guide](farmer-portal.md) | Preserves the Legacy Testnet Alpha Farmer portal snapshot. | Historical reviewers | Deprecated | Product | Internal | P4 | No | Yes | No |
+| [Farmer Portal Guide — Russian](farmer-portal-ru.md) | Russian companion for the Legacy Testnet Alpha portal snapshot. | Historical reviewers | Deprecated | Product | Internal | P4 | No | Yes | No |
 | [Canonical Farmer Experience Specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md) | Defines the authoritative Farmer journey, dashboard, workspace, and visibility rules. | Product, Operations, Engineering | Ready | Product | Internal | P3 | Yes | No | Yes |
 | [Farmer Daily Workflow Specification](platform/FARMER_DAILY_WORKFLOW_SPEC.md) | Defines daily Farmer tasks, decisions, reporting, and operational sequence. | Farmers, Operations, Product | Ready | Product | Controlled | P3 | Yes | No | Yes |
 | [Feedlot Master Investment Model](business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md) | Defines the authoritative Feedlot model assumptions and economics. | Business, farmers, diligence reviewers | Ready | Business | Controlled | P2 | Yes | No | Yes |
@@ -203,7 +200,7 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 | [NEAR Track Roadmap](near/near-track-roadmap.md) | Organizes technical, ecosystem, and relationship milestones for the NEAR track. | Product, Engineering, Investor Relations | Ready | Investor Relations | Internal | P2 | No | No | No |
 | [NEAR Testnet Status](near-testnet.md) | Documents current Testnet behavior and non-production boundaries. | NEAR technical reviewers, developers | Ready | Engineering | Public | P3 | No | No | No |
 | [Relationship CRM](outreach/outreach-crm.md) | Maintains the canonical history and next actions for NEAR and business-development relationships. | Founder, Investor Relations | Ready | Investor Relations | Internal | P2 | Yes | No | Yes |
-| [Deprecated NEAR Ecosystem CRM](near/near-ecosystem-crm.md) | Preserves historical Phase 24 outreach strategy and redirects users to the canonical Relationship CRM. | Internal historical reviewers | Archived | Investor Relations | Internal | P4 | No | Yes | No |
+| [Deprecated NEAR Ecosystem CRM](near/near-ecosystem-crm.md) | Preserves historical Phase 24 outreach strategy and redirects users to the canonical Relationship CRM. | Internal historical reviewers | Deprecated | Investor Relations | Internal | P4 | No | Yes | No |
 
 ## 5. Partnership Package
 
@@ -212,7 +209,7 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 | [AgriPartners Operating Model](business/OPERATING_MODEL.md) | Defines participant relationships, AgriPartners' operator role, and the target business model. | Strategic partners, Business, Operations | Ready | Business | Controlled  P2 | P2 | Yes | No | Yes |
 | [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md) | Defines the intended controlled pilot scope, roles, controls, and readiness boundaries. | Pilot partners, Operations, Product | Ready | Operations | Controlled | P2 | Yes | No | Yes |
 | [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md) | Describes the operating process for a future controlled pilot. | Operating partners, Operations | Ready | Operations | Internal | P2 | Yes | No | Yes |
-| [Platform Contract Architecture](legal/PLATFORM_CONTRACT_ARCHITECTURE.md) | Describes the intended Investor–AgriPartners–Farmer contractual structure. | Partners, Product, legal reviewers | Draft | Product / Legal | Controlled | P2 | Yes | No | Yes |
+| [Platform Contract Architecture](legal/PLATFORM_CONTRACT_ARCHITECTURE.md) | Describes the intended Investor–AgriPartners–Farmer contractual structure. | Partners, Product, legal reviewers | Planning | Product / Legal | Controlled | P2 | No | No | Yes |
 | [Outreach Playbook](outreach/outreach-playbook.md) | Defines relationship-first engagement practices and outreach sequencing. | Founder, Partnerships, Investor Relations | Ready | Partnerships | Internal | P2 | No | No | No |
 | Strategic Partnership Brief | Provides a concise partner value proposition, collaboration models, and qualification criteria. | Prospective strategic partners | Planned | Partnerships | Controlled | P2 | No | No | No |
 | Partner Due Diligence Checklist | Standardizes operational, legal, financial, and delivery review for prospective partners. | Partnerships, Operations, legal reviewers | Planned | Partnerships | Internal | P2 | No | No | No |
@@ -223,12 +220,12 @@ using an agent in this workspace; it is outside the 'docs/' inventory.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Workstream Operating Model](governance/WORKSTREAM_OPERATING_MODEL.md) | Defines the three permanent workstreams, task routing, cross-workstream boundaries, and canonical planning rules. | All internal contributors | Ready | Product | Internal | P1 | Yes | No | Yes |
 | [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md) | Defines canonical authority, status, ownership, and lifecycle across the documentation ecosystem. | All internal contributors | Ready | Product | Internal | P1 | Yes | No | Yes |
-| [Documentation Guide](DOCUMENTATION_GUIDE.md) | Defines documentation creation, review, versioning, maintenance, and archival procedures. | All internal contributors | Ready | Product | Internal | P1 | No | No | Yes |
+| [Documentation Guide](DOCUMENTATION_GUIDE.md) | Defines documentation creation, review, versioning, maintenance, and archival procedures. | All internal contributors | Ready | Product | Internal | P1 | Yes | No | Yes |
 | [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md) | Protects the approved business baseline and its change-control process. | Business, Product, Operations | Ready | Business | Internal | P1 | Yes | No | Yes |
 | [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md) | Defines funding, fiat/crypto boundaries, settlement, and financial workflow principles. | Business, Operations, Finance reviewers | Ready | Business | Internal | P2 | Yes | No | Yes |
 | [Information Disclosure Policy](business/INFORMATION_DISCLOSURE_POLICY.md) | Defines disclosure ownership, timing, evidence, and participant visibility. | Business, Operations, Investor Relations | Ready | Business | Internal | P2 | Yes | No | Yes |
 | [Product Operating Model](platform/PRODUCT_OPERATING_MODEL_V1.md) | Defines the canonical project-centric product architecture and role model. | Product, Engineering, Operations | Ready | Product | Internal | P3 | Yes | No | Yes |
-| [Stage 2 Financial Architecture and Project Lifecycle Migration Plan](platform/PROJECT_LIFECYCLE_REFACTORING_PLAN.md) | Defines the approved implementation migration from Legacy Testnet Alpha financial mechanics and Deal-centered behavior to the target Project lifecycle and Estonia-to-Uzbekistan fiat boundary. | Product, Engineering, Operations | Approved / Not started | Product / Engineering | Internal | P1 | Yes | No | Yes |
+| [Stage 2 Financial Architecture and Project Lifecycle Migration Plan](platform/PROJECT_LIFECYCLE_REFACTORING_PLAN.md) | Defines the approved implementation migration from Legacy Testnet Alpha financial mechanics and Deal-centered behavior to the target Project lifecycle and Estonia-to-Uzbekistan fiat boundary. | Product, Engineering, Operations | In progress — Slices 1–2 complete; Slice 3 not started | Product / Engineering | Internal | P1 | Yes | No | Yes |
 | [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md) | Tracks evidence and go/no-go gates before any future live pilot. | Operations, Product, Business | Ready | Operations | Internal | P2 | Yes | No | Yes |
 | [Relationship CRM](outreach/outreach-crm.md) | Serves as the single source of truth for investor, NEAR, partnership, and business-development relationships. | Founder, Investor Relations, Partnerships | Ready | Investor Relations | Internal | P2 | Yes | No | Yes |
 | [Legal Package Review](legal/LEGAL_PACKAGE_REVIEW.md) | Tracks legal-package gaps and review readiness; it is not production legal approval. | Product / Legal, Business, Operations | Draft | Product / Legal | Internal | P2 | No | No | No |

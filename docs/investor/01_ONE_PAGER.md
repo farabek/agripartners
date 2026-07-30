@@ -2,6 +2,10 @@
 
 Status: Draft v1
 
+> **Historical Alpha v1.1 material:** Retained as milestone history. Use the
+> [Alpha v1.2 Investor Executive One Pager](../investors/investor-executive-one-pager.md) for
+> current investor positioning.
+
 Language: English
 
 Owner: Investor Relations

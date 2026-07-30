@@ -2,6 +2,9 @@
 
 Status: Draft v1
 
+> **Historical Alpha v1.1 material:** Retained as milestone history. It is not an approved
+> current-release FAQ. Use the [Investor Kit README](README.md) for the current package.
+
 Language: English
 
 Owner: Investor Relations

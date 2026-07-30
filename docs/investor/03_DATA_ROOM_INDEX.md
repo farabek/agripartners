@@ -2,6 +2,9 @@
 
 Status: Draft v1
 
+> **Historical Alpha v1.1 material:** Retained as milestone history. It is not the current
+> diligence index and must not be distributed as an Alpha v1.2 data room.
+
 Language: English
 
 Owner: Investor Relations
