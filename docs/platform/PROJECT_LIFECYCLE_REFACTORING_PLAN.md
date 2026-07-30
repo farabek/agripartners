@@ -2,7 +2,11 @@
 
 # Stage 2 Financial Architecture and Project Lifecycle Migration Plan
 
-Status: Approved implementation migration plan; not started
+Status: Approved implementation migration plan; in progress
+
+Implementation progress: Slices 1 and 2 are complete (database foundations delivered through
+Migrations 016 and 017). Slice 3 and the Project Expense API have not started. This progress note
+reports implementation state only and does not change the approved Stage 2 plan.
 
 Audit date: 2026-07-03
 

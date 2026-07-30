@@ -1,5 +1,14 @@
 # NEAR Forum Post — forum.near.org
 
+Status: Historical — Legacy Testnet Alpha proposal; not approved for publication.
+
+> This file preserves an obsolete proposal for traceability. Its tokenization, Farmer crypto,
+> automated smart-contract payout, production-readiness, market-size, and signed/committed-deal
+> claims are not current or repository-verified and must not be reused. Current architecture is
+> defined by
+> [`platform/AGRIPARTNERS_PLATFORM_MODEL.md`](platform/AGRIPARTNERS_PLATFORM_MODEL.md); current NEAR
+> positioning is in [`near/near-outreach-kit.md`](near/near-outreach-kit.md).
+
 ## Section: Proposals (or DevHub / Ecosystem)
 
 ---

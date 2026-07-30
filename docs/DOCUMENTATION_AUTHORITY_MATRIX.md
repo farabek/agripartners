@@ -296,7 +296,7 @@ accelerators, grant reviewers, and strategic partners.
 
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Investor Executive One Pager EN | `docs/investors/investor-executive-one-pager.md` | Current English investor summary | Review | Investor Relations | No | Alpha v1.2 | 2026-06-24 | Earlier investor one-pagers | — | Must be synchronized with frozen terminology before acceptance |
+| Investor Executive One Pager EN | `docs/investors/investor-executive-one-pager.md` | Current English investor summary | Accepted | Investor Relations | No | Alpha v1.2 | 2026-07-30 | Earlier investor one-pagers | — | Current controlled investor publication; derived from canonical Product, Business, and release sources |
 | Investor Executive One Pager RU | `docs/investors/investor-executive-one-pager-ru.md` | Current Russian investor summary | Review | Investor Relations | No | Alpha v1.2 | 2026-06-24 | Earlier Russian investor one-pagers | — | Translation companion |
 | Investor One-Pager v2 EN | `docs/investor-package/investor-one-pager-en-v2.md` | Investor-package one-page publication source | Review | Investor Relations | No | 2 | 2026-06-29 | v1 one-pager | — | Competes with the executive one-pager; consolidation required |
 | Investor One-Pager v2 RU | `docs/investor-package/investor-one-pager-ru-v2.md` | Russian investor-package one-page publication source | Review | Investor Relations | No | 2 | 2026-06-29 | v1 Russian one-pager | — | Consolidation required |
@@ -310,7 +310,7 @@ Releases index.
 
 ### Investor Supporting Documents
 
-- Current review materials under `docs/investors/`
+- Current Alpha v1.2 English summary under `docs/investors/`
 - v2 one-pagers, current outlines, readiness review, asset plan, and scripts under
   `docs/investor-package/`
 - `docs/investor-pack/`
@@ -321,6 +321,7 @@ Releases index.
 - `docs/investor-package/pitch-deck-v1*.md`
 - `docs/investor-package/demo-script-v1*.md`
 - `docs/investor-package/AgriPartners_Investor_Deck_v1_*.pptx`
+- Alpha v1.1 materials under `docs/investor/`, except its living package README
 - Empty placeholder `docs/investor-deck/`
 
 The v1 PPTX decks contain financial values superseded by the current 60/40 model package.
@@ -339,7 +340,7 @@ tracking, and partner engagement without redefining Product, Business, or releas
 | Outreach CRM | `docs/outreach/outreach-crm.md` | Active cross-ecosystem outreach pipeline | Living | Investor Relations | Yes | — | 2026-07-03 | Fragmented contact tracking | — | Canonical operational outreach record |
 | Near Directory Index | `docs/outreach/near-directory/README.md` | Directory methodology and navigation | Living | Investor Relations | Yes | — | 2026-06-26 | Ad hoc contact lists | — | Canonical directory method, not Product authority |
 | Near Directory Verification Log | `docs/outreach/near-directory/verification-log.md` | Contact/source verification history | Living | Investor Relations | Yes | — | 2026-06-25 | — | — | Supports the directory |
-| NEAR Ecosystem CRM | `docs/near/near-ecosystem-crm.md` | Phase-specific NEAR pipeline | Living | Investor Relations | No | Phase 24 | 2026-07-02 | — | `docs/outreach/outreach-crm.md` | Retained until CRM consolidation |
+| NEAR Ecosystem CRM | `docs/near/near-ecosystem-crm.md` | Historical Phase 24 outreach strategy | Deprecated | Investor Relations | No | Phase 24 | 2026-07-30 | — | `docs/outreach/outreach-crm.md` | Contact tracking is prohibited here; retained for historical strategy context |
 | NEAR Track Roadmap | `docs/near/near-track-roadmap.md` | NEAR-specific planning | Review | Investor Relations | No | Phase 23 | 2026-07-02 | — | `docs/ROADMAP.md` for software delivery | Partner strategy only |
 | NEAR Testnet EN/RU | `docs/near-testnet*.md` | Testnet status summaries | Review | Engineering | No | Alpha v1 | 2026-06-27 | — | `docs/ARCHITECTURE.md` and current evidence | Must not override current implementation evidence |
 
@@ -356,12 +357,15 @@ Business, Architecture, or releases.
 - Reusable outreach copy under `docs/near-outreach/` and `docs/near-outreach-toolkit/`
 - Active execution and validation records under `docs/near-execution/`
 - Research, directory, playbook, shortlist, and LinkedIn materials under `docs/outreach/`
-- Root `near-grant-application*.md`, `near-forum-post*.md`, and `near-testnet*.md`
+- Root `near-grant-application.md` and `near-testnet*.md`
 
 ### NEAR Historical Documents
 
 - Superseded phase snapshots in the multiple NEAR workstream folders
-- Root `near-forum-post.html` generated export
+- Root `near-forum-post.md`, `near-forum-post-ru.md`, and `near-forum-post.html`, retained only as
+  Historical Legacy Testnet Alpha proposal evidence
+- Root `near-grant-application-ru.md`, retained only as a Historical Legacy Testnet Alpha
+  translation and not approved for submission
 - PDF exports of CRM and shortlist documents once their Markdown source changes
 
 ## Platform

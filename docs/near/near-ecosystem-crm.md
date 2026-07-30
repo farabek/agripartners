@@ -4,7 +4,7 @@
 > [`../outreach/outreach-crm.md`](../outreach/outreach-crm.md). This document remains as historical
 > strategy guidance only.
 
-Status: Operational outreach document for Phase 24 NEAR Outreach.
+Status: Deprecated — retained as historical Phase 24 strategy guidance.
 
 Audience: AgriPartners founder, advisors, ecosystem reviewers, and collaborators involved in NEAR relationship management.
 
@@ -45,7 +45,8 @@ Potential topics:
 
 - NEAR Testnet validation.
 - Real-world agriculture workflows.
-- Wallet-first investor and farmer experiences.
+- Legacy Testnet Alpha wallet-first investor and farmer experiences (historical discussion topic,
+  not the target production role model).
 - Treasury transparency and auditability.
 - Beta readiness and Mainnet evaluation path.
 

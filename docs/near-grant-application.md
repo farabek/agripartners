@@ -35,9 +35,12 @@ infrastructure while financing Uzbekistan operations exclusively through fiat.
 
 ## Problem
 
-Small livestock farmers in emerging markets — particularly Central Asia — have no access to working capital. Banks require collateral they don't have. Investment deals are structured on paper, which creates opacity, fraud risk, and zero accountability for either side.
+Small livestock farmers in emerging markets — particularly Central Asia — can face limited access
+to working capital. Collateral requirements and paper-based investment records can make financing,
+oversight, and accountability difficult.
 
-This locks 500M+ smallholder farmers out of growth, despite the global livestock market being worth $1.5 trillion annually.
+This draft does not assert a global farmer count or livestock-market value. Any quantified market
+claim added for submission requires a current, reviewable source.
 
 ---
 
@@ -92,14 +95,16 @@ funds move to Uzbekistan.
 | JWT auth with farmer/investor/admin roles | ✅ Implemented |
 | Legacy full lifecycle crypto demo (fund → 7 cycles → payout) | ✅ Historical Testnet Alpha evidence |
 | Security audit | ⏳ Pending funding |
-| Production financial architecture | ⏳ Requires Stage 2 migration and legal/financial readiness |
+| Production financial architecture | ⏳ Stage 2 Slices 1–2 database foundations complete; further migration and legal/financial readiness required |
 
 The smart contract, Farmer wallet, Farmer withdrawal, NEAR funding, and automated payout behavior
 above is **Legacy Testnet Alpha — historical technical demonstration, not the target production
 financial architecture**.
 
-**Real-world traction:**
-A livestock farmer has signed a Letter of Intent for 2 deals at $50,000 each = **$100,000 in committed deals**, pending mainnet launch.
+**Traction evidence boundary:**
+This draft does not treat any signed-agreement or committed-deal amount as repository-verified.
+Any traction claim used in a submission requires owner-approved evidence suitable for external
+disclosure.
 
 ---
 
@@ -169,7 +174,9 @@ Requested amount: **$40,000 USD**
 
 ## Anything Else
 
-AgriPartners is not a DeFi protocol or a speculative token — it is a real business with real farmers, real livestock, and real signed agreements. The $100,000 in committed deals is not projected — a farmer has already agreed to the terms and is waiting for mainnet to sign.
+AgriPartners is not positioned as a DeFi protocol or speculative token. This draft makes no
+externally verified claim about signed agreements or committed deal value; such claims require
+owner-approved supporting evidence before submission.
 
 The Alpha is functional as a historical Testnet technical demonstration. It is not production
 financial infrastructure. Production consideration requires Stage 2 implementation migration,

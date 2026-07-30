@@ -34,7 +34,8 @@ AgriPartners current status:
 - Return Status Lifecycle implemented.
 - Reconciliation foundation documented.
 - NEAR Testnet integration exists.
-- Automated test suite currently passes with 462 tests across 29 suites.
+- Automated tests cover the Alpha workflows; current validation evidence is maintained in current
+  release and repository verification records rather than as a fixed count here.
 
 Flagship pilot models:
 

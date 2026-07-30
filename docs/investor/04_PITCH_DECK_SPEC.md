@@ -2,6 +2,9 @@
 
 Status: Draft v1
 
+> **Historical Alpha v1.1 material:** Retained as milestone design history. It is not the
+> specification for a current Alpha v1.2 deck.
+
 Language: English
 
 Owner: Investor Relations

@@ -29,7 +29,8 @@ AgriPartners Alpha v1.2 includes:
 - Treasury Dashboard for administrative review of Treasury accounts and ledger activity.
 - Typed Returns and Return Status Lifecycle for more precise return classification and status tracking.
 - NEAR Testnet integration for wallet-linked and smart contract workflow validation.
-- Automated test coverage currently passing with 462 tests across 29 suites.
+- Automated tests cover the Alpha workflows; current validation evidence is maintained in current
+  release and repository verification records rather than as a fixed count here.
 
 These capabilities make the project suitable for ecosystem feedback and technical review now, while still clearly remaining Alpha/Testnet.
 
@@ -37,7 +38,9 @@ These capabilities make the project suitable for ecosystem feedback and technica
 
 AgriPartners aligns with NEAR principles in several practical ways:
 
-- Wallet-first UX: role-based access can be connected to wallet identity without forcing non-technical users to inspect raw blockchain details.
+- Approved wallet-linked UX: Investor and Estonia-side roles can use wallet identity without
+  forcing non-technical users to inspect raw blockchain details; Farmer access is not dependent on
+  a crypto wallet.
 - Practical blockchain adoption: the product applies blockchain infrastructure to a real-world agriculture workflow rather than a speculative-only use case.
 - Developer-friendly architecture: current Testnet work lets the team validate contract interactions, wallet behavior, transaction references, and future reconciliation needs before production decisions.
 - Transparent workflows: investors, farmers, and operators can follow the investment story from opportunity to reports, recorded returns, Treasury visibility, and withdrawal-readiness context.
