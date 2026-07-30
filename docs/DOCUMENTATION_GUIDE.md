@@ -4,7 +4,9 @@ Status: Accepted
 
 Document owner: Product
 
-Document type: Canonical documentation governance
+Document type: Documentation governance procedure
+
+Last reviewed: 2026-07-30
 
 ## Purpose
 
@@ -13,8 +15,26 @@ retired. It applies to canonical entry points, specifications, policies, ADRs, p
 records, and audience-specific materials.
 
 Existing files are not automatically canonical because they predate this guide. Their authority
-depends on an explicit status, scope, and ownership declaration or on an accepted/frozen
-document that identifies them as authoritative.
+is registered in the [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md). This
+guide owns documentation procedure; it does not assign canonical classification or redefine
+Product, Business, Engineering, Operations, release, legal, or other domain facts.
+
+## Governance Responsibilities
+
+AgriPartners uses a scoped authority model rather than a strict numbered hierarchy:
+
+| Scope | Responsible source |
+| --- | --- |
+| Contributor and compatible-agent instructions | Repository-root `AGENTS.md` |
+| Documentation status, ownership, canonical classification, supersession, replacement, and archive boundaries | [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md) |
+| Lifecycle, metadata, review, publication, translation, generated assets, and archive procedures | This guide |
+| Official navigation, discovery, publication readiness, and access labels | [Documentation Index](DOCUMENTATION_INDEX.md) |
+| Product, Business, Engineering, Operations, release, legal, and other subject matter | The registered canonical document for that domain and scope |
+| Current implementation behavior | Current code, migrations, configuration, and executable tests |
+
+When sources appear inconsistent, first identify the subject in dispute and then use the
+authority for that scope. Navigation does not assign authority, registry classification does not
+create domain facts, and ownership does not by itself prove approval.
 
 ## Document Status
 
@@ -26,11 +46,28 @@ Every new governance-sensitive document must declare one of these statuses near 
 | **Review** | Complete enough for named stakeholder review | Review and proposed decisions; not authoritative |
 | **Accepted** | Approved for use within its stated scope | Current authority unless a Frozen document has precedence |
 | **Frozen** | Approved baseline protected by formal change control | Highest authority within its scope |
+| **Living** | Accepted, maintained document that changes without becoming a new release | Current within its registered scope; material changes return through review |
 | **Archived** | Retained as historical context and no longer active | Historical reference only |
 | **Deprecated** | Still present for compatibility but should not guide new work | Transitional reference with a required replacement link |
 
 Status must describe the document itself. A document may discuss completed work while remaining
-Draft, or be Accepted while describing a future target.
+Draft, or be Accepted while describing a future target. Living is a maintained form of accepted
+use, not a higher authority level: the Authority Matrix must register its scope, ownership, and
+canonical classification, and material changes follow the same affected-domain review rules.
+
+### Related Terminology
+
+- **Historical** describes point-in-time evidence or past context. It is not a lifecycle status.
+- **Archived** is a lifecycle status: the material is retained for historical reference and has
+  no authority over current work.
+- **Legacy** describes an older implementation, workflow, asset, or term. Its metadata must still
+  identify whether it is active, Deprecated, or Archived.
+- **Deprecated** is a lifecycle status for compatibility material that must not guide new work;
+  it requires a replacement and transition or archival criteria.
+- **Superseded** records that a newer authority displaced all or part of an older source. It does
+  not substitute for assigning the older source an explicit lifecycle status.
+
+All Archived documents are historical; not all historical documents are Archived.
 
 ## Document Ownership
 
@@ -149,6 +186,9 @@ These conventions apply to new files and do not require immediate renaming of ex
 
 ## Documentation Lifecycle
 
+The guide owns the procedures below. The Authority Matrix owns the registered status,
+classification, ownership, supersession, replacement, and archive boundary for each document.
+
 ### 1. Propose
 
 Create the document as Draft with a defined purpose, scope, owner, and affected authorities.
@@ -161,7 +201,8 @@ reviewers from every affected ownership domain.
 ### 3. Accept or Freeze
 
 Record approval and change the status to Accepted or Frozen. Add version, approval date, or
-freeze date when required. Update canonical indexes and inbound links.
+freeze date when required. Update the Authority Matrix, Documentation Index, and inbound links as
+applicable.
 
 ### 4. Maintain
 
@@ -182,14 +223,37 @@ and validation.
 
 ## Canonical Entry Points
 
-- [Product Book](PRODUCT_BOOK.md)
-- [Architecture](ARCHITECTURE.md)
-- [Roadmap](ROADMAP.md)
-- [Releases](RELEASES.md)
-- [Documentation Guide](DOCUMENTATION_GUIDE.md)
+The [Documentation Index](DOCUMENTATION_INDEX.md) is the official navigation and audience entry
+point. The [Product Book](PRODUCT_BOOK.md), [Architecture](ARCHITECTURE.md),
+[Roadmap](ROADMAP.md), [Releases](RELEASES.md), and other registered domain documents remain
+authoritative only within their declared scopes. This guide is the procedural entry point, and
+the [Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md) is the controlling registry.
 
-The repository [Documentation Index](README.md) remains the broader inventory and navigation
-page. These five documents form the canonical operating entry points.
+## Governance Review and Approval
+
+Material changes to repository-root `AGENTS.md`, the Authority Matrix, this guide, the
+Documentation Index, or the Workstream Operating Model require:
+
+1. the Product Governance Approver role designated through AgriPartners' existing Product
+   decision authority for repository governance, with the current role-holder or approving
+   authority identified in durable approval evidence;
+2. review by every ownership domain materially affected by the change;
+3. Engineering review when implementation authority, generated assets, verification, or release
+   evidence is affected;
+4. durable approval evidence identifying the approver, reviewers, affected authorities,
+   validation, and unresolved follow-up; and
+5. compliance with any stricter change control declared by an affected Accepted or Frozen
+   document.
+
+A reviewed pull request may provide the durable approval record. An owner field alone does not
+prove approval. If reviewers cannot agree, preserve current authority, classify the dispute by
+scope, and escalate to the affected domain owner and Product governance approver. Qualified
+legal, compliance, accounting, or security review is required when resolution depends on that
+expertise. The Product governance approver decides registry, procedure, and navigation mechanics
+but cannot override another domain's Accepted or Frozen subject matter. Cross-domain substantive
+changes require approval from every affected accountable domain owner. A material `AGENTS.md`
+change additionally requires review by every domain whose contributor instructions or authority
+boundary would change.
 
 ## Legal Documentation Folder
 
