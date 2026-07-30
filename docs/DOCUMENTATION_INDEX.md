@@ -2,14 +2,15 @@
 
 # AgriPartners Documentation Index
 
-Status: Ready
+Status: Living
 
 Owner: Product
 
-Last reviewed: 2026-07-18
+Last reviewed: 2026-07-30
 
-> **Official documentation entry point:** This document is the canonical map for all
-> AgriPartners documentation and the starting point for selecting the correct package.
+> **Official documentation navigation entry point:** This document is the maintained map for
+> finding AgriPartners documentation and selecting the correct audience package. It does not
+> assign documentation authority or replace canonical domain documents.
 
 > **Canonical platform entry point:** Start with the
 > [AgriPartners Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md) for participants, legal
@@ -22,10 +23,15 @@ This index is the main audience-based navigation page for the AgriPartners docum
 ecosystem. Use it to find the appropriate public, investor, farmer, NEAR, partnership, or internal
 operations material without treating supporting publications as independent sources of truth.
 
-For documentation authority and lifecycle decisions, use the
-[Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md). For canonical product and
-business navigation, use the [Product Book](PRODUCT_BOOK.md). The broader repository inventory
-remains available in the [existing documentation README](README.md).
+The [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md) alone controls
+documentation status, ownership, canonical classification, supersession, replacement, and archive
+boundaries. The [Documentation Guide](DOCUMENTATION_GUIDE.md) controls documentation procedures.
+Canonical domain documents control facts and decisions within their declared scopes; current
+code, migrations, configuration, and executable tests control implemented behavior. This index
+only controls navigation, discovery, publication-readiness labels, and access labels.
+
+For canonical product and business navigation, use the [Product Book](PRODUCT_BOOK.md). The
+broader repository inventory remains available in the [documentation README](README.md).
 
 ## How to use this index
 
@@ -39,7 +45,12 @@ Status values in this index describe publication readiness:
 - **Ready:** available for its stated purpose, subject to its own authority and status metadata.
 - **Draft:** exists but requires review before normal use or external distribution.
 - **Planned:** the referenced document does not yet exist.
-- **Archived:** historical or deprecated; do not use as current guidance.
+- **Archived:** registered as retained historical context without authority over current work; do
+  not use as current guidance.
+
+These publication-readiness labels do not replace lifecycle status in the Authority Matrix.
+Historical, Legacy, Deprecated, Superseded, and Archived are not interchangeable: consult the
+Matrix and the document's metadata before relying on non-current material.
 
 Access values:
 

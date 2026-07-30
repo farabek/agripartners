@@ -6,9 +6,9 @@ Status: Living
 
 Owner: Product
 
-Version: 1.0
+Version: 1.1
 
-Last reviewed: 2026-07-18
+Last reviewed: 2026-07-30
 
 Supersedes: Governance registry portions of `docs/DOCUMENTATION_GUIDE.md` and the prior
 `docs/archive/deprecated/documentation-architecture/` audit
@@ -25,6 +25,25 @@ external-communication facts.
 The [Documentation Guide](DOCUMENTATION_GUIDE.md) remains the procedural companion for naming,
 versioning, review, and lifecycle practices. If its status, ownership, or canonical designation
 conflicts with this matrix, this matrix takes precedence.
+
+## Scoped Authority Model
+
+AgriPartners uses a scoped authority model, not a single numbered hierarchy. Authority is
+determined by the subject being governed:
+
+| Authority scope | Controlling source | Boundary |
+| --- | --- | --- |
+| Contributor and compatible-agent instructions | Repository-root `AGENTS.md` | Governs covered repository conduct; does not assign documentation status or redefine domain facts |
+| Documentation registry | `docs/DOCUMENTATION_AUTHORITY_MATRIX.md` | Governs documentation status, ownership, canonical classification, supersession, replacement, and archive boundaries |
+| Documentation procedures | `docs/DOCUMENTATION_GUIDE.md` | Governs lifecycle, metadata, review, publication, translation, generated assets, and archive procedures |
+| Documentation navigation | `docs/DOCUMENTATION_INDEX.md` | Governs official audience navigation, discovery, publication readiness, and access labels; does not assign authority |
+| Subject-matter decisions and facts | Registered canonical domain documents | Govern within their declared Product, Business, Engineering, Operations, release, legal, or other domain scope |
+| Current implementation behavior | Current code, migrations, configuration, and executable tests | Govern implemented behavior; documentation must accurately describe that evidence |
+
+Cross-references between these sources do not create a universal order of precedence. Resolve a
+conflict by identifying its subject, then apply the authority and change control for that scope.
+Navigation cannot create factual authority, registry classification cannot create domain facts,
+and document ownership does not by itself establish final approval authority.
 
 ## How to Read the Matrix
 
@@ -75,9 +94,13 @@ interaction rules, user experiences, review state, and software delivery priorit
 | Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | AgriPartners Product Book | `docs/PRODUCT_BOOK.md` | Top-level ecosystem and canonical-document navigation | Living | Product | Yes | 1.0 | 2026-07-06 | Fragmented top-level product navigation | — | Does not duplicate detailed specifications |
-| Documentation Authority Matrix | `docs/DOCUMENTATION_AUTHORITY_MATRIX.md` | Status, ownership, and authority registry | Living | Product | Yes | 1.0 | 2026-07-06 | Prior authority inventories and conflicting registry guidance | — | Highest authority for documentation governance |
+| Documentation Authority Matrix | `docs/DOCUMENTATION_AUTHORITY_MATRIX.md` | Status, ownership, and authority registry | Living | Product | Yes | 1.1 | 2026-07-30 | Prior authority inventories and conflicting registry guidance | — | Highest authority for documentation governance |
 | Workstream Operating Model | `docs/governance/WORKSTREAM_OPERATING_MODEL.md` | Repository workstream classification, coordination, and planning boundaries | Accepted | Product | Yes | 1.0 | 2026-07-18 | Ad hoc cross-workstream routing | — | Subordinate to domain authorities for their facts |
-| Documentation Guide | `docs/DOCUMENTATION_GUIDE.md` | Documentation procedure, naming, versioning, and lifecycle guidance | Accepted | Product | No | 1.0 | 2026-07-06 | — | `docs/DOCUMENTATION_AUTHORITY_MATRIX.md` for registry decisions | Procedural companion |
+| Documentation Guide | `docs/DOCUMENTATION_GUIDE.md` | Documentation procedure, naming, versioning, and lifecycle guidance | Accepted | Product | Yes | — | 2026-07-30 | — | — | Governing procedural source; subordinate to this matrix only for registry decisions |
+| Documentation Index | `docs/DOCUMENTATION_INDEX.md` | Official audience navigation, discovery, publication-readiness, and access entry point | Living | Product | Yes | — | 2026-07-30 | Fragmented package navigation | — | Canonical only for navigation; does not define document or domain authority |
+| AgriPartners Platform Model | `docs/platform/AGRIPARTNERS_PLATFORM_MODEL.md` | Integrated current platform overview and evidence-backed navigation | — | Product | Yes | — | 2026-07-25 | Fragmented platform overview | — | Source declares canonical classification but no lifecycle status or version; defers specialized facts to the owning domain and implementation authorities |
+| Documentation Layer Model | `docs/DOCUMENTATION_LAYER_MODEL.md` | Documentation package and repository-organization planning model | Draft | AgriPartners | No | Draft v1 | 2026-07-07 | — | — | Registered from its declared Draft v1 metadata; does not define governance precedence |
+| Documentation Cleanup Plan | `docs/DOCUMENTATION_CLEANUP_PLAN.md` | Documentation inventory, cleanup sequencing, and stable-path planning | Draft | Product | No | — | 2026-07-12 | — | — | Registered from its declared Draft metadata; classifications defer to this matrix |
 | Software Delivery Roadmap | `docs/ROADMAP.md` | Living software release roadmap | Living | Product | Yes | 1.0 | 2026-07-06 | Distributed Alpha/Beta delivery plans | — | Does not replace the frozen business roadmap |
 | Product Operating Model v1.0 | `docs/platform/PRODUCT_OPERATING_MODEL_V1.md` | Project-centric product architecture and role model | Frozen | Product | Yes | 1.0 | 2026-07-04 | Earlier dashboard/deal-centric product assumptions | — | Frozen under its declared change control |
 | Canonical Project Workspace Specification | `docs/platform/CANONICAL_PROJECT_WORKSPACE_SPEC.md` | Investor-facing Project Workspace structure and acceptance rules | Accepted | Product | Yes | 1.0 | 2026-07-04 | Project-specific Workspace layouts | — | Applies to every View Project experience |
@@ -86,14 +109,15 @@ interaction rules, user experiences, review state, and software delivery priorit
 | Alpha Product Review Checklist | `docs/platform/PRODUCT_REVIEW_CHECKLIST.md` | Product Review progress tracker | Living | Product | Yes | Alpha | 2026-07-05 | — | — | Canonical review-completion tracker, not a defect log |
 | Alpha UX/UI Audit Log | `docs/platform/UX_UI_AUDIT_ALPHA.md` | Product Review findings and resolution state | Living | Product | Yes | Alpha | 2026-07-04 | Distributed UX findings | — | Canonical Product Review findings log |
 | Repository README | `README.md` | Public repository orientation | Living | Product | No | Alpha v1.2 | 2026-07-02 | — | `docs/PRODUCT_BOOK.md` for ecosystem authority | Public summary derived from canonical sources |
-| Documentation Index | `docs/README.md` | Broad documentation navigation | Living | Product | No | Alpha v1.2 | 2026-07-02 | — | `docs/PRODUCT_BOOK.md` for canonical navigation | Retained as full inventory/index |
-| Russian Documentation Index | `docs/README-ru.md` | Russian documentation navigation | Living | Product | No | Alpha v1.2 | 2026-07-02 | — | — | Translation/navigation companion |
+| Documentation README | `docs/README.md` | Concise documentation landing page | Living | Product | No | Alpha v1.2 | 2026-07-02 | — | `docs/DOCUMENTATION_INDEX.md` for official navigation | Supporting landing page |
+| Russian Documentation README | `docs/README-ru.md` | Russian documentation landing page | Living | Product | No | Alpha v1.2 | 2026-07-02 | — | `docs/DOCUMENTATION_INDEX.md` for official navigation | Translation/navigation companion |
 
 ### Product Canonical Documents
 
-The canonical Product set is the Product Book, Authority Matrix, Workstream Operating Model,
-Master Roadmap v2, Software Delivery Roadmap, Product Operating Model, accepted Workspace and
-Farmer specifications, Product Review Checklist, and UX/UI Audit Log.
+The canonical Product set is the Product Book, Authority Matrix, Documentation Index, Workstream
+Operating Model, AgriPartners Platform Model, Master Roadmap v2, Software Delivery Roadmap,
+Product Operating Model, accepted Workspace and Farmer specifications, Product Review Checklist,
+and UX/UI Audit Log. Each remains canonical only within its registered scope.
 
 ### Product Supporting Documents
 
@@ -658,6 +682,23 @@ Additional lifecycle behavior:
 - Frozen documents require declared change control before material revision.
 - Archived documents retain historical context but lose authority over current work.
 
+### Lifecycle and Historical Terminology
+
+These terms are related but not interchangeable:
+
+| Term | Governance meaning |
+| --- | --- |
+| **Historical** | Describes point-in-time evidence or past context. It is not a lifecycle status and does not by itself determine location or authority. |
+| **Archived** | A lifecycle status for material retained as historical context after losing authority over current work. Archived content normally resides under an approved archive path, but location alone does not assign status. |
+| **Legacy** | Describes an older implementation, workflow, asset, or terminology retained for compatibility or historical evidence. Legacy material must state whether it remains active, Deprecated, or Archived. |
+| **Deprecated** | A lifecycle status for material temporarily retained for compatibility but prohibited as guidance for new work. It must identify its replacement and transition or archival criteria. |
+| **Superseded** | A registry relationship showing that a newer authority displaced all or part of an older source. The older source's explicit status still controls its permitted use until it is Deprecated or Archived. |
+
+All Archived documents are historical, but not all historical documents are Archived. A
+historical release record or point-in-time audit outside `docs/archive/` may retain only the
+evidentiary authority explicitly registered for it; it must not govern current facts by
+implication.
+
 ## Documentation Ownership Model
 
 | Category | Primary owner | Required collaborators | Maintenance responsibility |
@@ -680,6 +721,68 @@ Additional lifecycle behavior:
 Owners must review dependent documents when their canonical source changes. Collaboration does
 not transfer authority: for example, Investor Relations may publish financial claims but
 Business owns the underlying model.
+
+## Governance Change Approval
+
+The following rules govern material changes to repository-root `AGENTS.md`, the Authority Matrix,
+Documentation Guide, Documentation Index, and Workstream Operating Model. They extend the existing
+ownership model and do not replace stricter change control declared by an affected domain
+authority.
+
+### Approvers and Required Reviewers
+
+- **Accountable approver:** the Product Governance Approver role designated through AgriPartners'
+  existing Product decision authority for repository governance. The current role-holder or
+  approving authority must be identified in durable approval evidence; document ownership alone
+  does not confer this designation.
+- **Required reviewers:** the accountable owners of every domain whose authority, classification,
+  workflow, publication boundary, or stable path would be materially affected.
+- **`AGENTS.md` review:** a material change to contributor or compatible-agent governance requires
+  the Product Governance Approver and review by every domain whose instructions or authority
+  boundary would change.
+- **Engineering review:** required when the change alters implementation-authority language,
+  generated-asset validation, repository verification, or release evidence.
+- **Business, Operations, Investor Relations, or Product / Legal review:** required when the
+  change affects that domain's ownership, publication controls, archive boundaries, or canonical
+  records.
+- The author may prepare a change but must not be treated as the sole approver when another
+  ownership domain is materially affected.
+
+### Approval Evidence
+
+Approval evidence must be reviewable in repository or pull-request history and must identify:
+
+- the governance documents changed and the decision being approved;
+- the accountable approver;
+- required reviewers and their recorded disposition;
+- affected canonical or Frozen documents;
+- validation performed; and
+- any unresolved exception, follow-up owner, and due condition.
+
+A merged pull request with recorded approval may serve as the evidence. When approval occurs
+outside the pull request, the repository change must link to or summarize the durable decision
+record. A document owner field alone is not approval evidence.
+
+### Escalation
+
+If reviewers cannot resolve a governance conflict:
+
+1. classify the conflict by subject-matter scope;
+2. preserve the current registered authority and status while review continues;
+3. escalate to the accountable owner of the affected domain and the Product governance approver;
+4. require qualified legal, compliance, accounting, or security review when the conflict depends
+   on that expertise; and
+5. record the decision and update every affected registry, procedure, or navigation entry in the
+   same approved change.
+
+The Product governance approver makes the final decision on documentation-registry, procedure,
+and navigation mechanics. That approval cannot override another domain's Accepted or Frozen
+subject-matter decision. A proposed cross-domain substantive change remains unapproved until
+every affected accountable domain owner and any required specialist reviewer approves it through
+the applicable change control.
+
+No governance document may resolve an unresolved cross-domain conflict by silently redefining
+another domain's accepted or Frozen decision.
 
 ## Safe Refactoring Readiness
 
