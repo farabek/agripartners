@@ -256,7 +256,7 @@ Before sending any outreach message, verify:
 
 - Executive One Pager is ready.
 - NEAR Ecosystem One Pager is ready.
-- NEAR Ecosystem CRM is updated.
+- [Relationship CRM](../outreach/outreach-crm.md) is updated.
 - Presentation Mode is available.
 - Demo script is prepared.
 - GitHub repository is current.
