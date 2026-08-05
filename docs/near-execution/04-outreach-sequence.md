@@ -32,7 +32,7 @@ Goal:
 
 Recommended source:
 
-- `docs/near-outreach/02-project-summary-en.md`
+- `docs/archive/near/legacy-outreach/02-project-summary-en.md`
 
 ## Step 3: Investor Deck
 

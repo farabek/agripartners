@@ -32,7 +32,7 @@
 
 Рекомендуемый источник:
 
-- `docs/near-outreach/12-project-summary-ru.md`
+- `docs/archive/near/legacy-outreach/12-project-summary-ru.md`
 
 ## Step 3: Investor Deck
 

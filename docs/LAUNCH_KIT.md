@@ -76,7 +76,7 @@ Future roadmap: Mainnet readiness, tokenization, expanded on-chain settlement, a
 - [Validation Log](near-execution/09-validation-log.md) - records validation progress and reviewer feedback.
 - [Target List](near-execution/10-wave1-target-list.md) - lists initial outreach targets.
 - [Priority Targets](near-execution/12-wave1-priority-targets.md) - identifies higher-priority ecosystem and partner targets.
-- [Outreach Messages](near-execution/13-outreach-messages.md) - provides message templates for reviewer, partner, and ecosystem outreach.
+- [Outreach Messages](archive/near/legacy-outreach/13-outreach-messages.md) - provides message templates for reviewer, partner, and ecosystem outreach.
 
 Validation workflow:
 

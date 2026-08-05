@@ -6,15 +6,15 @@
 
 ## English Reading Order
 
-- [Project Summary EN](02-project-summary-en.md)
+- [Project Summary EN](../archive/near/legacy-outreach/02-project-summary-en.md)
 - [Founder Introduction EN](03-founder-introduction-en.md)
-- [Elevator Pitch EN](04-elevator-pitch-en.md)
+- [Elevator Pitch EN](../archive/near/legacy-outreach/04-elevator-pitch-en.md)
 - [NEAR Use Case EN](05-near-use-case-en.md)
 - [Ecosystem One Pager EN](06-ecosystem-one-pager-en.md)
 
 ## Russian Reading Order
 
-- [Описание проекта RU](12-project-summary-ru.md)
+- [Описание проекта RU](../archive/near/legacy-outreach/12-project-summary-ru.md)
 - [Представление основателя RU](13-founder-introduction-ru.md)
 - [Краткий питч RU](14-elevator-pitch-ru.md)
 - [Сценарий использования NEAR RU](15-near-use-case-ru.md)

@@ -4,8 +4,8 @@ Status: Historical — Legacy Testnet Alpha outreach templates.
 
 > Не использовать для текущего outreach. Документ сохраняет прежнее Alpha-позиционирование,
 > включая устаревшие Farmer wallet и smart-contract withdrawal механики. Используйте актуальный
-> [`../near/near-outreach-kit.md`](../near/near-outreach-kit.md) и каноническую
-> [`../platform/AGRIPARTNERS_PLATFORM_MODEL.md`](../platform/AGRIPARTNERS_PLATFORM_MODEL.md).
+> [`../near/near-outreach-kit.md`](../../../near/near-outreach-kit.md) и каноническую
+> [`../platform/AGRIPARTNERS_PLATFORM_MODEL.md`](../../../platform/AGRIPARTNERS_PLATFORM_MODEL.md).
 
 ## Цель
 

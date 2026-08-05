@@ -5,9 +5,9 @@ Status: Historical — Legacy Testnet Alpha project summary.
 > This document preserves Alpha v1 positioning and must not be used as a current product or
 > production-architecture description. In particular, Farmer wallet, crypto funding, contract
 > withdrawal, and automated on-chain payout behavior are historical demonstration behavior. Use
-> the current [`../near/near-ecosystem-one-pager.md`](../near/near-ecosystem-one-pager.md) and the
+> the current [`../near/near-ecosystem-one-pager.md`](../../../near/near-ecosystem-one-pager.md) and the
 > canonical
-> [`../platform/AGRIPARTNERS_PLATFORM_MODEL.md`](../platform/AGRIPARTNERS_PLATFORM_MODEL.md).
+> [`../platform/AGRIPARTNERS_PLATFORM_MODEL.md`](../../../platform/AGRIPARTNERS_PLATFORM_MODEL.md).
 
 ## What Is AgriPartners
 
