@@ -25,7 +25,7 @@ Send the intro message first, then the project summary if there is interest.
 Recommended first materials:
 
 - `docs/near-outreach-toolkit/02-intro-message-en.md`
-- `docs/near-outreach/02-project-summary-en.md`
+- `docs/archive/near/legacy-outreach/02-project-summary-en.md`
 - `docs/near-outreach/05-near-use-case-en.md`
 
 #### Expected outcome
@@ -49,7 +49,7 @@ Send a concise intro first, then the project summary and ecosystem one-pager.
 Recommended first materials:
 
 - `docs/near-outreach-toolkit/02-intro-message-en.md`
-- `docs/near-outreach/02-project-summary-en.md`
+- `docs/archive/near/legacy-outreach/02-project-summary-en.md`
 - `docs/near-outreach/06-ecosystem-one-pager-en.md`
 
 #### Expected outcome
@@ -77,7 +77,7 @@ Send the intro message first. If the accelerator asks for more context, send the
 Recommended first materials:
 
 - `docs/near-outreach-toolkit/02-intro-message-en.md`
-- `docs/near-outreach/02-project-summary-en.md`
+- `docs/archive/near/legacy-outreach/02-project-summary-en.md`
 - `docs/investor-package/AgriPartners_Investor_Deck_v1_EN.pptx`
 
 #### Expected outcome
@@ -101,8 +101,8 @@ Send the intro message first, then the project summary and elevator pitch if the
 Recommended first materials:
 
 - `docs/near-outreach-toolkit/02-intro-message-en.md`
-- `docs/near-outreach/02-project-summary-en.md`
-- `docs/near-outreach/04-elevator-pitch-en.md`
+- `docs/archive/near/legacy-outreach/02-project-summary-en.md`
+- `docs/archive/near/legacy-outreach/04-elevator-pitch-en.md`
 
 #### Expected outcome
 
@@ -126,7 +126,7 @@ Recommended first materials:
 
 - `docs/near-outreach-toolkit/02-intro-message-en.md`
 - `docs/near-outreach/05-near-use-case-en.md`
-- `docs/near-outreach/02-project-summary-en.md`
+- `docs/archive/near/legacy-outreach/02-project-summary-en.md`
 
 #### Expected outcome
 
@@ -176,7 +176,7 @@ Send the intro message first, then the elevator pitch or ecosystem one-pager dep
 Recommended first materials:
 
 - `docs/near-outreach-toolkit/02-intro-message-en.md`
-- `docs/near-outreach/04-elevator-pitch-en.md`
+- `docs/archive/near/legacy-outreach/04-elevator-pitch-en.md`
 - `docs/near-outreach/06-ecosystem-one-pager-en.md`
 
 #### Expected outcome
@@ -200,7 +200,7 @@ Send the intro message first, then the project summary and ecosystem one-pager.
 Recommended first materials:
 
 - `docs/near-outreach-toolkit/02-intro-message-en.md`
-- `docs/near-outreach/02-project-summary-en.md`
+- `docs/archive/near/legacy-outreach/02-project-summary-en.md`
 - `docs/near-outreach/06-ecosystem-one-pager-en.md`
 
 #### Expected outcome

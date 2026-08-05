@@ -25,7 +25,7 @@ AgriPartners хочет получить feedback по ecosystem fit, яснос
 Рекомендуемые первые материалы:
 
 - `docs/near-outreach-toolkit/12-intro-message-ru.md`
-- `docs/near-outreach/12-project-summary-ru.md`
+- `docs/archive/near/legacy-outreach/12-project-summary-ru.md`
 - `docs/near-outreach/15-near-use-case-ru.md`
 
 #### Expected outcome
@@ -49,7 +49,7 @@ AgriPartners хочет validation of positioning, guidance по лучшему 
 Рекомендуемые первые материалы:
 
 - `docs/near-outreach-toolkit/12-intro-message-ru.md`
-- `docs/near-outreach/12-project-summary-ru.md`
+- `docs/archive/near/legacy-outreach/12-project-summary-ru.md`
 - `docs/near-outreach/16-ecosystem-one-pager-ru.md`
 
 #### Expected outcome
@@ -77,7 +77,7 @@ AgriPartners хочет feedback по readiness, market framing, pilot economics
 Рекомендуемые первые материалы:
 
 - `docs/near-outreach-toolkit/12-intro-message-ru.md`
-- `docs/near-outreach/12-project-summary-ru.md`
+- `docs/archive/near/legacy-outreach/12-project-summary-ru.md`
 - `docs/investor-package/AgriPartners_Investor_Deck_v1_RU.pptx`
 
 #### Expected outcome
@@ -101,7 +101,7 @@ AgriPartners хочет validation of Alpha v1 stage, advice по readiness mile
 Рекомендуемые первые материалы:
 
 - `docs/near-outreach-toolkit/12-intro-message-ru.md`
-- `docs/near-outreach/12-project-summary-ru.md`
+- `docs/archive/near/legacy-outreach/12-project-summary-ru.md`
 - `docs/near-outreach/14-elevator-pitch-ru.md`
 
 #### Expected outcome
@@ -126,7 +126,7 @@ AgriPartners хочет technical feedback по NEAR use case, smart contract li
 
 - `docs/near-outreach-toolkit/12-intro-message-ru.md`
 - `docs/near-outreach/15-near-use-case-ru.md`
-- `docs/near-outreach/12-project-summary-ru.md`
+- `docs/archive/near/legacy-outreach/12-project-summary-ru.md`
 
 #### Expected outcome
 
@@ -200,7 +200,7 @@ AgriPartners хочет validation of regional relevance, feedback по farmer a
 Рекомендуемые первые материалы:
 
 - `docs/near-outreach-toolkit/12-intro-message-ru.md`
-- `docs/near-outreach/12-project-summary-ru.md`
+- `docs/archive/near/legacy-outreach/12-project-summary-ru.md`
 - `docs/near-outreach/16-ecosystem-one-pager-ru.md`
 
 #### Expected outcome

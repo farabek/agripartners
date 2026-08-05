@@ -33,6 +33,12 @@ authority.
 - [Safe Archive Batch 2 Manifest](SAFE_ARCHIVE_BATCH_2_MANIFEST.md) — 13 P4, non-canonical
   historical files archived on 2026-07-12 after individual review.
 
+## Controlled Documentation Consolidation
+
+- [Funding history](funding/README.md) — historical funding derivative superseded by AME v1.0 R1.
+- [Grant history](grants/README.md) — historical grant adaptations retained for traceability.
+- [NEAR history](near/README.md) — Legacy Testnet Alpha publications and outreach materials.
+
 ## Historical Materials Previously in This Folder
 
 - [`deprecated/AgriPartners-Comparison-AllSplits.pdf`](deprecated/AgriPartners-Comparison-AllSplits.pdf)

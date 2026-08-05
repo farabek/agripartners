@@ -15,6 +15,13 @@ Owner: Investor Relations
 > for detailed facts. Files in this directory that identify Alpha v1.1 are historical milestone
 > materials and must not be used as current-release positioning.
 
+> **Development Round boundary:** This kit and the accepted Alpha v1.2 One-Pager describe the
+> Alpha v1.2 product and presentation release only. They are not authoritative for the
+> Development Round. Use the
+> [AgriPartners Development Round Funding Package — AME v1.0 R1](https://github.com/farabek/agripartners-funding-package)
+> for round scope, deliverables, budget, milestones, evidence, acceptance, risks, exclusions, and
+> funder adaptations.
+
 ## 1. Investor Presentation Kit
 
 This directory is the entry point for AgriPartners investor-facing materials. It organizes the

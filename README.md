@@ -19,6 +19,13 @@ first. It connects participants, legal relationships, the crypto/fiat boundary, 
 workflows, technical architecture, pilot mappings, implementation status, safe verification,
 accepted limitations, and the roadmap.
 
+> **Development Round authority:** The authoritative definition of the Development Round,
+> including its objective, scope, work packages, deliverables, budget, milestones, verification,
+> acceptance, risks, exclusions, and funder adaptations, is the
+> [AgriPartners Development Round Funding Package — AME v1.0 R1](https://github.com/farabek/agripartners-funding-package).
+> Product documentation remains authoritative only within its declared Product, Business,
+> Engineering, Operations, roadmap, and release scopes.
+
 Current status: Alpha / working prototype on NEAR Testnet. Stage 2 Slice 2 is merged at the
 verified `main` checkpoint; Stage 2 Slice 3 and the Project Expense API are not implemented.
 

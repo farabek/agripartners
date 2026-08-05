@@ -44,7 +44,7 @@ Use the smallest relevant material set first.
 Recommended first materials:
 
 - `docs/near-outreach-toolkit/02-intro-message-en.md`
-- `docs/near-outreach/02-project-summary-en.md`
+- `docs/archive/near/legacy-outreach/02-project-summary-en.md`
 - `docs/near-outreach/05-near-use-case-en.md`
 
 Optional follow-up materials:
@@ -95,7 +95,7 @@ Minimum application package:
 
 Recommended source materials:
 
-- `docs/near-outreach/02-project-summary-en.md`
+- `docs/archive/near/legacy-outreach/02-project-summary-en.md`
 - `docs/near-outreach/05-near-use-case-en.md`
 - `docs/near-outreach/06-ecosystem-one-pager-en.md`
 - `docs/investor-package/AgriPartners_Investor_Deck_v1_EN.pptx`

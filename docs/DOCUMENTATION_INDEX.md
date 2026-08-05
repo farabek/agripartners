@@ -17,6 +17,12 @@ Last reviewed: 2026-07-30
 > relationships, the crypto/fiat boundary, architecture, Stage 2 financial foundations, pilot
 > mappings, implementation status, limitations, verification, and roadmap.
 
+> **Development Round authority:** Use the
+> [AgriPartners Development Round Funding Package — AME v1.0 R1](https://github.com/farabek/agripartners-funding-package)
+> for the Development Round definition, objective, scope, work packages, deliverables, budget,
+> milestones, verification, acceptance, risks, exclusions, post-round position, and funder
+> adaptation. This Product repository does not duplicate or supersede that authority.
+
 ## Purpose
 
 This index is the main audience-based navigation page for the AgriPartners documentation

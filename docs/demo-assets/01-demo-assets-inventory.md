@@ -43,7 +43,7 @@ This is documentation only. It does not modify code, contracts, database, outrea
 | Target List | Yes | `docs/near-execution/10-wave1-target-list.md`; `docs/near-execution/20-wave1-target-list-ru.md` | Ready |
 | Real Targets | Yes | `docs/near-execution/11-wave1-real-targets.md`; `docs/near-execution/21-wave1-real-targets-ru.md` | Ready |
 | Priority Targets | Yes | `docs/near-execution/12-wave1-priority-targets.md`; `docs/near-execution/22-wave1-priority-targets-ru.md` | Ready |
-| Outreach Messages | Yes | `docs/near-execution/13-outreach-messages.md`; `docs/near-execution/23-outreach-messages-ru.md` | Ready |
+| Outreach Messages | Yes | `docs/archive/near/legacy-outreach/13-outreach-messages.md`; `docs/archive/near/legacy-outreach/23-outreach-messages-ru.md` | Ready |
 
 ## 4. Missing Assets
 

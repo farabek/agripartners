@@ -6,8 +6,8 @@ Status: Historical — Legacy Testnet Alpha proposal; not approved for publicati
 > токенизации, Farmer crypto, автоматических выплатах, готовности к production, размере рынка и
 > подписанных/подтверждённых сделках не являются текущими или подтверждёнными репозиторием и не
 > должны использоваться повторно. Текущая архитектура определена в
-> [`platform/AGRIPARTNERS_PLATFORM_MODEL.md`](platform/AGRIPARTNERS_PLATFORM_MODEL.md), а актуальное
-> NEAR-позиционирование — в [`near/near-outreach-kit.md`](near/near-outreach-kit.md).
+> [`platform/AGRIPARTNERS_PLATFORM_MODEL.md`](../../../platform/AGRIPARTNERS_PLATFORM_MODEL.md), а актуальное
+> NEAR-позиционирование — в [`near/near-outreach-kit.md`](../../../near/near-outreach-kit.md).
 
 ## Раздел: Proposals (или DevHub / Ecosystem)
 

@@ -223,8 +223,8 @@ Russian order:
 
 ### Recommended Reading Order
 
-1. `docs/near-grant-application.md` if preparing grant materials.
-2. `docs/near-forum-post.md` if preparing public NEAR community posting.
+1. `docs/archive/grants/near-grant-application.md` if preparing grant materials.
+2. `docs/archive/near/legacy-publications/near-forum-post.md` if preparing public NEAR community posting.
 3. Root HTML exports only if reviewing older presentation outputs.
 4. PDF files only if reviewing legal/financial model artifacts.
 5. `docs/superpowers/` only if reviewing historical implementation planning.

@@ -139,14 +139,14 @@ These files are either legacy outputs, forum/grant materials, PDFs, HTML exports
 
 ### Root-Level Other Files
 
-- `docs/near-grant-application.md`
-- `docs/near-grant-application-ru.md`
-- `docs/near-forum-post.md`
-- `docs/near-forum-post-ru.md`
-- `docs/near-forum-post.html`
+- `docs/archive/grants/near-grant-application.md`
+- `docs/archive/grants/near-grant-application-ru.md`
+- `docs/archive/near/legacy-publications/near-forum-post.md`
+- `docs/archive/near/legacy-publications/near-forum-post-ru.md`
+- `docs/archive/near/legacy-publications/near-forum-post.html`
 - `docs/one-pager.html`
 - `docs/pitch-deck.html`
-- `docs/funding-strategy.html`
+- `docs/archive/funding/funding-strategy.html`
 - `docs/archive/checklist.html`
 - `docs/archive/deprecated/AgriPartners-Comparison-AllSplits.pdf`
 - `docs/archive/deprecated/AgriPartners-Escrow-Analysis.pdf`
