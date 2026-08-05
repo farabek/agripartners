@@ -12,4 +12,3 @@ current outreach. Use the current [NEAR Outreach Kit](../../../near/near-outreac
 - [`04-elevator-pitch-en.md`](04-elevator-pitch-en.md) — historical English elevator pitch.
 - [`13-outreach-messages.md`](13-outreach-messages.md) and
   [`23-outreach-messages-ru.md`](23-outreach-messages-ru.md) — historical EN/RU message templates.
-

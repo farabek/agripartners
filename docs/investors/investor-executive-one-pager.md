@@ -8,6 +8,12 @@ Owner: Investor Relations
 
 Last reviewed: 2026-07-30
 
+> **Authority boundary:** Accepted for the Alpha v1.2 presentation release only. This One-Pager
+> is not the controlling source for the Development Round. Development Round definition, scope,
+> deliverables, budget, milestones, verification, acceptance, risks, exclusions, and funder
+> adaptations are controlled by the
+> [AgriPartners Development Round Funding Package — AME v1.0 R1](https://github.com/farabek/agripartners-funding-package).
+
 > **Current financial boundary:** External Investors contract with AgriPartners OÜ in Estonia.
 > Cryptocurrency stops at AgriPartners OÜ and is converted through approved crypto-to-fiat
 > infrastructure before any Uzbekistan activity is financed. The Uzbekistan Feedlot Operator

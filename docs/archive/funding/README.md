@@ -8,4 +8,3 @@ authority for the Development Round is the
 
 - `funding-strategy.html` — historical rendered funding-strategy artifact; do not use for current
   Development Round amounts, scope, milestones, or claims.
-

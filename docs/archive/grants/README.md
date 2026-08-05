@@ -8,4 +8,3 @@ must not control Development Round claims. Any future funder adaptation must der
 
 - [`near-grant-application.md`](near-grant-application.md) — historical English draft.
 - [`near-grant-application-ru.md`](near-grant-application-ru.md) — historical Russian companion.
-

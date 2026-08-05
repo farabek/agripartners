@@ -12,6 +12,14 @@ If you are new to the project, open the
 The index explains documentation priorities, audiences, canonical documents, archive status,
 and recommended reading paths. It is the canonical map for all documentation packages.
 
+## Development Round Authority
+
+The [AgriPartners Development Round Funding Package — AME v1.0 R1](https://github.com/farabek/agripartners-funding-package)
+is the sole authority for Development Round definition, objective, scope, work packages,
+deliverables, budget, milestones, verification, acceptance, risks, exclusions, post-round
+position, and funder adaptation. Product documentation does not override those funding-package
+facts.
+
 ## Release Governance
 
 - **Current product and presentation release:**

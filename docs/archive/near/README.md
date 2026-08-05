@@ -9,4 +9,3 @@ current Product, Investor Relations, funding, or Development Round authority.
   and rendered derivatives.
 - [`legacy-outreach/`](legacy-outreach/README.md) — obsolete Alpha outreach summaries and message
   templates.
-
