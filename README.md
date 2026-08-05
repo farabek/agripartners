@@ -76,6 +76,18 @@ New to the project?
 The Documentation Index is the canonical documentation map. This README remains a lightweight
 repository landing page and does not duplicate the detailed index.
 
+## Official Funding Documentation
+
+The official AgriPartners Development Round Funding Package is maintained in a separate repository:
+
+https://github.com/farabek/agripartners-funding-package
+
+That repository contains the authoritative Funding Package, governance documents, QA reports,
+release artifacts, and publication history.
+
+Product source code, implementation, backend, frontend, smart contracts, tests, and technical
+documentation remain in this repository.
+
 ## Product Overview and Highlights
 
 AgriPartners addresses a simple trust problem: once agricultural capital leaves the investor's
