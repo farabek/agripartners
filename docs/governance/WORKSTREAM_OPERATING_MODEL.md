@@ -98,9 +98,9 @@ from assumptions, reuse canonical product and investor materials, and never prom
 functionality, traction, revenue, legal readiness, or production readiness. Priority opportunities
 should record a status, deadline, dependencies, requested amount, and next action.
 
-No canonical grant-opportunity register is currently designated. Existing grant applications,
-research, and ecosystem mapping are supporting materials, not a unified operational register.
-Creating and registering such a record requires a separate authorized task.
+The [Funding Pipeline](../grants/FUNDING_PIPELINE.md) is the canonical grant, accelerator, and
+strategic funding-opportunity register. Existing grant applications, research, and ecosystem
+mapping are supporting materials and do not replace that operational register.
 
 ## Workstream decision priority
 
@@ -153,7 +153,7 @@ existing canonical document already owns the information.
 | Cross-domain strategic sequencing | [Master Roadmap v2](../MASTER_ROADMAP_V2.md) |
 | Release identity and history | [Release Index](../RELEASES.md) |
 | Outreach pipeline and next actions | [Relationship CRM](../outreach/outreach-crm.md) |
-| Grant-opportunity pipeline | Not currently designated |
+| Grant-opportunity pipeline | [Funding Pipeline](../grants/FUNDING_PIPELINE.md) |
 
 Update an existing authority instead of creating a parallel plan unless the user requests a
 separate artifact for a distinct purpose or audience. Derived summaries may coexist, but must not

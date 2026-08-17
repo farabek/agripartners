@@ -326,6 +326,26 @@ Releases index.
 
 The v1 PPTX decks contain financial values superseded by the current 60/40 model package.
 
+## Grants & Strategy
+
+### Grants & Strategy Purpose
+
+Grants & Strategy documentation tracks grant, accelerator, and strategic funding opportunities,
+applications, requested amounts, dependencies, and next actions without redefining Development
+Round authority.
+
+### Grants & Strategy Authority Records
+
+| Document name | Path | Purpose | Status | Owner | Canonical | Version | Last reviewed | Supersedes | Replaced by | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Funding Pipeline | `docs/grants/FUNDING_PIPELINE.md` | Active grant, accelerator, and strategic funding-opportunity pipeline | Living | Grants & Strategy | Yes | — | 2026-08-17 | — | — | Canonical operational funding-opportunity register; Development Round facts remain controlled by AME v1.0 R1 |
+
+### Grants & Strategy Supporting Documents
+
+- Opportunity-specific research, checklists, playbooks, and application materials under
+  `docs/grants/`.
+- Historical grant adaptations under `docs/archive/grants/` are non-authoritative.
+
 ## NEAR
 
 ### NEAR Purpose
