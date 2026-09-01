@@ -17,10 +17,10 @@ jobs:
         working-directory: backend
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -48,10 +48,10 @@ jobs:
         working-directory: frontend
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -82,7 +82,7 @@ jobs:
       run:
         working-directory: contract
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       # Pin the toolchain used by the contract release process. Newer linkers
       # changed wasm undefined-import handling and are not reproducible here.
       - uses: dtolnay/rust-toolchain@1.88.0
@@ -107,7 +107,7 @@ jobs:
           cp "$wasm_path" target/wasm32-unknown-unknown/release/agripartners.wasm
           sha256sum target/wasm32-unknown-unknown/release/agripartners.wasm | tee contract-wasm.sha256
       - name: Publish contract provenance artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: agripartners-contract-${{ github.sha }}
           path: |
