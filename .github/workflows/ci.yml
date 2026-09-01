@@ -92,10 +92,15 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: contract
+      - name: Install pinned NEAR contract builder
+        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/near/cargo-near/releases/download/cargo-near-v0.22.0/cargo-near-installer.sh | sh
       - run: cargo fmt --check
       - run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Build NEAR-compatible WASM
-        run: cargo build --release --target wasm32-unknown-unknown
-        env:
-          RUSTFLAGS: -C target-feature=-bulk-memory,-reference-types
+        run: |
+          cargo near build non-reproducible-wasm --no-abi
+          wasm_path=$(find target/near -type f -name 'agripartners.wasm' -print -quit)
+          test -n "$wasm_path"
+          mkdir -p target/wasm32-unknown-unknown/release
+          cp "$wasm_path" target/wasm32-unknown-unknown/release/agripartners.wasm
       - run: cargo test
