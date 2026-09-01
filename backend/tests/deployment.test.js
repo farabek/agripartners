@@ -10,22 +10,34 @@ jest.mock('../src/db/index', () => ({ query: jest.fn() }));
 const request = require('supertest');
 const app = require('../src/app');
 const { getAllowedOrigins } = require('../src/config/cors');
+const pool = require('../src/db/index');
 
-test('GET /health returns deployment health metadata', async () => {
+test('GET /health returns readiness metadata after checking PostgreSQL', async () => {
+  pool.query
+    .mockResolvedValueOnce({ rows: [{ '?column?': 1 }] })
+    .mockResolvedValueOnce({ rows: [{ count: 18 }] });
   const response = await request(app).get('/health');
 
   expect(response.status).toBe(200);
   expect(response.body).toMatchObject({
     ok: true,
     service: 'agripartners-backend',
+    database: 'ready',
+    migrations: 18,
     environment: 'test',
   });
   expect(new Date(response.body.timestamp).toISOString()).toBe(response.body.timestamp);
 });
 
+test('GET /health/live remains available without database readiness', async () => {
+  const response = await request(app).get('/health/live');
+  expect(response.status).toBe(200);
+  expect(response.body).toMatchObject({ ok: true, environment: 'test' });
+});
+
 test('CORS allows configured comma-separated origins', async () => {
   const response = await request(app)
-    .get('/health')
+    .get('/health/live')
     .set('Origin', 'https://preview.example.com');
 
   expect(response.headers['access-control-allow-origin']).toBe('https://preview.example.com');
@@ -33,7 +45,7 @@ test('CORS allows configured comma-separated origins', async () => {
 
 test('CORS allows the production Vercel frontend', async () => {
   const response = await request(app)
-    .get('/health')
+    .get('/health/live')
     .set('Origin', 'https://agripartners.vercel.app');
 
   expect(response.headers['access-control-allow-origin'])
@@ -56,7 +68,7 @@ test('OPTIONS preflight allows the production frontend for wallet challenge', as
 
 test('CORS omits allow-origin for origins outside the allowlist', async () => {
   const response = await request(app)
-    .get('/health')
+    .get('/health/live')
     .set('Origin', 'https://untrusted.example.com');
 
   expect(response.headers['access-control-allow-origin']).toBeUndefined();

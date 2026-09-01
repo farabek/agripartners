@@ -102,7 +102,7 @@ test('verifyWalletSignature issues JWT without skip flag after real full-access 
   const publicKey = keyPair.getPublicKey().toString();
   const accountId = 'owner.testnet';
   const callbackUrl = 'http://localhost:5173/wallet-auth-poc.html';
-  const challenge = walletAuthService.createChallenge();
+  const challenge = await walletAuthService.createChallenge();
   const messageHash = buildNep413MessageHash({
     message: challenge.message,
     nonceBase64: challenge.nonce,
