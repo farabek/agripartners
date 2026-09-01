@@ -9,9 +9,11 @@ use serde_json::json;
 const WASM_PATH: &str = "./target/wasm32-unknown-unknown/release/agripartners.wasm";
 
 const ONE_NEAR: u128 = 1_000_000_000_000_000_000_000_000;
-const INVESTMENT: u128 = 1_000 * ONE_NEAR;
-const CAPITAL_RETURN: u128 = 408 * ONE_NEAR;
-const PROFIT: u128 = 300 * ONE_NEAR;
+// Sandbox dev accounts start with 100 NEAR. Keep fixtures comfortably below
+// that balance so failures represent contract behavior, not account funding.
+const INVESTMENT: u128 = 10 * ONE_NEAR;
+const CAPITAL_RETURN: u128 = 4 * ONE_NEAR;
+const PROFIT: u128 = 3 * ONE_NEAR;
 
 async fn setup(
     worker: &Worker<Sandbox>,
