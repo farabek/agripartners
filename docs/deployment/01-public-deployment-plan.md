@@ -300,7 +300,7 @@ Before migration:
 
 ### Application and database
 
-- [ ] Add rate limiting and request-size limits.
+- [x] Add rate limiting and request-size limits.
 - [ ] Validate all state-changing payloads.
 - [ ] Confirm public deal fields contain no confidential information.
 - [ ] Back up PostgreSQL before migrations.
@@ -380,6 +380,22 @@ Current migrations are forward-only and no down migrations are provided.
 
 Never improvise destructive SQL against the only database copy.
 
+### Release-specific rollback for migration 018
+
+Migration `018_wallet_auth_challenges.sql` is additive: it creates the shared,
+expiring wallet-auth challenge store used by the hardened backend. Before the
+release, record the current frontend and backend revisions and take a verified
+PostgreSQL backup. Deploy the backend before the frontend and require both
+`/health/live` and `/health` to pass before enabling traffic.
+
+If the release must be rolled back, promote the recorded frontend revision and
+redeploy the recorded backend revision. The previous backend safely ignores the
+new table, so leave migration 018 and its `_migrations` row in place. If database
+restoration is required, restore the pre-release backup into a new PostgreSQL
+service, point the rolled-back backend at it, validate critical row counts, and
+only then reopen writes. Never drop the wallet challenge table or delete the
+migration record in place.
+
 ### NEAR rollback
 
 Deployed contract code and completed transactions cannot be rolled back like a web deployment.
@@ -395,15 +411,15 @@ Deployed contract code and completed transactions cannot be rolled back like a w
 
 | Risk | Impact | Mitigation |
 | --- | --- | --- |
-| Frontend API URL is hardcoded to dead Render endpoint | Public application cannot use Railway backend | Implement `VITE_API_BASE_URL` before deployment |
-| Unrestricted CORS | Any origin can call browser-accessible API paths | Explicit origin allowlist |
+| Frontend API URL is misconfigured at deployment | Public application cannot reach the backend | `VITE_API_BASE_URL` is implemented; verify the deployed value before promotion |
+| CORS allowlist is misconfigured | Legitimate clients fail or an unintended origin is accepted | Restricted `ALLOWED_ORIGINS`; verify accepted and rejected origins in staging |
 | Centralized backend signer keys | Key compromise can submit privileged Testnet calls | Dedicated low-balance account, managed secrets, signer redesign |
-| Process-local wallet nonces | Login failures after restart or scale-out | Shared expiring nonce store |
+| Wallet challenge cleanup or database outage | Login can fail while readiness is degraded | Shared PostgreSQL challenge store, expiry cleanup, readiness checks, and alerting |
 | No public backend currently | End-to-end deployment is unverified | Deploy backend first and gate frontend release on health |
 | Forward-only migrations | Unsafe rollback after schema change | Backups, additive migrations, restore drill |
 | Chain/database non-atomicity | Deployed contract may not be indexed after partial failure | Idempotency and reconciliation tooling |
 | WASM provenance missing | Reviewer cannot prove deployed code matches source | CI build manifest and checksum |
-| Contract tests lack Linux CI evidence | Contract verification is incomplete | Required Linux CI gate |
+| Contract tests lack a successful Linux release run | Contract verification is incomplete | Required Linux CI gate is configured; require it to pass on the release PR |
 | Demo scripts are outdated | Deployment validation may fail or mislead | Align scripts before release |
 | No smart contract audit | Production finance risk remains unknown | Keep Testnet-only disclaimer; audit before Mainnet |
 | Public Alpha may expose demo data as real | Reputation and compliance confusion | Clear labels and synthetic/redacted data only |
@@ -412,10 +428,10 @@ Deployed contract code and completed transactions cannot be rolled back like a w
 
 ### Release blockers
 
-- [ ] Frontend API base is configurable and points to Railway.
+- [x] Frontend API base is configurable; verify that the release environment points to the selected backend.
 - [ ] Backend health endpoint works publicly.
-- [ ] CORS is restricted.
-- [ ] Complete backend environment template is verified from a clean clone.
+- [x] CORS is restricted.
+- [x] Complete backend environment template is verified locally from a clean checkout state.
 - [ ] Linux contract tests pass.
 - [ ] WASM source commit and checksum are recorded.
 - [ ] Canonical Testnet evidence is published.
@@ -435,11 +451,19 @@ Deployed contract code and completed transactions cannot be rolled back like a w
 
 ## Deployment Readiness Assessment
 
-**Current assessment: not ready for public deployment without pre-deployment fixes.**
+**Current assessment: release candidate pending CI, preview/staging verification, and external approval gates.**
 
-The repository is strong enough to prepare a deployment candidate: backend tests pass, the frontend builds, the architecture is documented, and Testnet integration exists in source. The current public topology is not release-ready because the frontend targets an unavailable Render API, the Railway API origin is not configurable, CORS is unrestricted, contract evidence is incomplete, and rollback/provenance gates are not yet implemented.
+The repository now has configurable API routing, restricted CORS, shared wallet
+challenges, health/readiness endpoints, browser security checks, and required CI
+gates. Local application verification and the disposable PostgreSQL migration
+lifecycle pass. Public promotion still depends on a successful release PR,
+preview/staging smoke tests, production backup and restore evidence, canonical
+Testnet provenance, and independent security and legal/compliance approval.
 
-Recommended next action: resolve Step 0, deploy the Railway backend and PostgreSQL first, and require a healthy API plus canonical Testnet evidence before creating the public Vercel release.
+Recommended next action: complete the release PR gates, deploy PostgreSQL and the
+backend first, verify health and authorization in staging, then promote the
+frontend only after the rollback evidence and canonical Testnet evidence are
+recorded.
 
 ## References
 
