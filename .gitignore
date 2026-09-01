@@ -5,6 +5,9 @@ backend/.env.render
 
 # Frontend build artifacts
 frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+backend/coverage/
 
 # Local screenshots
 screenshots/

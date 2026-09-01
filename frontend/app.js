@@ -1,9 +1,10 @@
-const API_BASE = 'https://agripartners-zlp2.onrender.com';
+import { API_BASE, NEAR_WALLET_NETWORK, MY_NEAR_WALLET_URL } from './src/runtime-config.js';
+import {
+  getAuth, setAuth, updateAuthUser, clearAuth, authHeaders, jsonAuthHeaders,
+  saveWalletChallenge, readWalletChallenge, clearWalletChallenge,
+} from './src/auth-storage.js';
+
 const IS_PRODUCTION_BUILD = import.meta.env.PROD;
-const NEAR_WALLET_NETWORK = 'testnet';
-const MY_NEAR_WALLET_URL = 'https://testnet.mynearwallet.com';
-const WALLET_AUTH_CHALLENGE_KEY = 'ap_wallet_auth_challenge';
-const AUTH_STORAGE_KEY = 'ap_auth';
 const LOCAL_MVP_ADMIN_WALLETS = ['farab.testnet'];
 const INVESTOR_PROTECTION_MODELS = {
   fidlot: {
@@ -44,47 +45,6 @@ const INVESTOR_PROTECTION_MODELS = {
     ],
   },
 };
-
-// --- Auth state ---
-
-function getAuth() {
-  for (const storage of [localStorage, sessionStorage]) {
-    try {
-      const raw = storage.getItem(AUTH_STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
-    } catch {
-      // Try the next storage backend.
-    }
-  }
-  return null;
-}
-
-function setAuth(token, user) {
-  const value = JSON.stringify({ token, user });
-  try { localStorage.setItem(AUTH_STORAGE_KEY, value); } catch {}
-  try { sessionStorage.setItem(AUTH_STORAGE_KEY, value); } catch {}
-}
-
-function updateAuthUser(updates) {
-  const auth = getAuth();
-  if (!auth) return;
-  setAuth(auth.token, { ...auth.user, ...updates });
-}
-
-function clearAuth() {
-  localStorage.removeItem(AUTH_STORAGE_KEY);
-  sessionStorage.removeItem(AUTH_STORAGE_KEY);
-  localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
-}
-
-function authHeaders() {
-  const auth = getAuth();
-  return auth ? { Authorization: `Bearer ${auth.token}` } : {};
-}
-
-function jsonAuthHeaders() {
-  return { ...authHeaders(), 'Content-Type': 'application/json' };
-}
 
 function isAdmin() {
   const user = getAuth()?.user;
@@ -229,7 +189,7 @@ async function resolveWalletLandingHash() {
 async function loginWithNearWallet() {
   const challenge = await postJson('/api/wallet-auth/challenge');
   challenge.callbackUrl = walletCallbackUrl();
-  localStorage.setItem(WALLET_AUTH_CHALLENGE_KEY, JSON.stringify(challenge));
+  saveWalletChallenge(challenge);
   redirectToWalletMessageSigning({
     message: challenge.message,
     recipient: challenge.recipient,
@@ -243,9 +203,8 @@ async function verifyWalletCallbackIfPresent() {
   if (!params.signature) return false;
 
   try {
-    const challengeRaw = localStorage.getItem(WALLET_AUTH_CHALLENGE_KEY);
-    if (!challengeRaw) throw new Error('Wallet challenge was not found. Please try logging in again.');
-    const challenge = JSON.parse(challengeRaw);
+    const challenge = readWalletChallenge();
+    if (!challenge) throw new Error('Wallet challenge was not found. Please try logging in again.');
     const verified = await postJson('/api/wallet-auth/verify', {
       account_id: params.accountId || params.account_id,
       public_key: params.publicKey || params.public_key,
@@ -256,13 +215,13 @@ async function verifyWalletCallbackIfPresent() {
 
     if (!verified.token) throw new Error('Wallet verification did not return a token');
     setAuth(verified.token, buildWalletUser(verified));
-    localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
+    clearWalletChallenge();
     const targetHash = await resolveWalletLandingHash();
     cleanWalletAuthCallbackUrl(targetHash);
     return true;
   } catch (err) {
     console.error('Wallet callback verification failed', err);
-    localStorage.removeItem(WALLET_AUTH_CHALLENGE_KEY);
+    clearWalletChallenge();
     cleanWalletAuthCallbackUrl();
     sessionStorage.setItem('ap_login_error', friendlyUiErrorMessage(err, 'Wallet sign-in'));
     return false;

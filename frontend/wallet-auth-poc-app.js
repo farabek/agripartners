@@ -1,6 +1,4 @@
-const API_BASE = 'https://agripartners-zlp2.onrender.com';
-const NEAR_WALLET_NETWORK = 'testnet';
-const MY_NEAR_WALLET_URL = 'https://testnet.mynearwallet.com';
+import { API_BASE, NEAR_WALLET_NETWORK, MY_NEAR_WALLET_URL } from './src/runtime-config.js';
 
 const POC_TOKEN_KEY = 'ap_wallet_auth_poc_token';
 const POC_CHALLENGE_KEY = 'ap_wallet_auth_poc_challenge';
@@ -21,7 +19,7 @@ function log(message, data) {
 }
 
 function setAuthStatus() {
-  els.authStatus.textContent = localStorage.getItem(POC_TOKEN_KEY) ? 'POC token stored' : 'No POC token';
+  els.authStatus.textContent = sessionStorage.getItem(POC_TOKEN_KEY) ? 'POC token stored for this tab' : 'No POC token';
 }
 
 async function postJson(path, body) {
@@ -70,7 +68,7 @@ async function signMessage() {
   const challenge = await postJson('/api/wallet-auth/challenge');
   const callbackUrl = `${window.location.origin}${window.location.pathname}`;
   challenge.callbackUrl = callbackUrl;
-  localStorage.setItem(POC_CHALLENGE_KEY, JSON.stringify(challenge));
+  sessionStorage.setItem(POC_CHALLENGE_KEY, JSON.stringify(challenge));
 
   log('Challenge received', challenge);
 
@@ -87,7 +85,7 @@ async function signMessage() {
 }
 
 async function verifyCallback(callbackParams) {
-  const challengeRaw = localStorage.getItem(POC_CHALLENGE_KEY);
+  const challengeRaw = sessionStorage.getItem(POC_CHALLENGE_KEY);
   if (!challengeRaw) {
     throw new Error('Wallet callback received but no stored POC challenge was found');
   }
@@ -121,10 +119,10 @@ async function verifyCallback(callbackParams) {
     throw new Error('Verify response did not include token');
   }
 
-  localStorage.setItem(POC_TOKEN_KEY, token);
+  sessionStorage.setItem(POC_TOKEN_KEY, token);
   console.log('TOKEN SAVED TO STORAGE', token?.slice(0, 20));
   log('TOKEN SAVED TO STORAGE', { token: token?.slice(0, 20) });
-  localStorage.removeItem(POC_CHALLENGE_KEY);
+  sessionStorage.removeItem(POC_CHALLENGE_KEY);
   els.walletStatus.textContent = verified.account_id;
   setAuthStatus();
   log('Backend verification succeeded', verified);
@@ -133,7 +131,7 @@ async function verifyCallback(callbackParams) {
 }
 
 async function checkSession() {
-  const token = localStorage.getItem(POC_TOKEN_KEY);
+  const token = sessionStorage.getItem(POC_TOKEN_KEY);
   console.log('TOKEN LOADED FROM STORAGE', token?.slice(0, 20));
   log('TOKEN LOADED FROM STORAGE', { token: token?.slice(0, 20) });
   if (!token) {
@@ -154,8 +152,8 @@ async function checkSession() {
 }
 
 function clearSession() {
-  localStorage.removeItem(POC_TOKEN_KEY);
-  localStorage.removeItem(POC_CHALLENGE_KEY);
+  sessionStorage.removeItem(POC_TOKEN_KEY);
+  sessionStorage.removeItem(POC_CHALLENGE_KEY);
   setAuthStatus();
   log('POC session cleared');
 }
@@ -180,7 +178,7 @@ async function verifyCallbackIfPresent() {
     await verifyCallback(params);
   } catch (err) {
     log(err.message || 'Wallet callback verification failed', params);
-    localStorage.removeItem(POC_CHALLENGE_KEY);
+    sessionStorage.removeItem(POC_CHALLENGE_KEY);
     window.history.replaceState({}, document.title, window.location.pathname);
     log('POC callback cleared after failed verification. Click Sign Message to request a fresh challenge.');
   }

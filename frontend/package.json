@@ -5,10 +5,16 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "audit:security": "npm audit --audit-level=high",
+    "lint": "eslint app.js wallet-auth-poc-app.js src",
+    "test:e2e": "playwright test",
     "dev:wallet-poc": "vite --host 127.0.0.1 --port 5173",
     "build:wallet-poc": "vite build"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.62.1",
+    "eslint": "^10.9.1",
     "vite": "8.0.16"
   }
 }
