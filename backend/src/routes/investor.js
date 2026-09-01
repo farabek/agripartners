@@ -146,6 +146,9 @@ router.get('/deals/:id/returns', async (req, res) => {
 });
 
 router.post('/deals/:id/withdraw', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: 'Legacy Testnet withdrawal is disabled in production' });
+  }
   try {
     const deal = await getInvestorDeal(req, res);
     if (!deal) return;

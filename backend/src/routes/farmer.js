@@ -88,6 +88,9 @@ router.get('/deals/:dealId/cycles', async (req, res) => {
 });
 
 router.post('/deals/:dealId/withdraw', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: 'Legacy Farmer Testnet payout is disabled in production' });
+  }
   try {
     const deal = await getOwnedFarmerDeal(req, res);
     if (!deal) return;
