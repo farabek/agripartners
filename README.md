@@ -27,7 +27,8 @@ accepted limitations, and the roadmap.
 > Engineering, Operations, roadmap, and release scopes.
 
 Current status: Alpha / working prototype on NEAR Testnet. Stage 2 Slice 2 is merged at the
-verified `main` checkpoint; Stage 2 Slice 3 and the Project Expense API are not implemented.
+verified `main` checkpoint. The first admin-only Project Expense API and application authorization
+boundary are implemented after that checkpoint; the Operator expense UI remains unimplemented.
 
 ## Current Status and Guardrails
 

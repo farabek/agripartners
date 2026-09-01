@@ -3,7 +3,7 @@ services:
     name: agripartners
     runtime: node
     rootDir: backend
-    buildCommand: npm install
+    buildCommand: npm ci
     startCommand: node server.js
     plan: free
     healthCheckPath: /health
@@ -13,7 +13,9 @@ services:
       - key: PORT
         value: 3000
       - key: API_KEY
-        value: agripartners-demo-key
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://agripartners.vercel.app
       - key: NEAR_NETWORK
         value: testnet
       - key: NEAR_ADMIN_ACCOUNT

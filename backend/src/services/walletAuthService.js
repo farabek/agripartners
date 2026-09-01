@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { utils } = require('near-api-js');
+const challengeStore = require('./walletChallengeStore');
 
 const NETWORK_ID = 'testnet';
 const DEFAULT_RPC_URLS = {
@@ -10,24 +11,13 @@ const DEFAULT_RPC_URLS = {
 const RECIPIENT = 'farab.testnet';
 const MESSAGE = 'Authenticate with AgriPartners Wallet Phase 3 POC';
 const NONCE_TTL_MS = 5 * 60 * 1000;
-const nonceStore = new Map();
-
-function cleanupExpiredNonces() {
-  const now = Date.now();
-  for (const [nonce, challenge] of nonceStore.entries()) {
-    if (challenge.expiresAt <= now || challenge.used) {
-      nonceStore.delete(nonce);
-    }
-  }
-}
-
-function createChallenge() {
-  cleanupExpiredNonces();
+async function createChallenge() {
   const nonceBytes = crypto.randomBytes(32);
   const nonce = nonceBytes.toString('base64');
   const expiresAt = Date.now() + NONCE_TTL_MS;
 
-  nonceStore.set(nonce, {
+  await challengeStore.create({
+    nonce,
     message: MESSAGE,
     recipient: RECIPIENT,
     nonceBytes,
@@ -188,8 +178,6 @@ async function assertFullAccessKey(accountId, publicKey) {
 }
 
 async function verifyWalletSignature(input) {
-  cleanupExpiredNonces();
-
   const accountId = input.account_id || input.accountId;
   const publicKey = input.public_key || input.publicKey;
   const signatureValue = input.signature;
@@ -200,9 +188,8 @@ async function verifyWalletSignature(input) {
     throw new Error('account_id, public_key, signature, and nonce are required');
   }
 
-  const challenge = nonceStore.get(nonce);
-  if (!challenge || challenge.used || challenge.expiresAt <= Date.now()) {
-    nonceStore.delete(nonce);
+  const challenge = await challengeStore.consume(nonce);
+  if (!challenge) {
     throw new Error('Challenge nonce is invalid or expired');
   }
 
@@ -216,96 +203,15 @@ async function verifyWalletSignature(input) {
   const verifiedAttempt = verificationAttempts.find(candidate => candidate.verificationResult);
   const verificationResult = Boolean(verifiedAttempt);
 
-  console.log('VERIFY DEBUG');
-  console.log('rawInputs', {
-    accountId,
-    publicKey,
-    signature: signatureValue,
-    nonce,
-    callbackUrl,
-  });
-  console.log('message', challenge.message);
-  console.log('recipient', challenge.recipient);
-  console.log('nonceBase64FromChallenge', Buffer.from(challenge.nonceBytes).toString('base64'));
-  console.log('nonceBase64FromVerifyPayload', nonce);
-  console.log('callbackUrl', callbackUrl);
-  console.log('signatureRaw', signatureValue);
-  console.log('publicKeyRaw', publicKey);
-  console.log('decodedSignatureLength', signature.length);
-  console.log('decodedSignatureHex', signature.toString('hex'));
-  console.log('decodedPublicKeyLength', nearPublicKey.data?.length ?? null);
-  console.log('decodedPublicKeyHex', Buffer.from(nearPublicKey.data || []).toString('hex'));
-  for (const attempt of verificationAttempts) {
-    console.log('payloadCandidate', attempt.name);
-    console.log('reconstructedPayloadObject', {
-      message: attempt.payload.message,
-      nonceBase64: Buffer.from(attempt.payload.nonce).toString('base64'),
-      nonceBytes: Array.from(attempt.payload.nonce),
-      recipient: attempt.payload.recipient,
-      callbackUrl: attempt.payload.callbackUrl,
-    });
-    console.log('payloadLength', attempt.payloadBytes.length);
-    console.log('payloadHex', Buffer.from(attempt.payloadBytes).toString('hex'));
-    console.log('sha256HashHex', Buffer.from(attempt.messageHash).toString('hex'));
-    console.log('verificationResult', attempt.verificationResult);
-  }
-  console.log('matchedPayload', verifiedAttempt?.name || null);
-  if (!verifiedAttempt) {
-    console.log('allPayloadCandidatesFailed', verificationAttempts.map(attempt => ({
-      name: attempt.name,
-      verificationResult: attempt.verificationResult,
-      payloadHex: Buffer.from(attempt.payloadBytes).toString('hex'),
-      sha256HashHex: Buffer.from(attempt.messageHash).toString('hex'),
-    })));
-    console.log(
-      'payloadHexSideBySide',
-      verificationAttempts.map(attempt => `${attempt.name}: ${Buffer.from(attempt.payloadBytes).toString('hex')}`).join('\n')
-    );
-  }
-
-  console.log('[wallet-auth-poc] verify request', {
-    challengeNonceBase64: nonce,
-    challengeMessage: challenge.message,
-    callbackAccountId: accountId,
-    callbackSignature: signatureValue,
-    callbackSignatureFormat: detectSignatureFormat(signatureValue),
-    callbackPublicKey: publicKey,
-    publicKeyFormat: publicKey.startsWith('ed25519:') ? 'ed25519-prefixed-base58' : 'unknown',
-    payloadCandidates: verificationAttempts.map(attempt => ({
-      name: attempt.name,
-      message: attempt.payload.message,
-      nonceBase64: Buffer.from(attempt.payload.nonce).toString('base64'),
-      recipient: attempt.payload.recipient,
-      callbackUrl: attempt.payload.callbackUrl,
-      payloadBytesLength: attempt.payloadBytes.length,
-      payloadHex: Buffer.from(attempt.payloadBytes).toString('hex'),
-      sha256HashHex: Buffer.from(attempt.messageHash).toString('hex'),
-      verificationResult: attempt.verificationResult,
-    })),
-    decodedSignatureLength: signature.length,
-    decodedSignatureHex: signature.toString('hex'),
-    decodedPublicKeyLength: nearPublicKey.data.length,
-    decodedPublicKeyHex: Buffer.from(nearPublicKey.data).toString('hex'),
-    verificationResult,
-    matchedPayload: verifiedAttempt?.name || null,
-  });
-
   if (!verificationResult) {
     throw new Error('Signature verification failed');
   }
-
-  console.log('[wallet-auth-poc] signature verified; checking full access key', {
-    accountId,
-    publicKey,
-  });
-  await assertFullAccessKey(accountId, publicKey);
-  console.log('[wallet-auth-poc] full access key check passed', {
-    accountId,
-    publicKey,
-  });
-
-  challenge.used = true;
-  nonceStore.delete(nonce);
+  try {
+    await assertFullAccessKey(accountId, publicKey);
+  } catch (error) {
+    await challengeStore.release(nonce);
+    throw error;
+  }
 
   const token = jwt.sign(
     {
@@ -317,7 +223,6 @@ async function verifyWalletSignature(input) {
     process.env.JWT_SECRET,
     { expiresIn: '1d' }
   );
-  console.log('POC TOKEN CREATED', token?.slice(0, 20));
 
   const responsePayload = {
     token,
@@ -325,11 +230,6 @@ async function verifyWalletSignature(input) {
     public_key: publicKey,
     network: NETWORK_ID,
   };
-  console.log('VERIFY RESPONSE PAYLOAD', {
-    ...responsePayload,
-    token: responsePayload.token?.slice(0, 20),
-  });
-
   return responsePayload;
 }
 

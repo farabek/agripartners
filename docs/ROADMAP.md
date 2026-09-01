@@ -107,9 +107,17 @@ completed product work.
 - Implement evidence/reference handling and reconciliation status where approved.
 - Add Operator queues, filters, review states, exception handling, and audit-ready history.
 - Improve PostgreSQL/NEAR synchronization visibility and recovery from partial failures.
-- Add shared authentication challenge storage, stricter security controls, redacted logging,
-  rate limits, and environment-safe configuration.
-- Add reproducible CI and canonical Testnet contract/build/transaction evidence.
+- Complete the ESM migration required for `near-api-js` 7.x; the compatible 6.x upgrade removes
+  all high and moderate advisories but retains upstream low-severity secp256k1/elliptic findings.
+- Publish canonical Testnet contract/build/transaction evidence from the strengthened CI pipeline.
+
+### Security hardening completed after the Alpha v1.2 presentation checkpoint
+
+- Shared single-use PostgreSQL wallet challenges and authentication throttling are implemented.
+- Security headers, bounded request bodies, request IDs, and redacted public server errors are implemented.
+- High-severity dependency audit gates and frontend production builds run in local verification.
+- Ubuntu CI now runs Rust formatting, Clippy, tests, and the WASM build.
+- The first admin-only Project Expense lifecycle and evidence API is implemented; Operator UI and external payment execution remain planned.
 
 ## Beta v1.2
 

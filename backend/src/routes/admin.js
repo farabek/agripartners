@@ -324,6 +324,7 @@ router.post('/deals', async (req, res) => {
 });
 
 router.post('/deals/:id/start-cycle', async (req, res) => {
+  if (!requireNonProduction(req, res)) return;
   const deal = await dealService.getDealById(req.params.id);
   if (!deal) return res.status(404).json({ error: 'Deal not found' });
 
@@ -338,6 +339,7 @@ router.post('/deals/:id/start-cycle', async (req, res) => {
 });
 
 router.post('/deals/:id/report-cycle', async (req, res) => {
+  if (!requireNonProduction(req, res)) return;
   const deal = await dealService.getDealById(req.params.id);
   if (!deal) return res.status(404).json({ error: 'Deal not found' });
 
@@ -446,6 +448,7 @@ router.post('/deals/:id/returns', async (req, res) => {
 });
 
 router.post('/deals/:id/fund', async (req, res) => {
+  if (!requireNonProduction(req, res)) return;
   const deal = await dealService.getDealById(req.params.id);
   if (!deal) return res.status(404).json({ error: 'Deal not found' });
   try {
@@ -484,6 +487,7 @@ router.post('/deals/:id/fund-as', async (req, res) => {
 });
 
 router.post('/deals/:id/withdraw', async (req, res) => {
+  if (!requireNonProduction(req, res)) return;
   const deal = await dealService.getDealById(req.params.id);
   if (!deal) return res.status(404).json({ error: 'Deal not found' });
   try {

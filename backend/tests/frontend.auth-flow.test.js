@@ -5,16 +5,24 @@ const appJs = fs.readFileSync(
   path.join(__dirname, '..', '..', 'frontend', 'app.js'),
   'utf8'
 );
+const authStorageJs = fs.readFileSync(
+  path.join(__dirname, '..', '..', 'frontend', 'src', 'auth-storage.js'),
+  'utf8'
+);
+const runtimeConfigJs = fs.readFileSync(
+  path.join(__dirname, '..', '..', 'frontend', 'src', 'runtime-config.js'),
+  'utf8'
+);
 
-test('frontend auth session is written to localStorage and sessionStorage', () => {
-  expect(appJs).toContain("const AUTH_STORAGE_KEY = 'ap_auth'");
-  expect(appJs).toContain('localStorage.setItem(AUTH_STORAGE_KEY, value)');
-  expect(appJs).toContain('sessionStorage.setItem(AUTH_STORAGE_KEY, value)');
+test('frontend auth session is isolated to sessionStorage and never persisted in localStorage', () => {
+  expect(authStorageJs).toContain("const AUTH_STORAGE_KEY = 'ap_auth'");
+  expect(authStorageJs).toContain('sessionStorage.setItem(AUTH_STORAGE_KEY');
+  expect(authStorageJs).not.toContain('localStorage');
 });
 
-test('frontend auth headers can recover wallet auth from either storage', () => {
-  expect(appJs).toContain('for (const storage of [localStorage, sessionStorage])');
-  expect(appJs).toContain('return auth ? { Authorization: `Bearer ${auth.token}` } : {}');
+test('frontend auth headers recover only the tab-scoped auth session', () => {
+  expect(authStorageJs).toContain('sessionStorage.getItem(AUTH_STORAGE_KEY)');
+  expect(authStorageJs).toContain('return auth ? { Authorization: `Bearer ${auth.token}` } : {}');
 });
 
 test('onboarding profile creation sends wallet authorization header', () => {
@@ -27,8 +35,9 @@ test('onboarding profile creation sends wallet authorization header', () => {
 });
 
 test('frontend uses browser-safe wallet redirect and the Render API', () => {
-  expect(appJs).toContain("const API_BASE = 'https://agripartners-zlp2.onrender.com'");
-  expect(appJs).toContain("const MY_NEAR_WALLET_URL = 'https://testnet.mynearwallet.com'");
+  expect(runtimeConfigJs).toContain("import.meta.env.VITE_API_BASE_URL");
+  expect(runtimeConfigJs).toContain("'https://agripartners-zlp2.onrender.com'");
+  expect(runtimeConfigJs).toContain("const MY_NEAR_WALLET_URL = 'https://testnet.mynearwallet.com'");
   expect(appJs).toContain("new URL('/sign-message', MY_NEAR_WALLET_URL)");
   expect(appJs).toContain("walletUrl.searchParams.set('nonce', nonceBase64)");
   expect(appJs).not.toContain("from 'buffer'");

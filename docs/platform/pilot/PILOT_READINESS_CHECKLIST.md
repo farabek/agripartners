@@ -2,6 +2,12 @@
 
 Status: Mandatory go/no-go checklist for Phase 3 Pilot 1.0.
 
+Repository hardening does not complete any unchecked legal, compliance, banking, custody, or
+operational item below. Legacy Testnet funding, cycle settlement, and withdrawal endpoints are
+disabled when `NODE_ENV=production`. Removing that technical guard requires a separately approved
+architecture change and does not itself authorize real funds; Final Go/No-Go evidence and all
+applicable external approvals remain mandatory.
+
 Each item must have an owner, evidence link or location, review date, and status. A checked box without reviewable evidence is not complete.
 
 The Pilot cannot proceed unless cryptocurrency stops at AgriPartners OÜ in Estonia, any approved

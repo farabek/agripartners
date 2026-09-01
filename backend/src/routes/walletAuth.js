@@ -1,23 +1,18 @@
 const router = require('express').Router();
 const walletAuthService = require('../services/walletAuthService');
+const { walletChallengeLimiter, walletVerifyLimiter } = require('../middleware/security');
 
-router.post('/challenge', (req, res) => {
-  res.json(walletAuthService.createChallenge());
+router.post('/challenge', walletChallengeLimiter, async (req, res) => {
+  res.json(await walletAuthService.createChallenge());
 });
 
-router.post('/verify', async (req, res) => {
+router.post('/verify', walletVerifyLimiter, async (req, res) => {
   try {
     const result = await walletAuthService.verifyWalletSignature(req.body);
-    console.log('VERIFY RESPONSE PAYLOAD', {
-      ...result,
-      token: result.token?.slice(0, 20),
-    });
     res.json(result);
   } catch (err) {
-    console.log('[wallet-auth-poc] verify failed before token response', {
-      error: err.message,
-    });
-    res.status(401).json({ error: err.message });
+    console.warn('[wallet-auth] verification rejected', { reason: err.message });
+    res.status(401).json({ error: 'Wallet verification failed' });
   }
 });
 

@@ -77,7 +77,7 @@ Evidence: [Operating Model](../business/OPERATING_MODEL.md) and
 - **Business role:** receives Project funding in fiat, pays approved local expenses, coordinates operations, and returns proceeds in fiat.
 - **Legal role:** separate legal and operational fiat recipient under a written agreement with AgriPartners OÜ.
 - **Technical representation:** operator, assignment, financial workflow, fiat-transfer, and Project Expense records.
-- **Current capability:** database representation and constraints; no completed expense API or UI.
+- **Current capability:** database representation, constraints, and an admin-only expense API; no Operator expense UI or payment execution.
 - **Planned boundary:** verified entity onboarding, contract execution, bank integration, and payment execution.
 
 Evidence: [Financial Operating Model](../business/FINANCIAL_OPERATING_MODEL.md) and Migrations
@@ -240,7 +240,7 @@ implemented.
 - Database constraints do not establish legal identity, contract execution, or production authority.
 - There is no dedicated contract or legal-entity registry.
 - No production banking, conversion, custody, payment, KYC/KYB, or settlement execution exists.
-- Project Expense accounting is a verified database foundation without its future API and UI.
+- Project Expense accounting is a verified database foundation with an admin-only lifecycle and evidence API; its Operator UI is not implemented.
 
 ## 8. Where to Read Next
 
@@ -311,8 +311,9 @@ Migration 016 establishes the financial workflow and its authoritative state his
 017 attaches fiat budgets and Expenses and allows `PROJECT_EXPENSE_RECORDED` only when it
 references one paid Expense from the same workflow. It does not rewrite historical events.
 
-These are database guarantees. No Project Expense API, application authorization service, or
-operator expense UI exists yet.
+These are database guarantees. A post-checkpoint admin-only Project Expense API and application
+authorization policy now use them. The Operator expense UI and external payment execution remain
+future work.
 
 ## 10. Role → Contract → Technical Data Mapping
 
@@ -384,8 +385,8 @@ Evidence: [60/40 model summary](../60-40/README.md),
 | Immutable lifecycle and evidence | Implemented + Verified | [Migration 017](../../backend/src/db/migrations/017_project_expense_accounting_foundation.sql) |
 | Derived reservations | Implemented + Verified | [runtime tests](../../backend/tests/projectExpenseAccountingRuntime.test.js) |
 | Concurrency and overspending protection | Implemented + Verified | [runtime tests](../../backend/tests/projectExpenseAccountingRuntime.test.js) |
-| Project Expense API | Not Implemented | No corresponding [backend route](../../backend/src/routes/) |
-| Project Expense authorization | Not Implemented | Actor labels are not an application authorization service |
+| Project Expense API | Implemented | Admin-only lifecycle and evidence routes in [projectExpenses.js](../../backend/src/routes/projectExpenses.js); bank/payment execution remains external |
+| Project Expense authorization | Implemented for current API scope | Explicit application policy in [projectExpenseAuthorization.js](../../backend/src/services/projectExpenseAuthorization.js); product roles do not prove legal authority |
 | Operator expense UI | Not Implemented | No corresponding [frontend](../../frontend/) flow |
 | Contract registry | Not Implemented | Files in [legal documentation](../legal/) are not registry records |
 | Legal-entity registry | Not Implemented | Operator table is not a general verified registry |
@@ -407,8 +408,16 @@ declarative. Constraints cannot verify a human, mandate, legal entity, signed ag
 statement, or external payment.
 
 There is no contract registry, general legal-entity registry, production payment execution, bank
-integration, completed KYC/KYB, production custody, Project Expense API, or expense UI. These do
-not invalidate Slice 2 because its scope is an additive PostgreSQL accounting foundation.
+integration, completed KYC/KYB, production custody, or expense UI. The post-checkpoint admin-only
+Project Expense API operates on the Slice 2 accounting foundation but does not execute payments
+or establish real-world authority. These limitations do not invalidate Slice 2 because its scope
+is an additive PostgreSQL accounting foundation.
+
+Post-checkpoint security hardening adds shared PostgreSQL wallet challenges, request throttling,
+security headers, redacted public 5xx responses, migration locking, dependency audit gates, and
+contract checks in Ubuntu CI. Browser tokens are tab-scoped rather than persisted in
+`localStorage`. These controls improve Alpha safety but do not constitute a production security,
+custody, smart-contract, or compliance approval.
 
 No separate Final Closure Audit or authoritative GitHub CI billing-lock record was found in
 `main`; this document therefore claims neither a successful GitHub CI run nor a billing lock.

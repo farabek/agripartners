@@ -29,10 +29,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run backend tests
+      - name: Run backend tests with coverage
         # This historical Stage 2 audit guard requires commits that are not
         # available in the standard shallow Actions checkout.
-        run: npm test -- --testPathIgnorePatterns=tests/slice2CommitScope.test.js
+        run: npm run test:coverage
+
+      - name: Lint backend
+        run: npm run lint
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
 
   frontend-build:
     name: Frontend build
@@ -56,3 +62,56 @@ jobs:
 
       - name: Build frontend
         run: npm run build
+
+      - name: Lint frontend
+        run: npm run lint
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser smoke and accessibility tests
+        run: npm run test:e2e
+
+  contract-tests:
+    name: Smart contract checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contract
+    steps:
+      - uses: actions/checkout@v4
+      # Pin the toolchain used by the contract release process. Newer linkers
+      # changed wasm undefined-import handling and are not reproducible here.
+      - uses: dtolnay/rust-toolchain@1.88.0
+        with:
+          targets: wasm32-unknown-unknown
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: contract
+      - name: Install pinned NEAR contract builder
+        run: curl --proto '=https' --tlsv1.2 -LsSf https://github.com/near/cargo-near/releases/download/cargo-near-v0.22.0/cargo-near-installer.sh | sh
+      - name: Install protocol-compatible WASM toolchain
+        run: rustup toolchain install 1.86.0 --profile minimal --target wasm32-unknown-unknown
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Build NEAR-compatible WASM
+        run: |
+          cargo +1.86.0 near build non-reproducible-wasm --no-abi
+          wasm_path=$(find target/near -type f -name 'agripartners.wasm' -print -quit)
+          test -n "$wasm_path"
+          mkdir -p target/wasm32-unknown-unknown/release
+          cp "$wasm_path" target/wasm32-unknown-unknown/release/agripartners.wasm
+          sha256sum target/wasm32-unknown-unknown/release/agripartners.wasm | tee contract-wasm.sha256
+      - name: Publish contract provenance artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agripartners-contract-${{ github.sha }}
+          path: |
+            contract/target/wasm32-unknown-unknown/release/agripartners.wasm
+            contract/contract-wasm.sha256
+          if-no-files-found: error
+      - run: cargo test

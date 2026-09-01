@@ -1,3 +1,7 @@
+// The public initializer intentionally mirrors the deployed JSON ABI. Grouping
+// these fields would be a breaking contract-interface change.
+#![allow(clippy::too_many_arguments)]
+
 use near_sdk::json_types::U128;
 use near_sdk::{env, near, require, AccountId, NearToken, Promise};
 
