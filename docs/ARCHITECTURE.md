@@ -234,6 +234,23 @@ Financial terminology remains subject to
 [ADR-002: Financial Semantics](architecture/ADR-002-financial-semantics.md), which is currently
 Proposed and must not be treated as an accepted decision until its status changes.
 
+## Security and Project Expense API boundary
+
+Authentication entry points are rate-limited and NEP-413 challenges are stored in PostgreSQL as
+single-use, expiring records so multiple backend instances share replay state. Public 5xx
+responses are redacted and carry a request ID; internal diagnostics remain server-side. The
+backend applies security headers, an explicit CORS allowlist, and a bounded JSON body parser.
+
+The admin-only Project Expense API supports category discovery, listing, request creation,
+approval, rejection, cancellation, evidence attachment, and paid-state recording. Its
+application policy is additional to the database's immutable-event, segregation-of-duties,
+budget, fiat-only, and evidence constraints. It records financial workflow state but never
+executes a bank or crypto payment and never substitutes for verified corporate authority.
+
+Migrations acquire a PostgreSQL advisory lock to prevent concurrent application by parallel
+instances. `/health/live` is process liveness; `/health` is deployment readiness and verifies the
+database and migration registry.
+
 ## Architecture Decision Records
 
 - [ADR-001: Live-first Architecture](architecture/ADR-001-live-first-architecture.md) —
