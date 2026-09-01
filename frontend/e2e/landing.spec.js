@@ -16,3 +16,18 @@ test('investor presentation route renders without backend authentication', async
   await expect(page.locator('#view-presentation')).toBeVisible();
   await expect(page.getByText('Investor', { exact: false }).first()).toBeVisible();
 });
+
+test('platform login rejects empty credentials without contacting the backend', async ({ page }) => {
+  let loginRequests = 0;
+  await page.route('**/api/auth/login', async (route) => {
+    loginRequests += 1;
+    await route.fulfill({ status: 500, body: '{}' });
+  });
+
+  await page.goto('/#login');
+  await page.getByRole('button', { name: 'Sign In' }).click();
+
+  await expect(page.locator('#login-username')).toBeFocused();
+  await expect(page.locator('#login-error')).toBeHidden();
+  expect(loginRequests).toBe(0);
+});

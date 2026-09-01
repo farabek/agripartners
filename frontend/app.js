@@ -1899,7 +1899,7 @@ function showLogin() {
         </div>
       </div>
       ` : ''}
-      <div id="login-error" class="hidden bg-red-900 text-red-200 px-3 py-2 rounded text-sm"></div>
+      <div id="login-error" class="hidden bg-red-900 text-red-200 px-3 py-2 rounded text-sm" role="alert" aria-live="polite"></div>
       ${showWalletAccess ? `
         <div class="flex items-center gap-3 py-1">
           <span class="h-px flex-1 bg-slate-700"></span>
@@ -1916,13 +1916,13 @@ function showLogin() {
       </div>
       <div>
         <label class="block text-sm text-slate-400 mb-1">Username</label>
-        <input id="login-username" type="text" autocomplete="username"
+        <input id="login-username" type="text" autocomplete="username" required
           class="w-full bg-slate-700 text-slate-100 px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
       </div>
       <div>
         <label class="block text-sm text-slate-400 mb-1">Password</label>
         <div class="relative">
-          <input id="login-password" type="password" autocomplete="current-password"
+          <input id="login-password" type="password" autocomplete="current-password" required
             class="w-full bg-slate-700 text-slate-100 px-3 py-2 pr-12 rounded-lg border border-slate-600 focus:outline-none focus:border-green-500" />
           <button type="button" id="toggle-password"
             class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-100">
@@ -2019,6 +2019,11 @@ async function handleLogin(username, password) {
   const errEl = document.getElementById('login-error');
   const btn = document.querySelector('#login-form button[type="submit"]');
   errEl.classList.add('hidden');
+  if (!username || !password) {
+    errEl.textContent = 'Enter your username and password.';
+    errEl.classList.remove('hidden');
+    return;
+  }
   btn.disabled = true;
   btn.textContent = 'Signing in...';
   try {
