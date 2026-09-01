@@ -105,4 +105,13 @@ jobs:
           test -n "$wasm_path"
           mkdir -p target/wasm32-unknown-unknown/release
           cp "$wasm_path" target/wasm32-unknown-unknown/release/agripartners.wasm
+          sha256sum target/wasm32-unknown-unknown/release/agripartners.wasm | tee contract-wasm.sha256
+      - name: Publish contract provenance artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agripartners-contract-${{ github.sha }}
+          path: |
+            contract/target/wasm32-unknown-unknown/release/agripartners.wasm
+            contract/contract-wasm.sha256
+          if-no-files-found: error
       - run: cargo test
