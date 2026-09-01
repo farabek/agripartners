@@ -100,7 +100,7 @@ interaction rules, user experiences, review state, and software delivery priorit
 | Documentation Index | `docs/DOCUMENTATION_INDEX.md` | Official audience navigation, discovery, publication-readiness, and access entry point | Living | Product | Yes | — | 2026-07-30 | Fragmented package navigation | — | Canonical only for navigation; does not define document or domain authority |
 | AgriPartners Platform Model | `docs/platform/AGRIPARTNERS_PLATFORM_MODEL.md` | Integrated current platform overview and evidence-backed navigation | — | Product | Yes | — | 2026-07-25 | Fragmented platform overview | — | Source declares canonical classification but no lifecycle status or version; defers specialized facts to the owning domain and implementation authorities |
 | Documentation Layer Model | `docs/DOCUMENTATION_LAYER_MODEL.md` | Documentation package and repository-organization planning model | Draft | AgriPartners | No | Draft v1 | 2026-07-07 | — | — | Registered from its declared Draft v1 metadata; does not define governance precedence |
-| Documentation Cleanup Plan | `docs/DOCUMENTATION_CLEANUP_PLAN.md` | Documentation inventory, cleanup sequencing, and stable-path planning | Draft | Product | No | — | 2026-07-12 | — | — | Registered from its declared Draft metadata; classifications defer to this matrix |
+| Documentation Cleanup Plan | `docs/archive/governance/DOCUMENTATION_CLEANUP_PLAN.md` | Historical documentation inventory and cleanup plan | Archived | Product | No | — | 2026-09-01 | — | — | Completed planning evidence; current navigation is owned by the Documentation Index |
 | Software Delivery Roadmap | `docs/ROADMAP.md` | Living software release roadmap | Living | Product | Yes | 1.0 | 2026-07-06 | Distributed Alpha/Beta delivery plans | — | Does not replace the frozen business roadmap |
 | Product Operating Model v1.0 | `docs/platform/PRODUCT_OPERATING_MODEL_V1.md` | Project-centric product architecture and role model | Frozen | Product | Yes | 1.0 | 2026-07-04 | Earlier dashboard/deal-centric product assumptions | — | Frozen under its declared change control |
 | Canonical Project Workspace Specification | `docs/platform/CANONICAL_PROJECT_WORKSPACE_SPEC.md` | Investor-facing Project Workspace structure and acceptance rules | Accepted | Product | Yes | 1.0 | 2026-07-04 | Project-specific Workspace layouts | — | Applies to every View Project experience |
@@ -519,7 +519,7 @@ Book, Frozen Business documents, 60/40 authority package, Roadmap, and Releases 
 ### Presentation Historical Documents
 
 - v1 presentation sources and PPTX decks
-- Root `one-pager.html`, `pitch-deck.html`, and `funding-strategy.html`
+- Root `one-pager.html` and `funding-strategy.html`; archived generated presentation HTML
 - `docs/archive/checklist.html`
 
 ## Demo
@@ -820,7 +820,7 @@ required external reference remains:
 - completed `docs/product-roadmap/01-*` through `05-*` and `11-*` through `15-*`
 - v1 one-pager, pitch-deck, and demo-script files under `docs/investor-package/`
 - v1 investor deck PPTX files
-- root `one-pager.html`, `pitch-deck.html`, and `funding-strategy.html`
+- root `one-pager.html` and `funding-strategy.html`; archived generated presentation HTML
 - `docs/screenshots/demo-v1/`
 - stale generated CRM, shortlist, presentation, and Platform Explained outputs after their
   editable sources are replaced
