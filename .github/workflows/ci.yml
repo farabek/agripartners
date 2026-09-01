@@ -85,7 +85,7 @@ jobs:
       - uses: actions/checkout@v4
       # Pin the toolchain used by the contract release process. Newer linkers
       # changed wasm undefined-import handling and are not reproducible here.
-      - uses: dtolnay/rust-toolchain@1.86.0
+      - uses: dtolnay/rust-toolchain@1.88.0
         with:
           targets: wasm32-unknown-unknown
           components: rustfmt, clippy
