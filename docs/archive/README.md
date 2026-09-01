@@ -16,6 +16,11 @@ Canonical and active documents remain outside `docs/archive/`. Use the
 the [Documentation Authority Matrix](../DOCUMENTATION_AUTHORITY_MATRIX.md) to verify
 authority.
 
+Notable archived records:
+
+- [Completed documentation cleanup plan](governance/DOCUMENTATION_CLEANUP_PLAN.md)
+- [Historical generated pitch deck](presentations/pitch-deck.html)
+
 ## Archive Rules
 
 - Preserve Git history with `git mv`.

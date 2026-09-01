@@ -1,249 +1,77 @@
-<!-- markdownlint-configure-file { "MD013": false } -->
-
 # AgriPartners Documentation Index
 
 Status: Living
 
 Owner: Product
 
-Last reviewed: 2026-07-30
+This is the official navigation page. It points to current sources without repeating their
+content. Historical and superseded material is retained under [`archive/`](archive/README.md).
 
-> **Official documentation navigation entry point:** This document is the maintained map for
-> finding AgriPartners documentation and selecting the correct audience package. It does not
-> assign documentation authority or replace canonical domain documents.
+## Start here
 
-> **Canonical platform entry point:** Start with the
-> [AgriPartners Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md) for participants, legal
-> relationships, the crypto/fiat boundary, architecture, Stage 2 financial foundations, pilot
-> mappings, implementation status, limitations, verification, and roadmap.
+1. [Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md) — concise product, business, and
+   technical orientation.
+2. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md) — current release and limits.
+3. [Live product](https://agripartners.vercel.app/#home) or
+   [Presentation Mode](https://agripartners.vercel.app/#demo/presentation/investor).
 
-> **Development Round authority:** Use the
-> [AgriPartners Development Round Funding Package — AME v1.0 R1](https://github.com/farabek/agripartners-funding-package)
-> for the Development Round definition, objective, scope, work packages, deliverables, budget,
-> milestones, verification, acceptance, risks, exclusions, post-round position, and funder
-> adaptation. This Product repository does not duplicate or supersede that authority.
+## Choose your path
 
-## Purpose
+### Product and engineering
 
-This index is the main audience-based navigation page for the AgriPartners documentation
-ecosystem. Use it to find the appropriate public, investor, farmer, NEAR, partnership, or internal
-operations material without treating supporting publications as independent sources of truth.
+- [Product Book](PRODUCT_BOOK.md)
+- [Architecture](ARCHITECTURE.md)
+- [Software Delivery Roadmap](ROADMAP.md)
+- [Release Index](RELEASES.md)
+- [Product Operating Model](platform/PRODUCT_OPERATING_MODEL_V1.md)
+- [Developer Review](developer-review/README.md)
 
-The [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md) alone controls
-documentation status, ownership, canonical classification, supersession, replacement, and archive
-boundaries. The [Documentation Guide](DOCUMENTATION_GUIDE.md) controls documentation procedures.
-Canonical domain documents control facts and decisions within their declared scopes; current
-code, migrations, configuration, and executable tests control implemented behavior. This index
-only controls navigation, discovery, publication-readiness labels, and access labels.
+### Business, operations, and legal
 
-For canonical product and business navigation, use the [Product Book](PRODUCT_BOOK.md). The
-broader repository inventory remains available in the [documentation README](README.md).
+- [AgriPartners v2 Operating Model](business/OPERATING_MODEL.md)
+- [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md)
+- [Business Architecture Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
+- [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
+- [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
+- [Legal package review](legal/LEGAL_PACKAGE_REVIEW.md)
 
-## How to use this index
+### Investors and demonstrations
 
-1. Choose the section that matches the audience or task.
-2. Check `Access` before sharing a document outside AgriPartners.
-3. Check `Status` before relying on a document or distributing it.
-4. Follow canonical links inside each document when detailed facts or decisions are required.
+- [Investor package](investor/README.md)
+- [Investor one-pager](investor/01_ONE_PAGER.md)
+- [Investor FAQ](investor/02_INVESTOR_FAQ.md)
+- [Demo script](investor/03_DEMO_SCRIPT.md)
+- [Data room index](investor/03_DATA_ROOM_INDEX.md)
 
-Status values in this index describe publication readiness:
+### Farmers and agricultural models
 
-- **Ready:** available for its stated purpose, subject to its own authority and status metadata.
-- **Draft:** exists but requires review before normal use or external distribution.
-- **Planned:** the referenced document does not yet exist.
-- **Archived:** registered as retained historical context without authority over current work; do
-  not use as current guidance.
+- [Farmer portal](farmer-portal.md)
+- [Farmer experience specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md)
+- [Feedlot model](business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
+- [Hissar Sheep model](business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
 
-These publication-readiness labels do not replace lifecycle status in the Authority Matrix.
-Historical, Legacy, Deprecated, Superseded, and Archived are not interchangeable: consult the
-Matrix and the document's metadata before relying on non-current material.
+### NEAR ecosystem and partnerships
 
-Access values:
+- [NEAR ecosystem documentation](near-ecosystem/README.md)
+- [NEAR track roadmap](near/near-track-roadmap.md)
+- [Partnership and outreach playbook](outreach/outreach-playbook.md)
+- [NEAR outreach kit](near/near-outreach-kit.md)
 
-- **Public:** suitable as a public project entry point.
-- **Controlled:** share only with the intended audience and after an owner review.
-- **Internal:** for AgriPartners operations, planning, governance, or relationship management.
+### Governance and internal operations
 
-## Archive Record
-
-[Safe Archive Batch 1](archive/SAFE_ARCHIVE_BATCH_1_MANIFEST.md) moved 32 approved P4,
-non-canonical, low-risk records into `docs/archive/`. These files are Archived and historical;
-their old paths are retained only in the manifest for migration traceability.
-
-[Safe Archive Batch 2](archive/SAFE_ARCHIVE_BATCH_2_MANIFEST.md) moved 13 additional P4,
-non-canonical historical records. The prior documentation-architecture audit, Alpha v1 audits,
-and lightweight Alpha v1.2 NEAR CRM are now Archived at their recorded destinations.
-
-## Recommended Reading Order
-
-### 🚀 Start Here — Priority 1
-
-1. [Canonical AgriPartners Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md)
-2. [Documentation Index](DOCUMENTATION_INDEX.md)
-3. [Product Book](PRODUCT_BOOK.md)
-4. [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md)
-5. [Documentation Guide](DOCUMENTATION_GUIDE.md)
-6. [Workstream Operating Model](governance/WORKSTREAM_OPERATING_MODEL.md)
-7. [Software Delivery Roadmap](ROADMAP.md)
-8. [Master Roadmap v2](MASTER_ROADMAP_V2.md)
-9. [Release Index](RELEASES.md)
-10. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
-11. [Architecture](ARCHITECTURE.md)
-12. [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
-
-'AGENTS.md' is a repository-root operating instruction for compatible AI agents. Read it when
-using an agent in this workspace; it is outside the 'docs/' inventory.
-
-### For new contributors
-
-1. [Canonical AgriPartners Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md)
-2. [Documentation Index](DOCUMENTATION_INDEX.md)
-3. [Product Book](PRODUCT_BOOK.md)
-4. [Business Architecture Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
-5. [Operating Model](business/OPERATING_MODEL.md)
-6. [Product Operating Model](platform/PRODUCT_OPERATING_MODEL_V1.md)
-7. [Current Release Notes](releases/alpha-v1.2-release-notes.md)
-
-### For investors
-
-1. [Investor Package README](investor/README.md)
-2. [Alpha v1.2 Investor Executive One Pager](investors/investor-executive-one-pager.md)
-3. [Canonical Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md)
-4. [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md)
-5. [Product Book](PRODUCT_BOOK.md)
-6. [Relationship CRM](outreach/outreach-crm.md)
-
-### Product / Engineering
-
-1. [Canonical AgriPartners Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md)
-2. [Product Book](PRODUCT_BOOK.md)
-3. [Architecture](ARCHITECTURE.md)
-4. [Product Operating Model](platform/PRODUCT_OPERATING_MODEL_V1.md)
-5. [Project Workspace Specification](platform/CANONICAL_PROJECT_WORKSPACE_SPEC.md)
-6. [Farmer Experience Specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md)
-7. [Software Delivery Roadmap](ROADMAP.md)
-
-### For farmer operations
-
-1. [Farmer Experience Specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md)
-2. [Farmer Daily Workflow](platform/FARMER_DAILY_WORKFLOW_SPEC.md)
-3. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
-4. [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md)
-5. [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md)
-
-### For NEAR reviewers
-
-1. [NEAR Executive One-Pager](near/executive-one-pager.md)
-2. [NEAR Ecosystem One-Pager](near/near-ecosystem-one-pager.md)
-3. [NEAR Testnet Status](near-testnet.md)
-4. [NEAR Track Roadmap](near/near-track-roadmap.md)
-5. [NEAR Outreach Kit](near/near-outreach-kit.md)
-6. [Relationship CRM](outreach/outreach-crm.md)
-
-### Legal / Compliance
-
-1. [Business Architecture Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md)
-2. [Operating Model](business/OPERATING_MODEL.md)
-3. [Platform Contract Architecture](legal/PLATFORM_CONTRACT_ARCHITECTURE.md)
-4. [Investment Participation Agreement Specification](legal/INVESTMENT_PARTICIPATION_AGREEMENT_SPEC.md)
-5. [Risk Disclosure](legal/RISK_DISCLOSURE.md)
-6. [Legal Package Review](legal/LEGAL_PACKAGE_REVIEW.md)
-
-### For partnerships
-
-1. [Operating Model](business/OPERATING_MODEL.md)
-2. [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md)
-3. [Outreach Playbook](outreach/outreach-playbook.md)
-4. [Relationship CRM](outreach/outreach-crm.md)
-5. [NEAR Ecosystem One-Pager](near/near-ecosystem-one-pager.md)
-
-## 1. Public Information
-
-| Document Name | Purpose | Audience | Status | Owner | Access | Priority | Canonical | Archive Candidate | Stable Path |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Canonical AgriPartners Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md) | Connects participant, legal, financial, technical, pilot, implementation, verification, and roadmap models in one evidence-backed entry point. | General public, developers, auditors, legal and grant reviewers, investors, operators, NEAR reviewers | Ready | Product | Public | P1 | Yes | No | Yes |
-| [Repository README](../README.md) | Introduces AgriPartners, the current Alpha boundary, setup, and top-level project navigation. | General public, reviewers, developers | Ready | Product | Public  P3 | P1 | No | No | Yes |
-| [Product Book](PRODUCT_BOOK.md) | Provides canonical ecosystem navigation across Product, Business, Pilot, Legal, and Engineering documentation. | Reviewers, partners, internal contributors | Ready | Product | Public | P1 | Yes | No | Yes |
-| [Platform Explained — English](platform/PLATFORM_EXPLAINED_EN.pdf) | Preserves a pre-boundary distributable platform explanation; do not use as current financial-architecture guidance. | Historical reviewers | Legacy Testnet Alpha | Product | Internal | P4 | No | Yes | No |
-| [Platform Explained — Russian](platform/PLATFORM_EXPLAINED_RU.pdf) | Preserves the Russian pre-boundary platform explanation; do not use as current financial-architecture guidance. | Historical reviewers | Legacy Testnet Alpha | Product | Internal | P4 | No | Yes | No |
-| [NEAR Testnet Status](near-testnet.md) | Describes the demonstrated Testnet integration and its limitations. | Technical reviewers, ecosystem participants | Ready | Engineering | Public | P3 | No | No | No |
-| [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md) | Records the current Alpha release scope, evidence, and limitations. | General reviewers, Product, Engineering | Ready | Engineering | Public | P1 | Yes | No | Yes |
-| [Alpha v1.1 Completed Release](releases/ALPHA_V1_1_RELEASE.md) | Records the completed Alpha v1.1 milestone that became the foundation of the current Alpha v1.2 presentation release. | Historical reviewers, Product, Engineering | Ready | Engineering | Public | P3 | Yes | No | Yes |
-| Public FAQ | Provides a concise non-investor overview of common platform and Alpha questions. | General public | Planned | Product | Public | P2 | No | No | No |
-
-## 2. Investor Package
-
-| Document Name | Purpose | Audience | Status | Owner | Access | Priority | Canonical | Archive Candidate | Stable Path |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Investor Package README](investor/README.md) | Defines the current package boundary and separates current Alpha v1.2 sources from historical Alpha v1.1 material. | Investors, Investor Relations | Ready | Investor Relations | Controlled | P2 | No | No | Yes |
-| [Alpha v1.2 Investor Executive One Pager](investors/investor-executive-one-pager.md) | Provides the current controlled investor summary. | Investors, strategic reviewers | Ready | Investor Relations | Controlled | P2 | No | No | Yes |
-| [Canonical Platform Model](platform/AGRIPARTNERS_PLATFORM_MODEL.md) | Provides detailed platform, implementation, financial-boundary, and limitation facts. | Investors, diligence reviewers | Ready | Product | Public | P1 | Yes | No | Yes |
-| [Alpha v1.2 Release Notes](releases/alpha-v1.2-release-notes.md) | Defines current product and presentation release scope. | Investors, diligence reviewers | Ready | Engineering | Public | P1 | Yes | No | Yes |
-| [Project Disclosure Sheet](legal/PROJECT_DISCLOSURE_SHEET.md) | Draft project-specific disclosure template for controlled review. | Qualified investors, advisors | Draft | Product / Legal | Controlled | P2 | No | No | Yes |
-| [Risk Disclosure](legal/RISK_DISCLOSURE.md) | Draft risk-disclosure source for controlled review. | Qualified investors, advisors | Draft | Product / Legal | Controlled | P2 | No | No | Yes |
-| [Alpha v1.1 Presentation Master](investor/00_PRESENTATION_MASTER.md) | Preserves historical Alpha v1.1 presentation design. | Historical reviewers | Historical / Draft | Investor Relations | Internal | P4 | No | Yes | No |
-| [Alpha v1.1 Demo Script](investor/03_DEMO_SCRIPT.md) | Preserves the official historical Alpha v1.1 milestone demo. | Historical reviewers | Historical | Investor Relations | Internal | P4 | No | Yes | No |
-
-## 3. Farmer Package
-
-| Document Name | Purpose | Audience | Status | Owner | Access | Priority | Canonical | Archive Candidate | Stable Path |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Farmer Portal Guide](farmer-portal.md) | Preserves the Legacy Testnet Alpha Farmer portal snapshot. | Historical reviewers | Deprecated | Product | Internal | P4 | No | Yes | No |
-| [Farmer Portal Guide — Russian](farmer-portal-ru.md) | Russian companion for the Legacy Testnet Alpha portal snapshot. | Historical reviewers | Deprecated | Product | Internal | P4 | No | Yes | No |
-| [Canonical Farmer Experience Specification](platform/CANONICAL_FARMER_EXPERIENCE_SPEC.md) | Defines the authoritative Farmer journey, dashboard, workspace, and visibility rules. | Product, Operations, Engineering | Ready | Product | Internal | P3 | Yes | No | Yes |
-| [Farmer Daily Workflow Specification](platform/FARMER_DAILY_WORKFLOW_SPEC.md) | Defines daily Farmer tasks, decisions, reporting, and operational sequence. | Farmers, Operations, Product | Ready | Product | Controlled | P3 | Yes | No | Yes |
-| [Feedlot Master Investment Model](business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md) | Defines the authoritative Feedlot model assumptions and economics. | Business, farmers, diligence reviewers | Ready | Business | Controlled | P2 | Yes | No | Yes |
-| [Hissar Sheep Master Investment Model](business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md) | Defines the authoritative Hissar model assumptions and economics. | Business, farmers, diligence reviewers | Ready | Business | Controlled | P2 | Yes | No | Yes |
-| Farmer Onboarding Guide | Provides a concise pre-pilot onboarding and document checklist for farmers. | Prospective farmers, Operations | Planned | Operations | Controlled | P2 | No | No | No |
-
-## 4. NEAR Ecosystem
-
-| Document Name | Purpose | Audience | Status | Owner | Access | Priority | Canonical | Archive Candidate | Stable Path |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [NEAR Executive One-Pager](near/executive-one-pager.md) | Summarizes AgriPartners for NEAR ecosystem decision-makers. | NEAR Foundation, ecosystem leaders | Ready | Investor Relations | Controlled  P2 | P2 | No | No | No |
-| [NEAR Ecosystem One-Pager](near/near-ecosystem-one-pager.md) | Explains ecosystem relevance, Testnet use, and the intended contribution to NEAR. | NEAR teams, builders, partners | Ready | Investor Relations | Public | P2 | No | No | No |
-| [NEAR Outreach Kit](near/near-outreach-kit.md) | Provides approved positioning and outreach material for ecosystem conversations. | Founder, Investor Relations | Ready | Investor Relations | Internal | P2 | No | No | No |
-| [NEAR Track Roadmap](near/near-track-roadmap.md) | Organizes technical, ecosystem, and relationship milestones for the NEAR track. | Product, Engineering, Investor Relations | Ready | Investor Relations | Internal | P2 | No | No | No |
-| [NEAR Testnet Status](near-testnet.md) | Documents current Testnet behavior and non-production boundaries. | NEAR technical reviewers, developers | Ready | Engineering | Public | P3 | No | No | No |
-| [Relationship CRM](outreach/outreach-crm.md) | Maintains the canonical history and next actions for NEAR and business-development relationships. | Founder, Investor Relations | Ready | Investor Relations | Internal | P2 | Yes | No | Yes |
-| [Deprecated NEAR Ecosystem CRM](near/near-ecosystem-crm.md) | Preserves historical Phase 24 outreach strategy and redirects users to the canonical Relationship CRM. | Internal historical reviewers | Deprecated | Investor Relations | Internal | P4 | No | Yes | No |
-
-## 5. Partnership Package
-
-| Document Name | Purpose | Audience | Status | Owner | Access | Priority | Canonical | Archive Candidate | Stable Path |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [AgriPartners Operating Model](business/OPERATING_MODEL.md) | Defines participant relationships, AgriPartners' operator role, and the target business model. | Strategic partners, Business, Operations | Ready | Business | Controlled  P2 | P2 | Yes | No | Yes |
-| [Pilot 1.0 Plan](platform/pilot/PILOT_1_PLAN.md) | Defines the intended controlled pilot scope, roles, controls, and readiness boundaries. | Pilot partners, Operations, Product | Ready | Operations | Controlled | P2 | Yes | No | Yes |
-| [Pilot Operations Guide](platform/pilot/PILOT_OPERATIONS_GUIDE.md) | Describes the operating process for a future controlled pilot. | Operating partners, Operations | Ready | Operations | Internal | P2 | Yes | No | Yes |
-| [Platform Contract Architecture](legal/PLATFORM_CONTRACT_ARCHITECTURE.md) | Describes the intended Investor–AgriPartners–Farmer contractual structure. | Partners, Product, legal reviewers | Planning | Product / Legal | Controlled | P2 | No | No | Yes |
-| [Outreach Playbook](outreach/outreach-playbook.md) | Defines relationship-first engagement practices and outreach sequencing. | Founder, Partnerships, Investor Relations | Ready | Partnerships | Internal | P2 | No | No | No |
-| Strategic Partnership Brief | Provides a concise partner value proposition, collaboration models, and qualification criteria. | Prospective strategic partners | Planned | Partnerships | Controlled | P2 | No | No | No |
-| Partner Due Diligence Checklist | Standardizes operational, legal, financial, and delivery review for prospective partners. | Partnerships, Operations, legal reviewers | Planned | Partnerships | Internal | P2 | No | No | No |
-
-## 6. Internal Operations
-
-| Document Name | Purpose | Audience | Status | Owner | Access | Priority | Canonical | Archive Candidate | Stable Path |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [Workstream Operating Model](governance/WORKSTREAM_OPERATING_MODEL.md) | Defines the three permanent workstreams, task routing, cross-workstream boundaries, and canonical planning rules. | All internal contributors | Ready | Product | Internal | P1 | Yes | No | Yes |
-| [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md) | Defines canonical authority, status, ownership, and lifecycle across the documentation ecosystem. | All internal contributors | Ready | Product | Internal | P1 | Yes | No | Yes |
-| [Documentation Guide](DOCUMENTATION_GUIDE.md) | Defines documentation creation, review, versioning, maintenance, and archival procedures. | All internal contributors | Ready | Product | Internal | P1 | Yes | No | Yes |
-| [Business Architecture v1.0 Freeze](business/BUSINESS_ARCHITECTURE_V1_FREEZE.md) | Protects the approved business baseline and its change-control process. | Business, Product, Operations | Ready | Business | Internal | P1 | Yes | No | Yes |
-| [Financial Operating Model](business/FINANCIAL_OPERATING_MODEL.md) | Defines funding, fiat/crypto boundaries, settlement, and financial workflow principles. | Business, Operations, Finance reviewers | Ready | Business | Internal | P2 | Yes | No | Yes |
-| [Information Disclosure Policy](business/INFORMATION_DISCLOSURE_POLICY.md) | Defines disclosure ownership, timing, evidence, and participant visibility. | Business, Operations, Investor Relations | Ready | Business | Internal | P2 | Yes | No | Yes |
-| [Product Operating Model](platform/PRODUCT_OPERATING_MODEL_V1.md) | Defines the canonical project-centric product architecture and role model. | Product, Engineering, Operations | Ready | Product | Internal | P3 | Yes | No | Yes |
-| [Stage 2 Financial Architecture and Project Lifecycle Migration Plan](platform/PROJECT_LIFECYCLE_REFACTORING_PLAN.md) | Defines the approved implementation migration from Legacy Testnet Alpha financial mechanics and Deal-centered behavior to the target Project lifecycle and Estonia-to-Uzbekistan fiat boundary. | Product, Engineering, Operations | In progress — Slices 1–2 complete; Slice 3 not started | Product / Engineering | Internal | P1 | Yes | No | Yes |
-| [Pilot Readiness Checklist](platform/pilot/PILOT_READINESS_CHECKLIST.md) | Tracks evidence and go/no-go gates before any future live pilot. | Operations, Product, Business | Ready | Operations | Internal | P2 | Yes | No | Yes |
-| [Relationship CRM](outreach/outreach-crm.md) | Serves as the single source of truth for investor, NEAR, partnership, and business-development relationships. | Founder, Investor Relations, Partnerships | Ready | Investor Relations | Internal | P2 | Yes | No | Yes |
-| [Funding Pipeline](grants/FUNDING_PIPELINE.md) | Tracks active grant, accelerator, and strategic funding opportunities, submission status, requested amounts, dependencies, and next actions. | Founder, Grants & Strategy, Investor Relations | Ready | Grants & Strategy | Internal | P1 | Yes | No | Yes |
-| [Legal Package Review](legal/LEGAL_PACKAGE_REVIEW.md) | Tracks legal-package gaps and review readiness; it is not production legal approval. | Product / Legal, Business, Operations | Draft | Product / Legal | Internal | P2 | No | No | No |
-| Internal Incident and Decision Log | Records material operational incidents, decisions, owners, and follow-up actions. | Operations, Product, Engineering | Planned | Operations | Internal | P2 | No | No | No |
+- [Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md)
+- [Documentation Guide](DOCUMENTATION_GUIDE.md)
+- [Workstream Operating Model](governance/WORKSTREAM_OPERATING_MODEL.md)
+- [Funding Pipeline](grants/FUNDING_PIPELINE.md)
+- [Relationship CRM](outreach/outreach-crm.md)
 
 ## Sharing boundary
 
-Public documents may be linked externally when their claims remain current. Controlled documents
-require an owner check before distribution. Internal documents, including the Relationship CRM,
-operational plans, outreach material, governance records, and legal-review work, must not be shared
-externally without explicit authorization from the accountable owner.
+Public summaries, release records, product explanations, and approved presentation materials may
+be shared according to their own status. Internal operations, CRM records, draft agreements,
+credentials, personal data, and unapproved financial information must not be shared merely
+because the repository is accessible.
 
-Planned entries are navigation placeholders only. They do not authorize work, represent completed
-deliverables, or imply commercial, legal, investment, partnership, or production readiness.
+When two documents disagree, use the owning canonical source in the
+[Documentation Authority Matrix](DOCUMENTATION_AUTHORITY_MATRIX.md). Archive records preserve
+history; they do not define current product status.
