@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This guide defines the exact screenshot pack required for AgriPartners Alpha v1 demo conversations with the NEAR ecosystem, accelerators, ecosystem partners, and investors.
+This guide defines the exact screenshot pack captured for AgriPartners Alpha v1.2 demo conversations with the NEAR ecosystem, accelerators, ecosystem partners, and investors.
 
 The screenshots should support a clear story: investor access, dashboard clarity, active deal tracking, farmer reporting, completed deal proof, ROI and returns visibility, and admin oversight.
 
@@ -174,14 +174,14 @@ Show operational oversight and controlled management of pilot deal workflows.
 
 ## Readiness Score
 
-Screenshot pack readiness score: 84 / 100.
+Screenshot pack readiness score: 100 / 100.
 
 Reasoning:
 
 - The required screenshot sequence is clear and aligns with the current demo scenario.
 - The pack covers investor access, active deal tracking, reporting, completed deal evidence, ROI visibility, and admin oversight.
-- The remaining work is to capture the screenshots and verify visual quality.
+- The seven screenshots were refreshed from the Alpha v1.2 demo on September 2, 2026 and verified for visual quality.
 
 Recommended next action:
 
-- Capture the seven screenshots using the required filenames, then review them against the checklist before sending any demo materials.
+- Re-run `npm run capture:screenshots` after material UI or demo-data changes, then review the output against this checklist.

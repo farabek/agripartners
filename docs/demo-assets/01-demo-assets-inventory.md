@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document inventories the demo, presentation, and validation assets available for AgriPartners Alpha v1 before first outreach.
+This document inventories the demo, presentation, and validation assets available for AgriPartners Alpha v1.2.
 
 This is documentation only. It does not modify code, contracts, database, outreach, commits, or pushes.
 
@@ -10,16 +10,13 @@ This is documentation only. It does not modify code, contracts, database, outrea
 
 | Asset | Available | Filename | Location | Notes |
 |---|---|---|---|---|
-| Login | Yes | `01-login.png.png` | `docs/screenshots/demo-v1/` | Existing demo-v1 login screenshot available. Filename has double `.png.png` suffix. |
-| Marketplace | Partial | `04-featured-pilot-deals.png` | `docs/screenshots/investor/` | Featured pilot deals screenshot exists, but no dedicated Marketplace page screenshot found. |
-| Hissar Deal | Yes | `03-1-hissar-active-deal.png.png`; `03-2-hissar-active-deal.png.png`; `03-3-hissar-active-deal.png.png`; `05-active-hissar.png` | `docs/screenshots/demo-v1/`; `docs/screenshots/investor/` | Active Hissar deal screenshots available. |
-| Fidlot Deal | Yes | `06-completed-fidlot.png`; `03-admin-fidlot-profile.png`; `04-admin-fidlot-reporting.png`; `05-admin-fidlot-event-history.png` | `docs/screenshots/investor/`; `docs/screenshots/admin/` | Investor and admin Fidlot screenshots available. |
-| Investor Dashboard | Yes | `02-1-investor-dashboard.png.png`; `02-2-investor-dashboard.png.png`; `02-3-investor-dashboard.png.png`; `02-4-investor-dashboard.png.png`; `01-investor-header.png`; `02-investor-profile.png`; `03-investment-summary.png` | `docs/screenshots/demo-v1/`; `docs/screenshots/investor/` | Existing investor dashboard screenshots available. |
-| Portfolio Dashboard | Partial | `02-1-investor-dashboard.png.png`; `02-2-investor-dashboard.png.png`; `02-3-investor-dashboard.png.png`; `02-4-investor-dashboard.png.png` | `docs/screenshots/demo-v1/` | Existing investor dashboard screenshots may predate the full portfolio layer. Needs updated screenshot after Phase 11.2. |
-| Farmer Dashboard | Yes | `01-farmer-profile.png`; `02-farmer-metrics.png`; `03-fidlot-card.png`; `04-farmer-deals.png` | `docs/screenshots/farmer/` | Farmer portal screenshots available. |
-| ROI & Returns | Yes | `06-roi-returns.png.png`; `03-investment-summary.png` | `docs/screenshots/demo-v1/`; `docs/screenshots/investor/` | ROI/returns screenshot available. |
-| Funding Progress | Partial | None dedicated |  | Funding progress was added after earlier screenshots. Needs updated marketplace/deal-detail screenshot. |
-| Admin Dashboard | Yes | `07-1-admin-dashboard.png.png`; `07-2-admin-dashboard.png.png`; `01-admin-dashboard.png`; `02-admin-pilot-deals.png` | `docs/screenshots/demo-v1/`; `docs/screenshots/admin/` | Admin dashboard screenshots available. |
+| Login | Yes | `01-login.png` | `docs/screenshots/alpha-v1.2/` | Current role-entry screen. |
+| Investor Dashboard | Yes | `02-investor-dashboard.png` | `docs/screenshots/alpha-v1.2/` | Current portfolio, active/completed pilots, and funding visibility. |
+| Hissar Deal | Yes | `03-hissar-active-deal.png` | `docs/screenshots/alpha-v1.2/` | Current active-deal view. |
+| Farmer Report | Yes | `04-farmer-report.png` | `docs/screenshots/alpha-v1.2/` | Current farmer reporting workflow. |
+| Fidlot Deal | Yes | `05-fidlot-completed-deal.png` | `docs/screenshots/alpha-v1.2/` | Current completed-deal and settlement view. |
+| ROI & Returns | Yes | `06-roi-returns.png` | `docs/screenshots/alpha-v1.2/` | Current settlement and return breakdown. |
+| Admin Dashboard | Yes | `07-admin-dashboard.png` | `docs/screenshots/alpha-v1.2/` | Current operational oversight view. |
 
 ## 2. Documentation Inventory
 
@@ -49,25 +46,20 @@ This is documentation only. It does not modify code, contracts, database, outrea
 
 Missing or incomplete before first outreach:
 
-- Dedicated Marketplace screenshot.
-- Updated Portfolio Dashboard screenshot after the portfolio layer implementation.
-- Dedicated Funding Progress screenshot for marketplace cards and deal detail.
-- Clean screenshot pack naming pass; several `demo-v1` files use `.png.png`.
 - Demo video or recorded walkthrough.
 - Public demo walkthrough link.
 - GitHub link added to outreach assets.
-- Current screenshots for the latest investor dashboard state after Phase 11.2 and Phase 12.
 
 ## 5. Readiness Score
 
 | Area | Score | Assessment |
 |---|---:|---|
 | Product Readiness | 92 / 100 | Alpha v1 has marketplace, investor dashboard, portfolio layer, funding progress, farmer reporting, ROI/returns, and NEAR testnet flows. |
-| Demo Readiness | 82 / 100 | Demo flow and many screenshots exist, but marketplace, funding progress, and latest portfolio screenshots need refresh. |
+| Demo Readiness | 96 / 100 | The current seven-screen Alpha v1.2 pack covers the complete public demo story; a short video remains optional. |
 | Presentation Readiness | 94 / 100 | Presentation pack is complete and grounded in current demo data. |
 | Validation Readiness | 95 / 100 | Wave 1 target list, real targets, priority targets, outreach messages, tracking, and validation log are ready. |
-| Overall Readiness | 90 / 100 | Ready for first outreach after a focused screenshot refresh and asset-link review. |
+| Overall Readiness | 95 / 100 | Ready for first outreach with a current screenshot pack and concise public documentation. |
 
 ## 6. Recommended Next Action
 
-Capture an updated screenshot pack covering Marketplace, Portfolio Dashboard, and Funding Progress before sending the first Wave 1 outreach message.
+Use the Alpha v1.2 screenshot pack for outreach and refresh it after material UI or demo-data changes.

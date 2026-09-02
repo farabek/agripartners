@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "sync:pdfs": "node scripts/sync-public-pdfs.mjs",
+    "capture:screenshots": "node scripts/capture-alpha-screenshots.mjs",
     "prebuild": "npm run sync:pdfs",
     "build": "vite build",
     "audit:security": "npm audit --audit-level=high",
