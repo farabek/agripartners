@@ -8,6 +8,14 @@ frontend/dist/
 frontend/test-results/
 frontend/playwright-report/
 backend/coverage/
+frontend/public/assets/platform/*.pdf
+frontend/public/assets/financial-models/**/*.pdf
+
+# Local document generation and QA
+.codex-docs-venv/
+qa/
+scripts/__pycache__/
+scripts/build_60_40_documents_legacy.py
 
 # Local screenshots
 screenshots/

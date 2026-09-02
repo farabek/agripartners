@@ -4,10 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "sync:pdfs": "node scripts/sync-public-pdfs.mjs",
+    "prebuild": "npm run sync:pdfs",
     "build": "vite build",
     "audit:security": "npm audit --audit-level=high",
     "lint": "eslint app.js wallet-auth-poc-app.js src",
+    "pretest:e2e": "npm run sync:pdfs",
     "test:e2e": "playwright test",
+    "predev:wallet-poc": "npm run sync:pdfs",
     "dev:wallet-poc": "vite --host 127.0.0.1 --port 5173",
     "build:wallet-poc": "vite build"
   },
