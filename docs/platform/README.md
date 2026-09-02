@@ -1,156 +1,44 @@
-# AgriPartners Platform Documentation
+# AgriPartners platform documentation
 
-This directory contains the official documentation describing the AgriPartners platform.
+This directory contains the concise bilingual public overview of the AgriPartners Alpha v1.2 platform.
 
-The canonical AgriPartners v2 business architecture is defined in the [Operating Model](../business/OPERATING_MODEL.md). It places AgriPartners OÜ between external investors and farmers as the legal and operational counterparty for both.
+## Canonical documents
 
-The movement of investment funds and the roles of banking, licensed CASP / Exchange, and NEAR
-infrastructure are defined in the [Financial Operating Model](../business/FINANCIAL_OPERATING_MODEL.md).
+- `PLATFORM_EXPLAINED_EN.docx` and `PLATFORM_EXPLAINED_EN.pdf`
+- `PLATFORM_EXPLAINED_RU.docx` and `PLATFORM_EXPLAINED_RU.pdf`
+- Generator: `scripts/build_platform_explained.py`
 
-These documents explain:
+DOCX is the editable review format. PDF is the distribution format and must be regenerated from the DOCX rather than edited independently. Website copies are created from these canonical PDFs during the frontend build.
 
-- platform vision;
-- business model;
-- funding model;
-- investor workflow;
-- farmer workflow;
-- treasury architecture;
-- blockchain integration;
-- stakeholder benefits;
-- roadmap.
-
-## Current Documents
-
-### AgriPartners Platform Explained
-
-English:
-
-- PLATFORM_EXPLAINED_EN.docx
-- PLATFORM_EXPLAINED_EN.pdf
-
-Russian:
-
-- PLATFORM_EXPLAINED_RU.docx
-- PLATFORM_EXPLAINED_RU.pdf
-
-## Document Formats
-
-Markdown (.md)
-Canonical editable source (to be introduced in future).
-
-DOCX (.docx)
-Editable review format.
-
-PDF (.pdf)
-Distribution and presentation format.
-
-## Usage
-
-These documents are intended for:
-
-- investors;
-- NEAR ecosystem;
-- strategic partners;
-- accelerators;
-- financial institutions;
-- regulators;
-- government organizations;
-- farmers.
-
-The platform documentation should be used to explain AgriPartners and support discussions with external stakeholders.
-
-## AgriPartners v2 Business Boundary
+## Mandatory business boundary
 
 ```text
-External Investor -> AgriPartners OÜ -> Farmer
+External Investor
+  -> AgriPartners OÜ (Estonia)
+  -> approved conversion and cleared fiat
+  -> Uzbekistan Feedlot Operator under a separate written Operator Agreement
+  -> Farmer / farm operations
 ```
 
-- Investors interact only with AgriPartners OÜ.
-- Investors may use supported crypto assets through selected AgriPartners financial
-  infrastructure where approved.
-- Farmers interact only with AgriPartners OÜ.
-- Farmers receive and return fiat currency and never interact with cryptocurrency.
-- No bank, payment institution, CASP, exchange, or other provider is treated as selected until
-  company, partner, compliance, and legal approvals are complete.
-- NEAR is technical infrastructure for transparency, audit trails, automation, and settlement records.
-- Legal agreements, banking, accounting, and reconciliation remain authoritative.
+- The investor interacts only with AgriPartners OÜ.
+- Any supported crypto activity ends at AgriPartners OÜ in Estonia.
+- The Uzbekistan Feedlot Operator and farmers receive and use fiat only; they do not use wallets.
+- No financial provider is considered selected until company, partner, compliance, and legal approvals are complete.
+- NEAR is limited to Estonia/investor-side technical records and never replaces contracts, banking, accounting, reconciliation, or other authoritative evidence.
 
-Disclosure of project, farmer, investor, and internal information is governed by the
-[Information Disclosure Policy](../business/INFORMATION_DISCLOSURE_POLICY.md).
+The canonical business architecture is defined in the [Operating Model](../business/OPERATING_MODEL.md), the movement of funds in the [Financial Operating Model](../business/FINANCIAL_OPERATING_MODEL.md), and disclosure rules in the [Information Disclosure Policy](../business/INFORMATION_DISCLOSURE_POLICY.md).
 
-## Master Investment Models
+## Positioning
+
+AgriPartners is an Alpha v1.2 platform on NEAR Testnet. It is not a production investment platform, custody provider, live payout system, Mainnet financial system, or regulated investment product.
+
+The public overview is intended for investors, strategic partners, accelerators, financial institutions, regulators, government organizations, the NEAR ecosystem, operators, and farmers.
+
+## Related material
 
 - [Feedlot Master Investment Model](../business/investment-models/FEEDLOT_MASTER_INVESTMENT_MODEL.md)
 - [Hissar Sheep Master Investment Model](../business/investment-models/HISSAR_SHEEP_MASTER_INVESTMENT_MODEL.md)
-
-Each Master Investment Model may generate independent Projects. Pilot 1.0 selects one model and
-implements one complete Project lifecycle under separate approved agreements.
-
-## Pilot 1.0
-
 - [Pilot 1.0 Plan](pilot/PILOT_1_PLAN.md)
 - [Pilot Readiness Checklist](pilot/PILOT_READINESS_CHECKLIST.md)
 - [Pilot Operations Guide](pilot/PILOT_OPERATIONS_GUIDE.md)
-
-## Important Positioning
-
-AgriPartners is currently an Alpha platform on NEAR Testnet.
-
-It should not be described as:
-
-- a production investment platform;
-- a custody provider;
-- a live payout or settlement system;
-- a Mainnet financial system;
-- a regulated investment product.
-
-## Investor Protection Framework
-
-- [Investor Protection Framework](investor-protection/README.md)
-
-Documents the protection reserve concept, the Fidlot 44% model, the Hissar / VariantB 53% model, staged release schedules, draft contract terms, legal notes, and open questions.
-
-The framework remains valid as exploratory documentation but is deferred. It is not part of Pilot 1.0, Pilot 2.0, or the initial Production Ready scope. Phase 6 addresses design and readiness; activation is considered only within an approved Phase 7 Marketplace.
-
-## Business Roadmap
-
-1. Phase 1 — Alpha
-2. Phase 2 — Company Registration
-3. Phase 3 — Pilot 1.0
-4. Phase 4 — Pilot 2.0
-5. Phase 5 — Production Ready
-6. Phase 6 — Investor Protection
-7. Phase 7 — Marketplace
-
-## Planned Structure
-
-This directory is intended to grow into the following structure over time:
-
-```text
-docs/
-`-- platform/
-    README.md
-
-    PLATFORM_EXPLAINED_EN.md
-    PLATFORM_EXPLAINED_EN.docx
-    PLATFORM_EXPLAINED_EN.pdf
-
-    PLATFORM_EXPLAINED_RU.md
-    PLATFORM_EXPLAINED_RU.docx
-    PLATFORM_EXPLAINED_RU.pdf
-
-    FAQ_EN.md
-    FAQ_RU.md
-
-    FUNDING_MODEL_EN.md
-    FUNDING_MODEL_RU.md
-
-    TREASURY_EN.md
-    TREASURY_RU.md
-
-    ARCHITECTURE_EN.md
-    ARCHITECTURE_RU.md
-
-    ROADMAP_EN.md
-    ROADMAP_RU.md
-```
+- [Investor Protection Framework](investor-protection/README.md) — exploratory and deferred; not active in Pilot 1.0, Pilot 2.0, or the initial Production Ready scope.

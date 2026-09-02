@@ -1689,9 +1689,9 @@ function showHome() {
                   <div class="financial-model-stat"><span>Projected cash received</span><strong>$96,250</strong></div>
                   <div class="financial-model-stat"><span>Total benefit</span><strong>$114,250</strong></div>
                 </div>
-                <div class="financial-document-list" aria-label="Fidlot farmer documents">
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Farmer-Fidlot-v5.9-6040-EN.pdf" download aria-label="Download Fidlot farmer financial model in English">↓</a></div>
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Farmer-Fidlot-v5.9-6040-RU.pdf" download aria-label="Download Fidlot farmer financial model in Russian">↓</a></div>
+                <div class="financial-document-list" aria-label="Fidlot operator documents">
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Operator-Fidlot-v5.9-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Operator-Fidlot-v5.9-6040-EN.pdf" download aria-label="Download Fidlot operator financial model in English">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Operator-Fidlot-v5.9-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Operator-Fidlot-v5.9-6040-RU.pdf" download aria-label="Download Fidlot operator financial model in Russian">↓</a></div>
                 </div>
               </section>
             </div>
@@ -1731,9 +1731,9 @@ function showHome() {
                   <div class="financial-model-stat"><span>Projected cash received</span><strong>$83,160</strong></div>
                   <div class="financial-model-stat"><span>Total benefit</span><strong>$101,160</strong></div>
                 </div>
-                <div class="financial-document-list" aria-label="Hissar farmer documents">
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Farmer-VariantB-v2.1-6040-EN.pdf" download aria-label="Download Hissar farmer financial model in English">↓</a></div>
-                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Farmer-VariantB-v2.1-6040-RU.pdf" download aria-label="Download Hissar farmer financial model in Russian">↓</a></div>
+                <div class="financial-document-list" aria-label="Hissar operator documents">
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">EN</span><a class="financial-view-link" href="assets/financial-models/en/Agri-Operator-VariantB-v2.1-6040-EN.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/en/Agri-Operator-VariantB-v2.1-6040-EN.pdf" download aria-label="Download Hissar operator financial model in English">↓</a></div>
+                  <div class="financial-document-row"><span class="financial-language notranslate" translate="no">RU</span><a class="financial-view-link" href="assets/financial-models/ru/Agri-Operator-VariantB-v2.1-6040-RU.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span></a><a class="financial-download-link" href="assets/financial-models/ru/Agri-Operator-VariantB-v2.1-6040-RU.pdf" download aria-label="Download Hissar operator financial model in Russian">↓</a></div>
                 </div>
               </section>
             </div>

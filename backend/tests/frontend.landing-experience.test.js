@@ -62,8 +62,8 @@ test('landing publishes bilingual investor and farmer financial models with disc
   expect(appJs).toContain('do not guarantee returns');
   expect(appJs).toContain('Agri-Investor-Fidlot-v5.9-6040-EN.pdf');
   expect(appJs).toContain('Agri-Investor-VariantB-v2.1-6040-RU.pdf');
-  expect(appJs).toContain('Agri-Farmer-Fidlot-v5.9-6040-RU.pdf');
-  expect(appJs).toContain('Agri-Farmer-VariantB-v2.1-6040-EN.pdf');
+  expect(appJs).toContain('Agri-Operator-Fidlot-v5.9-6040-RU.pdf');
+  expect(appJs).toContain('Agri-Operator-VariantB-v2.1-6040-EN.pdf');
 });
 
 test('landing explains model-specific investor protection immediately after financial models', () => {
