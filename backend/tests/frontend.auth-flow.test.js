@@ -102,3 +102,13 @@ test('role-specific login entries preserve generic auth and keep Farmer access n
   expect(loginBody).toContain('My Projects, Funding Confirmation, and Reports');
   expect(loginBody).toContain("document.getElementById('login-near-wallet')?.addEventListener");
 });
+
+test('role-specific login pages expose public Farmer and Operator demos without authentication', () => {
+  const loginStart = appJs.indexOf('function showLogin()');
+  const loginBody = appJs.slice(loginStart, loginStart + 10000);
+
+  expect(loginBody).toContain('href="#farmer/pilots"');
+  expect(loginBody).toContain('Explore Farmer Demo');
+  expect(loginBody).toContain('href="#demo/admin"');
+  expect(loginBody).toContain('Open Operator Demo');
+});

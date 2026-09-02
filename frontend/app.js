@@ -1876,6 +1876,15 @@ function showLogin() {
     </div>
     ${entryRole && entryRole !== 'investor' ? renderEnvironmentBanner('pilot', entryConfig.title) : ''}
     ${entryRole && entryRole !== 'investor' ? renderRoleEntrySummary(entryRole) : ''}
+    ${entryRole === 'admin' ? `
+      <div class="bg-slate-800 border border-blue-800 rounded-xl p-5 mb-5">
+        <h2 class="text-sm font-semibold text-blue-200">Review the public Operator demonstration</h2>
+        <p class="text-sm text-slate-300 mt-1">Explore Projects, Reports, Treasury, and Settlement visibility without an operator account.</p>
+        <a href="#demo/admin" class="inline-flex mt-3 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+          Open Operator Demo
+        </a>
+      </div>
+    ` : ''}
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
       ${showWalletAccess ? `
       <div class="bg-slate-900 border border-green-900 rounded-lg p-4 space-y-3">
@@ -1998,6 +2007,12 @@ function renderFarmerLogin(el, entryConfig, pendingLoginError = '') {
       </header>
 
       <section class="farmer-login-card" aria-label="Farmer wallet access">
+        <div class="farmer-login-demo-access">
+          <h2>Review the public Farmer demonstration</h2>
+          <p>Choose Fidlot or Hissar and explore the Farmer Workspace without signing in.</p>
+          <a href="#farmer/pilots" class="farmer-login-primary">Explore Farmer Demo</a>
+        </div>
+
         <button type="button" id="login-near-wallet"
           data-default-label="Login with NEAR Wallet"
           class="farmer-login-primary">
@@ -3257,7 +3272,7 @@ function adminDemoTreasuryRecord(deal = {}) {
     outstanding,
     activeCapital: deal.status === 'Active' ? principal : 0,
     settlementStatus: isSettled ? 'Settlement Completed' : 'Settlement Pending',
-    settlementReady: isSettled ? 'Ready for settlement' : 'Not ready for settlement',
+    settlementReady: isSettled ? 'Settlement completed — no action required' : 'Not ready for settlement',
   };
 }
 
@@ -3295,9 +3310,14 @@ function renderAdminDemoTreasurySection(metrics) {
 }
 
 function renderAdminDemoSettlementQueue(deals = []) {
+  const unsettledDeals = deals.filter(deal => adminDemoTreasuryRecord(deal).settlementStatus !== 'Settlement Completed');
   return renderDashboardSection('Settlement Queue', `
     <div class="grid gap-4" data-admin-demo-settlement-queue>
-      ${deals.map(deal => {
+      ${unsettledDeals.length === 0 ? `
+        <div class="bg-slate-900 border border-slate-700 rounded-lg p-4 text-sm text-slate-400">
+          No Projects currently require Settlement review.
+        </div>
+      ` : unsettledDeals.map(deal => {
         const treasury = adminDemoTreasuryRecord(deal);
         const rows = [
           ['Current cycle', deal.currentCycle],

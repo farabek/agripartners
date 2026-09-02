@@ -56,10 +56,24 @@ test('operator demo shows Treasury KPIs, Settlement Queue, and Treasury Ledger',
   expect(queue).toContain('Farmer share');
   expect(queue).toContain('Operator fee');
   expect(queue).toContain('Ready for settlement');
+  expect(queue).toContain("settlementStatus !== 'Settlement Completed'");
+  expect(queue).toContain('No Projects currently require Settlement review.');
   expect(ledger).toContain('Treasury Ledger');
   for (const type of ['Funding', 'Return', 'Profit', 'Principal', 'Operator Fee', 'Reserve', 'Settlement']) {
     expect(appJs).toContain(type);
   }
+});
+
+test('completed demo settlements are not counted as ready or rendered in the settlement queue', () => {
+  const record = functionBody('adminDemoTreasuryRecord', 1500);
+  const metrics = functionBody('adminDemoTreasuryMetrics', 1200);
+  const queue = functionBody('renderAdminDemoSettlementQueue', 4600);
+
+  expect(record).toContain('Settlement completed — no action required');
+  expect(record).not.toContain("isSettled ? 'Ready for settlement'");
+  expect(metrics).toContain("item.settlementReady === 'Ready for settlement'");
+  expect(queue).toContain("settlementStatus !== 'Settlement Completed'");
+  expect(queue).toContain('unsettledDeals.map');
 });
 
 test('pilot project details show Settlement section and Treasury Timeline', () => {

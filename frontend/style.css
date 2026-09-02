@@ -205,6 +205,42 @@
   padding: 24px;
 }
 
+.farmer-login-demo-access {
+  background-color: rgb(20 83 45 / 0.28);
+  border: 1px solid #166534;
+  border-radius: 10px;
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+}
+
+.farmer-login-demo-access h2 {
+  color: #bbf7d0;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.farmer-login-demo-access p {
+  color: #cbd5e1;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.farmer-login-demo-access .farmer-login-primary {
+  align-items: center;
+  background-color: #16a34a;
+  color: #fff;
+  display: inline-flex;
+  justify-content: center;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.farmer-login-demo-access .farmer-login-primary:hover,
+.farmer-login-demo-access .farmer-login-primary:focus-visible {
+  background-color: #22c55e;
+}
+
 .farmer-login-primary {
   background-color: #f8fafc;
   border-radius: 8px;
