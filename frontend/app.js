@@ -8414,6 +8414,7 @@ function getPilotForDeal(deal) {
 }
 
 function investorDemoDealFromPilot(pilot, connectedWalletAccount) {
+  const isFidlot = pilot.key === 'fidlot';
   return {
     id: `demo-${pilot.key}`,
     pilot_key: pilot.key,
@@ -8435,7 +8436,11 @@ function investorDemoDealFromPilot(pilot, connectedWalletAccount) {
     display_returned_amount: pilot.displayReturnedAmount,
     display_outstanding_amount: pilot.displayOutstandingAmount,
     display_currency: 'USD',
-    settlementStatus: pilot.key === 'fidlot' ? 'Settlement Completed' : 'Pending',
+    settlementStatus: isFidlot ? 'Settlement Completed' : 'Pending',
+    fundingStatus: 'Funding Confirmed',
+    farmerConfirmed: true,
+    cycleStatus: isFidlot ? 'Production completed' : 'Production active',
+    reportStatus: isFidlot ? 'Published' : 'Next Production Update',
     roi_percent: pilot.roiPercent,
     simpleAnnualizedRoi: pilot.simpleAnnualizedRoi,
     escrow_pct: pilot.reserveRate,
@@ -8986,10 +8991,12 @@ function renderInvestorDealCard(deal) {
 function investorDemoCycles(pilot) {
   const isFidlot = pilot.key === 'fidlot';
   return [{
-    cycle_number: isFidlot ? 7 : 1,
-    status: isFidlot ? 'reported' : 'funding_sent',
+    cycle_num: isFidlot ? 7 : 1,
+    status: isFidlot ? 'Completed' : 'Production active',
+    fundingReceived: true,
     funding_sent: true,
     funding_confirmed: true,
+    reportStatus: isFidlot ? 'Report published' : 'Report pending',
     report_submitted: isFidlot,
     report_title: isFidlot ? pilot.reportTitle : '',
     report_body: isFidlot ? pilot.reportDescription : '',

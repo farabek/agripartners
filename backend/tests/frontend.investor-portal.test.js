@@ -1636,7 +1636,10 @@ test('investor demo dataset hides test records and renders clean pilot routes', 
   expect(appJs).toContain("key: 'hissar'");
   expect(appJs).toContain("status: 'Completed'");
   expect(appJs).toContain("status: 'Active'");
-  expect(appJs).toContain("settlementStatus: pilot.key === 'fidlot' ? 'Settlement Completed' : 'Pending'");
+  expect(appJs).toContain("settlementStatus: isFidlot ? 'Settlement Completed' : 'Pending'");
+  expect(appJs).toContain("farmerConfirmed: true");
+  expect(appJs).toContain("cycleStatus: isFidlot ? 'Production completed' : 'Production active'");
+  expect(appJs).toContain("reportStatus: isFidlot ? 'Report published' : 'Report pending'");
   expect(appJs).toContain('activeDeals: deals.filter');
   expect(appJs).toContain('completedDeals: deals.filter');
   expect(appJs).toContain('showInvestorPortfolioDashboard()');

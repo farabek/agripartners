@@ -26,6 +26,20 @@ test('Investor access opens the public Investor demo without authentication', as
   await expect(page.getByRole('heading', { name: 'Portfolio Dashboard' })).toBeVisible();
 });
 
+test('Investor demo project statuses stay consistent across Production views', async ({ page }) => {
+  await page.goto('/#/investor/pilots/fidlot');
+  await page.getByRole('tab', { name: 'Production' }).click();
+  await expect(page.getByText('Production completed', { exact: true })).toBeVisible();
+  await expect(page.getByText('Confirmed', { exact: true })).toBeVisible();
+  await expect(page.getByText('Report published', { exact: true })).toBeVisible();
+
+  await page.goto('/#/investor/pilots/hissar');
+  await page.getByRole('tab', { name: 'Production' }).click();
+  await expect(page.getByText('Production active', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('Confirmed', { exact: true })).toBeVisible();
+  await expect(page.getByText('Report pending', { exact: true })).toBeVisible();
+});
+
 test('Farmer access opens the public Farmer demo without authentication', async ({ page }) => {
   await page.goto('/#login/farmer');
   await page.getByRole('link', { name: 'Explore Farmer Demo' }).click();
