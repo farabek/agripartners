@@ -17,6 +17,25 @@ test('investor presentation route renders without backend authentication', async
   await expect(page.getByText('Investor', { exact: false }).first()).toBeVisible();
 });
 
+test('Farmer access opens the public Farmer demo without authentication', async ({ page }) => {
+  await page.goto('/#login/farmer');
+  await page.getByRole('link', { name: 'Explore Farmer Demo' }).click();
+
+  await expect(page).toHaveURL(/#farmer\/pilots$/);
+  await expect(page.getByRole('heading', { name: 'Choose an Investment Model' })).toBeVisible();
+});
+
+test('Operator access opens a consistent public settlement demo', async ({ page }) => {
+  await page.goto('/#login/admin');
+  await page.getByRole('link', { name: 'Open Operator Demo' }).click();
+
+  await expect(page).toHaveURL(/#demo\/admin$/);
+  await expect(page.getByRole('heading', { name: 'AgriPartners Operator Demo' })).toBeVisible();
+  const settlementQueue = page.locator('[data-admin-demo-settlement-queue]');
+  await expect(settlementQueue.getByText('Hissar Sheep Breeding Project')).toBeVisible();
+  await expect(settlementQueue.getByText('Fidlot Livestock Project')).toHaveCount(0);
+});
+
 test('platform login rejects empty credentials without contacting the backend', async ({ page }) => {
   let loginRequests = 0;
   await page.route('**/api/auth/login', async (route) => {
