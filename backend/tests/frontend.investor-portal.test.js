@@ -1766,10 +1766,10 @@ test('demo investor workspaces expose the permanent Commercial Operations Alpha 
   ]) {
     expect(appJs).toContain(heading);
   }
-  expect(appJs).toContain("alpha: { label: 'Alpha v1.1', badge: 'Planned'");
+  expect(appJs).toContain("alpha: { label: 'Alpha v1.2', badge: 'Current prototype'");
   expect(appJs).toContain("beta: { label: 'Beta', badge: 'Preparing'");
   expect(appJs).toContain("production: { label: 'Production', badge: 'Active'");
-  expect(appJs).toContain('Available after commercial pilot launch');
+  expect(appJs).toContain('Available as a Testnet demonstration');
   expect(appJs).toContain('No commercial evidence is recorded in this Alpha stage.');
   expect(appJs).not.toContain('Commercial Placeholders');
 });

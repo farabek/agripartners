@@ -386,7 +386,7 @@ const PRESENTATION_PROFILES = {
         id: 'quickDemo',
         title: 'Investor Quick Demo',
         duration: '~5 minutes',
-        banner: 'Investor Quick Demo · Alpha v1.1 · NEAR Testnet · Demo-safe',
+        banner: 'Investor Quick Demo · Alpha v1.2 · NEAR Testnet · Demo-safe',
         steps: [
           {
             title: 'Welcome',
@@ -396,7 +396,7 @@ const PRESENTATION_PROFILES = {
             targetLabel: 'Open Landing',
             presenterNote: 'Frame this as Alpha/Testnet presentation mode, not production investor onboarding.',
             nextLabel: 'Next: See opportunities',
-            topics: ['Alpha v1.1', 'NEAR Testnet', 'Demo-safe workflow'],
+            topics: ['Alpha v1.2', 'NEAR Testnet', 'Demo-safe workflow'],
           },
           {
             title: 'Opportunity',
@@ -794,7 +794,7 @@ function renderInvestorPresentationShell(el, flow, stepIndex, profile = presenta
     ${renderNav()}
     <section class="bg-slate-950 border border-green-900 rounded-xl overflow-hidden">
       <div class="bg-green-950/70 border-b border-green-900 px-4 py-3 text-sm font-semibold text-green-100">
-        Investor Quick Demo | Alpha v1.1 | NEAR Testnet | Demo-safe
+        Investor Quick Demo | Alpha v1.2 | NEAR Testnet | Demo-safe
       </div>
       <div class="grid lg:grid-cols-[320px_1fr]">
         <aside class="${settings.showTimeline ? '' : 'hidden'} border-b lg:border-b-0 lg:border-r border-slate-800 p-4 bg-slate-900/70">
@@ -1499,7 +1499,7 @@ function showHome() {
       <section class="landing-hero">
         <div class="landing-hero-copy">
           <div class="landing-badges" aria-label="Environment">
-            <span>Alpha v1.1</span>
+            <span>Alpha v1.2</span>
             <span>NEAR Testnet</span>
             <span>Self-guided investor demo</span>
           </div>
@@ -1520,7 +1520,7 @@ function showHome() {
             </div>
           </div>
           <p class="landing-note">
-            Alpha v1.1 demonstration on NEAR Testnet; no live investments are accepted.
+            Alpha v1.2 working prototype on NEAR Testnet; no live investments are accepted.
           </p>
         </div>
       </section>
@@ -1538,7 +1538,7 @@ function showHome() {
           </article>
           <article class="landing-card">
             <h3>Farmers</h3>
-            <p>In a future commercial pilot, enter into a separate Farmer Project Agreement with AgriPartners and deliver production updates and project reports.</p>
+            <p>Work in a fiat-only product role through the Uzbekistan Feedlot Operator to deliver production updates, evidence, and project reports without wallets or blockchain transactions.</p>
             <a class="landing-btn landing-btn-primary mt-4" href="#login/farmer">My Projects / Funding Confirmation / Reports</a>
           </article>
           <article class="landing-card">
@@ -1556,28 +1556,28 @@ function showHome() {
           <p class="contract-relationship-summary">
             Investors and farmers contract separately with AgriPartners, which operates and coordinates the project workflow.
           </p>
-          <div class="contract-relationship-diagram" role="img" aria-label="Investor contracts with AgriPartners through an Investment Participation Agreement. Farmer contracts separately with AgriPartners through a Farmer Project Agreement. AgriPartners acts as Project Operator.">
+          <div class="contract-relationship-diagram" role="img" aria-label="The External Investor contracts with AgriPartners OÜ. AgriPartners OÜ contracts separately with the Uzbekistan Feedlot Operator. Funds cross the Estonia-to-Uzbekistan boundary only as fiat.">
             <div class="contract-party">
-              <span>Investor</span>
+              <span>External Investor</span>
             </div>
             <div class="contract-connector contract-connector-down">
               <span aria-hidden="true">&darr;</span>
               <strong>Investment Participation Agreement</strong>
             </div>
             <div class="contract-party contract-operator">
-              <span>AgriPartners</span>
-              <small>Project Operator</small>
+              <span>AgriPartners OÜ</span>
+              <small>Estonia · central operator and counterparty</small>
             </div>
             <div class="contract-connector contract-connector-up">
               <span aria-hidden="true">&uarr;</span>
-              <strong>Farmer Project Agreement</strong>
+              <strong>Separate Operator Agreement · Fiat Only</strong>
             </div>
             <div class="contract-party">
-              <span>Farmer</span>
+              <span>Uzbekistan Feedlot Operator</span>
             </div>
           </div>
           <p class="contract-relationship-guardrail">
-            This diagram illustrates the intended contractual structure for future commercial pilots. Alpha v1.1 remains a demonstration and does not accept live investments.
+            Cryptocurrency stops at AgriPartners OÜ in Estonia. The Operator and Farmer product role are fiat-only. Alpha v1.2 remains a working prototype and does not accept live investments.
           </p>
         </div>
       </section>
@@ -1592,6 +1592,21 @@ function showHome() {
           <div><strong>Pilot Projects</strong><span>Compare active and completed demonstration workflows.</span></div>
           <div><strong>Project Reports</strong><span>Follow production updates and reporting status.</span></div>
           <div><strong>Project Documents</strong><span>Review the records available for investor diligence.</span></div>
+        </div>
+      </section>
+
+      <section class="landing-section" aria-label="Partner with AgriPartners">
+        <div class="landing-section-heading">
+          <span>Partner with AgriPartners</span>
+          <h2>Help shape a controlled agricultural pilot</h2>
+        </div>
+        <p>
+          We welcome focused feedback and conversations with agricultural operators, pilot partners,
+          NEAR ecosystem teams, and funding or diligence partners.
+        </p>
+        <div class="landing-actions mt-4">
+          <a class="landing-btn landing-btn-primary" href="mailto:farhodmuhamadiev4@gmail.com?subject=AgriPartners%20partnership%20inquiry">Start a focused conversation</a>
+          <a class="landing-btn" href="#demo/presentation/enterprise">View Partner Presentation</a>
         </div>
       </section>
 
@@ -4953,7 +4968,7 @@ function renderInvestorWorkspaceReports(reports = []) {
 }
 
 const COMMERCIAL_OPERATIONS_STAGES = {
-  alpha: { label: 'Alpha v1.1', badge: 'Planned', availability: 'Available after commercial pilot launch' },
+  alpha: { label: 'Alpha v1.2', badge: 'Current prototype', availability: 'Available as a Testnet demonstration' },
   beta: { label: 'Beta', badge: 'Preparing', availability: 'Preparing for verified commercial evidence' },
   production: { label: 'Production', badge: 'Active', availability: 'Commercial operations active' },
 };

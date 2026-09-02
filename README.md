@@ -8,6 +8,8 @@ recording operating progress, and improving investor reporting and treasury visi
 > AgriPartners does not accept live investments. The current product is a Testnet demonstration,
 > not a production custody, payout, settlement, or Mainnet investment service.
 
+![AgriPartners Alpha v1.2 project overview](frontend/public/assets/social/agripartners-og.png)
+
 ## Explore
 
 - [Open the live product](https://agripartners.vercel.app/#home)
