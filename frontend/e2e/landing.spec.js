@@ -17,6 +17,15 @@ test('investor presentation route renders without backend authentication', async
   await expect(page.getByText('Investor', { exact: false }).first()).toBeVisible();
 });
 
+test('Investor access opens the public Investor demo without authentication', async ({ page }) => {
+  await page.goto('/#login/investor');
+  await page.getByRole('link', { name: 'Explore Investor Demo' }).click();
+
+  await expect(page).toHaveURL(/#\/investor\/dashboard$/);
+  await expect(page.locator('#view-investor')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Portfolio Dashboard' })).toBeVisible();
+});
+
 test('Farmer access opens the public Farmer demo without authentication', async ({ page }) => {
   await page.goto('/#login/farmer');
   await page.getByRole('link', { name: 'Explore Farmer Demo' }).click();

@@ -1885,6 +1885,15 @@ function showLogin() {
         </a>
       </div>
     ` : ''}
+    ${entryRole === 'investor' ? `
+      <div class="bg-slate-800 border border-green-800 rounded-xl p-5 mb-5">
+        <h2 class="text-sm font-semibold text-green-200">Review the public Investor demonstration</h2>
+        <p class="text-sm text-slate-300 mt-1">Explore demonstration Projects, Reports, and Returns without signing in.</p>
+        <a href="#/investor/dashboard" class="inline-flex mt-3 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
+          Explore Investor Demo
+        </a>
+      </div>
+    ` : ''}
     <form id="login-form" class="bg-slate-800 rounded-xl p-6 space-y-4">
       ${showWalletAccess ? `
       <div class="bg-slate-900 border border-green-900 rounded-lg p-4 space-y-3">
