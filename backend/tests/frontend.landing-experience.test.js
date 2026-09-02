@@ -131,7 +131,9 @@ test('public page exposes English SEO and social preview metadata', () => {
   expect(indexHtml).toContain('property="og:title"');
   expect(indexHtml).toContain('property="og:image"');
   expect(indexHtml).toContain('name="twitter:card" content="summary_large_image"');
-  expect(indexHtml).toContain('/assets/social/agripartners-og.png');
+  expect(indexHtml).toContain('/assets/social/agripartners-og.jpg');
+  expect(indexHtml).toContain('property="og:image:width" content="1280"');
+  expect(indexHtml).toContain('property="og:image:height" content="640"');
 });
 
 test('public landing uses the canonical Operator and Farmer boundary', () => {

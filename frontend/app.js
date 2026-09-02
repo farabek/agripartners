@@ -8406,6 +8406,7 @@ function investorDemoDealFromPilot(pilot, connectedWalletAccount) {
     display_returned_amount: pilot.displayReturnedAmount,
     display_outstanding_amount: pilot.displayOutstandingAmount,
     display_currency: 'USD',
+    settlementStatus: pilot.key === 'fidlot' ? 'Settlement Completed' : 'Pending',
     roi_percent: pilot.roiPercent,
     simpleAnnualizedRoi: pilot.simpleAnnualizedRoi,
     escrow_pct: pilot.reserveRate,

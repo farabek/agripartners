@@ -10,16 +10,13 @@
 
 | Asset | Available | Filename | Location | Notes |
 |---|---|---|---|---|
-| Login | Yes | `01-login.png.png` | `docs/screenshots/demo-v1/` | Existing demo-v1 login screenshot available. Filename имеет double `.png.png` suffix. |
-| Marketplace | Partial | `04-featured-pilot-deals.png` | `docs/screenshots/investor/` | Featured pilot deals screenshot есть, но dedicated Marketplace page screenshot не найден. |
-| Hissar Deal | Yes | `03-1-hissar-active-deal.png.png`; `03-2-hissar-active-deal.png.png`; `03-3-hissar-active-deal.png.png`; `05-active-hissar.png` | `docs/screenshots/demo-v1/`; `docs/screenshots/investor/` | Active Hissar deal screenshots available. |
-| Fidlot Deal | Yes | `06-completed-fidlot.png`; `03-admin-fidlot-profile.png`; `04-admin-fidlot-reporting.png`; `05-admin-fidlot-event-history.png` | `docs/screenshots/investor/`; `docs/screenshots/admin/` | Investor and admin Fidlot screenshots available. |
-| Investor Dashboard | Yes | `02-1-investor-dashboard.png.png`; `02-2-investor-dashboard.png.png`; `02-3-investor-dashboard.png.png`; `02-4-investor-dashboard.png.png`; `01-investor-header.png`; `02-investor-profile.png`; `03-investment-summary.png` | `docs/screenshots/demo-v1/`; `docs/screenshots/investor/` | Existing investor dashboard screenshots available. |
-| Portfolio Dashboard | Partial | `02-1-investor-dashboard.png.png`; `02-2-investor-dashboard.png.png`; `02-3-investor-dashboard.png.png`; `02-4-investor-dashboard.png.png` | `docs/screenshots/demo-v1/` | Existing investor dashboard screenshots may predate full portfolio layer. Needs updated screenshot after Phase 11.2. |
-| Farmer Dashboard | Yes | `01-farmer-profile.png`; `02-farmer-metrics.png`; `03-fidlot-card.png`; `04-farmer-deals.png` | `docs/screenshots/farmer/` | Farmer portal screenshots available. |
-| ROI & Returns | Yes | `06-roi-returns.png.png`; `03-investment-summary.png` | `docs/screenshots/demo-v1/`; `docs/screenshots/investor/` | ROI/returns screenshot available. |
-| Funding Progress | Partial | None dedicated |  | Funding progress был добавлен после ранних screenshots. Нужно обновить marketplace/deal-detail screenshot. |
-| Admin Dashboard | Yes | `07-1-admin-dashboard.png.png`; `07-2-admin-dashboard.png.png`; `01-admin-dashboard.png`; `02-admin-pilot-deals.png` | `docs/screenshots/demo-v1/`; `docs/screenshots/admin/` | Admin dashboard screenshots available. |
+| Login | Yes | `01-login.png` | `docs/screenshots/alpha-v1.2/` | Актуальный экран входа и выбора роли. |
+| Investor Dashboard | Yes | `02-investor-dashboard.png` | `docs/screenshots/alpha-v1.2/` | Актуальный портфель, пилоты и прогресс финансирования. |
+| Hissar Deal | Yes | `03-hissar-active-deal.png` | `docs/screenshots/alpha-v1.2/` | Актуальный активный проект. |
+| Farmer Report | Yes | `04-farmer-report.png` | `docs/screenshots/alpha-v1.2/` | Актуальный процесс отчётности фермера. |
+| Fidlot Deal | Yes | `05-fidlot-completed-deal.png` | `docs/screenshots/alpha-v1.2/` | Завершённый проект и расчёт. |
+| ROI & Returns | Yes | `06-roi-returns.png` | `docs/screenshots/alpha-v1.2/` | Актуальная разбивка возврата средств. |
+| Admin Dashboard | Yes | `07-admin-dashboard.png` | `docs/screenshots/alpha-v1.2/` | Актуальный административный контроль. |
 
 ## 2. Documentation Inventory
 
@@ -49,25 +46,20 @@
 
 Missing or incomplete before first outreach:
 
-- Dedicated Marketplace screenshot.
-- Updated Portfolio Dashboard screenshot after portfolio layer implementation.
-- Dedicated Funding Progress screenshot для marketplace cards и deal detail.
-- Clean screenshot pack naming pass; several `demo-v1` files use `.png.png`.
 - Demo video or recorded walkthrough.
 - Public demo walkthrough link.
 - GitHub link added to outreach assets.
-- Current screenshots for latest investor dashboard state after Phase 11.2 and Phase 12.
 
 ## 5. Readiness Score
 
 | Area | Score | Assessment |
 |---|---:|---|
 | Product Readiness | 92 / 100 | Alpha v1 includes marketplace, investor dashboard, portfolio layer, funding progress, farmer reporting, ROI/returns, and NEAR testnet flows. |
-| Demo Readiness | 82 / 100 | Demo flow and many screenshots exist, but marketplace, funding progress, and latest portfolio screenshots need refresh. |
+| Demo Readiness | 96 / 100 | Актуальный набор Alpha v1.2 покрывает полный публичный сценарий; короткое видео остаётся необязательным. |
 | Presentation Readiness | 94 / 100 | Presentation pack complete and grounded in current demo data. |
 | Validation Readiness | 95 / 100 | Wave 1 target list, real targets, priority targets, outreach messages, tracking, and validation log are ready. |
-| Overall Readiness | 90 / 100 | Ready for first outreach after focused screenshot refresh and asset-link review. |
+| Overall Readiness | 95 / 100 | Материалы готовы для первого контакта с актуальными скриншотами и краткой документацией. |
 
 ## 6. Recommended Next Action
 
-Capture an updated screenshot pack covering Marketplace, Portfolio Dashboard, and Funding Progress before sending the first Wave 1 outreach message.
+Использовать набор Alpha v1.2 в коммуникациях и обновлять его после существенных изменений интерфейса или демо-данных.
