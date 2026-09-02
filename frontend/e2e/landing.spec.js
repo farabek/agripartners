@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 test('public landing renders and has no critical accessibility violations', async ({ page }) => {
   await page.goto('/#home');
-  await expect(page).toHaveTitle('AgriPartners');
+  await expect(page).toHaveTitle('AgriPartners | Transparent Agricultural Investment Workflows');
   await expect(page.locator('#view-home')).toBeVisible();
   await expect(page.locator('h1').first()).toBeVisible();
 

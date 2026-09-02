@@ -32,7 +32,7 @@ test('landing explains product audience and Alpha testnet context', () => {
   expect(appJs).toContain('Investors');
   expect(appJs).toContain('Farmers');
   expect(appJs).toContain('AgriPartners / Project Operators');
-  expect(appJs).toContain('Alpha v1.1');
+  expect(appJs).toContain('Alpha v1.2');
   expect(appJs).toContain('NEAR Testnet');
   expect(appJs).toContain('Self-guided investor demo');
   expect(appJs).toContain('no live investments are accepted');
@@ -121,8 +121,30 @@ test('landing preserves participant access routes while prioritizing the self-gu
   expect(homeSource).not.toContain('href="#/investor/pilots/fidlot"');
   expect(homeSource).toContain('Self-guided investor demo');
   expect(homeSource).toContain('No registration is required.');
-  expect(homeSource).toContain('Alpha v1.1 demonstration on NEAR Testnet');
+  expect(homeSource).toContain('Alpha v1.2 working prototype on NEAR Testnet');
   expect(homeSource).toContain('no live investments are accepted');
+});
+
+test('public page exposes English SEO and social preview metadata', () => {
+  expect(indexHtml).toContain('<html lang="en">');
+  expect(indexHtml).toContain('name="description"');
+  expect(indexHtml).toContain('property="og:title"');
+  expect(indexHtml).toContain('property="og:image"');
+  expect(indexHtml).toContain('name="twitter:card" content="summary_large_image"');
+  expect(indexHtml).toContain('/assets/social/agripartners-og.png');
+});
+
+test('public landing uses the canonical Operator and Farmer boundary', () => {
+  expect(appJs).toContain('Uzbekistan Feedlot Operator');
+  expect(appJs).toContain('Separate Operator Agreement · Fiat Only');
+  expect(appJs).toContain('Farmer product role are fiat-only');
+  expect(appJs).not.toContain('Farmer Project Agreement');
+});
+
+test('public landing offers a focused partner route', () => {
+  expect(appJs).toContain('Partner with AgriPartners');
+  expect(appJs).toContain('Start a focused conversation');
+  expect(appJs).toContain('#demo/presentation/enterprise');
 });
 
 test('demo routes are public while live protected routes still require auth', () => {
