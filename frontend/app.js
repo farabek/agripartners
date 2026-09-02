@@ -3392,8 +3392,8 @@ function adminDemoTreasuryLedgerRows(deals = []) {
 function renderAdminDemoTreasuryLedger(deals = []) {
   const rows = adminDemoTreasuryLedgerRows(deals);
   return renderDashboardSection('Treasury Ledger', `
-    <div class="overflow-x-auto" data-admin-demo-treasury-ledger>
-      <table class="w-full text-sm">
+    <div class="admin-demo-ledger-scroll" data-admin-demo-treasury-ledger tabindex="0" aria-label="Treasury Ledger table; scroll horizontally to view all columns">
+      <table class="admin-demo-ledger-table w-full text-sm">
         <thead class="text-left text-slate-400 border-b border-slate-700">
           <tr>
             <th class="py-2 pr-3">Date</th>

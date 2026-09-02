@@ -3293,6 +3293,24 @@
   overflow-x: auto;
 }
 
+.admin-demo-ledger-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-demo-ledger-table {
+  min-width: 760px;
+}
+
+.admin-demo-ledger-scroll:focus-visible {
+  border-radius: 8px;
+  outline: 2px solid #4ade80;
+  outline-offset: 3px;
+}
+
 .workspace-tabs {
   display: flex;
   min-width: max-content;
