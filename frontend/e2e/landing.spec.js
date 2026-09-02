@@ -40,6 +40,17 @@ test('Investor demo project statuses stay consistent across Production views', a
   await expect(page.getByText('Report pending', { exact: true })).toBeVisible();
 });
 
+test('Admin Treasury Ledger remains horizontally accessible on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.goto('/#demo/admin');
+
+  const ledger = page.getByLabel('Treasury Ledger table; scroll horizontally to view all columns');
+  await expect(ledger).toBeVisible();
+  await expect(ledger).toHaveCSS('overflow-x', 'auto');
+  await expect.poll(() => ledger.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth === window.innerWidth)).toBe(true);
+});
+
 test('Farmer access opens the public Farmer demo without authentication', async ({ page }) => {
   await page.goto('/#login/farmer');
   await page.getByRole('link', { name: 'Explore Farmer Demo' }).click();
