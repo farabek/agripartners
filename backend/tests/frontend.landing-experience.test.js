@@ -122,13 +122,21 @@ test('landing CTAs route to explicit demo and login destinations', () => {
   expect(homeSource).toContain('href="#/platform"');
 });
 
-test('public footer routes funding and readiness readers to the canonical package', () => {
+test('public footer routes readers to the canonical funding documents in both languages', () => {
   const footerStart = appJs.indexOf('function renderPublicFooter()');
   const footerEnd = appJs.indexOf('function platformDocumentAsset(', footerStart);
   const footerSource = appJs.slice(footerStart, footerEnd);
 
-  expect(footerSource).toContain('Funding &amp; Readiness');
+  expect(footerSource).toContain('Funding Package');
   expect(footerSource).toContain('href="https://github.com/farabek/agripartners-funding-package"');
+  expect(footerSource).toContain('href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/BUDGET_EXPLAINED.md"');
+  expect(footerSource).toContain('href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/BUDGET_EXPLAINED_RU.md"');
+  expect(footerSource).toContain('href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/CORPORATE_SETUP_BUDGET.md"');
+  expect(footerSource).toContain('href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/CORPORATE_SETUP_BUDGET_RU.md"');
+  expect(footerSource).toContain('USD 40,000 explained (EN)');
+  expect(footerSource).toContain('USD 40,000 — Русский');
+  expect(footerSource).toContain('Company setup costs (EN)');
+  expect(footerSource).toContain('Создание компании — Русский');
   expect(footerSource).toContain('target="_blank" rel="noopener noreferrer"');
 });
 

@@ -1770,7 +1770,11 @@ function renderPublicFooter() {
       <a href="https://github.com/farabek/agripartners" target="_blank" rel="noopener noreferrer">GitHub</a>
       <a href="https://github.com/farabek/agripartners/tree/main/docs" target="_blank" rel="noopener noreferrer">Documentation</a>
       <a href="https://github.com/farabek/agripartners-ecosystem/blob/main/START_HERE.md" target="_blank" rel="noopener noreferrer">Project Map</a>
-      <a href="https://github.com/farabek/agripartners-funding-package" target="_blank" rel="noopener noreferrer">Funding &amp; Readiness</a>
+      <a href="https://github.com/farabek/agripartners-funding-package" target="_blank" rel="noopener noreferrer">Funding Package</a>
+      <a href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/BUDGET_EXPLAINED.md" target="_blank" rel="noopener noreferrer">USD 40,000 explained (EN)</a>
+      <a href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/BUDGET_EXPLAINED_RU.md" target="_blank" rel="noopener noreferrer">USD 40,000 — Русский</a>
+      <a href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/CORPORATE_SETUP_BUDGET.md" target="_blank" rel="noopener noreferrer">Company setup costs (EN)</a>
+      <a href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/CORPORATE_SETUP_BUDGET_RU.md" target="_blank" rel="noopener noreferrer">Создание компании — Русский</a>
     </footer>
   `;
 }
