@@ -5,6 +5,19 @@ Transparent agricultural investment workflows on NEAR Protocol.
 AgriPartners is an **Alpha-stage working prototype** for reviewing agricultural opportunities,
 recording operating progress, and improving investor reporting and treasury visibility.
 
+## Find what you need
+
+| I want to... | Go to... |
+| --- | --- |
+| Use or evaluate the product | [Live Alpha](https://agripartners.vercel.app/#home) |
+| Review code, technical documentation, or releases | This product repository |
+| Review funding and grant materials | [Development Round Funding Package](https://github.com/farabek/agripartners-funding-package) |
+| Understand the four-repository structure | [AgriPartners Ecosystem — Start Here](https://github.com/farabek/agripartners-ecosystem/blob/main/START_HERE.md) |
+| Report a security issue | [Security policy](SECURITY.md) |
+
+Internal CRM, outreach pipelines, and operating records are maintained separately in the private
+`farabek/agripartners-hq` repository and are not public project documentation.
+
 > AgriPartners does not accept live investments. The current product is a Testnet demonstration,
 > not a production custody, payout, settlement, or Mainnet investment service.
 
