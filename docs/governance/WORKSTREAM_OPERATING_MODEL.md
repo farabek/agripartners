@@ -79,10 +79,11 @@ Scope includes contact research, LinkedIn outreach, personalized invitations, fo
 and ecosystem communication, relationship management, meeting preparation, partnership outreach,
 and CRM maintenance.
 
-The [Relationship CRM](../outreach/outreach-crm.md) is the canonical source for outreach activity.
-Read it before outreach, preserve permanent IDs and history, record only confirmed interactions,
-and reconcile its dashboards after relevant changes. Detailed mandatory rules remain in
-`AGENTS.md` and the CRM.
+The canonical Relationship CRM is `Outreach/Relationship_CRM.md` in the private
+`farabek/agripartners-hq` repository. Read it before outreach, preserve permanent IDs and history,
+record only confirmed interactions, and reconcile its dashboards after relevant changes. The
+public [CRM location notice](../outreach/outreach-crm.md) is not an operational record. Detailed
+mandatory rules remain in `AGENTS.md` and the HQ CRM.
 
 ### Grants & Strategy
 
@@ -98,9 +99,11 @@ from assumptions, reuse canonical product and investor materials, and never prom
 functionality, traction, revenue, legal readiness, or production readiness. Priority opportunities
 should record a status, deadline, dependencies, requested amount, and next action.
 
-The [Funding Pipeline](../grants/FUNDING_PIPELINE.md) is the canonical grant, accelerator, and
-strategic funding-opportunity register. Existing grant applications, research, and ecosystem
-mapping are supporting materials and do not replace that operational register.
+The private `farabek/agripartners-hq` pipeline and outreach records are canonical for live grant,
+accelerator, and strategic funding opportunity status. The public
+[Funding Pipeline](../grants/FUNDING_PIPELINE.md), existing grant applications, research, and
+ecosystem mapping are approved or historical supporting materials; they do not replace the HQ
+operational records.
 
 ## Workstream decision priority
 
@@ -152,8 +155,8 @@ existing canonical document already owns the information.
 | Software delivery | [Software Delivery Roadmap](../ROADMAP.md) |
 | Cross-domain strategic sequencing | [Master Roadmap v2](../MASTER_ROADMAP_V2.md) |
 | Release identity and history | [Release Index](../RELEASES.md) |
-| Outreach pipeline and next actions | [Relationship CRM](../outreach/outreach-crm.md) |
-| Grant-opportunity pipeline | [Funding Pipeline](../grants/FUNDING_PIPELINE.md) |
+| Outreach pipeline and next actions | Private HQ: `Outreach/Relationship_CRM.md` |
+| Grant-opportunity pipeline | Private HQ pipeline and outreach records; public approved summaries may remain in Product |
 
 Update an existing authority instead of creating a parallel plan unless the user requests a
 separate artifact for a distinct purpose or audience. Derived summaries may coexist, but must not
