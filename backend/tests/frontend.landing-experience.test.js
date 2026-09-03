@@ -9,6 +9,25 @@ const indexHtml = fs.readFileSync(
   path.join(__dirname, '..', '..', 'frontend', 'index.html'),
   'utf8'
 );
+const vercelConfig = JSON.parse(fs.readFileSync(
+  path.join(__dirname, '..', '..', 'frontend', 'vercel.json'),
+  'utf8'
+));
+
+test('production frontend bundles UI dependencies and declares security headers', () => {
+  expect(indexHtml).not.toContain('cdn.tailwindcss.com');
+  expect(indexHtml).not.toContain('cdn.jsdelivr.net/npm/chart.js');
+  expect(appJs).toContain("import Chart from 'chart.js/auto'");
+
+  const configuredHeaders = Object.fromEntries(
+    vercelConfig.headers[0].headers.map(({ key, value }) => [key, value])
+  );
+  expect(configuredHeaders['Content-Security-Policy']).toContain("frame-ancestors 'none'");
+  expect(configuredHeaders['Permissions-Policy']).toBeTruthy();
+  expect(configuredHeaders['Referrer-Policy']).toBeTruthy();
+  expect(configuredHeaders['X-Content-Type-Options']).toBe('nosniff');
+  expect(configuredHeaders['X-Frame-Options']).toBe('DENY');
+});
 
 test('unauthenticated public landing route renders before login', () => {
   expect(indexHtml).toContain('id="view-home"');
