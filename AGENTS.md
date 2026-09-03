@@ -77,7 +77,9 @@ migration; never present it as a current or target production flow. The canonica
 
 For every investor-relations, NEAR ecosystem, partnership, or business-development task:
 
-1. Read `docs/outreach/outreach-crm.md` before research or outreach.
+1. Work in the private `farabek/agripartners-hq` repository and read
+   `Outreach/Relationship_CRM.md` before research or outreach. The Product repository contains
+   only a public location notice and is not the operational CRM.
 2. Summarize the current pipeline and identify actions due today.
 3. Continue from the recorded state; never recreate or discard prior relationship context.
 4. Record every meaningful interaction immediately in the CRM. This includes discovery, profile
@@ -93,8 +95,8 @@ For every investor-relations, NEAR ecosystem, partnership, or business-developme
    change.
 9. Before ending the session, reconcile all session activity against the CRM and save it.
 
-`docs/outreach/outreach-crm.md` is the single source of truth. Near Directory files provide profile
-verification evidence, but they do not replace the CRM.
+`Outreach/Relationship_CRM.md` in `farabek/agripartners-hq` is the single source of truth. Product
+Near Directory files provide public profile-verification evidence, but they do not replace the CRM.
 
 ## Outreach Strategy Rules
 
@@ -104,7 +106,7 @@ The objective is to build long-term trusted relationships that support AgriPartn
 
 Before contacting any person:
 
-1. Read the Relationship CRM.
+1. Read `Outreach/Relationship_CRM.md` in the private HQ repository.
 2. Review the LinkedIn profile.
 3. Review recent activity and posts.
 4. Determine why this person is strategically important.
@@ -195,7 +197,7 @@ Every message should clearly explain why this specific person is being contacted
 
 At the beginning of every Business Development session:
 
-1. Read the Relationship CRM.
+1. Read `Outreach/Relationship_CRM.md` in the private HQ repository.
 2. Review today's dashboard.
 3. Identify contacts requiring action today.
 4. Continue from the recorded CRM state.
