@@ -7,6 +7,16 @@ import {
 
 const IS_PRODUCTION_BUILD = import.meta.env.PROD;
 const LOCAL_MVP_ADMIN_WALLETS = ['farab.testnet'];
+const PILOT_GUIDES = {
+  fidlot: {
+    en: 'https://github.com/farabek/agripartners-funding-package/blob/main/guides/FEEDLOT_PILOT_EXPLAINED.md',
+    ru: 'https://github.com/farabek/agripartners-funding-package/blob/main/guides/FEEDLOT_PILOT_EXPLAINED_RU.md',
+  },
+  hissar: {
+    en: 'https://github.com/farabek/agripartners-funding-package/blob/main/guides/HISSAR_PILOT_EXPLAINED.md',
+    ru: 'https://github.com/farabek/agripartners-funding-package/blob/main/guides/HISSAR_PILOT_EXPLAINED_RU.md',
+  },
+};
 const INVESTOR_PROTECTION_MODELS = {
   fidlot: {
     key: 'fidlot',
@@ -1651,6 +1661,10 @@ function showHome() {
         </p>
         <div class="landing-actions">
           <a class="landing-btn landing-btn-primary" href="#/marketplace">Explore Financial Models</a>
+          <a class="landing-btn" href="${PILOT_GUIDES.fidlot.en}" target="_blank" rel="noopener noreferrer">Feedlot $50,000 guide (EN)</a>
+          <a class="landing-btn" href="${PILOT_GUIDES.fidlot.ru}" target="_blank" rel="noopener noreferrer">Feedlot $50,000 — Русский</a>
+          <a class="landing-btn" href="${PILOT_GUIDES.hissar.en}" target="_blank" rel="noopener noreferrer">Hissar $50,000 guide (EN)</a>
+          <a class="landing-btn" href="${PILOT_GUIDES.hissar.ru}" target="_blank" rel="noopener noreferrer">Hissar $50,000 — Русский</a>
         </div>
         <details class="home-deep-details">
           <summary>View detailed 60/40 models and PDF library</summary>
@@ -8628,6 +8642,15 @@ function renderMarketplaceFilters(activeFilter) {
   `;
 }
 
+function renderPilotGuideLinks(key) {
+  const guides = PILOT_GUIDES[key];
+  if (!guides) return '';
+  return `
+    <a href="${guides.en}" target="_blank" rel="noopener noreferrer" class="landing-btn">Pilot guide (EN)</a>
+    <a href="${guides.ru}" target="_blank" rel="noopener noreferrer" class="landing-btn">Пилот — Русский</a>
+  `;
+}
+
 function renderMarketplaceDealCard(deal) {
   const metrics = [
     ['Investment', deal.investment],
@@ -8658,6 +8681,7 @@ function renderMarketplaceDealCard(deal) {
       <div class="flex flex-wrap gap-2 mt-4">
         <a href="#/investor/pilots/${deal.key}" class="inline-flex bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Project</a>
         <a href="#/protection/${deal.key}" class="protection-cta">✦ Protection table</a>
+        ${renderPilotGuideLinks(deal.key)}
       </div>
     </article>
   `;

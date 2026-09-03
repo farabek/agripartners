@@ -140,6 +140,18 @@ test('public footer routes readers to the canonical funding documents in both la
   expect(footerSource).toContain('target="_blank" rel="noopener noreferrer"');
 });
 
+test('public pilot cards expose plain-language guides in English and Russian', () => {
+  expect(appJs).toContain('https://github.com/farabek/agripartners-funding-package/blob/main/guides/FEEDLOT_PILOT_EXPLAINED.md');
+  expect(appJs).toContain('https://github.com/farabek/agripartners-funding-package/blob/main/guides/FEEDLOT_PILOT_EXPLAINED_RU.md');
+  expect(appJs).toContain('https://github.com/farabek/agripartners-funding-package/blob/main/guides/HISSAR_PILOT_EXPLAINED.md');
+  expect(appJs).toContain('https://github.com/farabek/agripartners-funding-package/blob/main/guides/HISSAR_PILOT_EXPLAINED_RU.md');
+  expect(appJs).toContain('${PILOT_GUIDES.fidlot.en}');
+  expect(appJs).toContain('${PILOT_GUIDES.hissar.ru}');
+  expect(appJs).toContain('${renderPilotGuideLinks(deal.key)}');
+  expect(appJs).toContain('Pilot guide (EN)');
+  expect(appJs).toContain('Пилот — Русский');
+});
+
 test('landing preserves participant access routes while prioritizing the self-guided investor demo', () => {
   const homeStart = appJs.indexOf('function showHome()');
   const homeEnd = appJs.indexOf('function renderPublicFooter()', homeStart);
