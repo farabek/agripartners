@@ -122,6 +122,16 @@ test('landing CTAs route to explicit demo and login destinations', () => {
   expect(homeSource).toContain('href="#/platform"');
 });
 
+test('public footer routes funding and readiness readers to the canonical package', () => {
+  const footerStart = appJs.indexOf('function renderPublicFooter()');
+  const footerEnd = appJs.indexOf('function platformDocumentAsset(', footerStart);
+  const footerSource = appJs.slice(footerStart, footerEnd);
+
+  expect(footerSource).toContain('Funding &amp; Readiness');
+  expect(footerSource).toContain('href="https://github.com/farabek/agripartners-funding-package"');
+  expect(footerSource).toContain('target="_blank" rel="noopener noreferrer"');
+});
+
 test('landing preserves participant access routes while prioritizing the self-guided investor demo', () => {
   const homeStart = appJs.indexOf('function showHome()');
   const homeEnd = appJs.indexOf('function renderPublicFooter()', homeStart);
