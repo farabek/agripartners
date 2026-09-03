@@ -11,7 +11,7 @@ recording operating progress, and improving investor reporting and treasury visi
 | --- | --- |
 | Use or evaluate the product | [Live Alpha](https://agripartners.vercel.app/#home) |
 | Review code, technical documentation, or releases | This product repository |
-| Review funding and grant materials | [Development Round Funding Package](https://github.com/farabek/agripartners-funding-package) |
+| Review funding and grant materials | [Development Round Funding Package](https://github.com/farabek/agripartners-funding-package) · [USD 40,000 explained](https://github.com/farabek/agripartners-funding-package/blob/main/guides/BUDGET_EXPLAINED.md) |
 | Understand the four-repository structure | [AgriPartners Ecosystem — Start Here](https://github.com/farabek/agripartners-ecosystem/blob/main/START_HERE.md) |
 | Report a security issue | [Security policy](SECURITY.md) |
 
