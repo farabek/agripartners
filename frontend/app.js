@@ -1770,6 +1770,7 @@ function renderPublicFooter() {
       <a href="https://github.com/farabek/agripartners" target="_blank" rel="noopener noreferrer">GitHub</a>
       <a href="https://github.com/farabek/agripartners/tree/main/docs" target="_blank" rel="noopener noreferrer">Documentation</a>
       <a href="https://github.com/farabek/agripartners-ecosystem/blob/main/START_HERE.md" target="_blank" rel="noopener noreferrer">Project Map</a>
+      <a href="https://github.com/farabek/agripartners-funding-package" target="_blank" rel="noopener noreferrer">Funding &amp; Readiness</a>
     </footer>
   `;
 }
