@@ -12,6 +12,7 @@
     "lint": "eslint app.js wallet-auth-poc-app.js src",
     "pretest:e2e": "npm run sync:pdfs",
     "test:e2e": "playwright test",
+    "test:deployment": "node scripts/check-deployment.mjs",
     "predev:wallet-poc": "npm run sync:pdfs",
     "dev:wallet-poc": "vite --host 127.0.0.1 --port 5173",
     "build:wallet-poc": "vite build"
@@ -19,7 +20,13 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.62.1",
+    "autoprefixer": "^10.4.21",
     "eslint": "^10.9.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
     "vite": "8.0.16"
+  },
+  "dependencies": {
+    "chart.js": "4.4.0"
   }
 }

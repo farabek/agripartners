@@ -1,3 +1,4 @@
+import Chart from 'chart.js/auto';
 import { API_BASE, NEAR_WALLET_NETWORK, MY_NEAR_WALLET_URL } from './src/runtime-config.js';
 import {
   getAuth, setAuth, updateAuthUser, clearAuth, authHeaders, jsonAuthHeaders,
