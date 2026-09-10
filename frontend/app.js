@@ -1657,7 +1657,7 @@ function showHome() {
         </p>
         <p class="landing-safe-positioning financial-model-notice">
           <span class="financial-model-notice-icon" aria-hidden="true">i</span>
-          <span>These materials contain projections, do not guarantee returns, and do not constitute a public offer to invest.</span>
+          <span>These materials contain projections, do not guarantee returns, and do not constitute a public offer to invest. Funding for both pilots is not committed.</span>
         </p>
         <div class="landing-actions">
           <a class="landing-btn landing-btn-primary" href="#/marketplace">Explore Financial Models</a>
@@ -1789,6 +1789,8 @@ function renderPublicFooter() {
       <a href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/BUDGET_EXPLAINED_RU.md" target="_blank" rel="noopener noreferrer">USD 40,000 — Русский</a>
       <a href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/CORPORATE_SETUP_BUDGET.md" target="_blank" rel="noopener noreferrer">Company setup costs (EN)</a>
       <a href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/CORPORATE_SETUP_BUDGET_RU.md" target="_blank" rel="noopener noreferrer">Создание компании — Русский</a>
+      <a href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/FUNDING_SOURCES_AND_STATUS.md" target="_blank" rel="noopener noreferrer">Who funds each component? (EN)</a>
+      <a href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/FUNDING_SOURCES_AND_STATUS_RU.md" target="_blank" rel="noopener noreferrer">Кто финансирует? — Русский</a>
     </footer>
   `;
 }
@@ -8654,6 +8656,7 @@ function renderPilotGuideLinks(key) {
 function renderMarketplaceDealCard(deal) {
   const metrics = [
     ['Investment', deal.investment],
+    ['Funding commitment', 'Not committed'],
     ['ROI', deal.roi],
     ['Simple annualized ROI', deal.simpleAnnualizedRoi],
     ['Cycles', deal.cycles],
@@ -8678,6 +8681,7 @@ function renderMarketplaceDealCard(deal) {
         `).join('')}
       </div>
       ${renderFundingProgressCompact(deal)}
+      <p class="text-xs text-amber-200 mt-4">Seeking a qualified project-specific funding source. This Alpha card is not an offer to invest.</p>
       <div class="flex flex-wrap gap-2 mt-4">
         <a href="#/investor/pilots/${deal.key}" class="inline-flex bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium text-center transition">View Project</a>
         <a href="#/protection/${deal.key}" class="protection-cta">✦ Protection table</a>
