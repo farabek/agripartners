@@ -133,10 +133,14 @@ test('public footer routes readers to the canonical funding documents in both la
   expect(footerSource).toContain('href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/BUDGET_EXPLAINED_RU.md"');
   expect(footerSource).toContain('href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/CORPORATE_SETUP_BUDGET.md"');
   expect(footerSource).toContain('href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/CORPORATE_SETUP_BUDGET_RU.md"');
+  expect(footerSource).toContain('href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/FUNDING_SOURCES_AND_STATUS.md"');
+  expect(footerSource).toContain('href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/FUNDING_SOURCES_AND_STATUS_RU.md"');
   expect(footerSource).toContain('USD 40,000 explained (EN)');
   expect(footerSource).toContain('USD 40,000 — Русский');
   expect(footerSource).toContain('Company setup costs (EN)');
   expect(footerSource).toContain('Создание компании — Русский');
+  expect(footerSource).toContain('Who funds each component? (EN)');
+  expect(footerSource).toContain('Кто финансирует? — Русский');
   expect(footerSource).toContain('target="_blank" rel="noopener noreferrer"');
 });
 
@@ -150,6 +154,8 @@ test('public pilot cards expose plain-language guides in English and Russian', (
   expect(appJs).toContain('${renderPilotGuideLinks(deal.key)}');
   expect(appJs).toContain('Pilot guide (EN)');
   expect(appJs).toContain('Пилот — Русский');
+  expect(appJs).toContain("['Funding commitment', 'Not committed']");
+  expect(appJs).toContain('Seeking a qualified project-specific funding source. This Alpha card is not an offer to invest.');
 });
 
 test('landing preserves participant access routes while prioritizing the self-guided investor demo', () => {
