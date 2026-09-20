@@ -1532,8 +1532,29 @@ function showHome() {
           </div>
           <p class="landing-note">
             Alpha v1.2 working prototype on NEAR Testnet; no live investments are accepted.
+            NEAR Testnet is part of the international infrastructure demo, not the Uzbekistan operating workflow.
           </p>
         </div>
+      </section>
+
+      <section class="landing-section" aria-label="AgriPartners regional views">
+        <div class="landing-section-heading">
+          <span>Two views, one set of pilot projects</span>
+          <h2>Uzbekistan operations and international participation</h2>
+        </div>
+        <div class="landing-card-grid">
+          <article class="landing-card">
+            <h3>AgriPartners Uzbekistan</h3>
+            <p>Explore the Feedlot and Hissar pilot models, local operators, project evidence, and fiat-only operating workflows. Domestic project spending and local settlements are planned in Uzbek soum (UZS). Uzbekistan participants do not need NEAR wallets, tokens, or blockchain transactions.</p>
+            <a class="landing-btn landing-btn-primary mt-4" href="#/marketplace">Explore pilot projects</a>
+          </article>
+          <article class="landing-card">
+            <h3>AgriPartners International</h3>
+            <p>Explore the intended investor relationship through AgriPartners OÜ, project reporting, and the optional Estonia-side transparency infrastructure. NEAR is not a requirement for Uzbekistan operators.</p>
+            <a class="landing-btn landing-btn-primary mt-4" href="#/investor/dashboard">Explore investor demo</a>
+          </article>
+        </div>
+        <p class="landing-safe-positioning mt-4">These are presentation views of the same two pilot models, not duplicate funding requests or two active investment services. USD pilot budgets are planning references; actual UZS amounts depend on a documented bank or payment-provider conversion rate and fees. Any real funding route requires approved agreements, banking, compliance, and legal review.</p>
       </section>
 
       <section class="landing-section" aria-label="Who AgriPartners serves">

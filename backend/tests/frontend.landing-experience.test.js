@@ -195,6 +195,12 @@ test('landing preserves participant access routes while prioritizing the self-gu
   expect(homeSource).toContain('No registration is required.');
   expect(homeSource).toContain('Alpha v1.2 working prototype on NEAR Testnet');
   expect(homeSource).toContain('no live investments are accepted');
+  expect(homeSource).toContain('<h3>AgriPartners Uzbekistan</h3>');
+  expect(homeSource).toContain('<h3>AgriPartners International</h3>');
+  expect(homeSource).toContain('not duplicate funding requests or two active investment services');
+  expect(homeSource).toContain('Uzbekistan participants do not need NEAR wallets');
+  expect(homeSource).toContain('local settlements are planned in Uzbek soum (UZS)');
+  expect(homeSource).toContain('documented bank or payment-provider conversion rate and fees');
 });
 
 test('public page exposes English SEO and social preview metadata', () => {

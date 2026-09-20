@@ -142,6 +142,29 @@ duties, tax and accounting treatment, compliance controls, and legal review. Unt
 conditions are approved, the route is a target design rather than an active production funding
 rail.
 
+### Uzbekistan project currency and exchange-rate evidence
+
+USD amounts in pilot materials are planning and comparison amounts, not a promise that domestic
+Uzbekistan payments will be made in USD or converted at a fixed rate. The intended domestic
+project budget, purchases, compensation, and local settlement records are in Uzbek soum (UZS),
+subject to the governing agreements and applicable legal exceptions. A permitted cross-border
+transfer to or from the Uzbekistan Feedlot Operator may use another fiat currency under the
+approved banking route; it does not make local participants crypto users.
+
+For each actual conversion, AgriPartners and the Operator must retain the sending amount and
+currency, receiving UZS amount, execution date, bank or payment provider, applied execution
+rate, fees, and bank confirmation. The applicable official Central Bank rate used for accounting
+or reporting must be recorded separately where required; it must not be presented as the rate at
+which a provider necessarily executed the conversion. Before activation, agreements and local
+legal/accounting review must specify the rate source, conversion timing, who bears fees and
+exchange differences, and how UZS spending and any return transfer are reconciled. No live rate
+or guaranteed UZS amount is implied by the Alpha demonstration.
+
+Reference: [Uzbekistan currency-regulation law, Article 9](https://lex.uz/ru/docs/4562846)
+provides the general UZS rule for domestic goods, work, and services with statutory exceptions.
+The [Central Bank exchange-rate archive](https://cbu.uz/ru/arkhiv-kursov-valyut/)
+distinguishes official accounting rates from an obligation to buy or sell currency at that rate.
+
 ## 5. Farmer Return Flow
 
 The intended farmer return route is:
