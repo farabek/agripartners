@@ -1545,7 +1545,7 @@ function showHome() {
         <div class="landing-card-grid">
           <article class="landing-card">
             <h3>AgriPartners Uzbekistan</h3>
-            <p>Explore the Feedlot and Hissar pilot models, local operators, project evidence, and fiat-only operating workflows. Domestic project spending and local settlements are planned in Uzbek soum (UZS). Uzbekistan participants do not need NEAR wallets, tokens, or blockchain transactions.</p>
+            <p>Explore the Feedlot and Hissar pilot models, local operators, project evidence, and fiat-only operating workflows. Domestic project spending and local settlements are planned in Uzbekistan's national currency — the sum (UZS). Uzbekistan participants do not need NEAR wallets, tokens, or blockchain transactions.</p>
             <a class="landing-btn landing-btn-primary mt-4" href="#/marketplace">Explore pilot projects</a>
           </article>
           <article class="landing-card">

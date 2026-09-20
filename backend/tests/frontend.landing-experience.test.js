@@ -199,7 +199,7 @@ test('landing preserves participant access routes while prioritizing the self-gu
   expect(homeSource).toContain('<h3>AgriPartners International</h3>');
   expect(homeSource).toContain('not duplicate funding requests or two active investment services');
   expect(homeSource).toContain('Uzbekistan participants do not need NEAR wallets');
-  expect(homeSource).toContain('local settlements are planned in Uzbek soum (UZS)');
+  expect(homeSource).toContain("local settlements are planned in Uzbekistan's national currency — the sum (UZS)");
   expect(homeSource).toContain('documented bank or payment-provider conversion rate and fees');
 });
 
