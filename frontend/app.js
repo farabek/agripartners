@@ -1621,6 +1621,32 @@ function showHome() {
         </div>
       </section>
 
+      <section class="landing-section" aria-label="AgriPartners funding plan">
+        <div class="landing-section-heading">
+          <span>Funding plan</span>
+          <h2>Four separate ways to support the next steps</h2>
+        </div>
+        <p>
+          A funding partner may support one component or several. Each component keeps its own
+          purpose, budget, eligibility, agreements, and reporting; funding for a pilot is not
+          automatically available for company setup or product development.
+        </p>
+        <div class="landing-feature-list">
+          <div><strong>Product development · $40,000</strong><span>Complete and verify the non-production Beta Candidate.</span></div>
+          <div><strong>Company setup · phased</strong><span>Basic AgriPartners OÜ formation and first-year administration: €2,000–4,000 planning allowance. Full readiness to receive development funding: €15,000–20,000 total planning target, including that first step.</span></div>
+          <div><strong>Feedlot Pilot · $50,000</strong><span>Separate capital for the Feedlot project, subject to its own readiness review and approval.</span></div>
+          <div><strong>Hissar Sheep Pilot · $50,000</strong><span>Separate capital for the Hissar project, subject to its own readiness review and approval.</span></div>
+        </div>
+        <p class="landing-safe-positioning mt-4">
+          These are planning amounts, not committed funding or an offer to invest. Basic incorporation
+          alone does not make AgriPartners ready to receive live investments or launch either pilot.
+        </p>
+        <div class="landing-actions mt-4">
+          <a class="landing-btn landing-btn-primary" href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/FUNDING_SOURCES_AND_STATUS.md" target="_blank" rel="noopener noreferrer">Funding plan and status (EN)</a>
+          <a class="landing-btn" href="https://github.com/farabek/agripartners-funding-package/blob/main/guides/FUNDING_SOURCES_AND_STATUS_RU.md" target="_blank" rel="noopener noreferrer">План финансирования (RU)</a>
+        </div>
+      </section>
+
       <section class="landing-section landing-platform" aria-label="AgriPartners platform documentation">
         <div class="landing-section-heading">
           <span>Platform</span>

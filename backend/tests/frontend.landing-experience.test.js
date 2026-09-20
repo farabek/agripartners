@@ -122,6 +122,23 @@ test('landing CTAs route to explicit demo and login destinations', () => {
   expect(homeSource).toContain('href="#/platform"');
 });
 
+test('landing separates funding components and explains phased company setup', () => {
+  const homeStart = appJs.indexOf('function showHome()');
+  const homeEnd = appJs.indexOf('function renderPublicFooter()', homeStart);
+  const homeSource = appJs.slice(homeStart, homeEnd);
+
+  expect(homeSource).toContain('A funding partner may support one component or several.');
+  expect(homeSource).toContain('Product development · $40,000');
+  expect(homeSource).toContain('Company setup · phased');
+  expect(homeSource).toContain('€2,000–4,000 planning allowance');
+  expect(homeSource).toContain('€15,000–20,000 total planning target, including that first step');
+  expect(homeSource).toContain('Feedlot Pilot · $50,000');
+  expect(homeSource).toContain('Hissar Sheep Pilot · $50,000');
+  expect(homeSource).toContain('not committed funding or an offer to invest');
+  expect(homeSource).toContain('guides/FUNDING_SOURCES_AND_STATUS.md');
+  expect(homeSource).toContain('guides/FUNDING_SOURCES_AND_STATUS_RU.md');
+});
+
 test('public footer routes readers to the canonical funding documents in both languages', () => {
   const footerStart = appJs.indexOf('function renderPublicFooter()');
   const footerEnd = appJs.indexOf('function platformDocumentAsset(', footerStart);
