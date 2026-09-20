@@ -1,6 +1,6 @@
 # AgriPartners
 
-Transparent agricultural investment workflows on NEAR Protocol.
+Transparent agricultural project and investment workflows, with a fiat-only Uzbekistan operating view and optional Estonia-side NEAR infrastructure.
 
 AgriPartners is an **Alpha-stage working prototype** for reviewing agricultural opportunities,
 recording operating progress, and improving investor reporting and treasury visibility.
@@ -48,6 +48,27 @@ Internal CRM, outreach pipelines, and operating records are maintained separatel
 
 The Feedlot and Hissar Sheep profiles are demonstrations derived from reusable investment models.
 They are not public investment offerings.
+
+## Regional presentation views
+
+- **AgriPartners Uzbekistan** presents the same Feedlot and Hissar pilot models through local
+  operators, project evidence, reporting, and fiat-only workflows. Uzbekistan participants do not
+  need NEAR wallets, tokens, or blockchain transactions.
+- **AgriPartners International** presents the intended external-investor relationship through
+  AgriPartners OÜ and optional Estonia-side transparency infrastructure. NEAR is not a condition
+  for Uzbekistan operations.
+
+These are two views of the same pilots, not duplicate USD 50,000 funding requests, separate live
+investment services, or a decision to establish a second legal entity. The current Alpha remains
+a non-production demonstration. Any real route needs approved agreements, banking, compliance,
+and jurisdiction-specific legal review.
+
+The USD 50,000 figures are pilot planning references. Domestic Uzbekistan project spending and
+local settlements are intended in Uzbek soum (UZS); actual converted amounts depend on the
+documented bank or payment-provider execution rate and fees, not a fixed rate promised by the
+demo. Cross-border transfers may use another permitted fiat currency under approved agreements.
+The [Financial Operating Model](docs/business/FINANCIAL_OPERATING_MODEL.md) governs the currency
+and reconciliation detail.
 
 ## Operating boundary
 
