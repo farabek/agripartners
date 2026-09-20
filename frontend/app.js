@@ -1554,7 +1554,7 @@ function showHome() {
             <a class="landing-btn landing-btn-primary mt-4" href="#/investor/dashboard">Explore investor demo</a>
           </article>
         </div>
-        <p class="landing-safe-positioning mt-4">These are presentation views of the same two pilot models, not duplicate funding requests or two active investment services. USD pilot budgets are planning references. The amount received in <span class="notranslate" translate="no">UZS</span> depends on the bank or payment provider's exchange rate and fees. Any real funding route requires approved agreements, banking, compliance, and legal review.</p>
+        <p class="landing-safe-positioning mt-4">These are presentation views of the same two pilot models, not duplicate funding requests or two active investment services. USD pilot budgets are planning references. The amount received after conversion depends on the bank or payment provider's exchange rate and fees. Any real funding route requires approved agreements, banking, compliance, and legal review.</p>
       </section>
 
       <section class="landing-section" aria-label="Who AgriPartners serves">
