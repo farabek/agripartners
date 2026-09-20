@@ -146,7 +146,8 @@ rail.
 
 USD amounts in pilot materials are planning and comparison amounts, not a promise that domestic
 Uzbekistan payments will be made in USD or converted at a fixed rate. The intended domestic
-project budget, purchases, compensation, and local settlement records are in Uzbek soum (UZS),
+project budget, purchases, compensation, and local settlement records are in Uzbekistan's
+national currency — the sum (UZS),
 subject to the governing agreements and applicable legal exceptions. A permitted cross-border
 transfer to or from the Uzbekistan Feedlot Operator may use another fiat currency under the
 approved banking route; it does not make local participants crypto users.

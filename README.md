@@ -64,8 +64,8 @@ a non-production demonstration. Any real route needs approved agreements, bankin
 and jurisdiction-specific legal review.
 
 The USD 50,000 figures are pilot planning references. Domestic Uzbekistan project spending and
-local settlements are intended in Uzbek soum (UZS); actual converted amounts depend on the
-documented bank or payment-provider execution rate and fees, not a fixed rate promised by the
+local settlements are intended in Uzbekistan's national currency — the sum (UZS); actual
+converted amounts depend on the documented bank or payment-provider execution rate and fees, not a fixed rate promised by the
 demo. Cross-border transfers may use another permitted fiat currency under approved agreements.
 The [Financial Operating Model](docs/business/FINANCIAL_OPERATING_MODEL.md) governs the currency
 and reconciliation detail.
